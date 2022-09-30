@@ -142,8 +142,12 @@ WSGI_APPLICATION = 'TestProject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'yagona_billing_db',
+        'USER': 'unicon_yagonabilling_admin',
+        'PASSWORD': 'yagonabilling_admin_unicon_uz',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
