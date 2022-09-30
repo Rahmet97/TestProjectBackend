@@ -2,16 +2,22 @@ import json
 import os
 
 import requests
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.views import View
 from dotenv import load_dotenv
-from rest_framework.generics import GenericAPIView
-from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+
+from accounts.models import UserData, FizUser, YurUser
+from accounts.serializers import FizUserSerializer, YurUserSerializer
+
 load_dotenv()
 
 
-class OneIDLoginView(View):
+class OneIDLoginView(APIView):
+    permission_classes = ()
+
     def get(self, request):
         response_type = 'one_code'
         client_id = os.getenv("CLIENT_ID")
@@ -23,12 +29,14 @@ class OneIDLoginView(View):
         return redirect(url)
 
 
-class LoginView(View):
+class LoginView(APIView):
+    permission_classes = ()
+
     def post(self, request):
         grant_type = 'one_authorization_code'
         client_id = os.getenv("CLIENT_ID")
         client_secret = os.getenv('CLIENT_SECRET')
-        redirect_uri = os.getenv("REDIRECT_URL")
+        redirect_uri = os.getenv("REDIRECT_URI")
         code = request.META.get('HTTP_X_AUTH')
 
         res = requests.post(os.getenv("BASE_URL"), {
@@ -44,16 +52,49 @@ class LoginView(View):
         return JsonResponse(json.loads(res.content))
 
 
-class GetUser(View):
+class GetUser(APIView):
+    permission_classes = ()
+
     def post(self, request):
         grant_type = 'one_access_token_identify'
         client_id = os.getenv("CLIENT_ID")
         client_secret = os.getenv('CLIENT_SECRET')
-        access_token = request.META.get("HTTP_AUTHENTICATION")
+        access_token = request.META.get("HTTP_X_AUTHENTICATION")
         scope = os.getenv("SCOPE")
         base_url = os.getenv("BASE_URL")
-        res = requests.post(base_url, {"grant_type": grant_type, "client_id": client_id, "client_secret": client_secret, "access_token": access_token, "scope": scope})
+        res = requests.post(base_url, {"grant_type": grant_type, "client_id": client_id, "client_secret": client_secret,
+                                       "access_token": access_token, "scope": scope})
         if res.status_code == 200:
-            return JsonResponse(json.loads(res.content))
+            data = json.loads(res.content)
+            username = data['pin']
+            password = data['first_name'][0] + data['pin'] + data['first_name'][-1]
+
+            # UserData table ga yangi kirgan userni ma'lumotlarini yozish
+
+            if UserData.objects.filter(username=username).exists():
+                user = UserData.objects.get(username=username)
+            else:
+                user = UserData.objects.create_user(username=username, password=password)
+            print(data)
+
+            data['userdata'] = user.id
+            userr = None
+            if data['legal_info']:
+                # YurUser table ga yangi kirgan userni ma'lumotlarini yozish
+                if not YurUser.objects.filter(userdata=user).exists():
+                    userr = YurUserSerializer(data=data)
+            else:
+                # FizUser table ga yangi kirgan userni ma'lumotlarini yozish
+                if not FizUser.objects.filter(userdata=user).exists():
+                    userr = FizUserSerializer(data=data)
+            userr.is_valid(raise_exception=True)
+            userr.save()
+            url = 'http://127.0.0.1:8000/auth/token/'
+            req_data = {
+                'username': username,
+                'password': password
+            }
+            response = requests.post(url, req_data)
+            return JsonResponse(response.json())
         else:
             return JsonResponse({"error": "Xatolik!"})

@@ -13,10 +13,36 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view as swagger_get_schema_view
+
+
+schema_view = swagger_get_schema_view(
+    openapi.Info(
+        title="YagonaBilling",
+        default_version='1.0.0',
+        description="API documentation of App",
+    ),
+    public=True,
+    permission_classes=(AllowAny,)
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/oauth/', include("oneid.urls"))
+    path('api/oauth/', include("oneid.urls")),
+    path('accounts/', include("accounts.urls")),
+    path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name="swagger-schema"),
+    path('redoc/', schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc-ui"),
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
