@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-rw(nbefjyjm*lyw1s2ejqiq66tzny4!kky5vr$jh=0rx26t52+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['91.204.237.140']
+ALLOWED_HOSTS = ['api.unicon.uz', 'localhost']
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
@@ -142,7 +142,7 @@ WSGI_APPLICATION = 'TestProject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'yagona_billing_db',
         'USER': 'unicon_yagonabilling_admin',
         'PASSWORD': 'yagonabilling_admin_unicon_uz',

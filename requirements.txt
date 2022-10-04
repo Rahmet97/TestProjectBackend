@@ -22,6 +22,7 @@ djangorestframework-simplejwt==5.2.0
 docxcompose==1.3.5
 docxtpl==0.16.4
 drf-yasg==1.21.4
+gunicorn==20.1.0
 idna==3.3
 inflection==0.5.1
 itypes==1.2.0
@@ -32,6 +33,8 @@ MarkupSafe==2.1.1
 packaging==21.3
 Pillow==9.2.0
 prompt-toolkit==3.0.31
+psycopg2==2.9.3
+psycopg2-binary==2.9.3
 PyJWT==2.5.0
 pyparsing==3.0.9
 python-crontab==2.6.0
@@ -52,4 +55,3 @@ urllib3==1.26.10
 vine==5.0.0
 wcwidth==0.2.5
 wrapt==1.14.1
-psycopg2==2.9.3
