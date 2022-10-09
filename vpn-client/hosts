@@ -1,0 +1,5 @@
+# добавить в файл /etc/hosts на сервере
+127.0.0.5 e-imzo.uz
+
+# проверка: curl -v http://e-imzo.uz/cams/ocsp
+# HTTP Status 405 - OCSP supports only POST
