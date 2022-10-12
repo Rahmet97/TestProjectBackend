@@ -148,3 +148,11 @@ class Contract(models.Model):
 
     def __str__(self):
         return self.service.name
+
+
+class Pkcs(models.Model):
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    pkcs7 = models.TextField()
+
+    def __str__(self):
+        return self.contract.contract_number

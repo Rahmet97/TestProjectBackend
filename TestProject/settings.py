@@ -146,8 +146,8 @@ DATABASES = {
         'NAME': 'yagona_billing_db',
         'USER': 'unicon_yagonabilling_admin',
         'PASSWORD': 'yagonabilling_admin_unicon_uz',
-        'HOST': 'localhost',
-        'PORT': '',
+        'HOST': 'pgdb',
+        'PORT': 5432,
     }
 }
 
