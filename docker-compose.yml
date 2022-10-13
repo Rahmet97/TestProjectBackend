@@ -4,7 +4,7 @@ services:
   django:
     build: .
     container_name: django
-    command: gunicorn TestProject.wsgi:application --bind 0.0.0.0:8000
+    command: bash -c "./scripts/docker-entrypoint.sh"
     volumes:
       - .:/usr/src/app
     ports:
