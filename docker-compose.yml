@@ -46,7 +46,7 @@ services:
       - static_volume:/home/app/django/static
       - media_volume:/home/app/django/media
     ports:
-      - 1337:80
+      - 80:80
     depends_on:
       - django
 volumes:
