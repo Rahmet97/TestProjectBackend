@@ -92,7 +92,7 @@ class GetUser(APIView):
                     userr = FizUserSerializer(data=data)
                     userr.is_valid(raise_exception=True)
                     userr.save()
-            url = 'http://localhost/auth/token/'
+            url = 'http://api.unicon.uz/auth/token/'
             req_data = {
                 'username': username,
                 'password': password
