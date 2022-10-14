@@ -8,6 +8,7 @@ from django.views import View
 from dotenv import load_dotenv
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from rest_framework_simplejwt import tokens
 
 from accounts.models import UserData, FizUser, YurUser
 from accounts.serializers import FizUserSerializer, YurUserSerializer
@@ -92,12 +93,11 @@ class GetUser(APIView):
                     userr = FizUserSerializer(data=data)
                     userr.is_valid(raise_exception=True)
                     userr.save()
-            url = 'http://api.unicon.uz/auth/token/'
-            req_data = {
-                'username': username,
-                'password': password
+            token = tokens.RefreshToken.for_user(user)
+            tk = {
+                "access": str(token.access_token),
+                "refresh": str(token),
             }
-            response = requests.post(url, req_data)
-            return JsonResponse(response.json())
+            return JsonResponse(tk)
         else:
             return JsonResponse({"error": "Xatolik!"})
