@@ -78,18 +78,21 @@ class GetUser(APIView):
             print(data)
 
             data['userdata'] = user.id
-            userr = None
+            data['pport_issue_date'] = json.loads(res.content)['_pport_issue_date']
+            data['pport_expr_date'] = json.loads(res.content)['_pport_expr_date']
             if data['legal_info']:
                 # YurUser table ga yangi kirgan userni ma'lumotlarini yozish
                 if not YurUser.objects.filter(userdata=user).exists():
                     userr = YurUserSerializer(data=data)
+                    userr.is_valid(raise_exception=True)
+                    userr.save()
             else:
                 # FizUser table ga yangi kirgan userni ma'lumotlarini yozish
                 if not FizUser.objects.filter(userdata=user).exists():
                     userr = FizUserSerializer(data=data)
-            userr.is_valid(raise_exception=True)
-            userr.save()
-            url = 'http://127.0.0.1:8000/auth/token/'
+                    userr.is_valid(raise_exception=True)
+                    userr.save()
+            url = 'http://api.unicon.uz/auth/token/'
             req_data = {
                 'username': username,
                 'password': password
