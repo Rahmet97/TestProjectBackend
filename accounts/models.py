@@ -53,8 +53,15 @@ class RolePermission(models.Model):
 
 
 class UserData(AbstractUser):
+    FIZ = 1
+    YUR = 2
+    user_type = (
+        (FIZ, 'Fizik'),
+        (YUR, 'Yuridik')
+    )
     role = models.ForeignKey(Role, on_delete=models.CASCADE, null=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
+    type = models.IntegerField(choices=user_type, null=True)
 
     objects = CustomUserManager()
 

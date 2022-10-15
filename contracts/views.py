@@ -1,13 +1,14 @@
 from django.http import JsonResponse
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from accounts.models import FizUser, UserData, Role
+from accounts.models import FizUser, UserData, Role, YurUser
 from accounts.permissions import AdminPermission, SuperAdminPermission
-from accounts.serializers import FizUserSerializer
-from .models import Service, Tarif, Device, Offer, Document
+from accounts.serializers import FizUserSerializer, YurUserSerializer
+from .models import Service, Tarif, Device, Offer, Document, SavedService
 from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
     OfferSerializer, DocumentSerializer
 
@@ -34,12 +35,18 @@ class ServiceDetailAPIView(generics.RetrieveAPIView):
     permission_classes = (IsAuthenticated,)
 
 
-class FizUserDetailAPIView(APIView):
+class UserDetailAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        user = FizUser.objects.get(userdata=request.user)
-        serializer = FizUserSerializer(user)
+        if request.user.type == 1:
+            user = FizUser.objects.get(userdata=request.user)
+            serializer = FizUserSerializer(user)
+            serializer.data['type'] = 'Fizik'
+        else:
+            user = YurUser.objects.get(userdata=request.user)
+            serializer = YurUserSerializer(user)
+            serializer.data['type'] = 'Yuridik'
         return JsonResponse(serializer.data)
 
 
@@ -72,10 +79,15 @@ class OfferCreateAPIView(generics.CreateAPIView):
     permission_classes = (AdminPermission,)
 
 
-class OfferDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Offer.objects.all()
+class OfferDetailAPIView(APIView):
     serializer_class = OfferSerializer
-    permission_classes = (AdminPermission,)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        service_id = request.data['service_id']
+        offer = Offer.objects.get(service_id=service_id)
+        serializer = OfferSerializer(offer)
+        return Response(serializer.data)
 
 
 class GetGroupAdminDataAPIView(APIView):
@@ -101,5 +113,22 @@ class DocumentCreateAPIView(generics.CreateAPIView):
     permission_classes = (AdminPermission,)
 
 
+class SavedServiceAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
 
+    def get(self, request):
+        saved_services = SavedService.objects.get(user=request.user)
+        services = saved_services.services.all()
+        serializer = ServiceSerializer(services, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(operation_summary="Service ni saqlangan servicega qo'shish. Bu yerda service_id ni jo'natishiz kere bo'ladi")
+    def post(self, request):
+        service_id = request.data['service_id']
+        user = request.user
+        service = Service.objects.get(pk=service_id)
+        saved_service = SavedService.objects.create(user=user)
+        saved_service.services.add(service)
+        saved_service.save()
+        return Response(status=201)
 
