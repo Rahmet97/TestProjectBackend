@@ -5,11 +5,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.models import FizUser, UserData, Role
-from accounts.permissions import AdminPermission
+from accounts.permissions import AdminPermission, SuperAdminPermission
 from accounts.serializers import FizUserSerializer
-from .models import Service, Tarif, Device, Offer
+from .models import Service, Tarif, Device, Offer, Document
 from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
-    OfferSerializer
+    OfferSerializer, DocumentSerializer
 
 
 class ListAllServicesAPIView(generics.ListAPIView):
@@ -87,3 +87,19 @@ class GetGroupAdminDataAPIView(APIView):
         # role_name = Role.objects.get(pk=role).name
         print(role)
         return Response(status=200)
+
+
+class ServiceCreateAPIView(generics.CreateAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+    permission_classes = (SuperAdminPermission,)
+
+
+class DocumentCreateAPIView(generics.CreateAPIView):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+    permission_classes = (AdminPermission,)
+
+
+
+
