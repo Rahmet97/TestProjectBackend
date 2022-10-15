@@ -7,7 +7,7 @@ from accounts.models import Group, UserData
 
 
 def slugify_upload(instance, filename):
-    folder = 'media/' + instance._meta.model.__name__
+    folder = instance._meta.model.__name__
     name, ext = splitext(filename)
     try:
 
