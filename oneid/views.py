@@ -75,7 +75,10 @@ class GetUser(APIView):
             if UserData.objects.filter(username=username).exists():
                 user = UserData.objects.get(username=username)
             else:
-                user = UserData.objects.create_user(username=username, password=password)
+                if data['legal_info']:
+                    user = UserData.objects.create_user(username=username, password=password, type=2)
+                else:
+                    user = UserData.objects.create_user(username=username, password=password, type=1)
             print(data)
 
             data['userdata'] = user.id
@@ -84,6 +87,7 @@ class GetUser(APIView):
             if data['legal_info']:
                 # YurUser table ga yangi kirgan userni ma'lumotlarini yozish
                 if not YurUser.objects.filter(userdata=user).exists():
+                    data['name'] = data['legal_info'][0]['acron_UZ']
                     userr = YurUserSerializer(data=data)
                     userr.is_valid(raise_exception=True)
                     userr.save()

@@ -159,3 +159,11 @@ class Pkcs(models.Model):
 
     def __str__(self):
         return self.contract.contract_number
+
+
+class SavedService(models.Model):
+    user = models.ForeignKey(UserData, on_delete=models.CASCADE)
+    services = models.ManyToManyField(Service)
+
+    def __str__(self):
+        return self.user.role.name
