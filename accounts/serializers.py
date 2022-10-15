@@ -18,6 +18,12 @@ class RolePermissionSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class ContactFizUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FizUser
+        fields = ('',)
+
+
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
@@ -52,3 +58,9 @@ class YurUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = YurUser
         fields = '__all__'
+
+
+class PinUserToGroupRoleSerializer(serializers.Serializer):
+    user = serializers.IntegerField()
+    group = serializers.IntegerField()
+    role = serializers.IntegerField()
