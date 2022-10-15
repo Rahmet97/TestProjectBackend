@@ -21,3 +21,27 @@ class EmployeePermission(permissions.BasePermission):
             )
         except:
             return False
+
+
+class AdminPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        try:
+            return request.user.role.name == "bo'lim boshlig'i"
+        except:
+            return False
+
+
+class DirectorPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        try:
+            return request.user.role.name == "direktor"
+        except:
+            return False
+
+
+class DeputyDirectorPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        try:
+            return bool(request.user) and request.user.role.name == "direktor o'rinbosari"
+        except:
+            return False

@@ -1,11 +1,12 @@
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Group, Role, Permission, UserData
 from rest_framework import generics
 
-from .permissions import SuperAdminPermission, EmployeePermission
-from .serializers import GroupSerializer, RoleSerializer, PermissionSerializer
+from .permissions import SuperAdminPermission, EmployeePermission, AdminPermission
+from .serializers import GroupSerializer, RoleSerializer, PermissionSerializer, PinUserToGroupRoleSerializer
 
 
 class GroupCreateAPIView(generics.CreateAPIView):
@@ -59,6 +60,7 @@ class PermissionUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
 class PinUserToGroupRole(APIView):
     permission_classes = (SuperAdminPermission,)
 
+    @swagger_auto_schema(operation_summary="Userni Gruppaga va Role ga biriktirish", query_serializer=PinUserToGroupRoleSerializer)
     def post(self, request):
         user = UserData.objects.get(pk=request.data['user'])
         user.group = Group.objects.get(pk=request.data['group'])
