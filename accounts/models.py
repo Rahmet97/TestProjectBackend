@@ -61,7 +61,7 @@ class UserData(AbstractUser):
     )
     role = models.ForeignKey(Role, on_delete=models.CASCADE, null=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
-    type = models.IntegerField(choices=user_type, null=True)
+
 
     objects = CustomUserManager()
 
