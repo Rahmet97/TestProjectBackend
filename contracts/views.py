@@ -8,9 +8,10 @@ from rest_framework.views import APIView
 from accounts.models import FizUser, UserData, Role, YurUser
 from accounts.permissions import AdminPermission, SuperAdminPermission
 from accounts.serializers import FizUserSerializer, YurUserSerializer
-from .models import Service, Tarif, Device, Offer, Document, SavedService
+from .models import Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice, \
+    UserDeviceCount
 from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
-    OfferSerializer, DocumentSerializer
+    OfferSerializer, DocumentSerializer, ElementSerializer
 
 
 class ListAllServicesAPIView(generics.ListAPIView):
@@ -132,3 +133,72 @@ class SavedServiceAPIView(APIView):
         saved_service.save()
         return Response(status=201)
 
+
+class TarifAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        group_id = request.data['group_id']
+
+        tarifs = Tarif.objects.filter(group_id=group_id)
+        tarif_serializer = TarifSerializer(tarifs, many=True)
+
+        elements = Element.objects.filter(group_id=group_id)
+        element_serializer = ElementSerializer(elements, many=True)
+
+        devices = Device.objects.all()
+        device_serializer = DeviceSerializer(devices, many=True)
+
+        return Response({
+            'tarifs': tarif_serializer.data,
+            'elements': element_serializer.data,
+            'devices': device_serializer.data
+        })
+
+
+class SelectedTarifDevicesAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        devices = request.data['devices']
+        units_count = 0
+        electricity = 0
+        lishniy_unit = 0
+        lishniy_electricity = 0
+        for device in devices:
+            units_count += device['device_count'] * device['units_count']
+            electricity += device['electricity']
+        tarif = Tarif.objects.get(pk=request.data['tarif'])
+        if tarif.name == 'Rack-1':
+            if units_count > request.data['rack_count']*42:
+                lishniy_unit = units_count - request.data['rack_count']*42
+            if electricity > 7500:
+                lishniy_electricity = electricity-7500
+            price = tarif.price*request.data['rack_count'] + lishniy_unit*23000 + lishniy_electricity*0.23
+        else:
+            if units_count > 0:
+                lishniy_unit = units_count - 1
+            if electricity > 450:
+                lishniy_electricity = electricity-450
+            price = tarif.price + lishniy_unit*23000 + lishniy_electricity*230
+
+        if 'rack_count' not in request.data.keys():
+            request.data['rack_count'] = None
+        user_selected_tarif_devices = UserContractTarifDevice.objects.create(
+            client=request.user,
+            service_id=request.data['service_id'],
+            tarif=tarif,
+            rack_count=request.data['rack_count'],
+            price=price
+        )
+        user_selected_tarif_devices.save()
+        for device in devices:
+            user_device_count = UserDeviceCount.objects.create(
+                user=user_selected_tarif_devices,
+                device_id=device['id'],
+                device_count=device['device_count'],
+                units_count=device['units_count'],
+                electricity=device['electricity'],
+            )
+            user_device_count.save()
+        return Response({'price': price})
