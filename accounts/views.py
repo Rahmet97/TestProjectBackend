@@ -27,6 +27,12 @@ class GroupUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (SuperAdminPermission,)
 
 
+class GroupDetailAPIView(generics.RetrieveAPIView):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    permission_classes = (IsAuthenticated,)
+
+
 class RoleCreateAPIView(generics.ListCreateAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
