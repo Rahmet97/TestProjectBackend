@@ -1,12 +1,32 @@
 from rest_framework import serializers
+
+from accounts.serializers import GroupSerializer
 from .models import Service, Tarif, Device, Contract, UserContractTarifDevice, UserDeviceCount, Offer, Document, \
     Element, TarifElement
 
 
+class DocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Document
+        fields = '__all__'
+
+
 class ServiceSerializer(serializers.ModelSerializer):
+    need_documents = DocumentSerializer(many=True)
+    group = GroupSerializer()
+    user_type = serializers.SerializerMethodField()
+
+    def get_user_type(self, obj):
+        if obj.user_type == 1:
+            return "Jismoniy"
+        elif obj.user_type == 2:
+            return "Yuridik"
+        else:
+            return "Jismoniy va Yuridik"
+
     class Meta:
         model = Service
-        fields = '__all__'
+        fields = ('name', 'description', 'image', 'user_type', 'period', 'need_documents', 'group')
 
 
 class TarifSerializer(serializers.ModelSerializer):
@@ -58,12 +78,6 @@ class UserDeviceCountSerializer(serializers.ModelSerializer):
 class OfferSerializer(serializers.ModelSerializer):
     class Meta:
         model = Offer
-        fields = '__all__'
-
-
-class DocumentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Document
         fields = '__all__'
 
 
