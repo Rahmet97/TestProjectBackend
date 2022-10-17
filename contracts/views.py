@@ -119,10 +119,16 @@ class SavedServiceAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        saved_services = SavedService.objects.get(user=request.user)
-        services = saved_services.services.all()
-        serializer = ServiceSerializer(services, many=True)
-        return Response(serializer.data)
+        try:
+            saved_services = SavedService.objects.get(user=request.user)
+            if saved_services:
+                services = saved_services.services.all()
+            else:
+                services = []
+            serializer = ServiceSerializer(services, many=True)
+            return Response(serializer.data)
+        except:
+            return Response([])
 
     @swagger_auto_schema(operation_summary="Service ni saqlangan servicega qo'shish. Bu yerda service_id ni jo'natishiz kere bo'ladi")
     def post(self, request):
