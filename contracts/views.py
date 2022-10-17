@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.http import JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
@@ -44,12 +45,14 @@ class UserDetailAPIView(APIView):
         if request.user.type == 1:
             user = FizUser.objects.get(userdata=request.user)
             serializer = FizUserSerializer(user)
-            serializer.data['u_type'] = 'Fizik'
+            data = serializer.data
+            data['u_type'] = 'Fizik'
         else:
             user = YurUser.objects.get(userdata=request.user)
             serializer = YurUserSerializer(user)
-            serializer.data['u_type'] = 'Yuridik'
-        return Response(serializer.data)
+            data = serializer.data
+            data['u_type'] = 'Yuridik'
+        return Response(data)
 
 
 class TarifListAPIView(generics.ListAPIView):
@@ -139,6 +142,15 @@ class SavedServiceAPIView(APIView):
         saved_service.services.add(service)
         saved_service.save()
         return Response(status=201)
+
+
+class DeleteSavedService(APIView):
+    def delete(self, request, pk):
+        try:
+            SavedService.objects.get(Q(pk=pk), Q(user=request.user)).delete()
+        except Exception as e:
+            return Response({'message': f"{e}"})
+        return Response(status=204)
 
 
 class TarifAPIView(APIView):
