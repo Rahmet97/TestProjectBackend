@@ -124,6 +124,7 @@ class SavedServiceAPIView(APIView):
     def get(self, request):
         try:
             saved_services = SavedService.objects.get(user=request.user)
+            print(saved_services)
             if saved_services:
                 services = saved_services.services.all()
             else:
