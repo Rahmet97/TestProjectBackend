@@ -24,10 +24,11 @@ class ListGroupServicesAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        group_id = request.data['group_id']
+        group_id = request.GET.get('group_id')
+        print(group_id)
         services = Service.objects.filter(group_id=group_id)
         serializers = ServiceSerializer(services, many=True)
-        return JsonResponse(serializers.data)
+        return Response(serializers.data)
 
 
 class ServiceDetailAPIView(generics.RetrieveAPIView):
