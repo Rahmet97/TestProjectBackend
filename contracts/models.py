@@ -168,4 +168,4 @@ class SavedService(models.Model):
     services = models.ManyToManyField(Service)
 
     def __str__(self):
-        return self.user.role.name
+        return self.user.username

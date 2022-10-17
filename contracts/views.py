@@ -122,17 +122,14 @@ class SavedServiceAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        try:
-            saved_services = SavedService.objects.get(user=request.user)
-            print(saved_services)
-            if saved_services:
-                services = saved_services.services.all()
-            else:
-                services = []
-            serializer = ServiceSerializer(services, many=True)
-            return Response(serializer.data)
-        except:
-            return Response([])
+        saved_services = SavedService.objects.get(user=request.user)
+        print(saved_services)
+        if saved_services:
+            services = saved_services.services.all()
+        else:
+            services = []
+        serializer = ServiceSerializer(services, many=True)
+        return Response(serializer.data)
 
     @swagger_auto_schema(operation_summary="Service ni saqlangan servicega qo'shish. Bu yerda service_id ni jo'natishiz kere bo'ladi")
     def post(self, request):
@@ -148,7 +145,9 @@ class SavedServiceAPIView(APIView):
 class DeleteSavedService(APIView):
     def delete(self, request, pk):
         try:
-            SavedService.objects.get(Q(pk=pk), Q(user=request.user)).delete()
+            saved_service = SavedService.objects.get(user=request.user)
+            service = Service.objects.get(pk=pk)
+            saved_service.services.remove(service)
         except Exception as e:
             return Response({'message': f"{e}"})
         return Response(status=204)
