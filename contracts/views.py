@@ -44,12 +44,12 @@ class UserDetailAPIView(APIView):
         if request.user.type == 1:
             user = FizUser.objects.get(userdata=request.user)
             serializer = FizUserSerializer(user)
-            serializer.data['type'] = 'Fizik'
+            serializer.data['u_type'] = 'Fizik'
         else:
             user = YurUser.objects.get(userdata=request.user)
             serializer = YurUserSerializer(user)
-            serializer.data['type'] = 'Yuridik'
-        return JsonResponse(serializer.data)
+            serializer.data['u_type'] = 'Yuridik'
+        return Response(serializer.data)
 
 
 class TarifListAPIView(generics.ListAPIView):
