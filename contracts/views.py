@@ -131,15 +131,22 @@ class SavedServiceAPIView(APIView):
         serializer = ServiceSerializer(services, many=True)
         return Response(serializer.data)
 
-    @swagger_auto_schema(operation_summary="Service ni saqlangan servicega qo'shish. Bu yerda service_id ni jo'natishiz kere bo'ladi")
+    @swagger_auto_schema(operation_summary="Service ni saqlangan servicega qo'shish. Bu yerda service_id ni "
+                                           "jo'natishiz kere bo'ladi")
     def post(self, request):
         service_id = request.data['service_id']
         user = request.user
         service = Service.objects.get(pk=service_id)
-        saved_service = SavedService.objects.create(user=user)
-        saved_service.services.add(service)
-        saved_service.save()
-        return Response(status=201)
+        if SavedService.objects.filter(user=user).exists():
+            saved_service = SavedService.objects.get(user=user)
+        else:
+            saved_service = SavedService.objects.create(user=user)
+        if service not in saved_service.services.all():
+            saved_service.services.add(service)
+            saved_service.save()
+        else:
+            return Response({'message': 'Bu service oldindan mavjud'})
+        return Response(status=200)
 
 
 class DeleteSavedService(APIView):
