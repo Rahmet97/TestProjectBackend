@@ -1,3 +1,4 @@
 from django.contrib import admin
+from .models import *
 
-# Register your models here.
+admin.site.register((Service, SavedService, Element, UserContractTarifDevice, UserDeviceCount, Device, Offer, Document, Tarif, TarifElement, Contract, ContractType))
