@@ -91,12 +91,16 @@ class GetUser(APIView):
                     userr = YurUserSerializer(data=data)
                     userr.is_valid(raise_exception=True)
                     userr.save()
+                else:
+                    pass
             else:
                 # FizUser table ga yangi kirgan userni ma'lumotlarini yozish
                 if not FizUser.objects.filter(userdata=user).exists():
                     userr = FizUserSerializer(data=data)
                     userr.is_valid(raise_exception=True)
                     userr.save()
+                else:
+                    pass
             token = tokens.RefreshToken.for_user(user)
             tk = {
                 "access": str(token.access_token),
