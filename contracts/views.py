@@ -67,17 +67,6 @@ class DeviceListAPIView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
 
 
-class UserContractTarifDeviceCreateAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        request.data['client'] = request.user
-        data = UserContractTarifDeviceSerializer(request.data)
-        data.is_valid(raise_exception=True)
-        data.save()
-        return JsonResponse(data.data)
-
-
 class OfferCreateAPIView(generics.CreateAPIView):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
@@ -89,9 +78,12 @@ class OfferDetailAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        service_id = request.data['service_id']
-        offer = Offer.objects.get(service_id=service_id)
-        serializer = OfferSerializer(offer)
+        try:
+            service_id = request.GET.get('service_id')
+            offer = Offer.objects.get(service_id=service_id)
+            serializer = OfferSerializer(offer)
+        except Offer.DoesNotExist:
+            return Response({'message': 'Bunday xizmat mavjud emas'})
         return Response(serializer.data)
 
 
@@ -99,7 +91,7 @@ class GetGroupAdminDataAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        service = Service.objects.get(pk=request.data['service_id'])
+        service = Service.objects.get(pk=request.GET.get('service_id'))
         role = UserData.objects.get(group__service_id=service)
         # role_name = Role.objects.get(pk=role).name
         print(role)
@@ -164,7 +156,7 @@ class TarifAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        group_id = request.data['group_id']
+        group_id = request.GET.get('group_id')
 
         tarifs = Tarif.objects.filter(group_id=group_id)
         tarif_serializer = TarifSerializer(tarifs, many=True)
@@ -228,3 +220,10 @@ class SelectedTarifDevicesAPIView(APIView):
             )
             user_device_count.save()
         return Response({'price': price})
+
+
+class CreateContractFileAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        pass
