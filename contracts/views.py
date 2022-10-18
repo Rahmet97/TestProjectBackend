@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db.models import Q
 from django.http import JsonResponse
 from drf_yasg.utils import swagger_auto_schema
@@ -13,6 +15,7 @@ from .models import Service, Tarif, Device, Offer, Document, SavedService, Eleme
     UserDeviceCount
 from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
     OfferSerializer, DocumentSerializer, ElementSerializer
+from .tasks import file_creator
 
 
 class ListAllServicesAPIView(generics.ListAPIView):
@@ -114,13 +117,16 @@ class SavedServiceAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        saved_services = SavedService.objects.get(user=request.user)
+        try:
+            saved_services = SavedService.objects.get(user=request.user)
+        except SavedService.DoesNotExist:
+            saved_services = None
         print(saved_services)
         if saved_services:
             services = saved_services.services.all()
         else:
             services = []
-        serializer = ServiceSerializer(services, many=True)
+        serializer = ServiceSerializer(services, many=True, context={'request': request})
         return Response(serializer.data)
 
     @swagger_auto_schema(operation_summary="Service ni saqlangan servicega qo'shish. Bu yerda service_id ni "
@@ -225,5 +231,98 @@ class SelectedTarifDevicesAPIView(APIView):
 class CreateContractFileAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request):
+    def hundreds(self, m):
+        digits = {
+            1: "bir", 2: "ikki", 3: "uch", 4: "to'rt", 5: "besh", 6: "olti", 7: "yetti", 8: "sakkiz", 9: "to'qqiz",
+            10: "o'n", 20: "yigirma", 30: "o'ttiz", 40: "qirq", 50: "ellik", 60: "oltmish", 70: "yetmish", 80: "sakson",
+            90: "to'qson"
+        }
+
+        d1 = m // 100
+        d2 = (m // 10) % 10
+        d3 = m % 10
+        s1, s2, s3 = '', '', ''
+        if d1 != 0:
+            s1 = f'{digits[d1]} yuz '
+        if d2 != 0:
+            s2 = digits[d2 * 10] + ' '
+        if d3 != 0:
+            s3 = digits[d3] + ' '
+
+        return s1 + s2 + s3
+
+    def number2word(self, n):
+        d1 = {0: "", 1: "ming ", 2: "million ", 3: "milliard ", 4: "trillion "}
+
+        fraction = []
+        while n > 0:
+            r = n % 1000
+            fraction.append(r)
+            n //= 1000
+
+        s = ''
+        for i in range(len(fraction)):
+            if fraction[i] != 0:
+                yuz = self.hundreds(fraction[i]) + d1[i]
+                s = yuz + s
+
+        return s
+
+    def create_qr(self, request):
         pass
+
+    def post(self, request):
+        context = dict()
+        if request.user.type == 2:
+            context['u_type'] = 'yuridik'
+            context['contract_number'] = request.data['number']
+            context['year'] = datetime.now().year
+            context['month'] = datetime.now().month
+            context['day'] = datetime.now().day
+            context['client'] = request.data['name']
+            director = request.data['director_fullname'].split()
+            context['director'] = f"{director[1][0]}.{director[2][0]}. {director[0]}"
+            context['price'] = request.data['price'] * (12 - int(datetime.now().month))
+            context['price_text'] = self.number2word(int(context['price']))
+            context['price_month'] = request.data['price']
+            context['price_month_text'] = self.number2word(int(context['price_month']))
+            context['price_month_avans'] = request.data['price']
+            context['price_month_avans_text'] = context['price_month_text']
+            context['per_adr'] = request.data['per_adr']
+            context['tin'] = request.data['tin']
+            context['mfo'] = request.data['mfo']
+            context['oked'] = request.data['oked']
+            context['hr'] = request.data['hr']
+            context['bank'] = request.data['bank']
+            context['tarif'] = request.data['tarif']
+            context['count'] = request.data['count']
+            context['price2'] = request.data['price']
+            context['qr_unicon'] = ''
+            context['qr_client'] = ''
+        else:
+            context['u_type'] = 'fizik'
+            context['contract_number'] = request.data['number']
+            context['year'] = datetime.now().year
+            context['month'] = datetime.now().month
+            context['day'] = datetime.now().day
+            context['pport_issue_place'] = request.data['pport_issue_place']
+            context['pport_issue_date'] = request.data['pport_issue_date']
+            context['pport_no'] = request.data['pport_no']
+            client_short = request.data['full_name'].split()
+            context['client'] = f"{client_short[1][0]}.{client_short[2][0]}. {client_short[0]}"
+            context['client_fullname'] = request.data['full_name']
+            context['price'] = int(request.data['price'])*(12-int(datetime.now().month))
+            context['price_text'] = self.number2word(int(context['price']))
+            context['price_month'] = request.data['price']
+            context['price_month_text'] = self.number2word(int(context['price_month']))
+            context['price_month_avans'] = request.data['price']
+            context['price_month_avans_text'] = context['price_month_text']
+            context['per_adr'] = request.data['per_adr']
+            context['pin'] = request.data['pin']
+            context['tarif'] = request.data['tarif']
+            context['count'] = request.data['count']
+            context['price2'] = request.data['price']
+            context['qr_unicon'] = ''
+            context['qr_client'] = ''
+        contract_file = file_creator(context)
+        return Response({'file_path': '/media/Contract/' + str(contract_file)})

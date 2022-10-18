@@ -3,7 +3,7 @@ from django.urls import path
 from contracts.views import ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDetailAPIView, \
     UserDetailAPIView, TarifListAPIView, DeviceListAPIView, OfferCreateAPIView, \
     OfferDetailAPIView, GetGroupAdminDataAPIView, ServiceCreateAPIView, DocumentCreateAPIView, SavedServiceAPIView, \
-    SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService
+    SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService, CreateContractFileAPIView
 
 urlpatterns = [
     path('services', ListAllServicesAPIView.as_view(), name='ListAllServicesAPIView'),
@@ -20,5 +20,6 @@ urlpatterns = [
     path('saved-service', SavedServiceAPIView.as_view(), name='SavedServiceAPIView'),
     path('selected-tarif-devices', SelectedTarifDevicesAPIView.as_view(), name='SelectedTarifDevicesAPIView'),
     path('tarif-elements-devices', TarifAPIView.as_view(), name='TarifAPIView'),
-    path('delete-saved-service/<int:pk>', DeleteSavedService.as_view(), name='DeleteSavedService')
+    path('delete-saved-service/<int:pk>', DeleteSavedService.as_view(), name='DeleteSavedService'),
+    path('contract-create', CreateContractFileAPIView.as_view(), name='CreateContractFileAPIView')
 ]
