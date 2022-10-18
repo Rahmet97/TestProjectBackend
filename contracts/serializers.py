@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from accounts.serializers import GroupSerializer
 from .models import Service, Tarif, Device, Contract, UserContractTarifDevice, UserDeviceCount, Offer, Document, \
-    Element, TarifElement
+    Element, TarifElement, SavedService
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -15,6 +15,7 @@ class ServiceSerializer(serializers.ModelSerializer):
     need_documents = DocumentSerializer(many=True)
     group = GroupSerializer()
     user_type = serializers.SerializerMethodField()
+    is_saved = serializers.SerializerMethodField()
 
     def get_user_type(self, obj):
         if obj.user_type == 1:
@@ -24,9 +25,21 @@ class ServiceSerializer(serializers.ModelSerializer):
         else:
             return "Jismoniy va Yuridik"
 
+    def get_is_saved(self, obj):
+        request = self.context.get('request', None)
+        print(request)
+        try:
+            saved_service = SavedService.objects.get(user=request.user)
+        except SavedService.DoesNotExist:
+            return False
+        if obj in saved_service.services.all():
+            return True
+        else:
+            return False
+
     class Meta:
         model = Service
-        fields = ('id', 'name', 'description', 'image', 'user_type', 'period', 'need_documents', 'group')
+        fields = ('id', 'name', 'description', 'image', 'user_type', 'period', 'need_documents', 'group', 'is_saved')
 
 
 class TarifSerializer(serializers.ModelSerializer):
