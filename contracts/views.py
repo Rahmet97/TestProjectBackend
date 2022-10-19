@@ -31,7 +31,7 @@ class ListGroupServicesAPIView(APIView):
         group_id = request.GET.get('group_id')
         print(group_id)
         services = Service.objects.filter(group_id=group_id)
-        serializers = ServiceSerializer(services, many=True)
+        serializers = ServiceSerializer(services, many=True, context={'request': request})
         return Response(serializers.data)
 
 
