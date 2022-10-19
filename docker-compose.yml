@@ -42,6 +42,10 @@ services:
       - "vpn-log=/opt/app/logs/vpn.log"
   nginx:
     build: ./nginx
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
     volumes:
       - static_volume:/usr/src/app/static
       - media_volume:/home/app/django/media
