@@ -84,7 +84,7 @@ class OfferDetailAPIView(APIView):
         try:
             service_id = request.GET.get('service_id')
             offer = Offer.objects.get(service_id=service_id)
-            serializer = OfferSerializer(offer)
+            serializer = OfferSerializer(offer, context={'request': request})
         except Offer.DoesNotExist:
             return Response({'message': 'Bunday xizmat mavjud emas'})
         return Response(serializer.data)
