@@ -1,3 +1,11 @@
+import math
+
+from django.conf import settings
+from docxtpl import InlineImage, DocxTemplate
+from docx.shared import Mm
+
+import qrcode
+from PIL import Image
 from datetime import datetime
 
 from django.db.models import Q
@@ -20,12 +28,12 @@ from .tasks import file_creator
 
 class ListAllServicesAPIView(generics.ListAPIView):
     queryset = Service.objects.all()
-    permission_classes = (IsAuthenticated,)
+    permission_classes = ()
     serializer_class = ServiceSerializer
 
 
 class ListGroupServicesAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = ()
 
     def get(self, request):
         group_id = request.GET.get('group_id')
@@ -38,7 +46,7 @@ class ListGroupServicesAPIView(APIView):
 class ServiceDetailAPIView(generics.RetrieveAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = ()
 
 
 class UserDetailAPIView(APIView):
@@ -185,26 +193,22 @@ class SelectedTarifDevicesAPIView(APIView):
 
     def post(self, request):
         devices = request.data['devices']
-        units_count = 0
         electricity = 0
-        lishniy_unit = 0
         lishniy_electricity = 0
-        for device in devices:
-            units_count += device['device_count'] * device['units_count']
-            electricity += device['electricity']
+        price = 0
         tarif = Tarif.objects.get(pk=request.data['tarif'])
         if tarif.name == 'Rack-1':
-            if units_count > request.data['rack_count']*42:
-                lishniy_unit = units_count - request.data['rack_count']*42
-            if electricity > 7500:
-                lishniy_electricity = electricity-7500
-            price = tarif.price*request.data['rack_count'] + lishniy_unit*23000 + lishniy_electricity*0.23
+            for device in devices:
+                electricity += device['electricity']
+            if electricity > int(request.data['rack_count']) * 7500:
+                lishniy_electricity = electricity-int(request.data['rack_count']) * 7500
+            price = tarif.price*int(request.data['rack_count']) + math.ceil(lishniy_electricity/100) * 23000
         else:
-            if units_count > 0:
-                lishniy_unit = units_count - 1
-            if electricity > 450:
-                lishniy_electricity = electricity-450
-            price = tarif.price + lishniy_unit*23000 + lishniy_electricity*230
+            for device in devices:
+                unit_count = int(device['device_count']) * int(device['units_count'])
+                if int(device['electricity']) > 450:
+                    lishniy_electricity = int(device['electricity'])-450
+                price += tarif.price * unit_count + math.ceil(lishniy_electricity/100) * 23000 * int(device['device_count'])
 
         if 'rack_count' not in request.data.keys():
             request.data['rack_count'] = None
@@ -266,10 +270,22 @@ class CreateContractFileAPIView(APIView):
                 yuz = self.hundreds(fraction[i]) + d1[i]
                 s = yuz + s
 
-        return s
+        return s.rstrip()
 
-    def create_qr(self, request):
-        pass
+    def create_qr(self, fullname, link, number):
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            box_size=10,
+            border=4
+        )
+        file_name = link.split('/')[-1]
+        file_path = f"{settings.MEDIA_ROOT}/qr/"
+        qr.add_data(f"{fullname}. {link}")
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
+        img.save(file_path + file_name.split('.')[0] + str(number) + '.png')
+        return file_path + file_name.split('.')[0] + str(number) + '.png'
 
     def post(self, request):
         context = dict()
@@ -297,8 +313,14 @@ class CreateContractFileAPIView(APIView):
             context['tarif'] = request.data['tarif']
             context['count'] = request.data['count']
             context['price2'] = request.data['price']
-            context['qr_unicon'] = ''
-            context['qr_client'] = ''
+            context['host'] = 'http://' + request.META['HTTP_HOST']
+            if int(request.data['save']):
+                link = 'http://' + request.META['HTTP_HOST'] + '/media/Contract/' + request.data['number'] + '.docx'
+                context['qr_unicon'] = self.create_qr('Maxmudov Maxsum Mubashirovich', link, 1)
+                context['qr_client'] = self.create_qr(request.data['director_fullname'], link, 2)
+            else:
+                context['qr_unicon'] = ''
+                context['qr_client'] = ''
         else:
             context['u_type'] = 'fizik'
             context['contract_number'] = request.data['number']
@@ -322,7 +344,13 @@ class CreateContractFileAPIView(APIView):
             context['tarif'] = request.data['tarif']
             context['count'] = request.data['count']
             context['price2'] = request.data['price']
-            context['qr_unicon'] = ''
-            context['qr_client'] = ''
+            context['host'] = 'http://' + request.META['HTTP_HOST']
+            if int(request.data['save']):
+                link = 'http://' + request.META['HTTP_HOST'] + '/media/Contract/' + request.data['number'] + '.docx'
+                context['qr_unicon'] = self.create_qr('Maxmudov Maxsum Mubashirovich', link, 1)
+                context['qr_client'] = self.create_qr(context['client_fullname'], link, 2)
+            else:
+                context['qr_unicon'] = ''
+                context['qr_client'] = ''
         contract_file = file_creator(context)
         return Response({'file_path': '/media/Contract/' + str(contract_file)})

@@ -18,7 +18,7 @@ class GroupCreateAPIView(generics.CreateAPIView):
 class GroupListAPIView(generics.ListAPIView):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = ()
 
 
 class GroupUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
