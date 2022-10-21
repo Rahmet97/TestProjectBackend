@@ -92,13 +92,13 @@ class GetUser(APIView):
             data['userdata'] = user.id
             data['pport_issue_date'] = json.loads(res.content)['_pport_issue_date']
             data['pport_expr_date'] = json.loads(res.content)['_pport_expr_date']
-            data['name'] = data['legal_info'][0]['acron_UZ']
             data['ctzn'] = self.kiril2latin(data['ctzn'])
             data['per_adr'] = self.kiril2latin(data['per_adr'])
             data['pport_issue_place'] = self.kiril2latin(data['pport_issue_place'])
             data['natn'] = self.kiril2latin(data['natn'])
             if data['legal_info']:
                 # YurUser table ga yangi kirgan userni ma'lumotlarini yozish
+                data['name'] = data['legal_info'][0]['acron_UZ']
                 if not YurUser.objects.filter(userdata=user).exists():
                     userr = YurUserSerializer(data=data)
                     userr.is_valid(raise_exception=True)
