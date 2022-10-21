@@ -1,8 +1,25 @@
+from os.path import splitext
+
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, AbstractUser
 from django.template.defaultfilters import slugify
 
 from .managers import CustomUserManager
+
+
+def slugify_upload(instance, filename):
+    folder = instance._meta.model.__name__
+    name, ext = splitext(filename)
+    try:
+
+        name_t = slugify(name)
+        if name_t is None:
+            name_t = name
+        path = folder + "/" + name_t + ext
+    except:
+        path = folder + "/default" + ext
+
+    return path
 
 
 class Group(models.Model):
@@ -11,6 +28,8 @@ class Group(models.Model):
     comment = models.TextField()
     created_date = models.DateTimeField(auto_now_add=True)
     prefix = models.CharField(max_length=5)
+    active_icon = models.ImageField(upload_to=slugify_upload, blank=True, null=True)
+    inactive_icon = models.ImageField(upload_to=slugify_upload, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
