@@ -148,7 +148,7 @@ class Contract(models.Model):
     contract_number = models.CharField(max_length=10)
     client_signed_date = models.DateTimeField(auto_now_add=True, blank=True)
     contract_date = models.DateTimeField(blank=True)
-    service_type = models.CharField(max_length=50)
+    service_type = models.CharField(max_length=50, blank=True, null=True)
     participants = models.ManyToManyField(UserData)
     status = models.ForeignKey(Status, on_delete=models.CASCADE)  # ijro statuslari
     contract_status = models.ForeignKey(ContractStatus, on_delete=models.CASCADE)  # hujjat statuslari
