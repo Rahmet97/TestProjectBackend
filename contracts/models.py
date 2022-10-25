@@ -21,7 +21,7 @@ def slugify_upload(instance, filename):
     return path
 
 
-class ContractType(models.Model):
+class ContractStatus(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
@@ -136,6 +136,13 @@ class UserDeviceCount(models.Model):
     electricity = models.IntegerField()
 
 
+class AgreementStatus(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
 class Contract(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     contract_number = models.CharField(max_length=10)
@@ -143,8 +150,9 @@ class Contract(models.Model):
     contract_date = models.DateTimeField(blank=True)
     service_type = models.CharField(max_length=50)
     participants = models.ManyToManyField(UserData)
-    status = models.ForeignKey(Status, on_delete=models.CASCADE)
-    contract_type = models.ForeignKey(ContractType, on_delete=models.CASCADE)
+    status = models.ForeignKey(Status, on_delete=models.CASCADE)  # ijro statuslari
+    contract_status = models.ForeignKey(ContractStatus, on_delete=models.CASCADE)  # hujjat statuslari
+    agreement_status = models.ForeignKey(AgreementStatus, on_delete=models.CASCADE)  # kelishuv statuslari
     contract_cash = models.DecimalField(max_digits=10, decimal_places=2)
     payed_cash = models.DecimalField(max_digits=10, decimal_places=2)
     tarif = models.ForeignKey(Tarif, on_delete=models.CASCADE)

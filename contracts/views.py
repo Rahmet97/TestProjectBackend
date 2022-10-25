@@ -20,7 +20,7 @@ from accounts.models import FizUser, UserData, Role, YurUser
 from accounts.permissions import AdminPermission, SuperAdminPermission
 from accounts.serializers import FizUserSerializer, YurUserSerializer
 from .models import Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice, \
-    UserDeviceCount
+    UserDeviceCount, Contract
 from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
     OfferSerializer, DocumentSerializer, ElementSerializer
 from .tasks import file_creator
@@ -199,7 +199,7 @@ class SelectedTarifDevicesAPIView(APIView):
         tarif = Tarif.objects.get(pk=request.data['tarif'])
         if tarif.name == 'Rack-1':
             for device in devices:
-                electricity += device['electricity']
+                electricity += int(device['electricity']) * int(device['device_count'])
             if electricity > int(request.data['rack_count']) * 7500:
                 lishniy_electricity = electricity-int(request.data['rack_count']) * 7500
             price = tarif.price*int(request.data['rack_count']) + math.ceil(lishniy_electricity/100) * 23000
@@ -284,14 +284,19 @@ class CreateContractFileAPIView(APIView):
         qr.add_data(f"{fullname}. {link}")
         qr.make(fit=True)
         img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
-        img.save(file_path + file_name.split('.')[0] + str(number) + '.png')
-        return file_path + file_name.split('.')[0] + str(number) + '.png'
+        img.save(file_path + file_name.split('.')[0] + '_' + str(number) + '.png')
+        return file_path + file_name.split('.')[0] + '_' + str(number) + '.png'
 
     def post(self, request):
         context = dict()
+        try:
+            number = Contract.objects.last().id + 1
+        except AttributeError:
+            number = 1
+        prefix = Service.objects.get(pk=int(request.data['service_id'])).group.prefix
         if request.user.type == 2:
             context['u_type'] = 'yuridik'
-            context['contract_number'] = request.data['number']
+            context['contract_number'] = prefix + '-' + str(number)
             context['year'] = datetime.now().year
             context['month'] = datetime.now().month
             context['day'] = datetime.now().day
@@ -315,7 +320,7 @@ class CreateContractFileAPIView(APIView):
             context['price2'] = request.data['price']
             context['host'] = 'http://' + request.META['HTTP_HOST']
             if int(request.data['save']):
-                link = 'http://' + request.META['HTTP_HOST'] + '/media/Contract/' + request.data['number'] + '.docx'
+                link = 'http://' + request.META['HTTP_HOST'] + '/media/Contract/' + context['contract_number'] + '.docx'
                 context['qr_unicon'] = self.create_qr('Maxmudov Maxsum Mubashirovich', link, 1)
                 context['qr_client'] = self.create_qr(request.data['director_fullname'], link, 2)
             else:
@@ -323,7 +328,7 @@ class CreateContractFileAPIView(APIView):
                 context['qr_client'] = ''
         else:
             context['u_type'] = 'fizik'
-            context['contract_number'] = request.data['number']
+            context['contract_number'] = prefix + '-' + str(number)
             context['year'] = datetime.now().year
             context['month'] = datetime.now().month
             context['day'] = datetime.now().day
@@ -346,11 +351,26 @@ class CreateContractFileAPIView(APIView):
             context['price2'] = request.data['price']
             context['host'] = 'http://' + request.META['HTTP_HOST']
             if int(request.data['save']):
-                link = 'http://' + request.META['HTTP_HOST'] + '/media/Contract/' + request.data['number'] + '.docx'
+                link = 'http://' + request.META['HTTP_HOST'] + '/media/Contract/' + context['contract_number'] + '.docx'
                 context['qr_unicon'] = self.create_qr('Maxmudov Maxsum Mubashirovich', link, 1)
                 context['qr_client'] = self.create_qr(context['client_fullname'], link, 2)
             else:
                 context['qr_unicon'] = ''
                 context['qr_client'] = ''
         contract_file = file_creator(context)
+        # contract = Contract.objects.create(
+        #     service_id=int(request.data['service_id']),
+        #     contract_number=context['contract_number'],
+        #     client_signed_date=datetime.now(),
+        #     contract_date=datetime.now(),
+        #     service_type='',
+        #     participants='',
+        #     status='',
+        #     contract_type='',
+        #     contract_cash='',
+        #     payed_cash='',
+        #     tarif='',
+        #     expiration_date='',
+        #     file=''
+        # )
         return Response({'file_path': '/media/Contract/' + str(contract_file)})
