@@ -196,7 +196,7 @@ class SelectedTarifDevicesAPIView(APIView):
         electricity = 0
         lishniy_electricity = 0
         price = 0
-        tarif = Tarif.objects.get(pk=request.data['tarif'])
+        tarif = Tarif.objects.get(pk=int(request.data['tarif']))
         if tarif.name == 'Rack-1':
             for device in devices:
                 electricity += int(device['electricity']) * int(device['device_count'])
@@ -289,6 +289,7 @@ class CreateContractFileAPIView(APIView):
 
     def post(self, request):
         context = dict()
+        tarif = Tarif.objects.get(pk=int(request.data['tarif'])).name
         try:
             number = Contract.objects.last().id + 1
         except AttributeError:
@@ -315,7 +316,7 @@ class CreateContractFileAPIView(APIView):
             context['oked'] = request.data['oked']
             context['hr'] = request.data['hr']
             context['bank'] = request.data['bank']
-            context['tarif'] = request.data['tarif']
+            context['tarif'] = tarif
             context['count'] = request.data['count']
             context['price2'] = request.data['price']
             context['host'] = 'http://' + request.META['HTTP_HOST']
@@ -346,7 +347,7 @@ class CreateContractFileAPIView(APIView):
             context['price_month_avans_text'] = context['price_month_text']
             context['per_adr'] = request.data['per_adr']
             context['pin'] = request.data['pin']
-            context['tarif'] = request.data['tarif']
+            context['tarif'] = tarif
             context['count'] = request.data['count']
             context['price2'] = request.data['price']
             context['host'] = 'http://' + request.META['HTTP_HOST']
