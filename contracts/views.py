@@ -303,7 +303,7 @@ class CreateContractFileAPIView(APIView):
             context['day'] = datetime.now().day
             context['client'] = request.data['name']
             director = request.data['director_fullname'].split()
-            context['director'] = f"{director[1][0]}.{director[2][0]}. {director[0]}"
+            context['director'] = f"{director[1][0]}.{director[2][0]}.{director[0]}"
             context['price'] = int(request.data['price']) * (12 - int(datetime.now().month))
             context['price_text'] = self.number2word(int(context['price']))
             context['price_month'] = request.data['price']
@@ -337,7 +337,7 @@ class CreateContractFileAPIView(APIView):
             context['pport_issue_date'] = request.data['pport_issue_date']
             context['pport_no'] = request.data['pport_no']
             client_short = request.data['full_name'].split()
-            context['client'] = f"{client_short[1][0]}.{client_short[2][0]}. {client_short[0]}"
+            context['client'] = f"{client_short[1][0]}.{client_short[2][0]}.{client_short[0]}"
             context['client_fullname'] = request.data['full_name']
             context['price'] = int(request.data['price'])*(12-int(datetime.now().month))
             context['price_text'] = self.number2word(int(context['price']))

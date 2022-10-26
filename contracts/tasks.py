@@ -9,6 +9,7 @@ from django.conf import settings
 def file_creator(context):
     try:
         doc = DocxTemplate(settings.MEDIA_ROOT + f'/Shablonlar/Colocation_shablon_{context["u_type"]}.docx')
+        context['page_break'] = '\f'
         if context['qr_unicon']:
             path_media1 = str(context['qr_unicon']).split('/')
             path_file1 = f"/usr/src/app/{path_media1[-3]}/{path_media1[-2]}/{path_media1[-1]}"
