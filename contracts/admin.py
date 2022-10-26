@@ -14,5 +14,6 @@ admin.site.register((
     TarifElement,
     Contract,
     ContractStatus,
-    AgreementStatus
+    AgreementStatus,
+    Status
 ))

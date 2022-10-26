@@ -20,9 +20,9 @@ from accounts.models import FizUser, UserData, Role, YurUser
 from accounts.permissions import AdminPermission, SuperAdminPermission
 from accounts.serializers import FizUserSerializer, YurUserSerializer
 from .models import Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice, \
-    UserDeviceCount, Contract
+    UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus
 from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
-    OfferSerializer, DocumentSerializer, ElementSerializer
+    OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer
 from .tasks import file_creator
 
 
@@ -304,7 +304,7 @@ class CreateContractFileAPIView(APIView):
             context['client'] = request.data['name']
             director = request.data['director_fullname'].split()
             context['director'] = f"{director[1][0]}.{director[2][0]}. {director[0]}"
-            context['price'] = request.data['price'] * (12 - int(datetime.now().month))
+            context['price'] = int(request.data['price']) * (12 - int(datetime.now().month))
             context['price_text'] = self.number2word(int(context['price']))
             context['price_month'] = request.data['price']
             context['price_month_text'] = self.number2word(int(context['price_month']))
@@ -359,19 +359,23 @@ class CreateContractFileAPIView(APIView):
                 context['qr_unicon'] = ''
                 context['qr_client'] = ''
         contract_file = file_creator(context)
-        # contract = Contract.objects.create(
-        #     service_id=int(request.data['service_id']),
-        #     contract_number=context['contract_number'],
-        #     client_signed_date=datetime.now(),
-        #     contract_date=datetime.now(),
-        #     service_type='',
-        #     participants='',
-        #     status='',
-        #     contract_type='',
-        #     contract_cash='',
-        #     payed_cash='',
-        #     tarif='',
-        #     expiration_date='',
-        #     file=''
-        # )
+        if int(request.data['save']):
+            status = Status.objects.filter(name='Yangi').first()
+            contract_status = ContractStatus.objects.filter(name='Yangi').first()
+            agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
+            contract = Contract.objects.create(
+                service_id=int(request.data['service_id']),
+                contract_number=context['contract_number'],
+                contract_date=datetime.now(),
+                status=status,
+                contract_status=contract_status,
+                agreement_status=agreement_status,
+                contract_cash=int(context['price']),
+                payed_cash=0,
+                tarif_id=int(request.data['tarif']),
+                file='/Contract/' + str(contract_file)
+            )
+            contract.save()
+            serializer = ContractSerializer(contract)
+            return Response(serializer.data)
         return Response({'file_path': '/media/Contract/' + str(contract_file)})
