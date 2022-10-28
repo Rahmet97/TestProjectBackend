@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from accounts.serializers import GroupSerializer
 from .models import Service, Tarif, Device, Contract, UserContractTarifDevice, UserDeviceCount, Offer, Document, \
-    Element, TarifElement, SavedService
+    Element, TarifElement, SavedService, Pkcs
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -106,4 +106,7 @@ class TarifElementSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
+class PkcsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pkcs
+        fields = '__all__'

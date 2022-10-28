@@ -1,15 +1,13 @@
+import json
 import math
+import xmltodict
 
+import requests
 from django.conf import settings
-from docxtpl import InlineImage, DocxTemplate
-from docx.shared import Mm
 
 import qrcode
-from PIL import Image
 from datetime import datetime
 
-from django.db.models import Q
-from django.http import JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
@@ -20,9 +18,9 @@ from accounts.models import FizUser, UserData, Role, YurUser
 from accounts.permissions import AdminPermission, SuperAdminPermission
 from accounts.serializers import FizUserSerializer, YurUserSerializer
 from .models import Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice, \
-    UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus
+    UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus, Pkcs
 from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
-    OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer
+    OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer, PkcsSerializer
 from .tasks import file_creator
 
 
@@ -376,6 +374,71 @@ class CreateContractFileAPIView(APIView):
                 file='/Contract/' + str(contract_file)
             )
             contract.save()
+            contract.participants.add(request.user)
             serializer = ContractSerializer(contract)
             return Response(serializer.data)
         return Response({'file_path': '/media/Contract/' + str(contract_file)})
+
+
+class SavePkcs(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = PkcsSerializer
+
+    def join2pkcs(self, pkcs7_1, pkcs7_2):
+        xml = f"""
+            <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+                <Body>
+                    <join2Pkcs7Attached xmlns="http://v1.pkcs7.plugin.server.dsv.eimzo.yt.uz/">
+                        <pkcs7AttachedB64A xmlns="">{pkcs7_1}</pkcs7AttachedB64A>
+                        <pkcs7AttachedB64B xmlns="">{pkcs7_2}</pkcs7AttachedB64B>
+                    </join2Pkcs7Attached>
+                </Body>
+            </Envelope>
+            """
+        headers = {'Content-Type': 'text/xml'}  # set what your server accepts
+        res = requests.post('http://dsv-server-vpn-client:9090/dsvs/pkcs7/v1',
+                            data=xml, headers=headers)
+        dict_data = xmltodict.parse(res.content)
+        print(dict_data)
+        pkcs7_12 = dict_data['S:Envelope']['S:Body']['ns2:join2Pkcs7AttachedResponse']['return']
+        d = json.loads(pkcs7_12)
+        return d
+
+    def verifyPkcs(self, pkcs):
+        xml = f"""
+            <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+                <Body>
+                    <verifyPkcs7 xmlns="http://v1.pkcs7.plugin.server.dsv.eimzo.yt.uz/">
+                        <pkcs7B64 xmlns="">{pkcs}</pkcs7B64>
+                    </verifyPkcs7>
+                </Body>
+            </Envelope>
+        """
+        headers = {'Content-Type': 'text/xml'}  # set what your server accepts
+        res = requests.post('http://dsv-server-vpn-client:9090/dsvs/pkcs7/v1',
+                            data=xml, headers=headers)
+        dict_data = xmltodict.parse(res.content)
+        print(dict_data)
+        response = dict_data['S:Envelope']['S:Body']['ns2:verifyPkcs7Response']['return']
+        d = json.loads(response)
+        return d
+
+    def post(self, request):
+        contract_id = int(request.data['contract_id'])
+        pkcs7 = request.data['pkcs7']
+        print(self.verifyPkcs(pkcs7))
+        try:
+            contract = Contract.objects.get(pk=contract_id)
+            if request.user in contract.participants.all():
+                if not Pkcs.objects.filter(contract=contract).exists():
+                    pkcs = Pkcs.objects.create(contract=contract, pkcs7=pkcs7)
+                    pkcs.save()
+                else:
+                    pkcs_exist_object = Pkcs.objects.get(contract=contract)
+                    client_pkcs = pkcs_exist_object.pkcs7
+                    new_pkcs7 = self.join2pkcs(pkcs7, client_pkcs)
+                    pkcs_exist_object.pkcs7 = new_pkcs7
+                    pkcs_exist_object.save()
+        except Contract.DoesNotExist:
+            return Response({'message': 'Bunday shartnoma mavjud emas'})
+        return Response({'message': 'Success'})

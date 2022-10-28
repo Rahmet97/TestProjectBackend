@@ -22,7 +22,7 @@ class OneIDLoginView(APIView):
     def get(self, request):
         response_type = 'one_code'
         client_id = os.getenv("CLIENT_ID")
-        redirect_uri = os.getenv("REDIRECT_URI")
+        redirect_uri = request.GET.get('path') + '/code'
         scope = os.getenv("SCOPE")
         state = os.getenv("STATE")
         base_url = os.getenv("BASE_URL")
@@ -37,7 +37,7 @@ class LoginView(APIView):
         grant_type = 'one_authorization_code'
         client_id = os.getenv("CLIENT_ID")
         client_secret = os.getenv('CLIENT_SECRET')
-        redirect_uri = os.getenv("REDIRECT_URI")
+        redirect_uri = request.META.get('path') + '/code'
         code = request.META.get('HTTP_X_AUTH')
 
         res = requests.post(os.getenv("BASE_URL"), {
@@ -99,6 +99,7 @@ class GetUser(APIView):
             if data['legal_info']:
                 # YurUser table ga yangi kirgan userni ma'lumotlarini yozish
                 data['name'] = data['legal_info'][0]['acron_UZ']
+                data['tin'] = data['legal_info'][0]['tin']
                 if not YurUser.objects.filter(userdata=user).exists():
                     userr = YurUserSerializer(data=data)
                     userr.is_valid(raise_exception=True)
