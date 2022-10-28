@@ -100,6 +100,7 @@ CORS_ALLOW_HEADERS = [
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "x-auth",
     "x-authentication",
+    "x-path",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
