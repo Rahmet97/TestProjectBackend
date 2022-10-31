@@ -37,7 +37,7 @@ class LoginView(APIView):
         grant_type = 'one_authorization_code'
         client_id = os.getenv("CLIENT_ID")
         client_secret = os.getenv('CLIENT_SECRET')
-        redirect_uri = request.META.get('path') + '/code'
+        redirect_uri = request.META.get('HTTP_X_PATH') + '/code'
         code = request.META.get('HTTP_X_AUTH')
 
         res = requests.post(os.getenv("BASE_URL"), {
