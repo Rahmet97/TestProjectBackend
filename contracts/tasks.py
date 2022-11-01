@@ -6,7 +6,7 @@ from django.conf import settings
 
 
 # @shared_task
-def file_creator(context):
+def file_creator(context, number):
     try:
         doc = DocxTemplate(settings.MEDIA_ROOT + f'/Shablonlar/Colocation_shablon_{context["u_type"]}.docx')
         context['page_break'] = '\f'
@@ -21,7 +21,11 @@ def file_creator(context):
             image2 = InlineImage(doc, path_file2, width=Mm(30))
             context['qr_client'] = image2
         doc.render(context)
-        file_name = f'{context["contract_number"]}.docx'
+        if number:
+            file_name = f'{context["contract_number"]}_for_preview.docx'
+        else:
+            file_name = f'{context["contract_number"]}_for_save.docx'
+
         path = settings.MEDIA_ROOT + '/Contract/' + file_name
         doc.save(path)
     except Exception as e:

@@ -1,3 +1,4 @@
+import base64
 import json
 import math
 import xmltodict
@@ -318,13 +319,6 @@ class CreateContractFileAPIView(APIView):
             context['count'] = request.data['count']
             context['price2'] = request.data['price']
             context['host'] = 'http://' + request.META['HTTP_HOST']
-            if int(request.data['save']):
-                link = 'http://' + request.META['HTTP_HOST'] + '/media/Contract/' + context['contract_number'] + '.docx'
-                context['qr_unicon'] = self.create_qr('Maxmudov Maxsum Mubashirovich', link, 1)
-                context['qr_client'] = self.create_qr(request.data['director_fullname'], link, 2)
-            else:
-                context['qr_unicon'] = ''
-                context['qr_client'] = ''
         else:
             context['u_type'] = 'fizik'
             context['contract_number'] = prefix + '-' + str(number)
@@ -349,14 +343,15 @@ class CreateContractFileAPIView(APIView):
             context['count'] = request.data['count']
             context['price2'] = request.data['price']
             context['host'] = 'http://' + request.META['HTTP_HOST']
-            if int(request.data['save']):
-                link = 'http://' + request.META['HTTP_HOST'] + '/media/Contract/' + context['contract_number'] + '.docx'
-                context['qr_unicon'] = self.create_qr('Maxmudov Maxsum Mubashirovich', link, 1)
-                context['qr_client'] = self.create_qr(context['client_fullname'], link, 2)
-            else:
-                context['qr_unicon'] = ''
-                context['qr_client'] = ''
-        contract_file = file_creator(context)
+        context['qr_unicon'] = ''
+        context['qr_client'] = ''
+        contract_file_for_preview = file_creator(context, 1)
+        link = 'http://' + request.META['HTTP_HOST'] + '/media/Contract/' + context['contract_number'] + '.docx'
+        context['qr_unicon'] = self.create_qr('Maxmudov Maxsum Mubashirovich', link, 1)
+        context['qr_client'] = self.create_qr(context['client_fullname'], link, 2)
+        contract_file = open('/usr/src/app/media/Contract/' + str(file_creator(context, 0)), 'rb').read()
+        base64code = base64.b64encode(contract_file)
+
         if int(request.data['save']):
             status = Status.objects.filter(name='Yangi').first()
             contract_status = ContractStatus.objects.filter(name='Yangi').first()
@@ -371,13 +366,16 @@ class CreateContractFileAPIView(APIView):
                 contract_cash=int(context['price']),
                 payed_cash=0,
                 tarif_id=int(request.data['tarif']),
-                file='/Contract/' + str(contract_file)
+                base64file=base64code
             )
             contract.save()
             contract.participants.add(request.user)
             serializer = ContractSerializer(contract)
             return Response(serializer.data)
-        return Response({'file_path': '/media/Contract/' + str(contract_file)})
+        return Response({
+            'file_path': '/media/Contract/' + str(contract_file_for_preview),
+            'base64file': base64code
+        })
 
 
 class SavePkcs(APIView):

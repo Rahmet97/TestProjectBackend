@@ -156,7 +156,7 @@ class Contract(models.Model):
     payed_cash = models.DecimalField(max_digits=10, decimal_places=2)
     tarif = models.ForeignKey(Tarif, on_delete=models.CASCADE)
     expiration_date = models.DateTimeField(blank=True, null=True)
-    file = models.FileField(upload_to=slugify_upload)
+    base64file = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.service.name
