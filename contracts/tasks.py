@@ -1,8 +1,14 @@
+import base64
+import subprocess
+import os
+
 from celery import shared_task
 from docx.shared import Mm
 from docxtpl import DocxTemplate, InlineImage
 
 from django.conf import settings
+
+from contracts.models import Contract
 
 
 # @shared_task
@@ -31,3 +37,18 @@ def file_creator(context, number):
     except Exception as e:
         return e
     return file_name
+
+
+# @shared_task
+def file_downloader(base64file, pk):
+    decoded_file = base64.b64decode(base64file)
+    file_docx = open(f'/usr/src/app/media/Contract/DM-{pk}.docx', 'wb')
+    file_docx.write(decoded_file)
+    file_docx.close()
+    # os.chdir('/usr/src/app/media/Contract')
+    # file_pdf = subprocess.check_output(
+    #     args=['libreoffice', '--convert-to', 'pdf', f'DM-{pk}.docx']
+    # )
+    # print(file_pdf)
+    # os.remove(f'/usr/src/app/media/Contract/DM-{pk}.docx')
+    return f'DM-{pk}.docx'

@@ -70,6 +70,12 @@ class ContractSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ContractSerializerForContractList(serializers.ModelSerializer):
+    class Meta:
+        model = Contract
+        fields = ('id', 'service', 'contract_number', 'contract_date', 'contract_status', 'contract_cash')
+
+
 class UserContractTarifDeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserContractTarifDevice

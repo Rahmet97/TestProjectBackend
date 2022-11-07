@@ -157,6 +157,7 @@ class Contract(models.Model):
     tarif = models.ForeignKey(Tarif, on_delete=models.CASCADE)
     expiration_date = models.DateTimeField(blank=True, null=True)
     base64file = models.TextField(blank=True, null=True)
+    hashcode = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.service.name

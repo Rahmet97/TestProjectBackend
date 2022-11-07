@@ -1,4 +1,5 @@
 import base64
+import hashlib
 import json
 import math
 import xmltodict
@@ -9,6 +10,7 @@ from django.conf import settings
 import qrcode
 from datetime import datetime
 
+from django.shortcuts import redirect
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
@@ -21,8 +23,9 @@ from accounts.serializers import FizUserSerializer, YurUserSerializer
 from .models import Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice, \
     UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus, Pkcs
 from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
-    OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer, PkcsSerializer
-from .tasks import file_creator
+    OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer, PkcsSerializer, \
+    ContractSerializerForContractList
+from .tasks import file_creator, file_downloader
 
 
 class ListAllServicesAPIView(generics.ListAPIView):
@@ -346,7 +349,10 @@ class CreateContractFileAPIView(APIView):
         context['qr_unicon'] = ''
         context['qr_client'] = ''
         contract_file_for_preview = file_creator(context, 1)
-        link = 'http://' + request.META['HTTP_HOST'] + '/media/Contract/' + context['contract_number'] + '.docx'
+        hashcode = hashlib.md5()
+        hashcode.update(base64.b64encode(open('/usr/src/app/media/Contract/' + contract_file_for_preview, 'rb').read()))
+        hash_code = hashcode.hexdigest()
+        link = 'http://' + request.META['HTTP_HOST'] + '/contracts/contract?hash=' + hash_code
         context['qr_unicon'] = self.create_qr('Maxmudov Maxsum Mubashirovich', link, 1)
         context['qr_client'] = self.create_qr(context['client_fullname'], link, 2)
         contract_file = open('/usr/src/app/media/Contract/' + str(file_creator(context, 0)), 'rb').read()
@@ -366,7 +372,8 @@ class CreateContractFileAPIView(APIView):
                 contract_cash=int(context['price']),
                 payed_cash=0,
                 tarif_id=int(request.data['tarif']),
-                base64file=base64code
+                base64file=base64code,
+                hashcode=hash_code
             )
             contract.save()
             contract.participants.add(request.user)
@@ -440,3 +447,22 @@ class SavePkcs(APIView):
         except Contract.DoesNotExist:
             return Response({'message': 'Bunday shartnoma mavjud emas'})
         return Response({'message': 'Success'})
+
+
+class GetContractFile(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        hashcode = request.GET.get('hash')
+        contract = Contract.objects.get(hashcode=hashcode)
+        file_pdf = file_downloader(bytes(contract.base64file[2:len(contract.base64file)-1], 'utf-8'), contract.id)
+        return redirect(u'/media/Contract/' + file_pdf)
+
+
+class GetUserContracts(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        contracts = Contract.objects.filter(participants=request.user)
+        serializer = ContractSerializerForContractList(contracts, many=True)
+        return Response(serializer.data)
