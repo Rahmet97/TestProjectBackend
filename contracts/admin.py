@@ -15,5 +15,6 @@ admin.site.register((
     Contract,
     ContractStatus,
     AgreementStatus,
-    Status
+    Status,
+    Contracts_Participants
 ))

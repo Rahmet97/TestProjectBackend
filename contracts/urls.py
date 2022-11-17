@@ -1,10 +1,10 @@
 from django.urls import path
 
-from contracts.views import ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDetailAPIView, \
+from .views import ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDetailAPIView, \
     UserDetailAPIView, TarifListAPIView, DeviceListAPIView, OfferCreateAPIView, \
     OfferDetailAPIView, GetGroupAdminDataAPIView, ServiceCreateAPIView, DocumentCreateAPIView, SavedServiceAPIView, \
     SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService, CreateContractFileAPIView, SavePkcs, GetContractFile, \
-    GetUserContracts
+    GetUserContracts, GetContractFileWithID, ContractDetail, GetGroupContract, ConfirmContract
 
 urlpatterns = [
     path('services', ListAllServicesAPIView.as_view(), name='ListAllServicesAPIView'),
@@ -25,5 +25,9 @@ urlpatterns = [
     path('contract-create', CreateContractFileAPIView.as_view(), name='CreateContractFileAPIView'),
     path('save-pkcs', SavePkcs.as_view(), name='SavePkcs'),
     path('contract', GetContractFile.as_view(), name='GetContractFile'),
-    path('user-contracts', GetUserContracts.as_view(), name='GetUserContracts')
+    path('contract-file-by-id', GetContractFileWithID.as_view(), name='GetContractFileWithID'),
+    path('contract-detail/<int:pk>', ContractDetail.as_view(), name='ContractDetail'),
+    path('user-contracts', GetUserContracts.as_view(), name='GetUserContracts'),
+    path('group-contracts', GetGroupContract.as_view(), name='GetGroupContract'),
+    path('confirm-contract', ConfirmContract.as_view(), name='ConfirmContract')
 ]

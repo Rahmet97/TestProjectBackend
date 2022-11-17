@@ -4,4 +4,4 @@ python manage.py migrate
 
 # Start server
 echo "Starting server"
-gunicorn TestProject.wsgi:application --bind 0.0.0.0:8000
+gunicorn TestProjectBackend.TestProject.wsgi:application --bind 0.0.0.0:8000

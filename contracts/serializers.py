@@ -1,8 +1,9 @@
 from rest_framework import serializers
 
-from accounts.serializers import GroupSerializer
+from accounts.models import YurUser, FizUser
+from accounts.serializers import GroupSerializer, FizUserSerializer, YurUserSerializer
 from .models import Service, Tarif, Device, Contract, UserContractTarifDevice, UserDeviceCount, Offer, Document, \
-    Element, TarifElement, SavedService, Pkcs
+    Element, TarifElement, SavedService, Pkcs, ExpertSummary, Contracts_Participants
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -55,7 +56,6 @@ class DeviceSerializer(serializers.ModelSerializer):
 
 
 class ContractSerializer(serializers.ModelSerializer):
-
     contract_number = serializers.SerializerMethodField()
 
     def get_contract_number(self, obj):
@@ -74,6 +74,32 @@ class ContractSerializerForContractList(serializers.ModelSerializer):
     class Meta:
         model = Contract
         fields = ('id', 'service', 'contract_number', 'contract_date', 'contract_status', 'contract_cash')
+
+
+class ContractSerializerForBackoffice(serializers.ModelSerializer):
+    arrearage = serializers.SerializerMethodField()
+
+    def get_arrearage(self, obj):
+        return obj.contract_cash - obj.payed_cash
+
+    class Meta:
+        model = Contract
+        fields = (
+            'id', 'participants', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash', 'payed_cash',
+            'arrearage', 'contract_status')
+
+
+class ContractSerializerForDetail(serializers.ModelSerializer):
+    arrearage = serializers.SerializerMethodField()
+
+    def get_arrearage(self, obj):
+        return obj.contract_cash - obj.payed_cash
+
+    class Meta:
+        model = Contract
+        fields = (
+            'id', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash', 'payed_cash',
+            'arrearage', 'contract_status')
 
 
 class UserContractTarifDeviceSerializer(serializers.ModelSerializer):
@@ -115,4 +141,53 @@ class TarifElementSerializer(serializers.ModelSerializer):
 class PkcsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pkcs
+        fields = '__all__'
+
+
+class ExpertSummarySerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+
+    def get_user(self, obj):
+        if obj.user.type == 2:
+            u = YurUser.objects.get(userdata=obj.user)
+            user = YurUserSerializer(u)
+        else:
+            u = FizUser.objects.get(userdata=obj.user)
+            user = FizUserSerializer(u)
+        return user.data
+
+    class Meta:
+        model = ExpertSummary
+        fields = "__all__"
+
+
+class ExpertSummarySerializerForSave(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        print(validated_data)
+        return ExpertSummary.objects.create(**validated_data)
+
+    class Meta:
+        model = ExpertSummary
+        fields = "__all__"
+
+
+class ContractParticipantsSerializers(serializers.ModelSerializer):
+    agreement_status = serializers.SerializerMethodField()
+    userdata = serializers.SerializerMethodField()
+
+    def get_userdata(self, obj):
+        if obj.userdata.type == 2:
+            u = YurUser.objects.get(userdata=obj.userdata)
+            user = YurUserSerializer(u)
+        else:
+            u = FizUser.objects.get(userdata=obj.userdata)
+            user = FizUserSerializer(u)
+        return user.data
+
+    def get_agreement_status(self, obj):
+        return obj.agreement_status.name
+
+    class Meta:
+        model = Contracts_Participants
         fields = '__all__'
