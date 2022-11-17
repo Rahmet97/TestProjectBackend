@@ -3,7 +3,7 @@ from rest_framework import serializers
 from accounts.models import YurUser, FizUser
 from accounts.serializers import GroupSerializer, FizUserSerializer, YurUserSerializer
 from .models import Service, Tarif, Device, Contract, UserContractTarifDevice, UserDeviceCount, Offer, Document, \
-    Element, TarifElement, SavedService, Pkcs, ExpertSummary, Contracts_Participants
+    Element, TarifElement, SavedService, Pkcs, ExpertSummary, Contracts_Participants, ContractStatus
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -43,6 +43,12 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'image', 'user_type', 'period', 'need_documents', 'group', 'is_saved')
 
 
+class ServiceSerializerForContract(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = ('id', 'name')
+
+
 class TarifSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tarif
@@ -70,7 +76,16 @@ class ContractSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ContractStatusSerializerForContractsList(serializers.ModelSerializer):
+    class Meta:
+        model = ContractStatus
+        fields = ('id', 'name')
+
+
 class ContractSerializerForContractList(serializers.ModelSerializer):
+    service = ServiceSerializerForContract()
+    contract_status = ContractStatusSerializerForContractsList()
+
     class Meta:
         model = Contract
         fields = ('id', 'service', 'contract_number', 'contract_date', 'contract_status', 'contract_cash')
