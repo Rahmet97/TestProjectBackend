@@ -205,14 +205,15 @@ class SelectedTarifDevicesAPIView(APIView):
             for device in devices:
                 electricity += int(device['electricity']) * int(device['device_count'])
             if electricity > int(request.data['rack_count']) * 7500:
-                lishniy_electricity = electricity-int(request.data['rack_count']) * 7500
-            price = tarif.price*int(request.data['rack_count']) + math.ceil(lishniy_electricity/100) * 23000
+                lishniy_electricity = electricity - int(request.data['rack_count']) * 7500
+            price = tarif.price * int(request.data['rack_count']) + math.ceil(lishniy_electricity / 100) * 23000
         else:
             for device in devices:
                 unit_count = int(device['device_count']) * int(device['units_count'])
                 if int(device['electricity']) > 450:
-                    lishniy_electricity = int(device['electricity'])-450
-                price += tarif.price * unit_count + math.ceil(lishniy_electricity/100) * 23000 * int(device['device_count'])
+                    lishniy_electricity = int(device['electricity']) - 450
+                price += tarif.price * unit_count + math.ceil(lishniy_electricity / 100) * 23000 * int(
+                    device['device_count'])
 
         if 'rack_count' not in request.data.keys():
             request.data['rack_count'] = None
@@ -337,7 +338,7 @@ class CreateContractFileAPIView(APIView):
             client_short = request.data['full_name'].split()
             context['client'] = f"{client_short[1][0]}.{client_short[2][0]}.{client_short[0]}"
             context['client_fullname'] = request.data['full_name']
-            context['price'] = int(request.data['price'])*(12-int(datetime.now().month)+1)
+            context['price'] = int(request.data['price']) * (12 - int(datetime.now().month) + 1)
             context['price_text'] = self.number2word(int(context['price']))
             context['price_month'] = request.data['price']
             context['price_month_text'] = self.number2word(int(context['price_month']))
@@ -482,7 +483,7 @@ class GetContractFile(APIView):
     def get(self, request):
         hashcode = request.GET.get('hash')
         contract = Contract.objects.get(hashcode=hashcode)
-        file_pdf = file_downloader(bytes(contract.base64file[2:len(contract.base64file)-1], 'utf-8'), contract.id)
+        file_pdf = file_downloader(bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id)
         return redirect(u'/media/Contract/' + file_pdf)
 
 
@@ -512,7 +513,7 @@ class ContractDetail(APIView):
         contract = Contract.objects.get(pk=pk)
         contract_serializer = ContractSerializerForDetail(contract)
         contract_participants = Contracts_Participants.objects.filter(contract=contract).get(userdata=request.user)
-        if (request.user.role.name == "bo'lim boshlig'i" or request.user.role.name == "direktor o'rinbosari")\
+        if (request.user.role.name == "bo'lim boshlig'i" or request.user.role.name == "direktor o'rinbosari") \
                 and contract_participants.agreement_status.name == "Yuborilgan":
             agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
             contract_participants.agreement_status = agreement_status
@@ -548,7 +549,7 @@ class GetGroupContract(APIView):
                 or request.user.role.name.lower() == 'direktor':
             contracts = Contract.objects.filter(service__group=group).order_by('condition', '-contract_date')
         else:
-            contracts = Contract.objects.filter(Q(service__group=group) and Q(condition=3))
+            contracts = Contract.objects.filter(Q(service__group=group))  # , Q(condition=3))
         serializer = ContractSerializerForBackoffice(contracts, many=True)
         return Response(serializer.data)
 
