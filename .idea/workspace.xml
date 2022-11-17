@@ -2,20 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="71c64a5e-e7b6-470c-8c45-3ce6997c59f4" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/TestProject.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/accounts/permissions.py" beforeDir="false" afterPath="$PROJECT_DIR$/accounts/permissions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contracts/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contracts/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contracts/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contracts/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/contracts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx/nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/nginx/nginx.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/docker-entrypoint.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/docker-entrypoint.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,22 +100,11 @@
       <workItem from="1668506429475" duration="14633000" />
       <workItem from="1668573952434" duration="28328000" />
       <workItem from="1668628169878" duration="6680000" />
-      <workItem from="1668660916420" duration="12199000" />
+      <workItem from="1668660916420" duration="15319000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/contracts/views.py</url>
-          <line>301</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
