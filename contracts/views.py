@@ -10,6 +10,7 @@ from django.conf import settings
 import qrcode
 from datetime import datetime
 
+from django.db.models import Q
 from django.shortcuts import redirect
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
@@ -18,13 +19,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.models import FizUser, UserData, Role, YurUser
-from accounts.permissions import AdminPermission, SuperAdminPermission
+from accounts.permissions import AdminPermission, SuperAdminPermission, DeputyDirectorPermission
 from accounts.serializers import FizUserSerializer, YurUserSerializer
 from .models import Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice, \
-    UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus, Pkcs
+    UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus, Pkcs, ExpertSummary, Contracts_Participants
 from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
     OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer, PkcsSerializer, \
-    ContractSerializerForContractList
+    ContractSerializerForContractList, ContractSerializerForBackoffice, ExpertSummarySerializer, \
+    ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail
 from .tasks import file_creator, file_downloader
 
 
@@ -304,6 +306,7 @@ class CreateContractFileAPIView(APIView):
             context['month'] = datetime.now().month
             context['day'] = datetime.now().day
             context['client'] = request.data['name']
+            context['client_fullname'] = request.data['director_fullname']
             director = request.data['director_fullname'].split()
             context['director'] = f"{director[1][0]}.{director[2][0]}.{director[0]}"
             context['price'] = int(request.data['price']) * (12 - int(datetime.now().month))
@@ -334,7 +337,7 @@ class CreateContractFileAPIView(APIView):
             client_short = request.data['full_name'].split()
             context['client'] = f"{client_short[1][0]}.{client_short[2][0]}.{client_short[0]}"
             context['client_fullname'] = request.data['full_name']
-            context['price'] = int(request.data['price'])*(12-int(datetime.now().month))
+            context['price'] = int(request.data['price'])*(12-int(datetime.now().month)+1)
             context['price_text'] = self.number2word(int(context['price']))
             context['price_month'] = request.data['price']
             context['price_month_text'] = self.number2word(int(context['price_month']))
@@ -368,7 +371,6 @@ class CreateContractFileAPIView(APIView):
                 contract_date=datetime.now(),
                 status=status,
                 contract_status=contract_status,
-                agreement_status=agreement_status,
                 contract_cash=int(context['price']),
                 payed_cash=0,
                 tarif_id=int(request.data['tarif']),
@@ -376,7 +378,32 @@ class CreateContractFileAPIView(APIView):
                 hashcode=hash_code
             )
             contract.save()
-            contract.participants.add(request.user)
+            contracts_participants = Contracts_Participants.objects.create(
+                contract=contract,
+                userdata=request.user
+            )
+            print(agreement_status)
+            contracts_participants.save()
+            service = contract.service.name
+            if service.lower() == 'co-location':
+                director = UserData.objects.get(role__name="direktor")
+                deputy_director = UserData.objects.get(role__name="direktor o'rinbosari")
+                d_head = UserData.objects.get(role__name="bo'lim boshlig'i")
+                Contracts_Participants.objects.create(
+                    contract=contract,
+                    userdata=director,
+                    agreement_status=agreement_status
+                ).save()
+                Contracts_Participants.objects.create(
+                    contract=contract,
+                    userdata=deputy_director,
+                    agreement_status=agreement_status
+                ).save()
+                Contracts_Participants.objects.create(
+                    contract=contract,
+                    userdata=d_head,
+                    agreement_status=agreement_status
+                ).save()
             serializer = ContractSerializer(contract)
             return Response(serializer.data)
         return Response({
@@ -466,3 +493,79 @@ class GetUserContracts(APIView):
         contracts = Contract.objects.filter(participants=request.user)
         serializer = ContractSerializerForContractList(contracts, many=True)
         return Response(serializer.data)
+
+
+class GetContractFileWithID(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        pk = request.GET.get('pk')
+        contract = Contract.objects.get(pk=pk)
+        file_pdf = file_downloader(bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id)
+        return redirect(u'/media/Contract/' + file_pdf)
+
+
+class ContractDetail(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, pk):
+        contract = Contract.objects.get(pk=pk)
+        contract_serializer = ContractSerializerForDetail(contract)
+        contract_participants = Contracts_Participants.objects.filter(contract=contract).get(userdata=request.user)
+        if (request.user.role.name == "bo'lim boshlig'i" or request.user.role.name == "direktor o'rinbosari")\
+                and contract_participants.agreement_status.name == "Yuborilgan":
+            agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
+            contract_participants.agreement_status = agreement_status
+            contract_participants.save()
+        client = Contracts_Participants.objects.filter(contract=contract)
+        if client.get(agreement_status=None).userdata.type == 2:
+            user = YurUser.objects.get(userdata=client.get(agreement_status=None).userdata)
+            client_serializer = YurUserSerializer(user)
+        else:
+            user = FizUser.objects.get(userdata=client.get(agreement_status=None).userdata)
+            client_serializer = FizUserSerializer(user)
+        participants = client.exclude(agreement_status=None)
+        participant_serializer = ContractParticipantsSerializers(participants, many=True)
+        expert_summary = ExpertSummary.objects.filter(contract=contract)
+        exp_summary_serializer = ExpertSummarySerializer(expert_summary, many=True)
+        return Response(
+            {
+                'contract': contract_serializer.data,
+                'client': client_serializer.data,
+                'participants': participant_serializer.data,
+                'expert_summary': exp_summary_serializer.data
+            }
+        )
+
+
+class GetGroupContract(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        group = request.user.group
+        if request.user.role.name.lower() == "bo'lim boshlig'i" \
+                or request.user.role.name.lower() == "direktor o'rinbosari" \
+                or request.user.role.name.lower() == 'direktor':
+            contracts = Contract.objects.filter(service__group=group).order_by('condition', '-contract_date')
+        else:
+            contracts = Contract.objects.filter(Q(service__group=group) and Q(condition=3))
+        serializer = ContractSerializerForBackoffice(contracts, many=True)
+        return Response(serializer.data)
+
+
+class ConfirmContract(APIView):
+    permission_classes = (DeputyDirectorPermission,)
+
+    def post(self, request):
+        contract = Contract.objects.get(pk=int(request.data['contract']))
+        agreement_status = AgreementStatus.objects.get(name='Kelishildi')
+        contracts_participants = Contracts_Participants.objects.get(Q(userdata=request.user), Q(contract=contract))
+        contracts_participants.agreement_status = agreement_status
+        contracts_participants.save()
+        contract.condition += 1
+        contract.save()
+        request.data['user'] = request.user.id
+        summary = ExpertSummarySerializerForSave(data=request.data)
+        summary.is_valid(raise_exception=True)
+        summary.save()
+        return Response(status=200)

@@ -148,10 +148,10 @@ class Contract(models.Model):
     contract_number = models.CharField(max_length=10)
     contract_date = models.DateTimeField(blank=True)
     service_type = models.CharField(max_length=50, blank=True, null=True)
-    participants = models.ManyToManyField(UserData)
+    participants = models.ManyToManyField(UserData, through='Contracts_Participants')
     status = models.ForeignKey(Status, on_delete=models.CASCADE)  # ijro statuslari
     contract_status = models.ForeignKey(ContractStatus, on_delete=models.CASCADE)  # hujjat statuslari
-    agreement_status = models.ForeignKey(AgreementStatus, on_delete=models.CASCADE)  # kelishuv statuslari
+    condition = models.IntegerField(default=0)
     contract_cash = models.DecimalField(max_digits=10, decimal_places=2)
     payed_cash = models.DecimalField(max_digits=10, decimal_places=2)
     tarif = models.ForeignKey(Tarif, on_delete=models.CASCADE)
@@ -161,6 +161,28 @@ class Contract(models.Model):
 
     def __str__(self):
         return self.service.name
+
+
+class Contracts_Participants(models.Model):
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    userdata = models.ForeignKey(UserData, on_delete=models.CASCADE)
+    agreement_status = models.ForeignKey(AgreementStatus, on_delete=models.CASCADE, blank=True, null=True)
+    # kelishuv statuslari
+
+
+class ExpertSummary(models.Model):
+    GRANTED = 1
+    CANCEL = 0
+    summary_choice = (
+        (GRANTED, "Shartnoma imzolash maqsadga muvofiq"),
+        (CANCEL, "Shartnoma imzolash maqsadga muvofiq emas")
+    )
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    comment = models.TextField(blank=True, null=True)
+    summary = models.IntegerField(choices=summary_choice)
+    document = models.FileField(upload_to=slugify_upload, blank=True, null=True)
+    user = models.ForeignKey(UserData, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
 
 
 class Pkcs(models.Model):

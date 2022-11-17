@@ -42,6 +42,6 @@ class DirectorPermission(permissions.BasePermission):
 class DeputyDirectorPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         try:
-            return bool(request.user) and request.user.role.name == "direktor o'rinbosari"
+            return request.user.role.name == "bo'lim boshlig'i" or request.user.role.name == "direktor o'rinbosari"
         except:
             return False
