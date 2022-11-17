@@ -477,7 +477,7 @@ class SavePkcs(APIView):
 
 
 class GetContractFile(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = ()
 
     def get(self, request):
         hashcode = request.GET.get('hash')
