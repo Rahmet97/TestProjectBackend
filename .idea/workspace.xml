@@ -4,7 +4,6 @@
     <list default="true" id="71c64a5e-e7b6-470c-8c45-3ce6997c59f4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/contracts/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contracts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -103,7 +102,8 @@
       <workItem from="1668628169878" duration="6680000" />
       <workItem from="1668660916420" duration="20699000" />
       <workItem from="1668691010393" duration="1343000" />
-      <workItem from="1668746428527" duration="5295000" />
+      <workItem from="1668746428527" duration="7002000" />
+      <workItem from="1668778365582" duration="532000" />
     </task>
     <servers />
   </component>
