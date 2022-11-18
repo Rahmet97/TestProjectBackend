@@ -549,7 +549,7 @@ class GetGroupContract(APIView):
                 or request.user.role.name.lower() == 'direktor':
             contracts = Contract.objects.filter(service__group=group).order_by('condition', '-contract_date')
         else:
-            contracts = Contract.objects.filter(Q(service__group=group))  # , Q(condition=3))
+            contracts = Contract.objects.filter(service__group=group).exclude(participants=None)  # , Q(condition=3))
         serializer = ContractSerializerForBackoffice(contracts, many=True)
         return Response(serializer.data)
 
