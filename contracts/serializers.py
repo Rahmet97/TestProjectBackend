@@ -123,6 +123,7 @@ class ContractSerializerForBackoffice(serializers.ModelSerializer):
 
 class ContractSerializerForDetail(serializers.ModelSerializer):
     arrearage = serializers.SerializerMethodField()
+    contract_status = ContractStatusSerializerForContractsList()
 
     def get_arrearage(self, obj):
         return obj.contract_cash - obj.payed_cash
