@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import serializers
 
 from accounts.models import YurUser, FizUser
@@ -93,6 +94,22 @@ class ContractSerializerForContractList(serializers.ModelSerializer):
 
 class ContractSerializerForBackoffice(serializers.ModelSerializer):
     arrearage = serializers.SerializerMethodField()
+    client = serializers.SerializerMethodField()
+    contract_status = ContractStatusSerializerForContractsList()
+
+    def get_client(self, obj):
+        try:
+            client_id = Contracts_Participants.objects.get(Q(contract=obj), Q(agreement_status=None)).userdata
+            if client_id.type == 2:
+                clientt = YurUser.objects.get(userdata=client_id)
+                serializer = YurUserSerializer(clientt)
+            else:
+                clientt = FizUser.objects.get(userdata=client_id)
+                serializer = FizUserSerializer(clientt)
+        except Contracts_Participants.DoesNotExist:
+            return dict()
+
+        return serializer.data
 
     def get_arrearage(self, obj):
         return obj.contract_cash - obj.payed_cash
@@ -100,7 +117,7 @@ class ContractSerializerForBackoffice(serializers.ModelSerializer):
     class Meta:
         model = Contract
         fields = (
-            'id', 'participants', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash', 'payed_cash',
+            'id', 'client', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash', 'payed_cash',
             'arrearage', 'contract_status')
 
 
