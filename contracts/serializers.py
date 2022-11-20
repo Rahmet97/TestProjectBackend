@@ -2,7 +2,8 @@ from django.db.models import Q
 from rest_framework import serializers
 
 from accounts.models import YurUser, FizUser
-from accounts.serializers import GroupSerializer, FizUserSerializer, YurUserSerializer
+from accounts.serializers import GroupSerializer, FizUserSerializer, YurUserSerializer, \
+    YurUserSerializerForContractDetail, FizUserSerializerForContractDetail
 from .models import Service, Tarif, Device, Contract, UserContractTarifDevice, UserDeviceCount, Offer, Document, \
     Element, TarifElement, SavedService, Pkcs, ExpertSummary, Contracts_Participants, ContractStatus
 
@@ -183,10 +184,10 @@ class ExpertSummarySerializer(serializers.ModelSerializer):
     def get_user(self, obj):
         if obj.user.type == 2:
             u = YurUser.objects.get(userdata=obj.user)
-            user = YurUserSerializer(u)
+            user = YurUserSerializerForContractDetail(u)
         else:
             u = FizUser.objects.get(userdata=obj.user)
-            user = FizUserSerializer(u)
+            user = FizUserSerializerForContractDetail(u)
         return user.data
 
     class Meta:
@@ -212,10 +213,10 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
     def get_userdata(self, obj):
         if obj.userdata.type == 2:
             u = YurUser.objects.get(userdata=obj.userdata)
-            user = YurUserSerializer(u)
+            user = YurUserSerializerForContractDetail(u)
         else:
             u = FizUser.objects.get(userdata=obj.userdata)
-            user = FizUserSerializer(u)
+            user = FizUserSerializerForContractDetail(u)
         return user.data
 
     def get_agreement_status(self, obj):
