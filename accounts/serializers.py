@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Group, RolePermission, Role, Permission, FizUser, YurUser
+from .models import Group, RolePermission, Role, Permission, FizUser, YurUser, UserData
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -40,6 +40,15 @@ class PermissionSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class UserDataSerializer(serializers.ModelSerializer):
+    role = RoleSerializer()
+    group = GroupSerializer()
+
+    class Meta:
+        model = UserData
+        fields = ('id', 'username', 'role', 'group')
+
+
 class FizUserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
@@ -47,6 +56,22 @@ class FizUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FizUser
+        fields = '__all__'
+
+
+class FizUserSerializerForContractDetail(serializers.ModelSerializer):
+    userdata = UserDataSerializer()
+
+    class Meta:
+        model = FizUser
+        fields = '__all__'
+
+
+class YurUserSerializerForContractDetail(serializers.ModelSerializer):
+    userdata = UserDataSerializer()
+
+    class Meta:
+        model = YurUser
         fields = '__all__'
 
 
