@@ -20,7 +20,8 @@ from rest_framework.views import APIView
 
 from accounts.models import FizUser, UserData, Role, YurUser
 from accounts.permissions import AdminPermission, SuperAdminPermission, DeputyDirectorPermission
-from accounts.serializers import FizUserSerializer, YurUserSerializer
+from accounts.serializers import FizUserSerializer, YurUserSerializer, FizUserSerializerForContractDetail, \
+    YurUserSerializerForContractDetail
 from .models import Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice, \
     UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus, Pkcs, ExpertSummary, Contracts_Participants
 from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
@@ -59,12 +60,12 @@ class UserDetailAPIView(APIView):
     def get(self, request):
         if request.user.type == 1:
             user = FizUser.objects.get(userdata=request.user)
-            serializer = FizUserSerializer(user)
+            serializer = FizUserSerializerForContractDetail(user)
             data = serializer.data
             data['u_type'] = 'Fizik'
         else:
             user = YurUser.objects.get(userdata=request.user)
-            serializer = YurUserSerializer(user)
+            serializer = YurUserSerializerForContractDetail(user)
             data = serializer.data
             data['u_type'] = 'Yuridik'
         return Response(data)

@@ -3,8 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="71c64a5e-e7b6-470c-8c45-3ce6997c59f4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/accounts/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/accounts/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contracts/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contracts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,15 +28,15 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "/home/user/Documents/TestProjectBackend",
-    "settings.editor.selected.configurable": "com.jetbrains.django.DjangoModulesConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/user/Documents/TestProjectBackend&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.django.DjangoModulesConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Django Server.TestProjectBackend">
     <configuration name="TestProjectBackend" type="Python.DjangoServer" factoryName="Django server">
       <module name="TestProjectBackend" />
@@ -106,7 +105,8 @@
       <workItem from="1668746428527" duration="7002000" />
       <workItem from="1668778365582" duration="817000" />
       <workItem from="1668858861533" duration="32000" />
-      <workItem from="1668966935623" duration="3492000" />
+      <workItem from="1668966935623" duration="5306000" />
+      <workItem from="1668977472567" duration="793000" />
     </task>
     <servers />
   </component>
