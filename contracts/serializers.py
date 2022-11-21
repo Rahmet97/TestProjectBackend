@@ -198,7 +198,6 @@ class ExpertSummarySerializer(serializers.ModelSerializer):
 class ExpertSummarySerializerForSave(serializers.ModelSerializer):
 
     def create(self, validated_data):
-        print(validated_data)
         return ExpertSummary.objects.create(**validated_data)
 
     class Meta:
@@ -209,6 +208,7 @@ class ExpertSummarySerializerForSave(serializers.ModelSerializer):
 class ContractParticipantsSerializers(serializers.ModelSerializer):
     agreement_status = serializers.SerializerMethodField()
     userdata = serializers.SerializerMethodField()
+    expert_summary = serializers.SerializerMethodField()
 
     def get_userdata(self, obj):
         if obj.userdata.type == 2:
@@ -218,6 +218,14 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
             u = FizUser.objects.get(userdata=obj.userdata)
             user = FizUserSerializerForContractDetail(u)
         return user.data
+
+    def get_expert_summary(self, obj):
+        try:
+            summary = ExpertSummary.objects.filter(contract=obj.contract).get(user=obj.userdata)
+            serializer = ExpertSummarySerializer(summary)
+            return serializer.data
+        except ExpertSummary.DoesNotExist:
+            return dict()
 
     def get_agreement_status(self, obj):
         return obj.agreement_status.name

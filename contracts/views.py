@@ -534,8 +534,7 @@ class ContractDetail(APIView):
             {
                 'contract': contract_serializer.data,
                 'client': client_serializer.data,
-                'participants': participant_serializer.data,
-                'expert_summary': exp_summary_serializer.data
+                'participants': participant_serializer.data
             }
         )
 
