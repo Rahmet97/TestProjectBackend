@@ -133,7 +133,7 @@ class ContractSerializerForDetail(serializers.ModelSerializer):
         model = Contract
         fields = (
             'id', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash', 'payed_cash',
-            'arrearage', 'contract_status')
+            'arrearage', 'contract_status', 'base64file')
 
 
 class UserContractTarifDeviceSerializer(serializers.ModelSerializer):
