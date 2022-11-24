@@ -90,7 +90,7 @@ class ContractSerializerForContractList(serializers.ModelSerializer):
 
     class Meta:
         model = Contract
-        fields = ('id', 'service', 'contract_number', 'contract_date', 'contract_status', 'contract_cash')
+        fields = ('id', 'service', 'contract_number', 'contract_date', 'contract_status', 'contract_cash', 'hashcode')
 
 
 class ContractSerializerForBackoffice(serializers.ModelSerializer):
