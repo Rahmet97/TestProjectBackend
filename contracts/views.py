@@ -434,7 +434,7 @@ class SavePkcs(APIView):
         res = requests.post('http://dsv-server-vpn-client:9090/dsvs/pkcs7/v1',
                             data=xml, headers=headers)
         dict_data = xmltodict.parse(res.content)
-        print(dict_data)
+        print(437, dict_data)
         pkcs7_12 = dict_data['S:Envelope']['S:Body']['ns2:join2Pkcs7AttachedResponse']['return']
         d = json.loads(pkcs7_12)
         return d
@@ -453,7 +453,7 @@ class SavePkcs(APIView):
         res = requests.post('http://dsv-server-vpn-client:9090/dsvs/pkcs7/v1',
                             data=xml, headers=headers)
         dict_data = xmltodict.parse(res.content)
-        print(dict_data)
+        print(456, dict_data)
         response = dict_data['S:Envelope']['S:Body']['ns2:verifyPkcs7Response']['return']
         d = json.loads(response)
         return d
@@ -461,7 +461,7 @@ class SavePkcs(APIView):
     def post(self, request):
         contract_id = int(request.data['contract_id'])
         pkcs7 = request.data['pkcs7']
-        print(self.verifyPkcs(pkcs7))
+        print(464, self.verifyPkcs(pkcs7))
         try:
             contract = Contract.objects.get(pk=contract_id)
             if request.user in contract.participants.all():
@@ -469,12 +469,12 @@ class SavePkcs(APIView):
                     pkcs = Pkcs.objects.create(contract=contract, pkcs7=pkcs7)
                     pkcs.save()
                 else:
-                    print(contract.id)
+                    print('id', contract.id)
                     pkcs_exist_object = Pkcs.objects.get(contract=contract)
-                    print(pkcs_exist_object)
+                    print(474, pkcs_exist_object)
                     client_pkcs = pkcs_exist_object.pkcs7
                     new_pkcs7 = self.join2pkcs(pkcs7, client_pkcs)
-                    print(new_pkcs7)
+                    print(477, new_pkcs7)
                     pkcs_exist_object.pkcs7 = new_pkcs7
                     pkcs_exist_object.save()
         except Contract.DoesNotExist:
