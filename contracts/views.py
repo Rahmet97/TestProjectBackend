@@ -373,7 +373,7 @@ class CreateContractFileAPIView(APIView):
                 contract_date=datetime.now(),
                 status=status,
                 contract_status=contract_status,
-                contract_cash=int(context['price']),
+                contract_cash=int(context['price_month']),
                 payed_cash=0,
                 tarif_id=int(request.data['tarif']),
                 base64file=base64code,
