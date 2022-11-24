@@ -419,6 +419,7 @@ class SavePkcs(APIView):
     serializer_class = PkcsSerializer
 
     def join2pkcs(self, pkcs7_1, pkcs7_2):
+        print('422', pkcs7_1, pkcs7_2)
         xml = f"""
             <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
                 <Body>
@@ -468,9 +469,12 @@ class SavePkcs(APIView):
                     pkcs = Pkcs.objects.create(contract=contract, pkcs7=pkcs7)
                     pkcs.save()
                 else:
+                    print(contract.id)
                     pkcs_exist_object = Pkcs.objects.get(contract=contract)
+                    print(pkcs_exist_object)
                     client_pkcs = pkcs_exist_object.pkcs7
                     new_pkcs7 = self.join2pkcs(pkcs7, client_pkcs)
+                    print(new_pkcs7)
                     pkcs_exist_object.pkcs7 = new_pkcs7
                     pkcs_exist_object.save()
         except Contract.DoesNotExist:
