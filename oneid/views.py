@@ -4,11 +4,12 @@ import os
 import requests
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.views import View
 from dotenv import load_dotenv
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt import tokens
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import UserData, FizUser, YurUser
 from accounts.serializers import FizUserSerializer, YurUserSerializer
@@ -122,3 +123,29 @@ class GetUser(APIView):
             return JsonResponse(tk)
         else:
             return JsonResponse({"error": "Xatolik!"})
+
+
+class Logout(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        grant_type = 'one_log_out'
+        client_id = os.getenv("CLIENT_ID")
+        client_secret = os.getenv('CLIENT_SECRET')
+        access_token = request.META.get("HTTP_X_AUTHENTICATION")
+        scope = os.getenv("SCOPE")
+        base_url = os.getenv("BASE_URL")
+        refresh_token = request.data["refresh_token"]
+
+        requests.post(base_url, {
+            'grant_type': grant_type,
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'access_token': access_token,
+            'scope': scope
+        })
+
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+
+        return Response(status=205)

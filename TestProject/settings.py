@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'contracts',
     'drf_yasg',
     'django_celery_beat',
-    'django_celery_results'
+    'django_celery_results',
+    'rest_framework_simplejwt.token_blacklist'
 ]
 
 MIDDLEWARE = [
