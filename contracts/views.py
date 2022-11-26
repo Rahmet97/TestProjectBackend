@@ -563,14 +563,28 @@ class ConfirmContract(APIView):
 
     def post(self, request):
         contract = Contract.objects.get(pk=int(request.data['contract']))
-        agreement_status = AgreementStatus.objects.get(name='Kelishildi')
+        if request.data['summary'] == 1:
+            agreement_status = AgreementStatus.objects.get(name='Kelishildi')
+        else:
+            agreement_status = AgreementStatus.objects.get(name='Rad etildi')
+            contract.contract_status = ContractStatus.objects.get(name='Bekor qilingan')
         contracts_participants = Contracts_Participants.objects.get(Q(userdata=request.user), Q(contract=contract))
         contracts_participants.agreement_status = agreement_status
         contracts_participants.save()
         contract.condition += 1
+        if contract.condition == 3:
+            contract.contract_status = ContractStatus.objects.get(name="To'lov kutilmoqda")
         contract.save()
         request.data['user'] = request.user.id
         summary = ExpertSummarySerializerForSave(data=request.data)
         summary.is_valid(raise_exception=True)
         summary.save()
         return Response(status=200)
+
+
+class DeleteUserContract(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        id = request.data['id']
+
