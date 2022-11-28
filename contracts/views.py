@@ -532,13 +532,20 @@ class ContractDetail(APIView):
             client_serializer = FizUserSerializer(user)
         participants = client.exclude(agreement_status=None)
         participant_serializer = ContractParticipantsSerializers(participants, many=True)
-        expert_summary = ExpertSummary.objects.filter(contract=contract)
-        exp_summary_serializer = ExpertSummarySerializer(expert_summary, many=True)
+        expert_summary = ExpertSummary.objects.filter(
+            Q(contract=contract),
+            Q(user=request.user)).exclude(
+            Q(contract__contracts_participants__agreement_status__name='Yuborilgan'),
+            Q(contract__contracts_participants__agreement_status__name="Ko'rib chiqilmoqda")
+        ).exists()
+        # print(ExpertSummary.objects.get(Q(contract=contract),
+        # Q(user=request.user)).contract.contracts_participants_set.get(agreement_status__name='Rad etildi'))
         return Response(
             {
                 'contract': contract_serializer.data,
                 'client': client_serializer.data,
-                'participants': participant_serializer.data
+                'participants': participant_serializer.data,
+                'is_confirmed': expert_summary
             }
         )
 
