@@ -563,7 +563,7 @@ class ConfirmContract(APIView):
 
     def post(self, request):
         contract = Contract.objects.get(pk=int(request.data['contract']))
-        if request.data['summary'] == 1:
+        if int(request.data['summary']) == 1:
             agreement_status = AgreementStatus.objects.get(name='Kelishildi')
         else:
             agreement_status = AgreementStatus.objects.get(name='Rad etildi')
