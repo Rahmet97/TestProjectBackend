@@ -23,11 +23,13 @@ from accounts.permissions import AdminPermission, SuperAdminPermission, DeputyDi
 from accounts.serializers import FizUserSerializer, YurUserSerializer, FizUserSerializerForContractDetail, \
     YurUserSerializerForContractDetail
 from .models import Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice, \
-    UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus, Pkcs, ExpertSummary, Contracts_Participants
+    UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus, Pkcs, ExpertSummary, Contracts_Participants, \
+    ConnetMethod
 from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
     OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer, PkcsSerializer, \
     ContractSerializerForContractList, ContractSerializerForBackoffice, ExpertSummarySerializer, \
-    ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail
+    ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail, \
+    ConnectMethodSerializer
 from .tasks import file_creator, file_downloader
 
 
@@ -191,6 +193,12 @@ class TarifAPIView(APIView):
             'elements': element_serializer.data,
             'devices': device_serializer.data
         })
+
+
+class ConnectMethodListAPIView(generics.ListAPIView):
+    queryset = ConnetMethod.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ConnectMethodSerializer
 
 
 class SelectedTarifDevicesAPIView(APIView):
