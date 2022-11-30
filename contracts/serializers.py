@@ -5,7 +5,7 @@ from accounts.models import YurUser, FizUser
 from accounts.serializers import GroupSerializer, FizUserSerializer, YurUserSerializer, \
     YurUserSerializerForContractDetail, FizUserSerializerForContractDetail
 from .models import Service, Tarif, Device, Contract, UserContractTarifDevice, UserDeviceCount, Offer, Document, \
-    Element, TarifElement, SavedService, Pkcs, ExpertSummary, Contracts_Participants, ContractStatus
+    Element, TarifElement, SavedService, Pkcs, ExpertSummary, Contracts_Participants, ContractStatus, ConnetMethod
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -193,6 +193,12 @@ class ExpertSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = ExpertSummary
         fields = "__all__"
+
+
+class ConnectMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConnetMethod
+        fields = '__all__'
 
 
 class ExpertSummarySerializerForSave(serializers.ModelSerializer):

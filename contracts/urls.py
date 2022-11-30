@@ -4,7 +4,7 @@ from .views import ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDeta
     UserDetailAPIView, TarifListAPIView, DeviceListAPIView, OfferCreateAPIView, \
     OfferDetailAPIView, GetGroupAdminDataAPIView, ServiceCreateAPIView, DocumentCreateAPIView, SavedServiceAPIView, \
     SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService, CreateContractFileAPIView, SavePkcs, GetContractFile, \
-    GetUserContracts, GetContractFileWithID, ContractDetail, GetGroupContract, ConfirmContract
+    GetUserContracts, GetContractFileWithID, ContractDetail, GetGroupContract, ConfirmContract, ConnectMethodListAPIView
 
 urlpatterns = [
     path('services', ListAllServicesAPIView.as_view(), name='ListAllServicesAPIView'),
@@ -29,5 +29,6 @@ urlpatterns = [
     path('contract-detail/<int:pk>', ContractDetail.as_view(), name='ContractDetail'),
     path('user-contracts', GetUserContracts.as_view(), name='GetUserContracts'),
     path('group-contracts', GetGroupContract.as_view(), name='GetGroupContract'),
-    path('confirm-contract', ConfirmContract.as_view(), name='ConfirmContract')
+    path('confirm-contract', ConfirmContract.as_view(), name='ConfirmContract'),
+    path('get-connect-methods', ConnectMethodListAPIView.as_view(), name='ConnectMethodListAPIView')
 ]
