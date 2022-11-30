@@ -235,7 +235,7 @@ class SelectedTarifDevicesAPIView(APIView):
             service_id=request.data['service_id'],
             tarif=tarif,
             rack_count=request.data['rack_count'],
-            connect_method=request.data['connect_method'],
+            connect_method=ConnetMethod.objects.get(pk=int(request.data['connect_method'])),
             odf_count=request.data['odf_count'],
             price=price
         )
