@@ -229,7 +229,7 @@ class SelectedTarifDevicesAPIView(APIView):
         if 'odf_count' not in request.data.keys():
             request.data['odf_count'] = None
         else:
-            price += int(request.data['odf_count'])*23000
+            price += int(request.data['odf_count'])*int(ConnetMethod.objects.get(pk=int(request.data['connect_method'])).price)
         user_selected_tarif_devices = UserContractTarifDevice.objects.create(
             client=request.user,
             service_id=request.data['service_id'],
