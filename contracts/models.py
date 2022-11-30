@@ -117,10 +117,20 @@ class Device(models.Model):
 
 
 class UserContractTarifDevice(models.Model):
+    UZTELECOM = 1
+    SARKOR = 2
+    ODF = 3
+    connect_methods = (
+        (UZTELECOM, 'AK "UZTELECOM"'),
+        (SARKOR, '"Sarkor-Telecom" MCHJ'),
+        (ODF, 'ODF'),
+    )
     client = models.ForeignKey(UserData, on_delete=models.CASCADE)
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     tarif = models.ForeignKey(Tarif, on_delete=models.CASCADE)
     rack_count = models.IntegerField(blank=True, null=True)
+    connect_method = models.IntegerField(choices=connect_methods, blank=True, null=True)
+    odf_count = models.IntegerField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     devices = models.ManyToManyField(Device, through='UserDeviceCount')
 

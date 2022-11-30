@@ -218,11 +218,17 @@ class SelectedTarifDevicesAPIView(APIView):
 
         if 'rack_count' not in request.data.keys():
             request.data['rack_count'] = None
+        if 'odf_count' not in request.data.keys():
+            request.data['odf_count'] = None
+        else:
+            price += int(request.data['odf_count'])*23000
         user_selected_tarif_devices = UserContractTarifDevice.objects.create(
             client=request.user,
             service_id=request.data['service_id'],
             tarif=tarif,
             rack_count=request.data['rack_count'],
+            connect_method=request.data['connect_method'],
+            odf_count=request.data['odf_count'],
             price=price
         )
         user_selected_tarif_devices.save()
@@ -538,8 +544,6 @@ class ContractDetail(APIView):
             Q(contract__contracts_participants__agreement_status__name='Yuborilgan'),
             Q(contract__contracts_participants__agreement_status__name="Ko'rib chiqilmoqda")
         ).exists()
-        # print(ExpertSummary.objects.get(Q(contract=contract),
-        # Q(user=request.user)).contract.contracts_participants_set.get(agreement_status__name='Rad etildi'))
         return Response(
             {
                 'contract': contract_serializer.data,
