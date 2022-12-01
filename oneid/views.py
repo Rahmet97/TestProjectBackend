@@ -70,7 +70,7 @@ class GetUser(APIView):
         client_id = os.getenv("CLIENT_ID")
         client_secret = os.getenv('CLIENT_SECRET')
         access_token = request.META.get("HTTP_X_AUTHENTICATION")
-        is_client = request.POST["is_client"]
+        is_client = request.data["is_client"]
         scope = os.getenv("SCOPE")
         base_url = os.getenv("BASE_URL")
         res = requests.post(base_url, {"grant_type": grant_type, "client_id": client_id, "client_secret": client_secret,
