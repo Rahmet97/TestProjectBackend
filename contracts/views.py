@@ -570,7 +570,7 @@ class GetGroupContract(APIView):
         if request.user.role.name.lower() == "bo'lim boshlig'i" \
                 or request.user.role.name.lower() == "direktor o'rinbosari" \
                 or request.user.role.name.lower() == 'direktor':
-            contracts = Contract.objects.filter(service__group=group).order_by('condition', '-contract_date')
+            contracts = Contract.objects.filter(service__group=group).order_by('-condition', '-contract_date')
         else:
             contracts = Contract.objects.filter(service__group=group).exclude(participants=None)  # , Q(condition=3))
         serializer = ContractSerializerForBackoffice(contracts, many=True)
