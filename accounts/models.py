@@ -185,7 +185,6 @@ class YurUser(models.Model):
     extraActivityType = models.CharField(max_length=4, blank=True, null=True)
     xxtut = models.CharField(max_length=20, blank=True, null=True)
     ktut = models.CharField(max_length=20, blank=True, null=True)
-    ifut = models.CharField(max_length=20, blank=True, null=True)
     birth_date = models.DateField()
     ctzn = models.CharField(max_length=50)
     per_adr = models.CharField(max_length=255)
