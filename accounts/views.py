@@ -2,11 +2,12 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Group, Role, Permission, UserData
+from .models import Group, Role, Permission, UserData, YurUser, FizUser
 from rest_framework import generics
 
 from .permissions import SuperAdminPermission, EmployeePermission, AdminPermission
-from .serializers import GroupSerializer, RoleSerializer, PermissionSerializer, PinUserToGroupRoleSerializer
+from .serializers import GroupSerializer, RoleSerializer, PermissionSerializer, PinUserToGroupRoleSerializer, \
+    YurUserSerializer, FizUserSerializer
 
 
 class GroupCreateAPIView(generics.CreateAPIView):
@@ -74,3 +75,15 @@ class PinUserToGroupRole(APIView):
         user.save()
 
         return Response(status=200)
+
+
+class UpdateYurUserAPIView(generics.UpdateAPIView):
+    queryset = YurUser.objects.all()
+    serializer_class = YurUserSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class UpdateFizUserAPIView(generics.UpdateAPIView):
+    queryset = FizUser.objects.all()
+    serializer_class = FizUserSerializer
+    permission_classes = (IsAuthenticated,)
