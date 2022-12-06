@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Group, RolePermission, Role, Permission, FizUser, YurUser, UserData
+from .models import Group, RolePermission, Role, Permission, FizUser, YurUser, UserData, BankMFOName
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -89,3 +89,9 @@ class PinUserToGroupRoleSerializer(serializers.Serializer):
     user = serializers.IntegerField()
     group = serializers.IntegerField()
     role = serializers.IntegerField()
+
+
+class BankMFONameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BankMFOName
+        fields = '__all__'

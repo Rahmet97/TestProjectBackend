@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'drf_yasg',
     'django_celery_beat',
     'django_celery_results',
-    'rest_framework_simplejwt.token_blacklist'
+    'rest_framework_simplejwt.token_blacklist',
+    'import_export',
 ]
 
 MIDDLEWARE = [
