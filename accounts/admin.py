@@ -7,14 +7,6 @@ admin.site.register((UserData, FizUser, YurUser, Permission, Role, Group, LogGro
 
 
 class BankMFOResource(resources.ModelResource):
-
-    def before_import_row(self, row, row_number=None, **kwargs):
-        try:
-            row['branch_sym'] = int(row['branch_sym'])
-            print(row['branch_sym'])
-        except Exception as e:
-            print(e)
-
     class Meta:
         model = BankMFOName
 
