@@ -2,12 +2,12 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Group, Role, Permission, UserData, YurUser, FizUser
+from .models import Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName
 from rest_framework import generics
 
 from .permissions import SuperAdminPermission, EmployeePermission, AdminPermission
 from .serializers import GroupSerializer, RoleSerializer, PermissionSerializer, PinUserToGroupRoleSerializer, \
-    YurUserSerializer, FizUserSerializer
+    YurUserSerializer, FizUserSerializer, BankMFONameSerializer
 
 
 class GroupCreateAPIView(generics.CreateAPIView):
@@ -87,3 +87,13 @@ class UpdateFizUserAPIView(generics.UpdateAPIView):
     queryset = FizUser.objects.all()
     serializer_class = FizUserSerializer
     permission_classes = (IsAuthenticated,)
+
+
+class GetBankNameAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        mfo = request.GET.get('mfo')
+        bank = BankMFOName.objects.get(mfo=mfo)
+        serializer = BankMFONameSerializer(bank)
+        return Response(serializer.data)

@@ -137,6 +137,22 @@ class FizUser(models.Model):
         return self.full_name
 
 
+class BankMFOName(models.Model):
+    mfo = models.CharField(max_length=5)
+    bank_name = models.CharField(max_length=30)
+    branch_name = models.CharField(max_length=150)
+    branch_address = models.CharField(max_length=255)
+    region = models.CharField(max_length=30)
+    district = models.CharField(max_length=30)
+    city = models.CharField(max_length=30)
+    tin = models.CharField(max_length=9)
+    website = models.CharField(max_length=50)
+    geolocation = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.branch_name
+
+
 class YurUser(models.Model):
     userdata = models.ForeignKey(UserData, on_delete=models.CASCADE)
     name = models.CharField(max_length=255, blank=True, null=True)
@@ -180,7 +196,7 @@ class YurUser(models.Model):
     director_tin = models.CharField(max_length=9, blank=True, null=True)
     director_phone = models.CharField(max_length=12, blank=True, null=True)
     director_email = models.CharField(max_length=40, blank=True, null=True)
-    mfo = models.CharField(max_length=5, blank=True, null=True)
+    bank_mfo = models.ForeignKey(BankMFOName, on_delete=models.CASCADE, blank=True, null=True)
     paymentAccount = models.CharField(max_length=20, blank=True, null=True)
     extraActivityType = models.CharField(max_length=4, blank=True, null=True)
     xxtut = models.CharField(max_length=20, blank=True, null=True)
