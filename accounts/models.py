@@ -197,7 +197,7 @@ class YurUser(models.Model):
     director_phone = models.CharField(max_length=12, blank=True, null=True)
     director_email = models.CharField(max_length=40, blank=True, null=True)
     bank_mfo = models.ForeignKey(BankMFOName, on_delete=models.CASCADE, blank=True, null=True)
-    paymentAccount = models.CharField(max_length=20, blank=True, null=True)
+    paymentAccount = models.CharField(max_length=24, blank=True, null=True)
     extraActivityType = models.CharField(max_length=4, blank=True, null=True)
     xxtut = models.CharField(max_length=20, blank=True, null=True)
     ktut = models.CharField(max_length=20, blank=True, null=True)
