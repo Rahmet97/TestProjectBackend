@@ -67,8 +67,15 @@ class FizUserSerializerForContractDetail(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class BankMFONameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BankMFOName
+        fields = '__all__'
+
+
 class YurUserSerializerForContractDetail(serializers.ModelSerializer):
     userdata = UserDataSerializer()
+    bank_mfo = BankMFONameSerializer()
 
     class Meta:
         model = YurUser
@@ -90,8 +97,3 @@ class PinUserToGroupRoleSerializer(serializers.Serializer):
     group = serializers.IntegerField()
     role = serializers.IntegerField()
 
-
-class BankMFONameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BankMFOName
-        fields = '__all__'

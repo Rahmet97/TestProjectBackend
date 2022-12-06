@@ -229,7 +229,8 @@ class SelectedTarifDevicesAPIView(APIView):
         if 'odf_count' not in request.data.keys():
             request.data['odf_count'] = None
         else:
-            price += int(request.data['odf_count'])*int(ConnetMethod.objects.get(pk=int(request.data['connect_method'])).price)
+            price += int(request.data['odf_count']) * int(
+                ConnetMethod.objects.get(pk=int(request.data['connect_method'])).price)
         user_selected_tarif_devices = UserContractTarifDevice.objects.create(
             client=request.user,
             service_id=request.data['service_id'],
@@ -570,7 +571,16 @@ class GetGroupContract(APIView):
         if request.user.role.name.lower() == "bo'lim boshlig'i" \
                 or request.user.role.name.lower() == "direktor o'rinbosari" \
                 or request.user.role.name.lower() == 'direktor':
-            contracts = Contract.objects.filter(service__group=group).order_by('-condition', '-contract_date')
+            filter_field = request.GET.get('filter')
+            if filter_field == 'barcha':
+                contracts = Contract.objects.filter(service__group=group).order_by('-condition', '-contract_date')
+            elif filter_field == 'yangi':
+                contracts = Contract.objects.filter(Q(service__group=group) and
+                                                    Q(contracts_participants__userdata=request.user) and
+                                                    (Q(contracts_participants__agreement_status__name='Yuborilgan') or
+                                                     Q(contracts_participants__agreement_status__name="Ko'rib "
+                                                                                                      "chiqilmoqda"))) \
+                    .order_by('-condition', '-contract_date')
         else:
             contracts = Contract.objects.filter(service__group=group).exclude(participants=None)  # , Q(condition=3))
         serializer = ContractSerializerForBackoffice(contracts, many=True)
@@ -606,4 +616,3 @@ class DeleteUserContract(APIView):
 
     def post(self, request):
         id = request.data['id']
-
