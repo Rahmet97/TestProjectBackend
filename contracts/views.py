@@ -8,7 +8,7 @@ import requests
 from django.conf import settings
 
 import qrcode
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db.models import Q
 from django.shortcuts import redirect
@@ -109,11 +109,23 @@ class GetGroupAdminDataAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        service = Service.objects.get(pk=request.GET.get('service_id'))
-        role = UserData.objects.get(group__service_id=service)
-        # role_name = Role.objects.get(pk=role).name
-        print(role)
-        return Response(status=200)
+        service_id = request.GET.get('service_id')
+        service = Service.objects.get(pk=service_id)
+        user = UserData.objects.get(Q(group__service=service), Q(role__name="bo'lim boshlig'i"))
+        dt = FizUser.objects.get(userdata=user)
+        serializer = FizUserSerializer(dt)
+        return Response(serializer.data)
+
+
+class GetPinnedUserDataAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        service_id = request.GET.get('service_id')
+        user = Service.objects.get(pk=service_id).pinned_user
+        dt = FizUser.objects.get(userdata=user)
+        serializer = FizUserSerializer(dt)
+        return Response(serializer.data)
 
 
 class ServiceCreateAPIView(generics.CreateAPIView):
@@ -579,7 +591,7 @@ class GetGroupContract(APIView):
                                                     Q(contracts_participants__userdata=request.user),
                                                     (Q(contracts_participants__agreement_status__name='Yuborilgan') |
                                                      Q(contracts_participants__agreement_status__name="Ko'rib "
-                                                                                                      "chiqilmoqda")))\
+                                                                                                      "chiqilmoqda"))) \
                     .order_by('-condition', '-contract_date')
             elif filter_field == 'kelishilgan':
                 contracts = Contract.objects.filter(Q(service__group=group),
@@ -590,6 +602,37 @@ class GetGroupContract(APIView):
                 contracts = Contract.objects.filter(Q(service__group=group),
                                                     Q(contract_status__name='Bekor qilingan')) \
                     .order_by('-condition', '-contract_date')
+            elif filter_field == 'expired':
+                contracts = Contract.objects.filter(Q(service__group=group),
+                                                    Q(contracts_participants__userdata=request.user),
+                                                    (Q(contracts_participants__agreement_status__name='Yuborilgan') |
+                                                     Q(contracts_participants__agreement_status__name="Ko'rib "
+                                                                                                      "chiqilmoqda")),
+                                                    Q(contract_date__lt=datetime.now() - timedelta(days=1))) \
+                    .order_by('-condition', '-contract_date')
+            elif filter_field == 'lastday':
+                contracts = Contract.objects.filter(Q(service__group=group),
+                                                    Q(contracts_participants__userdata=request.user),
+                                                    (Q(contracts_participants__agreement_status__name='Yuborilgan') |
+                                                     Q(contracts_participants__agreement_status__name="Ko'rib "
+                                                                                                      "chiqilmoqda")),
+                                                    Q(contract_date__day=datetime.now().day),
+                                                    Q(contract_date__month=datetime.now().month),
+                                                    Q(contract_date__year=datetime.now().year)) \
+                    .order_by('-condition', '-contract_date')
+            elif filter_field == 'expired_accepted':
+                contracts = Contract.objects.filter(Q(service__group=group),
+                                                    Q(contracts_participants__userdata=request.user),
+                                                    Q(contracts_participants__agreement_status__name='Kelishildi'),
+                                                    Q(contract_date__lt=datetime.now() - timedelta(days=1))) \
+                    .order_by('-condition', '-contract_date')
+            elif filter_field == 'in_time':
+                contracts_selected = ExpertSummary.objects.select_related('contract').filter(
+                    Q(contract__contracts_participants__userdata=request.user)).order_by('-contract__condition',
+                                                                                         '-contract__contract_date')
+                contracts = [element.contract for element in contracts_selected if
+                             element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(
+                                 days=1)]
         else:
             contracts = Contract.objects.filter(service__group=group).exclude(participants=None)  # , Q(condition=3))
         serializer = ContractSerializerForBackoffice(contracts, many=True)

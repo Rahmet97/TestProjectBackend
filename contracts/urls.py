@@ -4,7 +4,8 @@ from .views import ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDeta
     UserDetailAPIView, TarifListAPIView, DeviceListAPIView, OfferCreateAPIView, \
     OfferDetailAPIView, GetGroupAdminDataAPIView, ServiceCreateAPIView, DocumentCreateAPIView, SavedServiceAPIView, \
     SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService, CreateContractFileAPIView, SavePkcs, GetContractFile, \
-    GetUserContracts, GetContractFileWithID, ContractDetail, GetGroupContract, ConfirmContract, ConnectMethodListAPIView
+    GetUserContracts, GetContractFileWithID, ContractDetail, GetGroupContract, ConfirmContract, \
+    ConnectMethodListAPIView, GetPinnedUserDataAPIView
 
 urlpatterns = [
     path('services', ListAllServicesAPIView.as_view(), name='ListAllServicesAPIView'),
@@ -16,6 +17,7 @@ urlpatterns = [
     path('offer-create', OfferCreateAPIView.as_view(), name='OfferCreateAPIView'),
     path('offer-detail', OfferDetailAPIView.as_view(), name='OfferDetailAPIView'),
     path('group-admin', GetGroupAdminDataAPIView.as_view(), name='GetGroupAdminDataAPIView'),
+    path('group-pinned-user', GetPinnedUserDataAPIView.as_view(), name='GetPinnedUserDataAPIView'),
     path('service-create', ServiceCreateAPIView.as_view(), name='ServiceCreateAPIView'),
     path('document-create', DocumentCreateAPIView.as_view(), name='DocumentAPIView'),
     path('saved-service', SavedServiceAPIView.as_view(), name='SavedServiceAPIView'),

@@ -94,6 +94,7 @@ class Service(models.Model):
     image = models.ImageField(upload_to=slugify_upload)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     user_type = models.IntegerField(choices=users_type)
+    pinned_user = models.ForeignKey(UserData, on_delete=models.CASCADE, blank=True, null=True)
     period = models.IntegerField()
     need_documents = models.ManyToManyField(Document)
 
