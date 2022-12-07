@@ -541,7 +541,7 @@ class ContractDetail(APIView):
         client = Contracts_Participants.objects.filter(contract=contract)
         if client.get(agreement_status=None).userdata.type == 2:
             user = YurUser.objects.get(userdata=client.get(agreement_status=None).userdata)
-            client_serializer = YurUserSerializer(user)
+            client_serializer = YurUserSerializerForContractDetail(user)
         else:
             user = FizUser.objects.get(userdata=client.get(agreement_status=None).userdata)
             client_serializer = FizUserSerializer(user)
@@ -575,11 +575,20 @@ class GetGroupContract(APIView):
             if filter_field == 'barcha':
                 contracts = Contract.objects.filter(service__group=group).order_by('-condition', '-contract_date')
             elif filter_field == 'yangi':
-                contracts = Contract.objects.filter(Q(service__group=group) and
-                                                    Q(contracts_participants__userdata=request.user) and
-                                                    (Q(contracts_participants__agreement_status__name='Yuborilgan') or
+                contracts = Contract.objects.filter(Q(service__group=group),
+                                                    Q(contracts_participants__userdata=request.user),
+                                                    (Q(contracts_participants__agreement_status__name='Yuborilgan') |
                                                      Q(contracts_participants__agreement_status__name="Ko'rib "
-                                                                                                      "chiqilmoqda"))) \
+                                                                                                      "chiqilmoqda")))\
+                    .order_by('-condition', '-contract_date')
+            elif filter_field == 'kelishilgan':
+                contracts = Contract.objects.filter(Q(service__group=group),
+                                                    Q(contracts_participants__userdata=request.user),
+                                                    Q(contracts_participants__agreement_status__name='Kelishildi')) \
+                    .order_by('-condition', '-contract_date')
+            elif filter_field == 'rad_etildi':
+                contracts = Contract.objects.filter(Q(service__group=group),
+                                                    Q(contract_status__name='Bekor qilingan')) \
                     .order_by('-condition', '-contract_date')
         else:
             contracts = Contract.objects.filter(service__group=group).exclude(participants=None)  # , Q(condition=3))
