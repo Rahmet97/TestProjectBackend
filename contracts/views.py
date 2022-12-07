@@ -106,7 +106,7 @@ class OfferDetailAPIView(APIView):
 
 
 class GetGroupAdminDataAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = ()
 
     def get(self, request):
         service_id = request.GET.get('service_id')
@@ -118,7 +118,7 @@ class GetGroupAdminDataAPIView(APIView):
 
 
 class GetPinnedUserDataAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = ()
 
     def get(self, request):
         service_id = request.GET.get('service_id')
