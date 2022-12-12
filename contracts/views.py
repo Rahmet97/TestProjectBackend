@@ -416,11 +416,12 @@ class CreateContractFileAPIView(APIView):
             )
             contract.save()
             service = contract.service.name
-            participants = Participant.objects.get(service_id=int(request.data['service_id'])).participants
+            participants = Participant.objects.get(service_id=int(request.data['service_id'])).participants.all()
             for participant in participants:
+                print(participant)
                 Contracts_Participants.objects.create(
                     contract=contract,
-                    role=participant.role,
+                    role=participant,
                     agreement_status=agreement_status
                 ).save()
             # if service.lower() == 'co-location':
