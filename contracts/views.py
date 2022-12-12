@@ -613,6 +613,7 @@ class GetGroupContract(APIView):
                 or request.user.role.name.lower() == "direktor o'rinbosari" \
                 or request.user.role.name.lower() == 'direktor':
             filter_field = request.GET.get('filter')
+            contracts = None
             if filter_field == 'barcha':
                 contracts = Contract.objects.filter(service__group=group).order_by('-condition', '-contract_date')
             elif filter_field == 'yangi':
