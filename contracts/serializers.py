@@ -1,7 +1,7 @@
 from django.db.models import Q
 from rest_framework import serializers
 
-from accounts.models import YurUser, FizUser
+from accounts.models import YurUser, FizUser, UserData
 from accounts.serializers import GroupSerializer, FizUserSerializer, YurUserSerializer, \
     YurUserSerializerForContractDetail, FizUserSerializerForContractDetail
 from .models import Service, Tarif, Device, Contract, UserContractTarifDevice, UserDeviceCount, Offer, Document, \
@@ -100,14 +100,14 @@ class ContractSerializerForBackoffice(serializers.ModelSerializer):
 
     def get_client(self, obj):
         try:
-            client_id = Contracts_Participants.objects.get(Q(contract=obj), Q(agreement_status=None)).userdata
+            client_id = Contract.objects.select_related('client').get(contract=obj).client
             if client_id.type == 2:
                 clientt = YurUser.objects.get(userdata=client_id)
                 serializer = YurUserSerializer(clientt)
             else:
                 clientt = FizUser.objects.get(userdata=client_id)
                 serializer = FizUserSerializer(clientt)
-        except Contracts_Participants.DoesNotExist:
+        except Contract.DoesNotExist:
             return dict()
 
         return serializer.data
@@ -217,17 +217,19 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
     expert_summary = serializers.SerializerMethodField()
 
     def get_userdata(self, obj):
-        if obj.userdata.type == 2:
-            u = YurUser.objects.get(userdata=obj.userdata)
+        userdata = UserData.objects.get(Q(role=obj.role), Q(group=obj.contract.service.group))
+        if userdata.type == 2:
+            u = YurUser.objects.get(userdata=userdata)
             user = YurUserSerializerForContractDetail(u)
         else:
-            u = FizUser.objects.get(userdata=obj.userdata)
+            u = FizUser.objects.get(userdata=userdata)
             user = FizUserSerializerForContractDetail(u)
         return user.data
 
     def get_expert_summary(self, obj):
         try:
-            summary = ExpertSummary.objects.filter(contract=obj.contract).get(user=obj.userdata)
+            userdata = UserData.objects.get(Q(role=obj.role), Q(group=obj.contract.service.group))
+            summary = ExpertSummary.objects.filter(contract=obj.contract).get(user=userdata)
             serializer = ExpertSummarySerializer(summary)
             return serializer.data
         except ExpertSummary.DoesNotExist:
