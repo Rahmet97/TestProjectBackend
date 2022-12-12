@@ -678,7 +678,11 @@ class ConfirmContract(APIView):
         else:
             agreement_status = AgreementStatus.objects.get(name='Rad etildi')
             contract.contract_status = ContractStatus.objects.get(name='Bekor qilingan')
-        contracts_participants = Contracts_Participants.objects.get(Q(userdata=request.user), Q(contract=contract))
+        contracts_participants = Contracts_Participants.objects.get(
+            Q(role=request.user.role),
+            Q(contract=contract),
+            Q(contract__service__group=request.user.group)
+        )
         contracts_participants.agreement_status = agreement_status
         contracts_participants.save()
         contract.condition += 1
