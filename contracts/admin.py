@@ -17,5 +17,7 @@ admin.site.register((
     AgreementStatus,
     Status,
     Contracts_Participants,
-    ConnetMethod
+    ConnetMethod,
+    Participant,
+    ServiceParticipants,
 ))

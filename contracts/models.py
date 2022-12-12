@@ -3,7 +3,7 @@ from os.path import splitext
 
 from django.template.defaultfilters import slugify
 
-from accounts.models import Group, UserData
+from accounts.models import Group, UserData, Role
 
 
 def slugify_upload(instance, filename):
@@ -158,8 +158,7 @@ class Contract(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     contract_number = models.CharField(max_length=10)
     contract_date = models.DateTimeField(blank=True)
-    service_type = models.CharField(max_length=50, blank=True, null=True)
-    participants = models.ManyToManyField(UserData, through='Contracts_Participants')
+    client = models.ForeignKey(UserData, on_delete=models.CASCADE)
     status = models.ForeignKey(Status, on_delete=models.CASCADE)  # ijro statuslari
     contract_status = models.ForeignKey(ContractStatus, on_delete=models.CASCADE)  # hujjat statuslari
     condition = models.IntegerField(default=0)
@@ -174,9 +173,23 @@ class Contract(models.Model):
         return self.service.name
 
 
+class Participant(models.Model):
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    participants = models.ManyToManyField(Role, through='ServiceParticipants')
+
+    def __str__(self):
+        return self.service.name
+
+
+class ServiceParticipants(models.Model):
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    with_eds = models.BooleanField(default=False)
+
+
 class Contracts_Participants(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
-    userdata = models.ForeignKey(UserData, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
     agreement_status = models.ForeignKey(AgreementStatus, on_delete=models.CASCADE, blank=True, null=True)
     # kelishuv statuslari
 

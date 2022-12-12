@@ -77,8 +77,12 @@ class GetUser(APIView):
                                        "access_token": access_token, "scope": scope})
         if res.status_code == 200:
             data = json.loads(res.content)
-            username = data['pin']
-            password = data['first_name'][0] + data['pin'] + data['first_name'][-1]
+            if data['legal_info']:
+                username = data['legal_info'][0]['tin']
+                password = data['first_name'][0] + data['legal_info'][0]['tin'] + data['first_name'][-1]
+            else:
+                username = data['pin']
+                password = data['first_name'][0] + data['pin'] + data['first_name'][-1]
 
             # UserData table ga yangi kirgan userni ma'lumotlarini yozish
 

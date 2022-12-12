@@ -24,7 +24,7 @@ from accounts.serializers import FizUserSerializer, YurUserSerializer, FizUserSe
     YurUserSerializerForContractDetail
 from .models import Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice, \
     UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus, Pkcs, ExpertSummary, Contracts_Participants, \
-    ConnetMethod
+    ConnetMethod, Participant
 from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
     OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer, PkcsSerializer, \
     ContractSerializerForContractList, ContractSerializerForBackoffice, ExpertSummarySerializer, \
@@ -385,7 +385,10 @@ class CreateContractFileAPIView(APIView):
         hashcode.update(base64.b64encode(open('/usr/src/app/media/Contract/' + contract_file_for_preview, 'rb').read()))
         hash_code = hashcode.hexdigest()
         link = 'http://' + request.META['HTTP_HOST'] + '/contracts/contract?hash=' + hash_code
-        context['qr_unicon'] = self.create_qr('Maxmudov Maxsum Mubashirovich', link, 1)
+        direktor_id = UserData.objects.get(role__name='direktor')
+        direktor = YurUser.objects.get(userdata=direktor_id)
+        direktor_fullname = f'{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}'
+        context['qr_unicon'] = self.create_qr(direktor_fullname, link, 1)
         context['qr_client'] = self.create_qr(context['client_fullname'], link, 2)
         contract_file = open('/usr/src/app/media/Contract/' + str(file_creator(context, 0)), 'rb').read()
         base64code = base64.b64encode(contract_file)
@@ -394,10 +397,15 @@ class CreateContractFileAPIView(APIView):
             status = Status.objects.filter(name='Yangi').first()
             contract_status = ContractStatus.objects.filter(name='Yangi').first()
             agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
+            if request.user.role.name == 'mijoz':
+                client = request.user
+            else:
+                client = request.data['client']
             contract = Contract.objects.create(
                 service_id=int(request.data['service_id']),
                 contract_number=context['contract_number'],
                 contract_date=datetime.now(),
+                client=client,
                 status=status,
                 contract_status=contract_status,
                 contract_cash=int(context['price_month']),
@@ -407,32 +415,33 @@ class CreateContractFileAPIView(APIView):
                 hashcode=hash_code
             )
             contract.save()
-            contracts_participants = Contracts_Participants.objects.create(
-                contract=contract,
-                userdata=request.user
-            )
-            print(agreement_status)
-            contracts_participants.save()
             service = contract.service.name
-            if service.lower() == 'co-location':
-                director = UserData.objects.get(role__name="direktor")
-                deputy_director = UserData.objects.get(role__name="direktor o'rinbosari")
-                d_head = UserData.objects.get(role__name="bo'lim boshlig'i")
+            participants = Participant.objects.get(service_id=int(request.data['service_id'])).participants
+            for participant in participants:
                 Contracts_Participants.objects.create(
                     contract=contract,
-                    userdata=director,
+                    role=participant.role,
                     agreement_status=agreement_status
                 ).save()
-                Contracts_Participants.objects.create(
-                    contract=contract,
-                    userdata=deputy_director,
-                    agreement_status=agreement_status
-                ).save()
-                Contracts_Participants.objects.create(
-                    contract=contract,
-                    userdata=d_head,
-                    agreement_status=agreement_status
-                ).save()
+            # if service.lower() == 'co-location':
+            #     director = Role.objects.get(name="direktor")
+            #     deputy_director = Role.objects.get(name="direktor o'rinbosari")
+            #     d_head = Role.objects.get(name="bo'lim boshlig'i")
+            #     Contracts_Participants.objects.create(
+            #         contract=contract,
+            #         role=director,
+            #         agreement_status=agreement_status
+            #     ).save()
+            #     Contracts_Participants.objects.create(
+            #         contract=contract,
+            #         role=deputy_director,
+            #         agreement_status=agreement_status
+            #     ).save()
+            #     Contracts_Participants.objects.create(
+            #         contract=contract,
+            #         role=d_head,
+            #         agreement_status=agreement_status
+            #     ).save()
             serializer = ContractSerializer(contract)
             return Response(serializer.data)
         return Response({
@@ -446,7 +455,7 @@ class SavePkcs(APIView):
     serializer_class = PkcsSerializer
 
     def join2pkcs(self, pkcs7_1, pkcs7_2):
-        print('422', pkcs7_1, pkcs7_2)
+        print(449, pkcs7_1, pkcs7_2)
         xml = f"""
             <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
                 <Body>
@@ -461,7 +470,7 @@ class SavePkcs(APIView):
         res = requests.post('http://dsv-server-vpn-client:9090/dsvs/pkcs7/v1',
                             data=xml, headers=headers)
         dict_data = xmltodict.parse(res.content)
-        print(437, dict_data)
+        print(464, dict_data)
         pkcs7_12 = dict_data['S:Envelope']['S:Body']['ns2:join2Pkcs7AttachedResponse']['return']
         d = json.loads(pkcs7_12)
         return d
@@ -480,7 +489,7 @@ class SavePkcs(APIView):
         res = requests.post('http://dsv-server-vpn-client:9090/dsvs/pkcs7/v1',
                             data=xml, headers=headers)
         dict_data = xmltodict.parse(res.content)
-        print(456, dict_data)
+        print(483, dict_data)
         response = dict_data['S:Envelope']['S:Body']['ns2:verifyPkcs7Response']['return']
         d = json.loads(response)
         return d
@@ -488,20 +497,20 @@ class SavePkcs(APIView):
     def post(self, request):
         contract_id = int(request.data['contract_id'])
         pkcs7 = request.data['pkcs7']
-        print(464, self.verifyPkcs(pkcs7))
+        print(491, self.verifyPkcs(pkcs7))
         try:
             contract = Contract.objects.get(pk=contract_id)
-            if request.user in contract.participants.all():
+            if request.user.role in Contracts_Participants.objects.filter(contract=contract).values('role'):
                 if not Pkcs.objects.filter(contract=contract).exists():
                     pkcs = Pkcs.objects.create(contract=contract, pkcs7=pkcs7)
                     pkcs.save()
                 else:
                     print('id', contract.id)
                     pkcs_exist_object = Pkcs.objects.get(contract=contract)
-                    print(474, pkcs_exist_object)
+                    print(501, pkcs_exist_object)
                     client_pkcs = pkcs_exist_object.pkcs7
                     new_pkcs7 = self.join2pkcs(pkcs7, client_pkcs)
-                    print(477, new_pkcs7)
+                    print(504, new_pkcs7)
                     pkcs_exist_object.pkcs7 = new_pkcs7
                     pkcs_exist_object.save()
         except Contract.DoesNotExist:
@@ -523,7 +532,7 @@ class GetUserContracts(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        contracts = Contract.objects.filter(participants=request.user)
+        contracts = Contract.objects.filter(client=request.user)
         serializer = ContractSerializerForContractList(contracts, many=True)
         return Response(serializer.data)
 
@@ -542,29 +551,48 @@ class ContractDetail(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, pk):
-        contract = Contract.objects.get(pk=pk)
+        contract = Contract.objects.select_related('client').get(pk=pk)
         contract_serializer = ContractSerializerForDetail(contract)
-        contract_participants = Contracts_Participants.objects.filter(contract=contract).get(userdata=request.user)
-        if (request.user.role.name == "bo'lim boshlig'i" or request.user.role.name == "direktor o'rinbosari") \
-                and contract_participants.agreement_status.name == "Yuborilgan":
+        try:
+            contract_participants = Contracts_Participants.objects.filter(contract=contract).get(
+                Q(role=request.user.role),
+                Q(contract__service__group=request.user.group)
+            )
+        except Contracts_Participants.DoesNotExist:
+            contract_participants = None
+        if (request.user.role.name == "bo'lim boshlig'i" or
+            request.user.role.name == "direktor o'rinbosari" or
+            request.user.role.name == "direktor") and \
+                contract_participants.agreement_status.name == "Yuborilgan":
             agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
             contract_participants.agreement_status = agreement_status
             contract_participants.save()
-        client = Contracts_Participants.objects.filter(contract=contract)
-        if client.get(agreement_status=None).userdata.type == 2:
-            user = YurUser.objects.get(userdata=client.get(agreement_status=None).userdata)
+        client = contract.client
+        if client.type == 2:
+            user = YurUser.objects.get(userdata=client)
             client_serializer = YurUserSerializerForContractDetail(user)
         else:
-            user = FizUser.objects.get(userdata=client.get(agreement_status=None).userdata)
+            user = FizUser.objects.get(userdata=client)
             client_serializer = FizUserSerializer(user)
-        participants = client.exclude(agreement_status=None)
+        participants = Contracts_Participants.objects.filter(contract=contract)
         participant_serializer = ContractParticipantsSerializers(participants, many=True)
-        expert_summary = ExpertSummary.objects.filter(
-            Q(contract=contract),
-            Q(user=request.user)).exclude(
-            Q(contract__contracts_participants__agreement_status__name='Yuborilgan'),
-            Q(contract__contracts_participants__agreement_status__name="Ko'rib chiqilmoqda")
-        ).exists()
+        try:
+            expert_summary = Contracts_Participants.objects.filter(
+                Q(contract=contract),
+                Q(role=request.user.role),
+                Q(contract__service__group=request.user.group)
+            ).exclude(
+                Q(agreement_status__name='Yuborilgan'),
+                Q(agreement_status__name="Ko'rib chiqilmoqda")
+            ).exists()
+        except Contracts_Participants.DoesNotExist:
+            expert_summary = False
+        # expert_summary = ExpertSummary.objects.filter(
+        #     Q(contract=contract),
+        #     Q(user=request.user)).exclude(
+        #     Q(contract__service__contracts_participants__agreement_status__name='Yuborilgan'),
+        #     Q(contract__contracts_participants__agreement_status__name="Ko'rib chiqilmoqda")
+        # ).exists()
         return Response(
             {
                 'contract': contract_serializer.data,
