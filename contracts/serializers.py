@@ -100,7 +100,7 @@ class ContractSerializerForBackoffice(serializers.ModelSerializer):
 
     def get_client(self, obj):
         try:
-            client_id = Contract.objects.select_related('client').get(contract=obj).client
+            client_id = Contract.objects.select_related('client').get(id=obj.id).client
             if client_id.type == 2:
                 clientt = YurUser.objects.get(userdata=client_id)
                 serializer = YurUserSerializer(clientt)
