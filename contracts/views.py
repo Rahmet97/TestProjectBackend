@@ -588,10 +588,13 @@ class ContractDetail(APIView):
         #     ).exists()
         # except Contracts_Participants.DoesNotExist:
         #     expert_summary = False
-        expert_summary_value = ExpertSummary.objects.get(
-            Q(contract=contract),
-            Q(user=request.user),
-            Q(user__group=request.user.group)).summary
+        try:
+            expert_summary_value = ExpertSummary.objects.get(
+                Q(contract=contract),
+                Q(user=request.user),
+                Q(user__group=request.user.group)).summary
+        except ExpertSummary.DoesNotExist:
+            expert_summary_value = 0
         if int(expert_summary_value) == 1:
             expert_summary = True
         else:
