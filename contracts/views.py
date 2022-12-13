@@ -577,23 +577,25 @@ class ContractDetail(APIView):
             client_serializer = FizUserSerializer(user)
         participants = Contracts_Participants.objects.filter(contract=contract)
         participant_serializer = ContractParticipantsSerializers(participants, many=True)
-        try:
-            expert_summary = Contracts_Participants.objects.filter(
-                Q(contract=contract),
-                Q(role=request.user.role),
-                Q(contract__service__group=request.user.group)
-            ).exclude(
-                Q(agreement_status__name='Yuborilgan'),
-                Q(agreement_status__name="Ko'rib chiqilmoqda")
-            ).exists()
-        except Contracts_Participants.DoesNotExist:
+        # try:
+        #     expert_summary = Contracts_Participants.objects.filter(
+        #         Q(contract=contract),
+        #         Q(role=request.user.role),
+        #         Q(contract__service__group=request.user.group)
+        #     ).exclude(
+        #         Q(agreement_status__name='Yuborilgan'),
+        #         Q(agreement_status__name="Ko'rib chiqilmoqda")
+        #     ).exists()
+        # except Contracts_Participants.DoesNotExist:
+        #     expert_summary = False
+        expert_summary_value = ExpertSummary.objects.get(
+            Q(contract=contract),
+            Q(user=request.user),
+            Q(user__group=request.user.group)).summary
+        if int(expert_summary_value) == 1:
+            expert_summary = True
+        else:
             expert_summary = False
-        # expert_summary = ExpertSummary.objects.filter(
-        #     Q(contract=contract),
-        #     Q(user=request.user)).exclude(
-        #     Q(contract__service__contracts_participants__agreement_status__name='Yuborilgan'),
-        #     Q(contract__contracts_participants__agreement_status__name="Ko'rib chiqilmoqda")
-        # ).exists()
         return Response(
             {
                 'contract': contract_serializer.data,
