@@ -45,10 +45,4 @@ def file_downloader(base64file, pk):
     file_docx = open(f'/usr/src/app/media/Contract/DM-{pk}.docx', 'wb')
     file_docx.write(decoded_file)
     file_docx.close()
-    # os.chdir('/usr/src/app/media/Contract')
-    # file_pdf = subprocess.check_output(
-    #     args=['libreoffice', '--convert-to', 'pdf', f'DM-{pk}.docx']
-    # )
-    # print(file_pdf)
-    # os.remove(f'/usr/src/app/media/Contract/DM-{pk}.docx')
     return f'DM-{pk}.docx'

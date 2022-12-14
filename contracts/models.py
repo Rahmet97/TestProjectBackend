@@ -125,28 +125,6 @@ class ConnetMethod(models.Model):
         return self.name
 
 
-class UserContractTarifDevice(models.Model):
-    client = models.ForeignKey(UserData, on_delete=models.CASCADE)
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
-    tarif = models.ForeignKey(Tarif, on_delete=models.CASCADE)
-    rack_count = models.IntegerField(blank=True, null=True)
-    connect_method = models.ForeignKey(ConnetMethod, on_delete=models.CASCADE, blank=True, null=True)
-    odf_count = models.IntegerField(blank=True, null=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    devices = models.ManyToManyField(Device, through='UserDeviceCount')
-
-    def __str__(self):
-        return self.service.name
-
-
-class UserDeviceCount(models.Model):
-    user = models.ForeignKey(UserContractTarifDevice, on_delete=models.CASCADE)
-    device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    device_count = models.IntegerField()
-    units_count = models.IntegerField()
-    electricity = models.IntegerField()
-
-
 class AgreementStatus(models.Model):
     name = models.CharField(max_length=100)
 
@@ -171,6 +149,29 @@ class Contract(models.Model):
 
     def __str__(self):
         return self.service.name
+
+
+class UserContractTarifDevice(models.Model):
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, blank=True, null=True)
+    client = models.ForeignKey(UserData, on_delete=models.CASCADE)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    tarif = models.ForeignKey(Tarif, on_delete=models.CASCADE)
+    rack_count = models.IntegerField(blank=True, null=True)
+    connect_method = models.ForeignKey(ConnetMethod, on_delete=models.CASCADE, blank=True, null=True)
+    odf_count = models.IntegerField(blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    devices = models.ManyToManyField(Device, through='UserDeviceCount')
+
+    def __str__(self):
+        return self.service.name
+
+
+class UserDeviceCount(models.Model):
+    user = models.ForeignKey(UserContractTarifDevice, on_delete=models.CASCADE)
+    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    device_count = models.IntegerField()
+    units_count = models.IntegerField()
+    electricity = models.IntegerField()
 
 
 class Participant(models.Model):
@@ -204,9 +205,17 @@ class ExpertSummary(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
     comment = models.TextField(blank=True, null=True)
     summary = models.IntegerField(choices=summary_choice)
-    document = models.FileField(upload_to=slugify_upload, blank=True, null=True)
     user = models.ForeignKey(UserData, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
+
+
+class ExpertSummaryDocument(models.Model):
+    expertsummary = models.ForeignKey(ExpertSummary, on_delete=models.CASCADE)
+    document = models.FileField(upload_to=slugify_upload, blank=True, null=True)
+    client_visible = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.expertsummary.user.role.name
 
 
 class Pkcs(models.Model):
