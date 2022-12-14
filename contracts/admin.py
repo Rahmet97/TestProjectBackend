@@ -20,4 +20,6 @@ admin.site.register((
     ConnetMethod,
     Participant,
     ServiceParticipants,
+    ExpertSummary,
+    ExpertSummaryDocument
 ))
