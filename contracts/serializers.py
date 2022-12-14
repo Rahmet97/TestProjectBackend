@@ -5,7 +5,8 @@ from accounts.models import YurUser, FizUser, UserData
 from accounts.serializers import GroupSerializer, FizUserSerializer, YurUserSerializer, \
     YurUserSerializerForContractDetail, FizUserSerializerForContractDetail
 from .models import Service, Tarif, Device, Contract, UserContractTarifDevice, UserDeviceCount, Offer, Document, \
-    Element, TarifElement, SavedService, Pkcs, ExpertSummary, Contracts_Participants, ContractStatus, ConnetMethod
+    Element, TarifElement, SavedService, Pkcs, ExpertSummary, Contracts_Participants, ContractStatus, ConnetMethod, \
+    ExpertSummaryDocument
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -204,7 +205,11 @@ class ConnectMethodSerializer(serializers.ModelSerializer):
 class ExpertSummarySerializerForSave(serializers.ModelSerializer):
 
     def create(self, validated_data):
-        return ExpertSummary.objects.create(**validated_data)
+        documents = self.context['documents']
+        expertsummary = ExpertSummary.objects.create(**validated_data)
+        for document in documents:
+            ExpertSummaryDocument.objects.create(expertsummary=expertsummary, document=document)
+        return expertsummary
 
     class Meta:
         model = ExpertSummary
