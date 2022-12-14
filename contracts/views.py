@@ -424,25 +424,6 @@ class CreateContractFileAPIView(APIView):
                     role=participant,
                     agreement_status=agreement_status
                 ).save()
-            # if service.lower() == 'co-location':
-            #     director = Role.objects.get(name="direktor")
-            #     deputy_director = Role.objects.get(name="direktor o'rinbosari")
-            #     d_head = Role.objects.get(name="bo'lim boshlig'i")
-            #     Contracts_Participants.objects.create(
-            #         contract=contract,
-            #         role=director,
-            #         agreement_status=agreement_status
-            #     ).save()
-            #     Contracts_Participants.objects.create(
-            #         contract=contract,
-            #         role=deputy_director,
-            #         agreement_status=agreement_status
-            #     ).save()
-            #     Contracts_Participants.objects.create(
-            #         contract=contract,
-            #         role=d_head,
-            #         agreement_status=agreement_status
-            #     ).save()
             serializer = ContractSerializer(contract)
             return Response(serializer.data)
         return Response({
@@ -525,7 +506,10 @@ class GetContractFile(APIView):
     def get(self, request):
         hashcode = request.GET.get('hash')
         contract = Contract.objects.get(hashcode=hashcode)
-        file_pdf = file_downloader(bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id)
+        if contract.contract_status.name == "To'lov kutilmoqda":
+            file_pdf = file_downloader(bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id)
+        else:
+            file_pdf = None
         return redirect(u'/media/Contract/' + file_pdf)
 
 
@@ -577,17 +561,6 @@ class ContractDetail(APIView):
             client_serializer = FizUserSerializer(user)
         participants = Contracts_Participants.objects.filter(contract=contract)
         participant_serializer = ContractParticipantsSerializers(participants, many=True)
-        # try:
-        #     expert_summary = Contracts_Participants.objects.filter(
-        #         Q(contract=contract),
-        #         Q(role=request.user.role),
-        #         Q(contract__service__group=request.user.group)
-        #     ).exclude(
-        #         Q(agreement_status__name='Yuborilgan'),
-        #         Q(agreement_status__name="Ko'rib chiqilmoqda")
-        #     ).exists()
-        # except Contracts_Participants.DoesNotExist:
-        #     expert_summary = False
         try:
             expert_summary_value = ExpertSummary.objects.get(
                 Q(contract=contract),
