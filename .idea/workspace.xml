@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="71c64a5e-e7b6-470c-8c45-3ce6997c59f4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contracts/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contracts/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/contracts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -140,7 +138,8 @@
       <workItem from="1670787392326" duration="19495000" />
       <workItem from="1670828845532" duration="15549000" />
       <workItem from="1670909649285" duration="21577000" />
-      <workItem from="1670992855820" duration="15128000" />
+      <workItem from="1670992855820" duration="15607000" />
+      <workItem from="1671080284329" duration="3004000" />
     </task>
     <servers />
   </component>
@@ -152,8 +151,8 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/contracts/views.py</url>
-          <line>509</line>
-          <option name="timeStamp" value="1" />
+          <line>503</line>
+          <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

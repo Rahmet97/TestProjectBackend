@@ -244,6 +244,7 @@ class SelectedTarifDevicesAPIView(APIView):
             price += int(request.data['odf_count']) * int(
                 ConnetMethod.objects.get(pk=int(request.data['connect_method'])).price)
         user_selected_tarif_devices = UserContractTarifDevice.objects.create(
+            contract_id=request.data['contract_id'],
             client=request.user,
             service_id=request.data['service_id'],
             tarif=tarif,
@@ -509,6 +510,38 @@ class GetContractFile(APIView):
         if contract.contract_status.name == "To'lov kutilmoqda":
             file_pdf = file_downloader(bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id)
         else:
+            if contract.client.type == 2:
+                body = {
+                    'service_id': '',
+                    'tarif': '',
+                    'name': '',
+                    'director_fullname': '',
+                    'per_adr': '',
+                    'tin': '',
+                    'mfo': '',
+                    'oked': '',
+                    'hr': '',
+                    'bank': '',
+                    'price': '',
+                    'count': '',
+                    'devices': '',
+                    'save': 1,
+                }
+            else:
+                body = {
+                    'service_id': '',
+                    'tarif': '',
+                    'pport_issue_place': '',
+                    'pport_issue_date': '',
+                    'pport_no': '',
+                    'full_name': '',
+                    'price': '',
+                    'per_adr': '',
+                    'pin': '',
+                    'count': '',
+                    'devices': '',
+                    'save': 1,
+                }
             file_pdf = None
         return redirect(u'/media/Contract/' + file_pdf)
 
