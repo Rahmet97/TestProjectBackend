@@ -208,7 +208,11 @@ class ExpertSummarySerializerForSave(serializers.ModelSerializer):
         documents = self.context['documents']
         expertsummary = ExpertSummary.objects.create(**validated_data)
         for document in documents:
-            ExpertSummaryDocument.objects.create(expertsummary=expertsummary, document=document)
+            ExpertSummaryDocument.objects.create(
+                expertsummary=expertsummary,
+                document=document['document'],
+                client_visible=document['client_visible']
+            )
         return expertsummary
 
     class Meta:
