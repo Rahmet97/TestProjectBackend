@@ -717,7 +717,7 @@ class ConfirmContract(APIView):
             contract.contract_status = ContractStatus.objects.get(name="To'lov kutilmoqda")
         contract.save()
         request.data['user'] = request.user.id
-        documents = request.data['documents']
+        documents = request.FILES.get('documents', None)
         summary = ExpertSummarySerializerForSave(data=request.data, context={'documents': documents})
         summary.is_valid(raise_exception=True)
         summary.save()
