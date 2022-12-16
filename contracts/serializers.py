@@ -32,7 +32,6 @@ class ServiceSerializer(serializers.ModelSerializer):
     def get_is_saved(self, obj):
         try:
             request = self.context.get('request', None)
-            print(request)
             saved_service = SavedService.objects.get(user=request.user)
             if obj in saved_service.services.all():
                 return True
@@ -207,11 +206,11 @@ class ExpertSummarySerializerForSave(serializers.ModelSerializer):
     def create(self, validated_data):
         documents = self.context['documents']
         expertsummary = ExpertSummary.objects.create(**validated_data)
+        print(documents)
         for document in documents:
             ExpertSummaryDocument.objects.create(
                 expertsummary=expertsummary,
-                document=document['document'],
-                client_visible=document['client_visible']
+                document=document
             )
         return expertsummary
 
