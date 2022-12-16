@@ -206,7 +206,7 @@ class ExpertSummarySerializerForSave(serializers.ModelSerializer):
     def create(self, validated_data):
         documents = self.context['documents']
         expertsummary = ExpertSummary.objects.create(**validated_data)
-        print(documents)
+        # print(documents)
         for document in documents:
             ExpertSummaryDocument.objects.create(
                 expertsummary=expertsummary,
