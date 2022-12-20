@@ -727,7 +727,10 @@ class ConfirmContract(APIView):
         if cntrct:
             contract.contract_status = ContractStatus.objects.get(name="To'lov kutilmoqda")
         contract.save()
-        request.data['user'] = request.user.id
+        try:
+            request.data['user'] = request.user.id
+        except:
+            pass
         try:
             documents = request.FILES.getlist('documents', None)
         except:
