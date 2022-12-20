@@ -633,7 +633,12 @@ class GetGroupContract(APIView):
                         Q(contract__service__group=group),
                         Q(role__name="direktor o'rinbosari"),
                         Q(agreement_status__name='Kelishildi')
-                    ).exclude(Q(role__name='direktor'), Q(agreement_status__name='Kelishildi')).values('contract')
+                    ).values('contract')
+                    director_accepted_contracts = Contracts_Participants.objects.filter(
+                        Q(role__name='direktor'), Q(agreement_status__name='Kelishildi')
+                    ).values('contract')
+                    contracts = Contract.objects.filter(id__in=contract_participants).exclude(id__in=director_accepted_contracts).select_related()\
+                        .order_by('-condition', '-contract_date')
                 else:
                     contract_participants = Contracts_Participants.objects.filter(
                         Q(contract__service__group=group),
@@ -641,8 +646,8 @@ class GetGroupContract(APIView):
                         (Q(agreement_status__name='Yuborilgan') |
                         Q(agreement_status__name="Ko'rib chiqilmoqda"))
                     ).values('contract')
-                contracts = Contract.objects.filter(id__in=contract_participants).select_related()\
-                    .order_by('-condition', '-contract_date')
+                    contracts = Contract.objects.filter(id__in=contract_participants).select_related()\
+                        .order_by('-condition', '-contract_date')
             elif filter_field == 'kelishilgan':
                 contract_participants = Contracts_Participants.objects.filter(
                     Q(contract__service__group=group),
@@ -696,6 +701,7 @@ class GetGroupContract(APIView):
                 contracts = [element.contract for element in contracts_selected if
                              element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(
                                  days=1)]
+                print(contracts)
         else:
             contracts = Contract.objects.filter(Q(service__group=group), Q(condition=3))
         serializer = ContractSerializerForBackoffice(contracts, many=True)
