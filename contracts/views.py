@@ -633,7 +633,7 @@ class GetGroupContract(APIView):
                         Q(contract__service__group=group),
                         Q(role__name="direktor o'rinbosari"),
                         Q(agreement_status__name='Kelishildi')
-                    ).values('contract')
+                    ).exclude(Q(role__name='direktor'), Q(agreement_status__name='Kelishildi')).values('contract')
                 else:
                     contract_participants = Contracts_Participants.objects.filter(
                         Q(contract__service__group=group),
@@ -720,11 +720,18 @@ class ConfirmContract(APIView):
         contracts_participants.agreement_status = agreement_status
         contracts_participants.save()
         contract.condition += 1
-        if contract.condition == 3:
+        try:
+            cntrct = Contracts_Participants.objects.get(Q(contract=contract), Q(role__name='direktor'), Q(agreement_status__name='Kelishildi'))
+        except Contracts_Participants.DoesNotExist:
+            cntrct = None
+        if cntrct:
             contract.contract_status = ContractStatus.objects.get(name="To'lov kutilmoqda")
         contract.save()
         request.data['user'] = request.user.id
-        documents = request.FILES.getlist('documents', None)
+        try:
+            documents = request.FILES.getlist('documents', None)
+        except:
+            documents = None
         summary = ExpertSummarySerializerForSave(data=request.data, context={'documents': documents})
         summary.is_valid(raise_exception=True)
         summary.save()
