@@ -125,9 +125,14 @@ class GetUser(APIView):
                 else:
                     pass
             token = tokens.RefreshToken.for_user(user)
+            if user.role:
+                role = user.role.name
+            else:
+                role = None
             tk = {
                 "access": str(token.access_token),
                 "refresh": str(token),
+                "role": role
             }
             return JsonResponse(tk)
         else:
