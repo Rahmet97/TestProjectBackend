@@ -713,7 +713,7 @@ class GetGroupContract(APIView):
         else:
             contracts = Contract.objects.filter(Q(service__group=group), Q(condition=3))
             serializer = ContractSerializerForBackoffice(contracts, many=True)
-        return Response(serializer.data)
+            return Response(serializer.data)
 
 
 class ConfirmContract(APIView):
