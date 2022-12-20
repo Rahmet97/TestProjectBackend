@@ -709,10 +709,11 @@ class GetGroupContract(APIView):
                 'expired_accepted': expired_accepted.data,
                 'in_time': in_time.data
             }
+            return Response(contracts)
         else:
             contracts = Contract.objects.filter(Q(service__group=group), Q(condition=3))
             serializer = ContractSerializerForBackoffice(contracts, many=True)
-        return Response(serializer.data)
+            return Response(serializer.data)
 
 
 class ConfirmContract(APIView):
