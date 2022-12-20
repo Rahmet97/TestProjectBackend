@@ -632,7 +632,7 @@ class GetGroupContract(APIView):
                     contract_participants = Contracts_Participants.objects.filter(
                         Q(contract__service__group=group),
                         Q(role__name="direktor o'rinbosari"),
-                        Q(agreement_status__name='Kelishilgan')
+                        Q(agreement_status__name='Kelishildi')
                     ).values('contract')
                 else:
                     contract_participants = Contracts_Participants.objects.filter(
