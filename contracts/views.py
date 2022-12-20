@@ -731,6 +731,7 @@ class ConfirmContract(APIView):
             request.data['user'] = request.user.id
         except:
             pass
+        print(request.data)
         try:
             documents = request.FILES.getlist('documents', None)
         except:
