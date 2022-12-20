@@ -628,12 +628,19 @@ class GetGroupContract(APIView):
             if filter_field == 'barcha':
                 contracts = Contract.objects.filter(service__group=group).order_by('-condition', '-contract_date')
             elif filter_field == 'yangi':
-                contract_participants = Contracts_Participants.objects.filter(
-                    Q(contract__service__group=group),
-                    Q(role=request.user.role),
-                    (Q(agreement_status__name='Yuborilgan') |
-                     Q(agreement_status__name="Ko'rib chiqilmoqda"))
-                ).values('contract')
+                if request.user.role.name == 'direktor':
+                    contract_participants = Contracts_Participants.objects.filter(
+                        Q(contract__service__group=group),
+                        Q(role__name="direktor o'rinbosari"),
+                        Q(agreement_status__name='Kelishilgan')
+                    ).values('contract')
+                else:
+                    contract_participants = Contracts_Participants.objects.filter(
+                        Q(contract__service__group=group),
+                        Q(role=request.user.role),
+                        (Q(agreement_status__name='Yuborilgan') |
+                        Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                    ).values('contract')
                 contracts = Contract.objects.filter(id__in=contract_participants).select_related()\
                     .order_by('-condition', '-contract_date')
             elif filter_field == 'kelishilgan':
