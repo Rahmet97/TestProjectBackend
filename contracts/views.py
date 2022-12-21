@@ -757,4 +757,9 @@ class DeleteUserContract(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        id = request.data['id']
+        id = request.data['contract']
+        contract = Contract.objects.get(pk=id)
+        contract.contract_status = ContractStatus.objects.get(name="Bekor qilingan")
+        contract.save()
+
+        return Response({'message': 'Deleted'})
