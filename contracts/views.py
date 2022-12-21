@@ -635,8 +635,10 @@ class GetGroupContract(APIView):
                 director_accepted_contracts = Contracts_Participants.objects.filter(
                     Q(role__name='direktor'), Q(agreement_status__name='Kelishildi')
                 ).values('contract')
-                yangi_data = Contract.objects.filter(id__in=contract_participants).exclude(id__in=director_accepted_contracts).select_related()\
-                    .order_by('-condition', '-contract_date')
+                yangi_data = Contract.objects.filter(id__in=contract_participants).exclude(
+                    Q(id__in=director_accepted_contracts),
+                    Q(contract_status__name="Bekor qilingan"),
+                    Q(contract_status__name="Rad etilgan")).select_related().order_by('-condition', '-contract_date')
             else:
                 contract_participants = Contracts_Participants.objects.filter(
                     Q(contract__service__group=group),
@@ -644,7 +646,8 @@ class GetGroupContract(APIView):
                     (Q(agreement_status__name='Yuborilgan') |
                     Q(agreement_status__name="Ko'rib chiqilmoqda"))
                 ).values('contract')
-                yangi_data = Contract.objects.filter(id__in=contract_participants).select_related()\
+                yangi_data = Contract.objects.filter(id__in=contract_participants).exclude(
+                    Q(contract_status__name="Bekor qilingan"), Q(contract_status__name="Rad etilgan")).select_related()\
                     .order_by('-condition', '-contract_date')
             yangi = ContractSerializerForBackoffice(yangi_data, many=True)
             contract_participants = Contracts_Participants.objects.filter(
@@ -656,7 +659,7 @@ class GetGroupContract(APIView):
                 .order_by('-condition', '-contract_date')
             kelishilgan = ContractSerializerForBackoffice(kelishilgan_data, many=True)
             rad_etildi_data = Contract.objects.filter(Q(service__group=group),
-                                                Q(contract_status__name='Bekor qilingan')) \
+                                                (Q(contract_status__name='Bekor qilingan') | Q(contract_status__name="Rad etilgan"))) \
                 .order_by('-condition', '-contract_date')
             rad_etildi = ContractSerializerForBackoffice(rad_etildi_data, many=True)
             contract_participants = Contracts_Participants.objects.filter(
@@ -680,7 +683,9 @@ class GetGroupContract(APIView):
                 Q(id__in=contract_participants),
                 Q(contract_date__day=datetime.now().day),
                 Q(contract_date__month=datetime.now().month),
-                Q(contract_date__year=datetime.now().year)).select_related() \
+                Q(contract_date__year=datetime.now().year)).exclude(
+                    Q(contract_status__name='Bekor qilingan'),
+                    Q(contract_status__name='Rad etilgan')).select_related() \
                 .order_by('-condition', '-contract_date')
             lastday = ContractSerializerForBackoffice(lastday_data, many=True)
             contract_participants = Contracts_Participants.objects.filter(
@@ -725,7 +730,7 @@ class ConfirmContract(APIView):
             agreement_status = AgreementStatus.objects.get(name='Kelishildi')
         else:
             agreement_status = AgreementStatus.objects.get(name='Rad etildi')
-            contract.contract_status = ContractStatus.objects.get(name='Bekor qilingan')
+            contract.contract_status = ContractStatus.objects.get(name='Rad etilgan')
         contracts_participants = Contracts_Participants.objects.get(
             Q(role=request.user.role),
             Q(contract=contract),
