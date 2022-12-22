@@ -592,7 +592,7 @@ class ContractDetail(APIView):
         else:
             user = FizUser.objects.get(userdata=client)
             client_serializer = FizUserSerializer(user)
-        participants = Contracts_Participants.objects.filter(contract=contract)
+        participants = Contracts_Participants.objects.filter(contract=contract).order_by('role_id')
         participant_serializer = ContractParticipantsSerializers(participants, many=True)
         try:
             expert_summary_value = ExpertSummary.objects.get(
