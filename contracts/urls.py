@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import DeleteUserContract, ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDetailAPIView, \
+from .views import DeleteUserContract, GetContractDetailWithNumber, ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDetailAPIView, \
     UserDetailAPIView, TarifListAPIView, DeviceListAPIView, OfferCreateAPIView, \
     OfferDetailAPIView, GetGroupAdminDataAPIView, ServiceCreateAPIView, DocumentCreateAPIView, SavedServiceAPIView, \
     SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService, CreateContractFileAPIView, SavePkcs, GetContractFile, \
@@ -33,5 +33,6 @@ urlpatterns = [
     path('group-contracts', GetGroupContract.as_view(), name='GetGroupContract'),
     path('confirm-contract', ConfirmContract.as_view(), name='ConfirmContract'),
     path('get-connect-methods', ConnectMethodListAPIView.as_view(), name='ConnectMethodListAPIView'),
-    path('delete-contract', DeleteUserContract.as_view(), name='DeleteUserContract')
+    path('delete-contract', DeleteUserContract.as_view(), name='DeleteUserContract'),
+    path('contract-with-number', GetContractDetailWithNumber.as_view(), name='GetContractDetailWithNumber'),
 ]
