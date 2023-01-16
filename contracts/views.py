@@ -767,3 +767,13 @@ class DeleteUserContract(APIView):
         contract.save()
 
         return Response({'message': 'Deleted'})
+
+
+class GetContractDetailWithNumber(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        contract_number = request.GET.get('contract_number')
+        contract = Contract.objects.get(contract_number=contract_number)
+        serializer = ContractSerializerForBackoffice(contract)
+        return Response(serializer.data)

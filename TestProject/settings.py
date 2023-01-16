@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'rest_framework_simplejwt.token_blacklist',
     'import_export',
+    'services',
 ]
 
 MIDDLEWARE = [
