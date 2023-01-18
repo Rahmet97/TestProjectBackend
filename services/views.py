@@ -2,11 +2,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-from .models import DeviceUnit, Rack, Unit
-from .serializers import DeviceUnitSerializer, GetRackInformationSerializer, RackSerializer, UnitSerializer
+from .models import DeviceUnit, Rack, Unit, DevicePublisher
+from .serializers import DeviceUnitSerializer, GetRackInformationSerializer, RackSerializer, UnitSerializer, DevicePublisherSerializer
 
 
 class RackAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def post(self, request):
         number = int(request.data['number'])
         unit_count = int(request.data['unit_count'])
@@ -16,6 +18,8 @@ class RackAPIView(APIView):
 
 
 class GetRackInfo(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+
     queryset = Rack.objects.all()
     serializer_class = GetRackInformationSerializer
     permission_classes = (IsAuthenticated,)
@@ -47,15 +51,65 @@ class RackDetailAPIView(APIView):
         return Response(serializer.data)
 
 
-class UpdateRackAPIView(APIView):
-    permission_classes = ()
+class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
+    queryset = Rack.objects.all()
+    serializer_class = RackSerializer
+    permission_classes = (IsAuthenticated,)
 
-    def post(self, request):
-        pass
 
+class DevicePublisherAPIView(generics.ListAPIView):
+    queryset = DevicePublisher.objects.all()
+    serializer_class = DevicePublisherSerializer
+    permission_classes = (IsAuthenticated,)
+    
 
 class AddDeviceAPIView(APIView):
     permission_classes = ()
 
     def post(self, request):
-        pass
+        rack = int(request.data['rack'])
+        start = int(request.data['start'])
+        end = int(request.data['end'])
+        contract = int(request.data['contract_id'])
+        device_id = int(request.data['device_id'])
+        device_publisher = int(request.data['device_publisher'])
+        device_model = request.data['device_model']
+        device_number = request.data['device_number']
+        electricity = request.data['electricity']
+        device = DeviceUnit.objects.create(
+            rack_id=rack,
+            device_id=device_id,
+            device_publisher_id=device_publisher,
+            device_model_id=device_model,
+            device_number=device_number,
+            electricity=electricity
+        )
+        device.save()
+        if start <= end:
+            for i in range(start, end+1):
+                unit = Unit.objects.get(Q(number=i), Q(rack_id=rack))
+                unit.device = device
+                unit.is_busy = True
+                unit.contract.id = contract
+                unit.save()
+            data = {
+                'success': True,
+                'message': "Muvaffaqiyatli qo'shildi"
+            }
+            return Response(data, status=200)
+        else:
+            data = {
+                'success': False,
+                'message': "Start keyword end keyworddan kichkina yoki teng bo'lishi kerak"
+            }
+            return Response(data, status=405)
+
+
+class DeviceUnitDetail(generics.RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        device_id = int(request.GET.get('device_id'))
+        device = DeviceUnit.objects.get(pk=device_id)
+        serializer = DeviceUnitSerializer(device)
+        return Response(serializer.data)

@@ -29,6 +29,13 @@ class Rack(models.Model):
     objects = RackManager()
 
 
+class DeviceStatus(models.Model):
+    name = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.name    
+
+
 class DeviceUnit(models.Model):
     rack = models.ForeignKey(Rack, on_delete=models.CASCADE, blank=True, null=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE, blank=True, null=True)
@@ -38,6 +45,7 @@ class DeviceUnit(models.Model):
     electricity = models.IntegerField(blank=True, null=True, default=0)
     start = models.IntegerField(default=1)
     end = models.IntegerField(default=1)
+    status = models.ForeignKey(DeviceStatus, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.device.name
