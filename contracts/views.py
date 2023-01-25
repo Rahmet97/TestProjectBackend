@@ -236,9 +236,9 @@ class SelectedTarifDevicesAPIView(APIView):
                 price += tarif.price * unit_count + math.ceil(lishniy_electricity / 100) * 23000 * int(
                     device['device_count'])
 
-        if 'rack_count' not in request.data.keys():
+        if not request.data['rack_count']:
             request.data['rack_count'] = None
-        if 'odf_count' not in request.data.keys():
+        if not request.data['odf_count']:
             request.data['odf_count'] = None
         else:
             price += int(request.data['odf_count']) * int(
