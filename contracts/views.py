@@ -22,6 +22,7 @@ from accounts.models import FizUser, UserData, Role, YurUser
 from accounts.permissions import AdminPermission, SuperAdminPermission, DeputyDirectorPermission
 from accounts.serializers import FizUserSerializer, YurUserSerializer, FizUserSerializerForContractDetail, \
     YurUserSerializerForContractDetail
+from services.models import Rack, Unit
 from .models import Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice, \
     UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus, Pkcs, ExpertSummary, Contracts_Participants, \
     ConnetMethod, Participant
@@ -776,4 +777,19 @@ class GetContractDetailWithNumber(APIView):
         contract_number = request.GET.get('contract_number')
         contract = Contract.objects.get(contract_number=contract_number)
         serializer = ContractSerializerForBackoffice(contract)
-        return Response(serializer.data)
+        user_contract_tariff_device = UserContractTarifDevice.objects.get(contract=contract)
+        rack_count = user_contract_tariff_device.rack_count
+        empty_rack_count = Rack.objects.filter(Q(is_sold=False), Q(contract=contract)).count()
+        user_device_count = UserDeviceCount.objects.filter(user=user_contract_tariff_device)
+        sum = 0
+        for i in user_device_count:
+            sum += i.device_count * i.units_count
+        empty_unit_count = Unit.objects.filter(Q(is_busy=False), Q(contract=contract)).count()
+        data = {
+            'contract': serializer.data,
+            'rack_count': rack_count,
+            'empty_rack_count': empty_rack_count,
+            'unit_count': sum,
+            'empty_unit_count': empty_unit_count
+        }
+        return Response(data)

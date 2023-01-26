@@ -18,8 +18,6 @@ class RackAPIView(APIView):
 
 
 class GetRackInfo(generics.ListAPIView):
-    permission_classes = (IsAuthenticated,)
-
     queryset = Rack.objects.all()
     serializer_class = GetRackInformationSerializer
     permission_classes = (IsAuthenticated,)
@@ -64,13 +62,21 @@ class DevicePublisherAPIView(generics.ListAPIView):
     
 
 class AddDeviceAPIView(APIView):
-    permission_classes = ()
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         rack = int(request.data['rack'])
         start = int(request.data['start'])
         end = int(request.data['end'])
-        contract = int(request.data['contract_id'])
+        if int(request.data['contract_id']):
+            contract = int(request.data['contract_id'])
+        elif Rack.objects.get(pk=rack).contract:
+            contract = Rack.objects.get(pk=rack).contract.id
+        else:
+            return Response({
+                'success': False,
+                'message': 'Rack sotib olinmagan'
+            })
         device_id = int(request.data['device_id'])
         device_publisher = int(request.data['device_publisher'])
         device_model = request.data['device_model']
