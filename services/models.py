@@ -22,6 +22,7 @@ class Rack(models.Model):
     number = models.IntegerField()
     unit_count = models.IntegerField(default=42)
     is_sold = models.BooleanField(default=False)
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return str(self.number)
