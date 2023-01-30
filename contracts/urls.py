@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import DeleteUserContract, GetContractDetailWithNumber, ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDetailAPIView, \
+from .views import DeleteUserContract, GetRackContractDetailWithNumber, GetUnitContractDetailWithNumber, ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDetailAPIView, \
     UserDetailAPIView, TarifListAPIView, DeviceListAPIView, OfferCreateAPIView, \
     OfferDetailAPIView, GetGroupAdminDataAPIView, ServiceCreateAPIView, DocumentCreateAPIView, SavedServiceAPIView, \
     SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService, CreateContractFileAPIView, SavePkcs, GetContractFile, \
