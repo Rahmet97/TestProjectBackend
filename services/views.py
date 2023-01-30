@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+
+from contracts.models import UserDeviceCount
 from .models import DeviceUnit, Rack, Unit, DevicePublisher
 from .serializers import DeviceUnitSerializer, GetRackInformationSerializer, RackSerializer, UnitSerializer, DevicePublisherSerializer
 
@@ -34,10 +36,17 @@ class RackDetailAPIView(APIView):
         rack_data = RackSerializer(rack)
         units_data = UnitSerializer(units, many=True)
         devices_data = DeviceUnitSerializer(devices, many=True)
+        electricity = 7500
+        s = 0
+        for i in devices:
+            s += i.electricity
+        residue_electricity = electricity - s
         return Response({
             'rack': rack_data.data,
             'units': units_data.data,
-            'devices': devices_data.data
+            'devices': devices_data.data,
+            'electricity': electricity,
+            'residue_electricity': residue_electricity
         })
     
     def post(self, request):
@@ -118,4 +127,5 @@ class DeviceUnitDetail(generics.RetrieveAPIView):
         device_id = int(request.GET.get('device_id'))
         device = DeviceUnit.objects.get(pk=device_id)
         serializer = DeviceUnitSerializer(device)
+        electricity = UserDeviceCount.objects.filter(Q(user__))
         return Response(serializer.data)
