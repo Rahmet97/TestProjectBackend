@@ -22,7 +22,7 @@ from accounts.models import FizUser, UserData, Role, YurUser
 from accounts.permissions import AdminPermission, SuperAdminPermission, DeputyDirectorPermission
 from accounts.serializers import FizUserSerializer, YurUserSerializer, FizUserSerializerForContractDetail, \
     YurUserSerializerForContractDetail
-from services.models import Rack, Unit
+from services.models import Rack, Unit, DeviceUnit
 from .models import Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice, \
     UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus, Pkcs, ExpertSummary, Contracts_Participants, \
     ConnetMethod, Participant
@@ -770,26 +770,44 @@ class DeleteUserContract(APIView):
         return Response({'message': 'Deleted'})
 
 
-class GetContractDetailWithNumber(APIView):
+class GetRackContractDetailWithNumber(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         contract_number = request.GET.get('contract_number')
         contract = Contract.objects.get(contract_number=contract_number)
         serializer = ContractSerializerForBackoffice(contract)
-        user_contract_tariff_device = UserContractTarifDevice.objects.get(contract=contract)
+        user_contract_tariff_device = UserContractTarifDevice.objects.get(Q(contract=contract), Q(tarif__name='Rack-1'))
         rack_count = user_contract_tariff_device.rack_count
-        empty_rack_count = Rack.objects.filter(Q(is_sold=False), Q(contract=contract)).count()
+        empty = Rack.objects.filter(Q(is_sold=False), Q(contract=contract)).count()
+        odf_count = user_contract_tariff_device.odf_count
+        data = {
+            'contract': serializer.data,
+            'count': rack_count,
+            'empty': empty,
+            'odf_count': odf_count,
+        }
+        return Response(data)
+
+
+class GetUnitContractDetailWithNumber(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        contract_number = request.GET.get('contract_number')
+        contract = Contract.objects.get(contract_number=contract_number)
+        serializer = ContractSerializerForBackoffice(contract)
+        user_contract_tariff_device = UserContractTarifDevice.objects.get(Q(contract=contract), Q(tarif__name='Unit-1'))
         user_device_count = UserDeviceCount.objects.filter(user=user_contract_tariff_device)
         sum = 0
         for i in user_device_count:
             sum += i.device_count * i.units_count
-        empty_unit_count = Unit.objects.filter(Q(is_busy=False), Q(contract=contract)).count()
+        empty = Unit.objects.filter(Q(is_busy=False), Q(contract=contract)).count()
+        odf_count = user_contract_tariff_device.odf_count
         data = {
             'contract': serializer.data,
-            'rack_count': rack_count,
-            'empty_rack_count': empty_rack_count,
-            'unit_count': sum,
-            'empty_unit_count': empty_unit_count
+            'count': sum,
+            'empty': empty,
+            'odf_count': odf_count,
         }
         return Response(data)

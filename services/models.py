@@ -59,6 +59,5 @@ class Unit(models.Model):
     is_busy = models.BooleanField(default=False)
     device = models.ForeignKey(DeviceUnit, on_delete=models.CASCADE, blank=True, null=True)
     
-    
     def __str__(self):
         return f'{self.rack.number}-rack {self.number}-unit'

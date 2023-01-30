@@ -34,5 +34,6 @@ urlpatterns = [
     path('confirm-contract', ConfirmContract.as_view(), name='ConfirmContract'),
     path('get-connect-methods', ConnectMethodListAPIView.as_view(), name='ConnectMethodListAPIView'),
     path('delete-contract', DeleteUserContract.as_view(), name='DeleteUserContract'),
-    path('contract-with-number', GetContractDetailWithNumber.as_view(), name='GetContractDetailWithNumber'),
+    path('rack-contract-with-number', GetRackContractDetailWithNumber.as_view(), name='GetRackContractDetailWithNumber'),
+    path('unit-contract-with-number', GetUnitContractDetailWithNumber.as_view(), name='GetUnitContractDetailWithNumber'),
 ]

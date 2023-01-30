@@ -148,7 +148,7 @@ class Contract(models.Model):
     hashcode = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return self.service.name
+        return self.contract.contract_number
 
 
 class UserContractTarifDevice(models.Model):
@@ -163,7 +163,7 @@ class UserContractTarifDevice(models.Model):
     devices = models.ManyToManyField(Device, through='UserDeviceCount')
 
     def __str__(self):
-        return self.service.name
+        return self.contract.contract_number
 
 
 class UserDeviceCount(models.Model):
