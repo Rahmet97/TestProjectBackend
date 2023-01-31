@@ -34,7 +34,15 @@ class DeviceStatus(models.Model):
     name = models.CharField(max_length=30)
 
     def __str__(self):
-        return self.name    
+        return self.name
+
+
+class ProviderContract(models.Model):
+    contract_number = models.CharField(max_length=30)
+    contract_date = models.DateField()
+
+    def __str__(self):
+        return self.contract_number
 
 
 class DeviceUnit(models.Model):
@@ -46,6 +54,7 @@ class DeviceUnit(models.Model):
     electricity = models.IntegerField(blank=True, null=True, default=0)
     start = models.IntegerField(default=1)
     end = models.IntegerField(default=1)
+    provider_contract = models.ForeignKey(ProviderContract, on_delete=models.CASCADE, blank=True, null=True)
     status = models.ForeignKey(DeviceStatus, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
