@@ -91,13 +91,24 @@ class AddDeviceAPIView(APIView):
         device_model = request.data['device_model']
         device_number = request.data['device_number']
         electricity = request.data['electricity']
+        contract_number = request.data['contract_number']
+        contract_date = request.data['contract_date']
+        if Provider.objects.filter(contract_number=contract_number).exists():
+            provider_contract = Provider.objects.get(contract_number=contract_number)
+        else:
+            provider_contract = ProviderContract.objects.create(
+                contract_number=contract_number,
+                contract_date=contract_date
+            )
+            provider_contract.save()
         device = DeviceUnit.objects.create(
             rack_id=rack,
             device_id=device_id,
             device_publisher_id=device_publisher,
             device_model_id=device_model,
             device_number=device_number,
-            electricity=electricity
+            electricity=electricity,
+            provider_contract=provider_contract
         )
         device.save()
         if start <= end:
@@ -127,5 +138,4 @@ class DeviceUnitDetail(generics.RetrieveAPIView):
         device_id = int(request.GET.get('device_id'))
         device = DeviceUnit.objects.get(pk=device_id)
         serializer = DeviceUnitSerializer(device)
-        electricity = UserDeviceCount.objects.filter(Q(user__))
         return Response(serializer.data)
