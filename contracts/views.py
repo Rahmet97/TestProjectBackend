@@ -777,11 +777,18 @@ class GetRackContractDetailWithNumber(APIView):
         contract_number = request.GET.get('contract_number')
         contract = Contract.objects.get(contract_number=contract_number)
         serializer = ContractSerializerForBackoffice(contract)
-        user_contract_tariff_device = UserContractTarifDevice.objects.get(Q(contract=contract), Q(tarif__name='Rack-1'))
+        try:
+            user_contract_tariff_device = UserContractTarifDevice.objects.get(Q(contract=contract), Q(tarif__name='Rack-1'))
+        except UserContractTarifDevice.DoesNotExists:
+            data = {
+                'success': False,
+                'message': 'Shartnoma rack ga tuzilmagan yoki bunday shartnoma mavjud emas!'
+            }
+            return Response(data, status=405)
         rack_count = user_contract_tariff_device.rack_count
         empty = Rack.objects.filter(Q(is_sold=False), Q(contract=contract)).count()
         odf_count = user_contract_tariff_device.odf_count
-        provider = ConnetMethod.objects.get(pk=int(user_contract_tariff_device.connect_method))
+        provider = ConnetMethod.objects.get(pk=user_contract_tariff_device.connect_method.id)
         provider_serializer = ConnectMethodSerializer(provider)
         data = {
             'contract': serializer.data,
@@ -800,14 +807,21 @@ class GetUnitContractDetailWithNumber(APIView):
         contract_number = request.GET.get('contract_number')
         contract = Contract.objects.get(contract_number=contract_number)
         serializer = ContractSerializerForBackoffice(contract)
-        user_contract_tariff_device = UserContractTarifDevice.objects.get(Q(contract=contract), Q(tarif__name='Unit-1'))
+        try:
+            user_contract_tariff_device = UserContractTarifDevice.objects.get(Q(contract=contract), Q(tarif__name='Unit-1'))
+        except UserContractTarifDevice.DoesNotExists:
+            data = {
+                'success': False,
+                'message': 'Shartnoma unit ga tuzilmagan yoki bunday shartnoma mavjud emas!'
+            }
+            return Response(data, status=405)
         user_device_count = UserDeviceCount.objects.filter(user=user_contract_tariff_device)
         sum = 0
         for i in user_device_count:
             sum += i.device_count * i.units_count
         empty = Unit.objects.filter(Q(is_busy=False), Q(contract=contract)).count()
         odf_count = user_contract_tariff_device.odf_count
-        provider = ConnetMethod.objects.get(pk=int(user_contract_tariff_device.connect_method))
+        provider = ConnetMethod.objects.get(pk=user_contract_tariff_device.connect_method.id)
         provider_serializer = ConnectMethodSerializer(provider)
         data = {
             'contract': serializer.data,
