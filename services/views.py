@@ -4,7 +4,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
 from contracts.models import UserDeviceCount
-from .models import DeviceUnit, Rack, Unit, DevicePublisher
+from .models import DeviceUnit, Rack, Unit, DevicePublisher, ProviderContract
 from .serializers import DeviceUnitSerializer, GetRackInformationSerializer, RackSerializer, UnitSerializer, DevicePublisherSerializer
 
 
@@ -93,25 +93,25 @@ class AddDeviceAPIView(APIView):
         electricity = request.data['electricity']
         contract_number = request.data['contract_number']
         contract_date = request.data['contract_date']
-        if Provider.objects.filter(contract_number=contract_number).exists():
-            provider_contract = Provider.objects.get(contract_number=contract_number)
-        else:
-            provider_contract = ProviderContract.objects.create(
-                contract_number=contract_number,
-                contract_date=contract_date
-            )
-            provider_contract.save()
-        device = DeviceUnit.objects.create(
-            rack_id=rack,
-            device_id=device_id,
-            device_publisher_id=device_publisher,
-            device_model_id=device_model,
-            device_number=device_number,
-            electricity=electricity,
-            provider_contract=provider_contract
-        )
-        device.save()
         if start <= end:
+            if Provider.objects.filter(contract_number=contract_number).exists():
+                provider_contract = ProviderContract.objects.get(contract_number=contract_number)
+            else:
+                provider_contract = ProviderContract.objects.create(
+                    contract_number=contract_number,
+                    contract_date=contract_date
+                )
+                provider_contract.save()
+            device = DeviceUnit.objects.create(
+                rack_id=rack,
+                device_id=device_id,
+                device_publisher_id=device_publisher,
+                device_model_id=device_model,
+                device_number=device_number,
+                electricity=electricity,
+                provider_contract=provider_contract
+            )
+            device.save()
             for i in range(start, end+1):
                 unit = Unit.objects.get(Q(number=i), Q(rack_id=rack))
                 unit.device = device
