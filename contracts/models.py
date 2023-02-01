@@ -148,7 +148,7 @@ class Contract(models.Model):
     hashcode = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return self.contract.contract_number
+        return self.contract_number
 
 
 class UserContractTarifDevice(models.Model):
