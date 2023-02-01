@@ -781,7 +781,7 @@ class GetRackContractDetailWithNumber(APIView):
         rack_count = user_contract_tariff_device.rack_count
         empty = Rack.objects.filter(Q(is_sold=False), Q(contract=contract)).count()
         odf_count = user_contract_tariff_device.odf_count
-        provider = ConnetMethod.objects.get(pk=user_contract_tariff_device.connect_method)
+        provider = ConnetMethod.objects.get(pk=int(user_contract_tariff_device.connect_method))
         provider_serializer = ConnectMethodSerializer(provider)
         data = {
             'contract': serializer.data,
@@ -807,7 +807,7 @@ class GetUnitContractDetailWithNumber(APIView):
             sum += i.device_count * i.units_count
         empty = Unit.objects.filter(Q(is_busy=False), Q(contract=contract)).count()
         odf_count = user_contract_tariff_device.odf_count
-        provider = ConnetMethod.objects.get(pk=user_contract_tariff_device.connect_method)
+        provider = ConnetMethod.objects.get(pk=int(user_contract_tariff_device.connect_method))
         provider_serializer = ConnectMethodSerializer(provider)
         data = {
             'contract': serializer.data,
