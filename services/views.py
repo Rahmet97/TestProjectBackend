@@ -36,17 +36,10 @@ class RackDetailAPIView(APIView):
         rack_data = RackSerializer(rack)
         units_data = UnitSerializer(units, many=True)
         devices_data = DeviceUnitSerializer(devices, many=True)
-        electricity = 7500
-        s = 0
-        for i in devices:
-            s += i.electricity
-        residue_electricity = electricity - s
         return Response({
             'rack': rack_data.data,
             'units': units_data.data,
-            'devices': devices_data.data,
-            'electricity': electricity,
-            'residue_electricity': residue_electricity
+            'devices': devices_data.data
         })
     
     def post(self, request):
