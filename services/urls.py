@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import GetRackInfo, RackAPIView, RackDetailAPIView, UpdateRackAPIView, DevicePublisherAPIView, AddDeviceAPIView, DeviceUnitDetail
-
+from .views import GetRackInfo, RackAPIView, RackDetailAPIView, UpdateRackAPIView, DevicePublisherAPIView, \
+    AddDeviceAPIView, DeviceUnitDetail, DeleteDeviceAPIView
 
 urlpatterns = [
     path('rack', RackAPIView.as_view(), name='RackAPIView'),
@@ -10,4 +10,5 @@ urlpatterns = [
     path('list-publisher', DevicePublisherAPIView.as_view(), name='DevicePublisherAPIView'),
     path('add-device', AddDeviceAPIView.as_view(), name='AddDeviceAPIView'),
     path('device-detail', DeviceUnitDetail.as_view(), name='DeviceUnitDetail'),
+    path('delete-device', DeleteDeviceAPIView.as_view(), name='DeleteDeviceAPIView'),
 ]

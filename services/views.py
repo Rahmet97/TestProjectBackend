@@ -4,7 +4,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
 from contracts.models import UserDeviceCount
-from .models import DeviceUnit, Rack, Unit, DevicePublisher, ProviderContract
+from .models import DeviceUnit, Rack, Unit, DevicePublisher, ProviderContract, DeviceStatus
 from .serializers import DeviceUnitSerializer, GetRackInformationSerializer, RackSerializer, UnitSerializer, DevicePublisherSerializer
 
 
@@ -102,7 +102,8 @@ class AddDeviceAPIView(APIView):
                 device_model_id=device_model,
                 device_number=device_number,
                 electricity=electricity,
-                provider_contract=provider_contract
+                provider_contract=provider_contract,
+                status=DeviceStatus.objects.get(name="o'rnatilgan")
             )
             device.save()
             for i in range(start, end+1):
@@ -132,3 +133,22 @@ class DeviceUnitDetail(generics.RetrieveAPIView):
         device = DeviceUnit.objects.get(pk=device_id)
         serializer = DeviceUnitSerializer(device)
         return Response(serializer.data)
+
+
+class DeleteDeviceAPIView(APIView):
+    permission_classes = ()
+
+    def post(self, request):
+        device_id = int(request.GET.get('device_id'))
+        device = DeviceUnit.objects.get(pk=device_id)
+        start = device.start
+        end = device.end
+        for i in range(start, end + 1):
+            unit = Unit.objects.get(Q(number=i), Q(rack_id=rack))
+            unit.device = None
+            unit.is_busy = False
+            unit.contract.id = None
+            unit.save()
+        device.status = DeviceStatus.objects.get(name="qaytarilgan")
+        device.save()
+        return Response(status=204)
