@@ -780,7 +780,7 @@ class GetRackContractDetailWithNumber(APIView):
         serializer = ContractSerializerForBackoffice(contract)
         try:
             user_contract_tariff_device = UserContractTarifDevice.objects.get(Q(contract=contract), Q(tarif__name='Rack-1'))
-        except UserContractTarifDevice.DoesNotExists:
+        except UserContractTarifDevice.DoesNotExist:
             data = {
                 'success': False,
                 'message': 'Shartnoma rack ga tuzilmagan yoki bunday shartnoma mavjud emas!'
