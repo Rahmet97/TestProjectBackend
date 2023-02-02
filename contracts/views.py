@@ -786,7 +786,8 @@ class GetRackContractDetailWithNumber(APIView):
             }
             return Response(data, status=405)
         rack_count = user_contract_tariff_device.rack_count
-        empty = Rack.objects.filter(Q(is_sold=False), Q(contract=contract)).count()
+        filled = Rack.objects.filter(Q(is_sold=True), Q(contract=contract)).count()
+        empty = rack_count - filled
         odf_count = user_contract_tariff_device.odf_count
         provider = ConnetMethod.objects.get(pk=user_contract_tariff_device.connect_method.id)
         provider_serializer = ConnectMethodSerializer(provider)
@@ -809,7 +810,7 @@ class GetUnitContractDetailWithNumber(APIView):
         serializer = ContractSerializerForBackoffice(contract)
         try:
             user_contract_tariff_device = UserContractTarifDevice.objects.get(Q(contract=contract), Q(tarif__name='Unit-1'))
-        except UserContractTarifDevice.DoesNotExists:
+        except UserContractTarifDevice.DoesNotExist:
             data = {
                 'success': False,
                 'message': 'Shartnoma unit ga tuzilmagan yoki bunday shartnoma mavjud emas!'
@@ -817,9 +818,12 @@ class GetUnitContractDetailWithNumber(APIView):
             return Response(data, status=405)
         user_device_count = UserDeviceCount.objects.filter(user=user_contract_tariff_device)
         sum = 0
+        electricity = 0
         for i in user_device_count:
             sum += i.device_count * i.units_count
-        empty = Unit.objects.filter(Q(is_busy=False), Q(contract=contract)).count()
+            electricity += i.electricity * i.units_count
+        empty_electricity = DeviceUnit.objects.filter(rack__unit__contract=contract).aggregate(Sum('electricity'))
+        empty = sum - Unit.objects.filter(Q(is_busy=True), Q(contract=contract)).count()
         odf_count = user_contract_tariff_device.odf_count
         provider = ConnetMethod.objects.get(pk=user_contract_tariff_device.connect_method.id)
         provider_serializer = ConnectMethodSerializer(provider)
@@ -828,6 +832,8 @@ class GetUnitContractDetailWithNumber(APIView):
             'count': sum,
             'empty': empty,
             'odf_count': odf_count,
-            'provider': provider_serializer.data
+            'provider': provider_serializer.data,
+            'electricity': electricity,
+            'empty_electricity': empty_electricity
         }
         return Response(data)
