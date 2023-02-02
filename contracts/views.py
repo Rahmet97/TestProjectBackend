@@ -775,6 +775,7 @@ class GetRackContractDetailWithNumber(APIView):
 
     def get(self, request):
         contract_number = request.GET.get('contract_number')
+        rack_id = int(request.GET.get('rack_id'))
         contract = Contract.objects.get(contract_number=contract_number)
         serializer = ContractSerializerForBackoffice(contract)
         try:
@@ -791,12 +792,19 @@ class GetRackContractDetailWithNumber(APIView):
         odf_count = user_contract_tariff_device.odf_count
         provider = ConnetMethod.objects.get(pk=user_contract_tariff_device.connect_method.id)
         provider_serializer = ConnectMethodSerializer(provider)
+        electricity = 7500
+        devices = DeviceUnit.objects.filter(rack_id=rack_id).order_by('id')
+        s = 0
+        for i in devices:
+            s += i.electricity
         data = {
             'contract': serializer.data,
             'count': rack_count,
             'empty': empty,
             'odf_count': odf_count,
-            'provider': provider_serializer.data
+            'provider': provider_serializer.data,
+            'electricity': electricity,
+            'busy_electricity': s
         }
         return Response(data)
 
