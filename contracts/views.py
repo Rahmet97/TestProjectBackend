@@ -10,7 +10,7 @@ from django.conf import settings
 import qrcode
 from datetime import datetime, timedelta
 
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.shortcuts import redirect
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
