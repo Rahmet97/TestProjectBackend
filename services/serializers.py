@@ -3,7 +3,7 @@ from django.db.models import Q, Sum
 
 from contracts.serializers import DeviceSerializer
 
-from .models import DevicePublisher, DeviceUnit, Rack, Unit
+from .models import DevicePublisher, DeviceUnit, Rack, Unit, InternetProvider
 
 
 class UnitSerializer(serializers.ModelSerializer):
@@ -49,6 +49,13 @@ class DevicePublisherSerializer(serializers.ModelSerializer):
 class DeviceUnitSerializer(serializers.ModelSerializer):
     device = DeviceSerializer()
     device_publisher = DevicePublisherSerializer()
+
     class Meta:
         model = DeviceUnit
+        fields = '__all__'
+
+
+class InternetProviderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InternetProvider
         fields = '__all__'

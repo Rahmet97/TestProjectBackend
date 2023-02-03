@@ -4,8 +4,9 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
 from contracts.models import UserDeviceCount
-from .models import DeviceUnit, Rack, Unit, DevicePublisher, ProviderContract, DeviceStatus
-from .serializers import DeviceUnitSerializer, GetRackInformationSerializer, RackSerializer, UnitSerializer, DevicePublisherSerializer
+from .models import DeviceUnit, Rack, Unit, DevicePublisher, ProviderContract, DeviceStatus, InternetProvider
+from .serializers import DeviceUnitSerializer, GetRackInformationSerializer, RackSerializer, UnitSerializer, \
+    DevicePublisherSerializer, InternetProviderSerializer
 
 
 class RackAPIView(APIView):
@@ -61,6 +62,12 @@ class DevicePublisherAPIView(generics.ListAPIView):
     queryset = DevicePublisher.objects.all()
     serializer_class = DevicePublisherSerializer
     permission_classes = (IsAuthenticated,)
+
+
+class ListInternetProviderAPIView(generics.ListAPIView):
+    queryset = InternetProvider.objects.all()
+    serializer_class = InternetProviderSerializer
+    permission_classes = (IsAuthenticated,)
     
 
 class AddDeviceAPIView(APIView):
@@ -86,6 +93,7 @@ class AddDeviceAPIView(APIView):
         electricity = request.data['electricity']
         contract_number = request.data['contract_number']
         contract_date = request.data['contract_date']
+        provider = int(request.data['provider'])
         if start <= end:
             if Provider.objects.filter(contract_number=contract_number).exists():
                 provider_contract = ProviderContract.objects.get(contract_number=contract_number)
@@ -103,7 +111,8 @@ class AddDeviceAPIView(APIView):
                 device_number=device_number,
                 electricity=electricity,
                 provider_contract=provider_contract,
-                status=DeviceStatus.objects.get(name="o'rnatilgan")
+                status=DeviceStatus.objects.get(name="o'rnatilgan"),
+                provider=InternetProvider.objects.get(pk=provider)
             )
             device.save()
             for i in range(start, end+1):
