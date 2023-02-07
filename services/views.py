@@ -4,7 +4,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 
-from contracts.models import UserDeviceCount
+from contracts.models import UserDeviceCount, Contract
 from .models import DeviceUnit, Rack, Unit, DevicePublisher, ProviderContract, DeviceStatus, InternetProvider
 from .serializers import DeviceUnitSerializer, GetRackInformationSerializer, RackSerializer, UnitSerializer, \
     DevicePublisherSerializer, InternetProviderSerializer
@@ -120,7 +120,7 @@ class AddDeviceAPIView(APIView):
                 unit = Unit.objects.get(Q(number=i), Q(rack_id=rack))
                 unit.device = device
                 unit.is_busy = True
-                unit.contract.id = contract
+                unit.contract = Contract.objects.get(pk=contract)
                 unit.save()
             data = {
                 'success': True,
