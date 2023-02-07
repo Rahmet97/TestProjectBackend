@@ -135,6 +135,7 @@ class AgreementStatus(models.Model):
 class Contract(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     contract_number = models.CharField(max_length=10)
+    id_code = models.CharField(max_length=11, blank=True, null=True)
     contract_date = models.DateTimeField(blank=True)
     client = models.ForeignKey(UserData, on_delete=models.CASCADE)
     status = models.ForeignKey(Status, on_delete=models.CASCADE)  # ijro statuslari
@@ -146,6 +147,9 @@ class Contract(models.Model):
     expiration_date = models.DateTimeField(blank=True, null=True)
     base64file = models.TextField(blank=True, null=True)
     hashcode = models.CharField(max_length=255, blank=True, null=True)
+
+    def save(self):
+        pass
 
     def __str__(self):
         return self.contract_number

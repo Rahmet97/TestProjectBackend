@@ -95,7 +95,7 @@ class AddDeviceAPIView(APIView):
         contract_date = request.data['contract_date']
         provider = int(request.data['provider'])
         if start <= end:
-            if Provider.objects.filter(contract_number=contract_number).exists():
+            if ProviderContract.objects.filter(contract_number=contract_number).exists():
                 provider_contract = ProviderContract.objects.get(contract_number=contract_number)
             else:
                 provider_contract = ProviderContract.objects.create(
