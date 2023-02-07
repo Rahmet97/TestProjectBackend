@@ -403,7 +403,7 @@ class CreateContractFileAPIView(APIView):
                 client = request.user
             else:
                 client = request.data['client']
-            today = datetime.datetime.now().date()
+            today = datetime.now().date()
             prefix = 'CC'
             id_code = generate_contract_number(today, prefix)
             contract = Contract.objects.create(
