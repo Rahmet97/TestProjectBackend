@@ -113,7 +113,9 @@ class AddDeviceAPIView(APIView):
                 electricity=electricity,
                 provider_contract=provider_contract,
                 status=DeviceStatus.objects.get(name="o'rnatilgan"),
-                provider=InternetProvider.objects.get(pk=provider)
+                provider=InternetProvider.objects.get(pk=provider),
+                start=start,
+                end=end
             )
             device.save()
             for i in range(start, end+1):

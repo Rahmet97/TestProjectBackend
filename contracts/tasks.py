@@ -46,3 +46,22 @@ def file_downloader(base64file, pk):
     file_docx.write(decoded_file)
     file_docx.close()
     return f'DM-{pk}.docx'
+
+
+def generate_contract_number(contract_date, prefix):
+    year = contract_date.strftime("%y")
+    month = contract_date.strftime("%m")
+    day = contract_date.strftime("%d")
+
+    latest_contract = Contract.objects.filter(
+        id_code__startswith=f"{prefix}{year}{month}{day}"
+    ).order_by("-id").first()
+
+    if latest_contract:
+        counter = int(latest_contract.contract_number.split("-")[-1]) + 1
+    else:
+        counter = 1
+
+    contract_number = f"{prefix}{year}{month}{day}{str(counter).zfill(3)}"
+
+    return contract_number
