@@ -416,7 +416,7 @@ class CreateContractFileAPIView(APIView):
                 base64file=base64code,
                 hashcode=hash_code
             )
-            contract.save()
+            # contract.save()
             service = contract.service.name
             participants = Participant.objects.get(service_id=int(request.data['service_id'])).participants.all()
             for participant in participants:
