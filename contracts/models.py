@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from os.path import splitext
 
@@ -148,8 +150,30 @@ class Contract(models.Model):
     base64file = models.TextField(blank=True, null=True)
     hashcode = models.CharField(max_length=255, blank=True, null=True)
 
+    def generate_contract_number(self):
+        prefix = "CC"
+        today = datetime.datetime.now().date()
+        year = today.strftime("%y")
+        month = today.strftime("%m")
+        day = today.strftime("%d")
+
+        latest_contract = Contract.objects.filter(
+            id_code__startswith=f"{prefix}{year}{month}{day}"
+        ).order_by("-id").first()
+
+        if latest_contract:
+            counter = int(latest_contract.contract_number.split("-")[-1]) + 1
+        else:
+            counter = 1
+
+        contract_number = f"{prefix}{year}{month}{day}{str(counter).zfill(3)}"
+
+        return contract_number
+
     def save(self):
-        pass
+        if not self.id_code:
+            self.id_code = self.generate_contract_number()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.contract_number
