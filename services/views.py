@@ -156,7 +156,7 @@ class DeviceUnitDetail(generics.RetrieveAPIView):
 
 
 class DeleteDeviceAPIView(APIView):
-    permission_classes = ()
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         device_id = int(request.GET.get('device_id'))
