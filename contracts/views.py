@@ -31,7 +31,7 @@ from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, U
     ContractSerializerForContractList, ContractSerializerForBackoffice, ExpertSummarySerializer, \
     ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail, \
     ConnectMethodSerializer
-from .tasks import file_creator, file_downloader
+from .tasks import file_creator, file_downloader, generate_contract_number
 
 
 class ListAllServicesAPIView(generics.ListAPIView):
@@ -403,6 +403,9 @@ class CreateContractFileAPIView(APIView):
                 client = request.user
             else:
                 client = request.data['client']
+            today = datetime.datetime.now().date()
+            prefix = 'CC'
+            id_code = generate_contract_number(today, prefix)
             contract = Contract.objects.create(
                 service_id=int(request.data['service_id']),
                 contract_number=context['contract_number'],
@@ -414,9 +417,10 @@ class CreateContractFileAPIView(APIView):
                 payed_cash=0,
                 tarif_id=int(request.data['tarif']),
                 base64file=base64code,
-                hashcode=hash_code
+                hashcode=hash_code,
+                id_code=id_code
             )
-            # contract.save()
+            contract.save()
             service = contract.service.name
             participants = Participant.objects.get(service_id=int(request.data['service_id'])).participants.all()
             for participant in participants:
