@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 
 from contracts.models import UserDeviceCount, Contract
+from contracts.serializers import ContractSerializerForContractList
 from .models import DeviceUnit, Rack, Unit, DevicePublisher, ProviderContract, DeviceStatus, InternetProvider
 from .serializers import DeviceUnitSerializer, GetRackInformationSerializer, RackSerializer, UnitSerializer, \
     DevicePublisherSerializer, InternetProviderSerializer
@@ -144,7 +145,14 @@ class DeviceUnitDetail(generics.RetrieveAPIView):
         device_id = int(request.GET.get('device_id'))
         device = DeviceUnit.objects.get(pk=device_id)
         serializer = DeviceUnitSerializer(device)
-        return Response(serializer.data)
+        unit = Unit.objects.select_releated('contract').get(number=device.start)
+        contract = Contract.objects.get(contract_number=unit.contract)
+        contract_serializer = ContractSerializerForContractList(contract)
+        data = {
+            'device': serializer.data,
+            'contract': contract_serializer.data
+        }
+        return Response(data)
 
 
 class DeleteDeviceAPIView(APIView):

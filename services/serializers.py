@@ -46,16 +46,17 @@ class DevicePublisherSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class DeviceUnitSerializer(serializers.ModelSerializer):
-    device = DeviceSerializer()
-    device_publisher = DevicePublisherSerializer()
-
-    class Meta:
-        model = DeviceUnit
-        fields = '__all__'
-
-
 class InternetProviderSerializer(serializers.ModelSerializer):
     class Meta:
         model = InternetProvider
+        fields = '__all__'
+
+
+class DeviceUnitSerializer(serializers.ModelSerializer):
+    device = DeviceSerializer()
+    device_publisher = DevicePublisherSerializer()
+    provider = InternetProviderSerializer()
+
+    class Meta:
+        model = DeviceUnit
         fields = '__all__'
