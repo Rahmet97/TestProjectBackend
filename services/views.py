@@ -107,7 +107,7 @@ class AddDeviceAPIView(APIView):
                 rack_id=rack,
                 device_id=device_id,
                 device_publisher_id=device_publisher,
-                device_model_id=device_model,
+                device_model=device_model,
                 device_number=device_number,
                 electricity=electricity,
                 provider_contract=provider_contract,
