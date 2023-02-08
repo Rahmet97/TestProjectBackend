@@ -145,8 +145,8 @@ class DeviceUnitDetail(generics.RetrieveAPIView):
         device_id = int(request.GET.get('device_id'))
         device = DeviceUnit.objects.get(pk=device_id)
         serializer = DeviceUnitSerializer(device)
-        unit = Unit.objects.select_releated('contract').get(number=device.start)
-        contract = Contract.objects.get(contract_number=unit.contract)
+        unit = Unit.objects.get(number=device.start)
+        contract = Contract.objects.get(contract_number=unit.contract.contract_number)
         contract_serializer = ContractSerializerForContractList(contract)
         data = {
             'device': serializer.data,
