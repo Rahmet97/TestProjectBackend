@@ -4,7 +4,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 
-from contracts.models import UserDeviceCount, Contract
+from contracts.models import UserDeviceCount, Contract, UserContractTarifDevice
 from contracts.serializers import ContractSerializerForContractList, ContractSerializerForBackoffice
 from .models import DeviceUnit, Rack, Unit, DevicePublisher, ProviderContract, DeviceStatus, InternetProvider
 from .serializers import DeviceUnitSerializer, GetRackInformationSerializer, RackSerializer, UnitSerializer, \
@@ -148,9 +148,13 @@ class DeviceUnitDetail(generics.RetrieveAPIView):
         unit = Unit.objects.get(Q(number=device.start), Q(rack=device.rack))
         contract = Contract.objects.get(contract_number=unit.contract.contract_number)
         contract_serializer = ContractSerializerForBackoffice(contract)
+        odf_count = UserContractTarifDevice.objects.get(contract=unit.contract).odf_count
         data = {
             'device': serializer.data,
-            'contract': contract_serializer.data
+            'contract': contract_serializer.data,
+            'provider_contract_number': device.provider_contract.contract_number,
+            'provider_contract_date': device.provider_contract.contract_date,
+            'odf_count': odf_count
         }
         return Response(data)
 
