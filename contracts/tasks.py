@@ -48,6 +48,7 @@ def file_downloader(base64file, pk):
     return f'DM-{pk}.docx'
 
 
+# @shared_task
 def generate_contract_number(contract_date, prefix):
     year = contract_date.strftime("%y")
     month = contract_date.strftime("%m")
