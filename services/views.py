@@ -60,8 +60,8 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def put(self, request, *args, **kwargs):
-        print(*args)
-        print(**kwargs)
+        print(args)
+        print(kwargs)
         return super().put(request, *args, **kwargs)
 
 
