@@ -322,6 +322,13 @@ class CreateContractFileAPIView(APIView):
         img.save(file_path + file_name.split('.')[0] + '_' + str(number) + '.png')
         return file_path + file_name.split('.')[0] + '_' + str(number) + '.png'
 
+    def get(self, request):
+
+        data = {
+
+        }
+        return 0
+
     def post(self, request):
         context = dict()
         tarif = Tarif.objects.get(pk=int(request.data['tarif'])).name
