@@ -59,6 +59,11 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = RackSerializer
     permission_classes = (IsAuthenticated,)
 
+    def put(self, request, *args, **kwargs):
+        print(args)
+        print(kwargs)
+        return super().put(request, *args, **kwargs)
+
 
 class DevicePublisherAPIView(generics.ListAPIView):
     queryset = DevicePublisher.objects.all()
