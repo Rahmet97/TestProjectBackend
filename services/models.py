@@ -18,18 +18,6 @@ class DevicePublisher(models.Model):
         return self.name
 
 
-class Rack(models.Model):
-    number = models.IntegerField()
-    unit_count = models.IntegerField(default=42)
-    is_sold = models.BooleanField(default=False)
-    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, blank=True, null=True)
-
-    def __str__(self):
-        return str(self.number)
-    
-    objects = RackManager()
-
-
 class DeviceStatus(models.Model):
     name = models.CharField(max_length=30)
 
@@ -50,6 +38,20 @@ class InternetProvider(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Rack(models.Model):
+    number = models.IntegerField()
+    unit_count = models.IntegerField(default=42)
+    is_sold = models.BooleanField(default=False)
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, blank=True, null=True)
+    provider = models.ForeignKey(InternetProvider, on_delete=models.CASCADE, blank=True, null=True)
+    provider_contract = models.ForeignKey(ProviderContract, on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        return str(self.number)
+
+    objects = RackManager()
 
 
 class DeviceUnit(models.Model):

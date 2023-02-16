@@ -59,8 +59,24 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = RackSerializer
     permission_classes = (IsAuthenticated,)
 
+    def get(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = RackForGetSerializer(instance)
+        return Response(serializer.data)
+
     def put(self, request, *args, **kwargs):
-        print(request.data)
+        provider_contract_number = request.data['provider_contract_number']
+        provider_contract_date = request.data['provider_contract_date']
+        if ProviderContract.objects.filter(contract_number=provider_contract_number).exists():
+            provider_contract = ProviderContract.objects.get(contract_number=provider_contract_number)
+        else:
+            provider_contract = ProviderContract.objects.create(
+                contract_number=provider_contract_number,
+                contract_date=provider_contract_date
+            )
+        provider_contract.save()
+        request.data['provider_contract'] = provider_contract
+
         return super().put(request, *args, **kwargs)
 
 
@@ -83,10 +99,11 @@ class AddDeviceAPIView(APIView):
         rack = int(request.data['rack'])
         start = int(request.data['start'])
         end = int(request.data['end'])
+        rack_data = Rack.objects.get(pk=rack)
         if int(request.data['contract_id']):
             contract = int(request.data['contract_id'])
         elif Rack.objects.get(pk=rack).contract:
-            contract = Rack.objects.get(pk=rack).contract.id
+            contract = rack_data.contract.id
         else:
             return Response({
                 'success': False,
@@ -101,14 +118,17 @@ class AddDeviceAPIView(APIView):
         contract_date = request.data['contract_date']
         provider = int(request.data['provider'])
         if start <= end:
-            if ProviderContract.objects.filter(contract_number=contract_number).exists():
-                provider_contract = ProviderContract.objects.get(contract_number=contract_number)
+            if contract_number and contract_date:
+                if ProviderContract.objects.filter(contract_number=contract_number).exists():
+                    provider_contract = ProviderContract.objects.get(contract_number=contract_number)
+                else:
+                    provider_contract = ProviderContract.objects.create(
+                        contract_number=contract_number,
+                        contract_date=contract_date
+                    )
+                    provider_contract.save()
             else:
-                provider_contract = ProviderContract.objects.create(
-                    contract_number=contract_number,
-                    contract_date=contract_date
-                )
-                provider_contract.save()
+                provider_contract = rack_data.provider_contract
             device = DeviceUnit.objects.create(
                 rack_id=rack,
                 device_id=device_id,
