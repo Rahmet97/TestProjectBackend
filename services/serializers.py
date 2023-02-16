@@ -3,7 +3,7 @@ from django.db.models import Q, Sum
 
 from contracts.serializers import DeviceSerializer, ContractSerializerForBackoffice
 
-from .models import DevicePublisher, DeviceUnit, Rack, Unit, InternetProvider
+from .models import DevicePublisher, DeviceUnit, Rack, Unit, InternetProvider, ProviderContract
 
 
 class UnitSerializer(serializers.ModelSerializer):
@@ -18,8 +18,23 @@ class RackSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class InternetProviderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InternetProvider
+        fields = '__all__'
+
+
+class ProviderContractSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProviderContract
+        fields = '__all__'
+
+
 class RackForGetSerializer(serializers.ModelSerializer):
     contract = ContractSerializerForBackoffice()
+    provider = InternetProviderSerializer()
+    provider_contract = ProviderContractSerializer()
 
     class Meta:
         model = Rack
@@ -51,12 +66,6 @@ class GetRackInformationSerializer(serializers.ModelSerializer):
 class DevicePublisherSerializer(serializers.ModelSerializer):
     class Meta:
         model = DevicePublisher
-        fields = '__all__'
-
-
-class InternetProviderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = InternetProvider
         fields = '__all__'
 
 
