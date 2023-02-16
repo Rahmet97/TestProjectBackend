@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.db.models import Q, Sum
 
+from contracts.models import UserContractTarifDevice
 from contracts.serializers import DeviceSerializer, ContractSerializerForBackoffice
 
 from .models import DevicePublisher, DeviceUnit, Rack, Unit, InternetProvider, ProviderContract
@@ -35,6 +36,14 @@ class RackForGetSerializer(serializers.ModelSerializer):
     contract = ContractSerializerForBackoffice()
     provider = InternetProviderSerializer()
     provider_contract = ProviderContractSerializer()
+    odf_count = serializers.SerializerMethodField()
+
+    def get_odf_count(self, obj):
+        if obj.contract:
+            odf_count = UserContractTarifDevice.objects.get(contract=obj.contract).odf_count
+        else:
+            odf_count = 0
+        return odf_count
 
     class Meta:
         model = Rack
