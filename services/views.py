@@ -8,7 +8,7 @@ from contracts.models import UserDeviceCount, Contract, UserContractTarifDevice
 from contracts.serializers import ContractSerializerForContractList, ContractSerializerForBackoffice
 from .models import DeviceUnit, Rack, Unit, DevicePublisher, ProviderContract, DeviceStatus, InternetProvider
 from .serializers import DeviceUnitSerializer, GetRackInformationSerializer, RackSerializer, UnitSerializer, \
-    DevicePublisherSerializer, InternetProviderSerializer
+    DevicePublisherSerializer, InternetProviderSerializer, RackForGetSerializer
 
 
 class RackAPIView(APIView):
@@ -75,7 +75,7 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
                 contract_date=provider_contract_date
             )
         provider_contract.save()
-        request.data['provider_contract'] = provider_contract
+        request.data['provider_contract'] = provider_contract.id
 
         return super().put(request, *args, **kwargs)
 
