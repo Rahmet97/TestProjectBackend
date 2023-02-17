@@ -323,7 +323,7 @@ class CreateContractFileAPIView(APIView):
         return file_path + file_name.split('.')[0] + '_' + str(number) + '.png'
 
     def get(self, request):
-
+        director = UserData.objects.get(role__name='direktor')
         data = {
 
         }

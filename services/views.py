@@ -132,6 +132,8 @@ class AddDeviceAPIView(APIView):
                     provider_contract.save()
             else:
                 provider_contract = rack_data.provider_contract
+            if not provider:
+                provider = rack_data.provider
             device = DeviceUnit.objects.create(
                 rack_id=rack,
                 device_id=device_id,
