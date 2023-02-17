@@ -119,7 +119,7 @@ class AddDeviceAPIView(APIView):
         electricity = request.data['electricity']
         contract_number = request.data['contract_number']
         contract_date = request.data['contract_date']
-        provider = int(request.data['provider'])
+        provider = request.data['provider']
         if start <= end:
             if contract_number and contract_date:
                 if ProviderContract.objects.filter(contract_number=contract_number).exists():
@@ -133,7 +133,7 @@ class AddDeviceAPIView(APIView):
             else:
                 provider_contract = rack_data.provider_contract
             if not provider:
-                provider = rack_data.provider
+                provider = rack_data.provider.id
             device = DeviceUnit.objects.create(
                 rack_id=rack,
                 device_id=device_id,
@@ -143,7 +143,7 @@ class AddDeviceAPIView(APIView):
                 electricity=electricity,
                 provider_contract=provider_contract,
                 status=DeviceStatus.objects.get(name="o'rnatilgan"),
-                provider=InternetProvider.objects.get(pk=provider),
+                provider=InternetProvider.objects.get(pk=int(provider)),
                 start=start,
                 end=end
             )
