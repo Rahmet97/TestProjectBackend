@@ -69,6 +69,7 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
         provider_contract_date = request.data['provider_contract_date']
         if ProviderContract.objects.filter(contract_number=provider_contract_number).exists():
             provider_contract = ProviderContract.objects.get(contract_number=provider_contract_number)
+            request.data['provider_contract'] = provider_contract.id
         elif provider_contract_number and provider_contract_date:
             provider_contract = ProviderContract.objects.create(
                 contract_number=provider_contract_number,
