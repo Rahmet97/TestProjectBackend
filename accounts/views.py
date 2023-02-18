@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -97,3 +99,11 @@ class GetBankNameAPIView(APIView):
         bank = BankMFOName.objects.get(mfo=mfo)
         serializer = BankMFONameSerializer(bank)
         return Response(serializer.data)
+
+
+class GetCurrentTimeAPIView(APIView):
+    permission_classes = ()
+
+    def get(self, request):
+        current_time = datetime.now()
+        return Response({'current_time': current_time})

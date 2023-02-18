@@ -3,7 +3,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .views import GroupCreateAPIView, GroupUpdateDeleteAPIView, PinUserToGroupRole, RoleCreateAPIView, \
     PermissionCreateAPIView, GroupListAPIView, PermissionListAPIView, RoleUpdateDeleteAPIView, \
-    PermissionUpdateDeleteAPIView, GroupDetailAPIView, UpdateYurUserAPIView, UpdateFizUserAPIView, GetBankNameAPIView
+    PermissionUpdateDeleteAPIView, GroupDetailAPIView, UpdateYurUserAPIView, UpdateFizUserAPIView, GetBankNameAPIView, \
+    GetCurrentTimeAPIView
 
 urlpatterns = [
     path('role-create', RoleCreateAPIView.as_view(), name='RoleCreate'),
@@ -19,4 +20,5 @@ urlpatterns = [
     path('update-yuruser/<int:pk>', UpdateYurUserAPIView.as_view(), name='UpdateYurUserAPIView'),
     path('update-fizuser/<int:pk>', UpdateFizUserAPIView.as_view(), name='UpdateFizUserAPIView'),
     path('get-bank', GetBankNameAPIView.as_view(), name='GetBankNameAPIView'),
+    path('current-time', GetCurrentTimeAPIView.as_view(), name='GetCurrentTimeAPIView'),
 ]
