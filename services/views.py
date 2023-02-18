@@ -23,7 +23,7 @@ class RackAPIView(APIView):
 
 
 class GetRackInfo(generics.ListAPIView):
-    queryset = Rack.objects.all()
+    queryset = Rack.objects.all().order_by('number')
     serializer_class = GetRackInformationSerializer
     permission_classes = (IsAuthenticated,)
 
