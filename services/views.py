@@ -193,7 +193,7 @@ class DeleteDeviceAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        device_id = int(request.GET.get('device_id'))
+        device_id = int(request.data['device_id'])
         device = DeviceUnit.objects.get(pk=device_id)
         start = device.start
         end = device.end
