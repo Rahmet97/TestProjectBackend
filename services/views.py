@@ -201,7 +201,7 @@ class DeleteDeviceAPIView(APIView):
             unit = Unit.objects.get(Q(number=i), Q(rack_id=device.rack.id))
             unit.device = None
             unit.is_busy = False
-            unit.contract.id = None
+            unit.contract = None
             unit.save()
         device.status = DeviceStatus.objects.get(name="qaytarilgan")
         device.save()
