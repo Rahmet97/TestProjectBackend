@@ -35,7 +35,7 @@ class RackDetailAPIView(APIView):
         id = int(request.GET.get('rack_id'))
         rack = Rack.objects.get(pk=id)
         units = Unit.objects.filter(rack=rack).order_by('-number')
-        devices = DeviceUnit.objects.filter(rack=rack).order_by('id')
+        devices = DeviceUnit.objects.filter(Q(rack=rack), Q(status__name="o'rnatilgan")).order_by('id')
         rack_data = RackSerializer(rack)
         units_data = UnitSerializer(units, many=True)
         devices_data = DeviceUnitSerializer(devices, many=True)
