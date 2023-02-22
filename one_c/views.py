@@ -58,7 +58,7 @@ class CreateInvoiceAPIView(APIView):
                 'quantity': quantity,
                 'Price': invoice.contract.tarif.price,
                 'amount': invoice.contract.contract_cash,
-                'amountVAT': invoice.contract.contract_cash * 0.12
+                'amountVAT': float(invoice.contract.contract_cash) * 0.12
             }]
         }
         response = requests.get(url, headers=headers, data=data)
