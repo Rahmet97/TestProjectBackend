@@ -47,7 +47,7 @@ class CreateInvoiceAPIView(APIView):
             for element in UserDeviceCount.objects.filter(user=user_contract_tarif_device):
                 quantity += element.device_count * element.units_count
         data = {
-            'ID': invoice.id,
+            'ID': str(invoice.id),
             'customerID': invoice.customer.id,
             'customerName': customer_name,
             'invoiceDate': invoice.date,
@@ -58,8 +58,8 @@ class CreateInvoiceAPIView(APIView):
             'products': [{
                 'nomenclatureID': Nomenclature.objects.get(service=invoice.contract.service).nomenclature,
                 'quantity': quantity,
-                'Price': invoice.contract.tarif.price,
-                'amount': invoice.contract.contract_cash,
+                'Price': float(invoice.contract.tarif.price),
+                'amount': float(invoice.contract.contract_cash),
                 'amountVAT': float(invoice.contract.contract_cash) * 0.12
             }]
         }
