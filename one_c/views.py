@@ -50,9 +50,9 @@ class CreateInvoiceAPIView(APIView):
             'ID': str(invoice.id),
             'customerID': invoice.customer.id,
             'customerName': customer_name,
-            'invoiceDate': invoice.date,
+            'invoiceDate': str(invoice.date),
             'invoiceNum': f'{invoice.contract.id_code}/{invoice.number}',
-            'agreementdate': invoice.contract.contract_date,
+            'agreementdate': str(invoice.contract.contract_date),
             'fullnumber': invoice.contract.id_code,
             'contractID': invoice.contract.contract_number,
             'products': [{
