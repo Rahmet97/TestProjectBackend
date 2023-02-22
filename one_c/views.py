@@ -48,19 +48,19 @@ class CreateInvoiceAPIView(APIView):
                 quantity += element.device_count * element.units_count
         data = {
             'ID': str(invoice.id),
-            'customerID': invoice.customer.id,
+            'customerID': str(invoice.customer.id),
             'customerName': customer_name,
-            'invoiceDate': str(invoice.date),
+            'invoiceDate': str(invoice.date).replace(' ', 'T').split('.')[0],
             'invoiceNum': f'{invoice.contract.id_code}/{invoice.number}',
-            'agreementdate': str(invoice.contract.contract_date),
+            'agreementdate': str(invoice.contract.contract_date).replace(' ', 'T').split('.')[0],
             'fullnumber': invoice.contract.id_code,
             'contractID': invoice.contract.contract_number,
             'products': [{
                 'nomenclatureID': Nomenclature.objects.get(service=invoice.contract.service).nomenclature,
-                'quantity': quantity,
-                'Price': float(invoice.contract.tarif.price),
-                'amount': float(invoice.contract.contract_cash),
-                'amountVAT': float(invoice.contract.contract_cash) * 0.12
+                'quantity': str(quantity),
+                'Price': str(float(invoice.contract.tarif.price)),
+                'amount': str(float(invoice.contract.contract_cash)),
+                'amountVAT': str(float(invoice.contract.contract_cash) * 0.12)
             }]
         }
         print(data)
