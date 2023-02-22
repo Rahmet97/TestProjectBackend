@@ -59,13 +59,11 @@ class CreateInvoiceAPIView(APIView):
                 "nomenclatureID": Nomenclature.objects.get(service=invoice.contract.service).nomenclature,
                 "quantity": quantity,
                 "Price": float(invoice.contract.tarif.price),
-                "amount": float(invoice.contract.contract_cash),
+                "amount": float(invoice.contract.contract_cash) / 1.12,
                 "amountVAT": float(invoice.contract.contract_cash) * 0.12
             }]
         }
         print(data)
         print(json.dumps(data))
-        response = requests.get(url, headers=headers, data=data)
-        print(response)
-        print(response.content)
-        return Response(response.content)
+        response = requests.get(url, headers=headers, data=json.dumps(data))
+        return Response(json.loads(response.content))
