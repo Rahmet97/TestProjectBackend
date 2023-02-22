@@ -53,7 +53,7 @@ class CreateInvoiceAPIView(APIView):
             'invoiceDate': str(invoice.date).replace(' ', 'T').split('.')[0],
             'invoiceNum': f'{invoice.contract.id_code}/{invoice.number}',
             'contractID': invoice.contract.contract_number,
-            'agreementdate': str(invoice.contract.contract_date).replace(' ', 'T').split('.')[0],
+            'agreementdate': str(invoice.contract.contract_date).replace(' ', 'T').split('+')[0],
             'fullnumber': invoice.contract.id_code,
             'products': [{
                 'nomenclatureID': Nomenclature.objects.get(service=invoice.contract.service).nomenclature,
