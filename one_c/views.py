@@ -52,7 +52,7 @@ class CreateInvoiceAPIView(APIView):
             "customerName": customer_name,
             "invoiceDate": str(invoice.date).replace(' ', 'T').split('.')[0],
             "invoiceNum": f'{invoice.contract.id_code}/{invoice.number}',
-            "contractID": invoice.contract.contract_number,
+            "сontractID": invoice.contract.contract_number,
             "agreementdate": str(invoice.contract.contract_date).replace(' ', 'T').split('+')[0],
             "fullnumber": invoice.contract.id_code,
             "products": [{
