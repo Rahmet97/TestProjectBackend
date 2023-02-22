@@ -3,7 +3,7 @@ import uuid
 from django.db import models
 
 from accounts.models import UserData
-from contracts.models import Contract
+from contracts.models import Contract, Service
 
 
 class Status(models.Model):
@@ -31,3 +31,13 @@ class Invoice(models.Model):
     class Meta:
         verbose_name = 'Invoice'
         verbose_name_plural = 'Invoices'
+
+
+class Nomenclature(models.Model):
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    nomenclature = models.CharField(max_length=25)
+    name = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.service.name
+
