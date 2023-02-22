@@ -63,8 +63,9 @@ class CreateInvoiceAPIView(APIView):
                 'amountVAT': float(invoice.contract.contract_cash) * 0.12
             }]
         }
-        response = requests.get(url, headers=headers, data=json.dumps(data))
         print(data)
         print(json.dumps(data))
+        response = requests.get(url, headers=headers, data=data)
+        print(response)
         print(response.content)
-        return Response(response.content)
+        return Response(response)
