@@ -5,6 +5,7 @@ from datetime import datetime
 
 from django.shortcuts import render
 from rest_framework.views import APIView
+from rest_framework.response import Response
 from dotenv import load_dotenv
 
 from accounts.models import FizUser, YurUser
