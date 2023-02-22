@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 import base64
 from datetime import datetime
@@ -62,6 +63,8 @@ class CreateInvoiceAPIView(APIView):
                 'amountVAT': float(invoice.contract.contract_cash) * 0.12
             }]
         }
-        response = requests.get(url, headers=headers, data=data)
+        response = requests.get(url, headers=headers, data=json.dumps(data))
+        print(data)
+        print(json.dumps(data))
         print(response.content)
         return Response(response.content)
