@@ -64,7 +64,8 @@ class CreateInvoiceAPIView(APIView):
             }]
         }
         print(data)
-        response = requests.get(url, headers=headers, data=data)
+        prrint(json.dumps(data))
+        response = requests.get(url, headers=headers, data=json.dumps(data))
         print(response)
         print(response.content)
         return Response(response)
