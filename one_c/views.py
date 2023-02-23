@@ -12,8 +12,8 @@ from rest_framework.authentication import BasicAuthentication
 from dotenv import load_dotenv
 
 from accounts.models import FizUser, YurUser
-from contracts.models import Contract, UserContractTarifDevice, UserDeviceCount
-from one_c.models import Invoice, Status, Nomenclature
+from contracts.models import Contract, UserContractTarifDevice, UserDeviceCount, ContractStatus
+from one_c.models import Invoice, Status, Nomenclature, PayedInformation
 
 load_dotenv()
 
@@ -83,6 +83,42 @@ class UpdateInvoiceStatus(APIView):
             invoice = Invoice.objects.get(number=number)
             invoice.status = status_object
             invoice.save()
+            data = {
+                "result": 0,
+                "errorMessage": ""
+            }
+        except Exception as e:
+            data = {
+                "result": 1,
+                "errorMessage": f"{e}"
+            }
+            return Response({"OperationResult": data}, status=405)
+        return Response({"OperationResult": data}, status=200)
+
+
+class UpdateContractPayedCash(APIView):
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            id_code = request.data['contractID']
+            invoice_number = request.data['invoiceNum']
+            payed_cash = float(request.data['payedCash'])
+            payed_time = request.data['payedDate']
+
+            contract = Contract.objects.get(id_code=id_code)
+            contract.payed_cash = payed_cash
+            contract.contract_status = ContractStatus.objects.get(name='Aktiv')
+            contract.save()
+
+            payed_inform = PayedInformation.objects.create(
+                invoice=Invoice.objects.get(number=invoice_number),
+                contract=contract,
+                payed_cash=payed_cash,
+                payed_time=payed_time
+            )
+            payed_inform.save()
             data = {
                 "result": 0,
                 "errorMessage": ""
