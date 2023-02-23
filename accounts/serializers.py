@@ -104,7 +104,7 @@ class PinUserToGroupRoleSerializer(serializers.Serializer):
 class FizUserForOldContractSerializers(serializers.ModelSerializer):
     class Meta:
         model = FizUser
-        fields = ["first_name", "mid_name", "sur_name", "per_adr", "mob_phone_no", "email"]
+        fields = ["first_name", "mid_name", "sur_name", "per_adr", "mob_phone_no", "email", "pport_no"]
 
 
 class YurUserForOldContractSerializers(serializers.ModelSerializer):
