@@ -231,17 +231,17 @@ class SelectedTarifDevicesAPIView(APIView):
         if tarif.name == 'Rack-1':
             for device in devices:
                 electricity += int(device['electricity']) * \
-                    int(device['device_count'])
+                               int(device['device_count'])
             if electricity > int(request.data['rack_count']) * 7500:
                 lishniy_electricity = electricity - \
-                    int(request.data['rack_count']) * 7500
+                                      int(request.data['rack_count']) * 7500
             price = tarif.price * \
-                int(request.data['rack_count']) + \
-                math.ceil(lishniy_electricity / 100) * 23000
+                    int(request.data['rack_count']) + \
+                    math.ceil(lishniy_electricity / 100) * 23000
         else:
             for device in devices:
                 unit_count = int(device['device_count']) * \
-                    int(device['units_count'])
+                             int(device['units_count'])
                 if int(device['electricity']) > 450:
                     lishniy_electricity = int(device['electricity']) - 450
                 price += tarif.price * unit_count + math.ceil(lishniy_electricity / 100) * 23000 * int(
@@ -332,7 +332,7 @@ class CreateContractFileAPIView(APIView):
         img = qr.make_image(fill_color="black",
                             back_color="white").convert('RGB')
         img.save(file_path + file_name.split('.')
-                 [0] + '_' + str(number) + '.png')
+        [0] + '_' + str(number) + '.png')
         return file_path + file_name.split('.')[0] + '_' + str(number) + '.png'
 
     def get(self, request):
@@ -362,7 +362,7 @@ class CreateContractFileAPIView(APIView):
             director = request.data['director_fullname'].split()
             context['director'] = f"{director[1][0]}.{director[2][0]}.{director[0]}"
             context['price'] = int(request.data['price']) * \
-                (12 - int(datetime.now().month))
+                               (12 - int(datetime.now().month))
             context['price_text'] = self.number2word(int(context['price']))
             context['price_month'] = request.data['price']
             context['price_month_text'] = self.number2word(
@@ -392,7 +392,7 @@ class CreateContractFileAPIView(APIView):
             context['client'] = f"{client_short[1][0]}.{client_short[2][0]}.{client_short[0]}"
             context['client_fullname'] = request.data['full_name']
             context['price'] = int(request.data['price']) * \
-                (12 - int(datetime.now().month) + 1)
+                               (12 - int(datetime.now().month) + 1)
             context['price_text'] = self.number2word(int(context['price']))
             context['price_month'] = request.data['price']
             context['price_month_text'] = self.number2word(
@@ -413,7 +413,7 @@ class CreateContractFileAPIView(APIView):
             open('/usr/src/app/media/Contract/' + contract_file_for_preview, 'rb').read()))
         hash_code = hashcode.hexdigest()
         link = 'http://' + request.META['HTTP_HOST'] + \
-            '/contracts/contract?hash=' + hash_code
+               '/contracts/contract?hash=' + hash_code
         direktor_id = UserData.objects.get(role__name='direktor')
         direktor = YurUser.objects.get(userdata=direktor_id)
         direktor_fullname = f'{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}'
@@ -891,7 +891,7 @@ class GetUnitContractDetailWithNumber(APIView):
         empty_electricity = DeviceUnit.objects.filter(
             rack__unit__contract=contract).aggregate(Sum('electricity'))
         empty = sum - \
-            Unit.objects.filter(Q(is_busy=True), Q(contract=contract)).count()
+                Unit.objects.filter(Q(is_busy=True), Q(contract=contract)).count()
         odf_count = user_contract_tariff_device.odf_count
         provider = ConnetMethod.objects.get(
             pk=user_contract_tariff_device.connect_method.id)
@@ -916,26 +916,25 @@ def total_old_contract_price(
         connect_method_pk,
         connect_method_count=None,
         if_tarif_is_unit=None):
-
     tarif = Tarif.objects.get(id=tarif_pk.id)
     connect_method = ConnetMethod.objects.get(id=connect_method_pk.id)
 
     price = tarif.price * tarif_count
 
     if tarif.name == 'Rack-1':
-        working_electricity = tarif_count*7500
+        working_electricity = tarif_count * 7500
         if electricity > working_electricity:
-            price += math.ceil((electricity - working_electricity)/100) *23_000
+            price += math.ceil((electricity - working_electricity) / 100) * 23_000
 
     else:
-        working_electricity = if_tarif_is_unit*450
+        working_electricity = if_tarif_is_unit * 450
         if electricity > working_electricity:
-            price += math.ceil((electricity-working_electricity)/100)*23000
+            price += math.ceil((electricity - working_electricity) / 100) * 23000
 
     if connect_method.name == 'ODF':
 
         if connect_method_count > 1:
-            price += (connect_method_count-1) * connect_method.price
+            price += (connect_method_count - 1) * connect_method.price
 
     return price
 
@@ -993,7 +992,7 @@ class AddOldContractsViews(APIView):
                 user = serializer_class_user.save(
                     userdata=user_obj, user_type=1
                 )
-            
+
             contract_tarif_device_serializer = self.serializer_class_contract_tarif_device(data=request.data)
             contract_tarif_device_serializer.is_valid(raise_exception=True)
 
@@ -1041,8 +1040,7 @@ class AddOldContractsViews(APIView):
             director_firstname = request.data.get("director_firstname", None)
             file = request.FILES.get('file', None)
 
-
-            if not tin  or not director_firstname or not file:
+            if not tin or not director_firstname or not file:
                 raise validators.ValidationError(detail={
                     "error msg": "tin, file or director-firstname will not be empty"
                 }, code=status.HTTP_400_BAD_REQUEST)
@@ -1065,7 +1063,7 @@ class AddOldContractsViews(APIView):
                 user = serializer_class_user.save(
                     userdata=user_obj, user_type=2
                 )
-            
+
             contract_tarif_device_serializer = self.serializer_class_contract_tarif_device(data=request.data)
             contract_tarif_device_serializer.is_valid(raise_exception=True)
 
