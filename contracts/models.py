@@ -154,6 +154,14 @@ class Contract(models.Model):
         return self.contract_number
 
 
+class OldContractFile(models.Model):
+    contract = models.ForeignKey(to=Contract, related_name="old_contract_file", on_delete=models.SET_NULL, null=True, blank=True)
+    file = models.FileField(upload_to=slugify_upload)
+
+    def __str__(self):
+        return f"{self.contract.contract_number} {self.contract.id_code} - old contract file"
+
+
 class UserContractTarifDevice(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE, blank=True, null=True)
     client = models.ForeignKey(UserData, on_delete=models.CASCADE)
@@ -163,6 +171,7 @@ class UserContractTarifDevice(models.Model):
     connect_method = models.ForeignKey(ConnetMethod, on_delete=models.CASCADE, blank=True, null=True)
     odf_count = models.IntegerField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_electricity = models.IntegerField(blank=True, null=True)
     devices = models.ManyToManyField(Device, through='UserDeviceCount')
 
     def __str__(self):

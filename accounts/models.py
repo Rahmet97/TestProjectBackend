@@ -134,7 +134,7 @@ class FizUser(models.Model):
     full_name = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
-        return self.full_name
+        return f"{self.first_name} {self.sur_name}"
 
 
 class BankMFOName(models.Model):

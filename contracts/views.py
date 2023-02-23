@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from django.db.models import Q, Sum
 from django.shortcuts import redirect
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics
+from rest_framework import generics, validators, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -21,16 +21,18 @@ from rest_framework.views import APIView
 from accounts.models import FizUser, UserData, Role, YurUser
 from accounts.permissions import AdminPermission, SuperAdminPermission, DeputyDirectorPermission
 from accounts.serializers import FizUserSerializer, YurUserSerializer, FizUserSerializerForContractDetail, \
-    YurUserSerializerForContractDetail
+    YurUserSerializerForContractDetail, FizUserForOldContractSerializers, YurUserForOldContractSerializers
 from services.models import Rack, Unit, DeviceUnit
 from .models import Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice, \
     UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus, Pkcs, ExpertSummary, Contracts_Participants, \
-    ConnetMethod, Participant
+    ConnetMethod, Participant, OldContractFile
 from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
     OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer, PkcsSerializer, \
     ContractSerializerForContractList, ContractSerializerForBackoffice, ExpertSummarySerializer, \
     ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail, \
-    ConnectMethodSerializer
+    ConnectMethodSerializer, AddOldContractSerializers, UserOldContractTarifDeviceSerializer
+
+from .utils import error_response_404
 from .tasks import file_creator, file_downloader, generate_contract_number
 
 
@@ -47,7 +49,8 @@ class ListGroupServicesAPIView(APIView):
         group_id = request.GET.get('group_id')
         print(group_id)
         services = Service.objects.filter(group_id=group_id)
-        serializers = ServiceSerializer(services, many=True, context={'request': request})
+        serializers = ServiceSerializer(
+            services, many=True, context={'request': request})
         return Response(serializers.data)
 
 
@@ -112,7 +115,8 @@ class GetGroupAdminDataAPIView(APIView):
     def get(self, request):
         service_id = request.GET.get('service_id')
         service = Service.objects.get(pk=service_id)
-        user = UserData.objects.get(Q(group__service=service), Q(role__name="bo'lim boshlig'i"))
+        user = UserData.objects.get(
+            Q(group__service=service), Q(role__name="bo'lim boshlig'i"))
         dt = FizUser.objects.get(userdata=user)
         serializer = FizUserSerializer(dt)
         return Response(serializer.data)
@@ -154,7 +158,8 @@ class SavedServiceAPIView(APIView):
             services = saved_services.services.all()
         else:
             services = []
-        serializer = ServiceSerializer(services, many=True, context={'request': request})
+        serializer = ServiceSerializer(
+            services, many=True, context={'request': request})
         return Response(serializer.data)
 
     @swagger_auto_schema(operation_summary="Service ni saqlangan servicega qo'shish. Bu yerda service_id ni "
@@ -225,13 +230,18 @@ class SelectedTarifDevicesAPIView(APIView):
         tarif = Tarif.objects.get(pk=int(request.data['tarif']))
         if tarif.name == 'Rack-1':
             for device in devices:
-                electricity += int(device['electricity']) * int(device['device_count'])
+                electricity += int(device['electricity']) * \
+                    int(device['device_count'])
             if electricity > int(request.data['rack_count']) * 7500:
-                lishniy_electricity = electricity - int(request.data['rack_count']) * 7500
-            price = tarif.price * int(request.data['rack_count']) + math.ceil(lishniy_electricity / 100) * 23000
+                lishniy_electricity = electricity - \
+                    int(request.data['rack_count']) * 7500
+            price = tarif.price * \
+                int(request.data['rack_count']) + \
+                math.ceil(lishniy_electricity / 100) * 23000
         else:
             for device in devices:
-                unit_count = int(device['device_count']) * int(device['units_count'])
+                unit_count = int(device['device_count']) * \
+                    int(device['units_count'])
                 if int(device['electricity']) > 450:
                     lishniy_electricity = int(device['electricity']) - 450
                 price += tarif.price * unit_count + math.ceil(lishniy_electricity / 100) * 23000 * int(
@@ -250,7 +260,8 @@ class SelectedTarifDevicesAPIView(APIView):
             service_id=request.data['service_id'],
             tarif=tarif,
             rack_count=request.data['rack_count'],
-            connect_method=ConnetMethod.objects.get(pk=int(request.data['connect_method'])),
+            connect_method=ConnetMethod.objects.get(
+                pk=int(request.data['connect_method'])),
             odf_count=request.data['odf_count'],
             price=price
         )
@@ -318,8 +329,10 @@ class CreateContractFileAPIView(APIView):
         file_path = f"{settings.MEDIA_ROOT}/qr/"
         qr.add_data(f"{fullname}. {link}")
         qr.make(fit=True)
-        img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
-        img.save(file_path + file_name.split('.')[0] + '_' + str(number) + '.png')
+        img = qr.make_image(fill_color="black",
+                            back_color="white").convert('RGB')
+        img.save(file_path + file_name.split('.')
+                 [0] + '_' + str(number) + '.png')
         return file_path + file_name.split('.')[0] + '_' + str(number) + '.png'
 
     def get(self, request):
@@ -336,7 +349,8 @@ class CreateContractFileAPIView(APIView):
             number = Contract.objects.last().id + 1
         except AttributeError:
             number = 1
-        prefix = Service.objects.get(pk=int(request.data['service_id'])).group.prefix
+        prefix = Service.objects.get(
+            pk=int(request.data['service_id'])).group.prefix
         if request.user.type == 2:
             context['u_type'] = 'yuridik'
             context['contract_number'] = prefix + '-' + str(number)
@@ -347,10 +361,12 @@ class CreateContractFileAPIView(APIView):
             context['client_fullname'] = request.data['director_fullname']
             director = request.data['director_fullname'].split()
             context['director'] = f"{director[1][0]}.{director[2][0]}.{director[0]}"
-            context['price'] = int(request.data['price']) * (12 - int(datetime.now().month))
+            context['price'] = int(request.data['price']) * \
+                (12 - int(datetime.now().month))
             context['price_text'] = self.number2word(int(context['price']))
             context['price_month'] = request.data['price']
-            context['price_month_text'] = self.number2word(int(context['price_month']))
+            context['price_month_text'] = self.number2word(
+                int(context['price_month']))
             context['price_month_avans'] = request.data['price']
             context['price_month_avans_text'] = context['price_month_text']
             context['per_adr'] = request.data['per_adr']
@@ -375,10 +391,12 @@ class CreateContractFileAPIView(APIView):
             client_short = request.data['full_name'].split()
             context['client'] = f"{client_short[1][0]}.{client_short[2][0]}.{client_short[0]}"
             context['client_fullname'] = request.data['full_name']
-            context['price'] = int(request.data['price']) * (12 - int(datetime.now().month) + 1)
+            context['price'] = int(request.data['price']) * \
+                (12 - int(datetime.now().month) + 1)
             context['price_text'] = self.number2word(int(context['price']))
             context['price_month'] = request.data['price']
-            context['price_month_text'] = self.number2word(int(context['price_month']))
+            context['price_month_text'] = self.number2word(
+                int(context['price_month']))
             context['price_month_avans'] = request.data['price']
             context['price_month_avans_text'] = context['price_month_text']
             context['per_adr'] = request.data['per_adr']
@@ -391,21 +409,27 @@ class CreateContractFileAPIView(APIView):
         context['qr_client'] = ''
         contract_file_for_preview = file_creator(context, 1)
         hashcode = hashlib.md5()
-        hashcode.update(base64.b64encode(open('/usr/src/app/media/Contract/' + contract_file_for_preview, 'rb').read()))
+        hashcode.update(base64.b64encode(
+            open('/usr/src/app/media/Contract/' + contract_file_for_preview, 'rb').read()))
         hash_code = hashcode.hexdigest()
-        link = 'http://' + request.META['HTTP_HOST'] + '/contracts/contract?hash=' + hash_code
+        link = 'http://' + request.META['HTTP_HOST'] + \
+            '/contracts/contract?hash=' + hash_code
         direktor_id = UserData.objects.get(role__name='direktor')
         direktor = YurUser.objects.get(userdata=direktor_id)
         direktor_fullname = f'{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}'
         context['qr_unicon'] = self.create_qr(direktor_fullname, link, 1)
-        context['qr_client'] = self.create_qr(context['client_fullname'], link, 2)
-        contract_file = open('/usr/src/app/media/Contract/' + str(file_creator(context, 0)), 'rb').read()
+        context['qr_client'] = self.create_qr(
+            context['client_fullname'], link, 2)
+        contract_file = open('/usr/src/app/media/Contract/' +
+                             str(file_creator(context, 0)), 'rb').read()
         base64code = base64.b64encode(contract_file)
 
         if int(request.data['save']):
             status = Status.objects.filter(name='Yangi').first()
-            contract_status = ContractStatus.objects.filter(name='Yangi').first()
-            agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
+            contract_status = ContractStatus.objects.filter(
+                name='Yangi').first()
+            agreement_status = AgreementStatus.objects.filter(
+                name='Yuborilgan').first()
             if request.user.role.name == 'mijoz':
                 client = request.user
             else:
@@ -429,7 +453,8 @@ class CreateContractFileAPIView(APIView):
             )
             contract.save()
             service = contract.service.name
-            participants = Participant.objects.get(service_id=int(request.data['service_id'])).participants.all()
+            participants = Participant.objects.get(service_id=int(
+                request.data['service_id'])).participants.all()
             for participant in participants:
                 print(participant)
                 Contracts_Participants.objects.create(
@@ -520,7 +545,8 @@ class GetContractFile(APIView):
         hashcode = request.GET.get('hash')
         contract = Contract.objects.get(hashcode=hashcode)
         if contract.contract_status.name == "To'lov kutilmoqda":
-            file_pdf = file_downloader(bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id)
+            file_pdf = file_downloader(
+                bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id)
         else:
             if contract.client.type == 2:
                 body = {
@@ -573,7 +599,8 @@ class GetContractFileWithID(APIView):
     def get(self, request):
         pk = request.GET.get('pk')
         contract = Contract.objects.get(pk=pk)
-        file_pdf = file_downloader(bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id)
+        file_pdf = file_downloader(
+            bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id)
         return redirect(u'/media/Contract/' + file_pdf)
 
 
@@ -594,7 +621,8 @@ class ContractDetail(APIView):
             request.user.role.name == "direktor o'rinbosari" or
             request.user.role.name == "direktor") and \
                 contract_participants.agreement_status.name == "Yuborilgan":
-            agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
+            agreement_status = AgreementStatus.objects.get(
+                name="Ko'rib chiqilmoqda")
             contract_participants.agreement_status = agreement_status
             contract_participants.save()
         client = contract.client
@@ -604,8 +632,10 @@ class ContractDetail(APIView):
         else:
             user = FizUser.objects.get(userdata=client)
             client_serializer = FizUserSerializer(user)
-        participants = Contracts_Participants.objects.filter(contract=contract).order_by('role_id')
-        participant_serializer = ContractParticipantsSerializers(participants, many=True)
+        participants = Contracts_Participants.objects.filter(
+            contract=contract).order_by('role_id')
+        participant_serializer = ContractParticipantsSerializers(
+            participants, many=True)
         try:
             expert_summary_value = ExpertSummary.objects.get(
                 Q(contract=contract),
@@ -636,7 +666,8 @@ class GetGroupContract(APIView):
                 or request.user.role.name.lower() == "direktor o'rinbosari" \
                 or request.user.role.name.lower() == 'direktor':
             contracts = None
-            barcha_data = Contract.objects.filter(service__group=group).order_by('-condition', '-contract_date')
+            barcha_data = Contract.objects.filter(
+                service__group=group).order_by('-condition', '-contract_date')
             barcha = ContractSerializerForBackoffice(barcha_data, many=True)
             if request.user.role.name == 'direktor':
                 contract_participants = Contracts_Participants.objects.filter(
@@ -645,7 +676,8 @@ class GetGroupContract(APIView):
                     Q(agreement_status__name='Kelishildi')
                 ).values('contract')
                 director_accepted_contracts = Contracts_Participants.objects.filter(
-                    Q(role__name='direktor'), Q(agreement_status__name='Kelishildi')
+                    Q(role__name='direktor'), Q(
+                        agreement_status__name='Kelishildi')
                 ).values('contract')
                 yangi_data = Contract.objects.filter(id__in=contract_participants).exclude(
                     Q(id__in=director_accepted_contracts),
@@ -656,10 +688,10 @@ class GetGroupContract(APIView):
                     Q(contract__service__group=group),
                     Q(role=request.user.role),
                     (Q(agreement_status__name='Yuborilgan') |
-                    Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                     Q(agreement_status__name="Ko'rib chiqilmoqda"))
                 ).values('contract')
                 yangi_data = Contract.objects.filter(id__in=contract_participants).exclude(
-                    Q(contract_status__name="Bekor qilingan") | Q(contract_status__name="Rad etilgan")).select_related()\
+                    Q(contract_status__name="Bekor qilingan") | Q(contract_status__name="Rad etilgan")).select_related() \
                     .order_by('-condition', '-contract_date')
             yangi = ContractSerializerForBackoffice(yangi_data, many=True)
             contract_participants = Contracts_Participants.objects.filter(
@@ -669,16 +701,19 @@ class GetGroupContract(APIView):
             ).values('contract')
             kelishilgan_data = Contract.objects.filter(id__in=contract_participants).select_related() \
                 .order_by('-condition', '-contract_date')
-            kelishilgan = ContractSerializerForBackoffice(kelishilgan_data, many=True)
+            kelishilgan = ContractSerializerForBackoffice(
+                kelishilgan_data, many=True)
             rad_etildi_data = Contract.objects.filter(Q(service__group=group),
-                                                (Q(contract_status__name='Bekor qilingan') | Q(contract_status__name="Rad etilgan"))) \
+                                                      (Q(contract_status__name='Bekor qilingan') | Q(
+                                                          contract_status__name="Rad etilgan"))) \
                 .order_by('-condition', '-contract_date')
-            rad_etildi = ContractSerializerForBackoffice(rad_etildi_data, many=True)
+            rad_etildi = ContractSerializerForBackoffice(
+                rad_etildi_data, many=True)
             contract_participants = Contracts_Participants.objects.filter(
                 Q(contract__service__group=group),
                 Q(role=request.user.role),
                 (Q(agreement_status__name='Yuborilgan') |
-                    Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                 Q(agreement_status__name="Ko'rib chiqilmoqda"))
             ).values('contract')
             expired_data = Contract.objects.filter(
                 Q(id__in=contract_participants),
@@ -689,14 +724,14 @@ class GetGroupContract(APIView):
                 Q(contract__service__group=group),
                 Q(role=request.user.role),
                 (Q(agreement_status__name='Yuborilgan') |
-                    Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                 Q(agreement_status__name="Ko'rib chiqilmoqda"))
             ).values('contract')
             lastday_data = Contract.objects.filter(
                 Q(id__in=contract_participants),
                 Q(contract_date__day=datetime.now().day),
                 Q(contract_date__month=datetime.now().month),
                 Q(contract_date__year=datetime.now().year)).exclude(
-                    Q(contract_status__name='Bekor qilingan') | Q(contract_status__name='Rad etilgan')).select_related() \
+                Q(contract_status__name='Bekor qilingan') | Q(contract_status__name='Rad etilgan')).select_related() \
                 .order_by('-condition', '-contract_date')
             lastday = ContractSerializerForBackoffice(lastday_data, many=True)
             contract_participants = Contracts_Participants.objects.filter(
@@ -708,7 +743,8 @@ class GetGroupContract(APIView):
                 Q(id__in=contract_participants),
                 Q(contract_date__lt=datetime.now() - timedelta(days=1))
             ).select_related().order_by('-condition', '-contract_date')
-            expired_accepted = ContractSerializerForBackoffice(expired_accepted_data, many=True)
+            expired_accepted = ContractSerializerForBackoffice(
+                expired_accepted_data, many=True)
             contracts_selected = ExpertSummary.objects.select_related('contract').filter(
                 Q(user=request.user)).order_by('-contract__condition', '-contract__contract_date')
             in_time_data = [element.contract for element in contracts_selected if
@@ -727,7 +763,8 @@ class GetGroupContract(APIView):
             }
             return Response(contracts)
         else:
-            contracts = Contract.objects.filter(Q(service__group=group), Q(condition=3))
+            contracts = Contract.objects.filter(
+                Q(service__group=group), Q(condition=3))
             serializer = ContractSerializerForBackoffice(contracts, many=True)
             return Response(serializer.data)
 
@@ -741,7 +778,8 @@ class ConfirmContract(APIView):
             agreement_status = AgreementStatus.objects.get(name='Kelishildi')
         else:
             agreement_status = AgreementStatus.objects.get(name='Rad etildi')
-            contract.contract_status = ContractStatus.objects.get(name='Rad etilgan')
+            contract.contract_status = ContractStatus.objects.get(
+                name='Rad etilgan')
         contracts_participants = Contracts_Participants.objects.get(
             Q(role=request.user.role),
             Q(contract=contract),
@@ -751,11 +789,13 @@ class ConfirmContract(APIView):
         contracts_participants.save()
         contract.condition += 1
         try:
-            cntrct = Contracts_Participants.objects.get(Q(contract=contract), Q(role__name='direktor'), Q(agreement_status__name='Kelishildi'))
+            cntrct = Contracts_Participants.objects.get(Q(contract=contract), Q(role__name='direktor'),
+                                                        Q(agreement_status__name='Kelishildi'))
         except Contracts_Participants.DoesNotExist:
             cntrct = None
         if cntrct:
-            contract.contract_status = ContractStatus.objects.get(name="To'lov kutilmoqda")
+            contract.contract_status = ContractStatus.objects.get(
+                name="To'lov kutilmoqda")
         contract.save()
         request.data._mutable = True
         request.data['user'] = request.user.id
@@ -763,7 +803,8 @@ class ConfirmContract(APIView):
             documents = request.FILES.getlist('documents', None)
         except:
             documents = None
-        summary = ExpertSummarySerializerForSave(data=request.data, context={'documents': documents})
+        summary = ExpertSummarySerializerForSave(
+            data=request.data, context={'documents': documents})
         summary.is_valid(raise_exception=True)
         summary.save()
         return Response(status=200)
@@ -775,7 +816,8 @@ class DeleteUserContract(APIView):
     def post(self, request):
         id = request.data['contract']
         contract = Contract.objects.get(pk=id)
-        contract.contract_status = ContractStatus.objects.get(name="Bekor qilingan")
+        contract.contract_status = ContractStatus.objects.get(
+            name="Bekor qilingan")
         contract.save()
 
         return Response({'message': 'Deleted'})
@@ -790,7 +832,8 @@ class GetRackContractDetailWithNumber(APIView):
         contract = Contract.objects.get(contract_number=contract_number)
         serializer = ContractSerializerForBackoffice(contract)
         try:
-            user_contract_tariff_device = UserContractTarifDevice.objects.get(Q(contract=contract), Q(tarif__name='Rack-1'))
+            user_contract_tariff_device = UserContractTarifDevice.objects.get(Q(contract=contract),
+                                                                              Q(tarif__name='Rack-1'))
         except UserContractTarifDevice.DoesNotExist:
             data = {
                 'success': False,
@@ -798,10 +841,12 @@ class GetRackContractDetailWithNumber(APIView):
             }
             return Response(data, status=405)
         rack_count = user_contract_tariff_device.rack_count
-        filled = Rack.objects.filter(Q(is_sold=True), Q(contract=contract)).count()
+        filled = Rack.objects.filter(
+            Q(is_sold=True), Q(contract=contract)).count()
         empty = rack_count - filled
         odf_count = user_contract_tariff_device.odf_count
-        provider = ConnetMethod.objects.get(pk=user_contract_tariff_device.connect_method.id)
+        provider = ConnetMethod.objects.get(
+            pk=user_contract_tariff_device.connect_method.id)
         provider_serializer = ConnectMethodSerializer(provider)
         electricity = 7500
         devices = DeviceUnit.objects.filter(rack_id=rack_id).order_by('id')
@@ -828,23 +873,28 @@ class GetUnitContractDetailWithNumber(APIView):
         contract = Contract.objects.get(contract_number=contract_number)
         serializer = ContractSerializerForBackoffice(contract)
         try:
-            user_contract_tariff_device = UserContractTarifDevice.objects.get(Q(contract=contract), Q(tarif__name='Unit-1'))
+            user_contract_tariff_device = UserContractTarifDevice.objects.get(Q(contract=contract),
+                                                                              Q(tarif__name='Unit-1'))
         except UserContractTarifDevice.DoesNotExist:
             data = {
                 'success': False,
                 'message': 'Shartnoma unit ga tuzilmagan yoki bunday shartnoma mavjud emas!'
             }
             return Response(data, status=405)
-        user_device_count = UserDeviceCount.objects.filter(user=user_contract_tariff_device)
+        user_device_count = UserDeviceCount.objects.filter(
+            user=user_contract_tariff_device)
         sum = 0
         electricity = 0
         for i in user_device_count:
             sum += i.device_count * i.units_count
             electricity += i.electricity * i.units_count
-        empty_electricity = DeviceUnit.objects.filter(rack__unit__contract=contract).aggregate(Sum('electricity'))
-        empty = sum - Unit.objects.filter(Q(is_busy=True), Q(contract=contract)).count()
+        empty_electricity = DeviceUnit.objects.filter(
+            rack__unit__contract=contract).aggregate(Sum('electricity'))
+        empty = sum - \
+            Unit.objects.filter(Q(is_busy=True), Q(contract=contract)).count()
         odf_count = user_contract_tariff_device.odf_count
-        provider = ConnetMethod.objects.get(pk=user_contract_tariff_device.connect_method.id)
+        provider = ConnetMethod.objects.get(
+            pk=user_contract_tariff_device.connect_method.id)
         provider_serializer = ConnectMethodSerializer(provider)
         data = {
             'contract': serializer.data,
@@ -856,3 +906,204 @@ class GetUnitContractDetailWithNumber(APIView):
             'empty_electricity': empty_electricity
         }
         return Response(data)
+
+
+# BackOffice da admin eski qog'ozdegi shartnomalarni scaner qilib tizimga qo'shadi
+def total_old_contract_price(
+        electricity,
+        tarif_pk,
+        tarif_count,
+        connect_method_pk,
+        connect_method_count=None,
+        if_tarif_is_unit=None):
+
+    tarif = Tarif.objects.get(id=tarif_pk.id)
+    connect_method = ConnetMethod.objects.get(id=connect_method_pk.id)
+
+    price = tarif.price * tarif_count
+
+    if tarif.name == 'Rack-1':
+        working_electricity = tarif_count*7500
+        if electricity > working_electricity:
+            price += math.ceil((electricity - working_electricity)/100) *23_000
+
+    else:
+        working_electricity = if_tarif_is_unit*450
+        if electricity > working_electricity:
+            price += math.ceil((electricity-working_electricity)/100)*23000
+
+    if connect_method.name == 'ODF':
+
+        if connect_method_count > 1:
+            price += (connect_method_count-1) * connect_method.price
+
+    return price
+
+
+class AddOldContractsViews(APIView):
+    serializer_class_yur_user = YurUserForOldContractSerializers
+    serializer_class_fiz_user = FizUserForOldContractSerializers
+    serializer_class_contract = AddOldContractSerializers
+    serializer_class_contract_tarif_device = UserOldContractTarifDeviceSerializer
+
+    # permission_classes = []
+    userTtype = {
+        "fiz": True,
+        "yur": False
+    }
+
+    def post(self, request, *args, **kwargs):
+        # Get the value of the "type" argument from the URL
+        # Look up the corresponding constant value in the model based on the string argument
+        type_u = self.userTtype.get(kwargs.get("usertype", "").lower(), None)
+        # If the argument is not recognized, return a 404 error response
+        if type_u is None:
+            error_response_404()
+
+        role_user = Role.objects.get(name="mijoz")
+
+        # if user is fiz human
+        if type_u:
+            pin = request.data.get("pin", None)
+            first_name = request.data.get("first_name", None)
+            file = request.FILES.get('file', None)
+
+            if not pin or not first_name or not file:
+                raise validators.ValidationError(detail={
+                    "error msg": "pin, file or first name will not be empty"
+                }, code=status.HTTP_400_BAD_REQUEST)
+
+            if UserData.objects.filter(username=pin).exists():
+                user_obj = UserData.objects.get(username=pin)
+            else:
+                user_obj = UserData(
+                    username=str(pin),
+                    type=1,
+                    first_name=first_name,
+                    last_name=request.data.get("last_name"),
+                    role=role_user
+                )
+                user_obj.set_password(first_name[0] + pin + first_name[-1])
+                user_obj.save()
+            if FizUser.objects.filter(userdata=user_obj).exists():
+                user = FizUser.objects.get(userdata=user_obj)
+            else:
+                serializer_class_user = self.serializer_class_fiz_user(data=request.data)
+                serializer_class_user.is_valid(raise_exception=True)
+                user = serializer_class_user.save(
+                    userdata=user_obj, user_type=1
+                )
+            
+            contract_tarif_device_serializer = self.serializer_class_contract_tarif_device(data=request.data)
+            contract_tarif_device_serializer.is_valid(raise_exception=True)
+
+            price_total_old_contract = total_old_contract_price(
+                electricity=contract_tarif_device_serializer.validated_data.get("total_electricity"),
+                tarif_pk=contract_tarif_device_serializer.validated_data.get("tarif"),
+                tarif_count=contract_tarif_device_serializer.validated_data.get("rack_count"),
+                connect_method_pk=contract_tarif_device_serializer.validated_data.get("connect_method"),
+                connect_method_count=contract_tarif_device_serializer.validated_data.get("odf_count"),
+                if_tarif_is_unit=request.data.get("if_tarif_is_unit")
+            )
+
+            today = datetime.now().date()
+            prefix = 'CC'
+            id_code = generate_contract_number(today, prefix)
+
+            contract_serializer = self.serializer_class_contract(data=request.data)
+            contract_serializer.is_valid(raise_exception=True)
+            contract = contract_serializer.save(
+                client=user_obj,
+                id_code=id_code,
+                contract_cash=price_total_old_contract,
+                payed_cash=0,  # payed cash is 0, now
+                status=Status.objects.get(name="Jarayonda"),
+                contract_status=ContractStatus.objects.get(name="Aktiv")
+            )
+
+            file = request.FILES.get('file', None)
+            if file:
+                OldContractFile.objects.create(contract=contract, file=file)
+
+            contract_tarif_device = contract_tarif_device_serializer.save(
+                contract=contract, client=user_obj, price=price_total_old_contract
+            )
+
+            return Response({
+                'user-data': self.serializer_class_fiz_user(user).data,
+                'contract-data': self.serializer_class_contract(contract).data,
+                'tarif': self.serializer_class_contract_tarif_device(contract_tarif_device).data
+            }, status=status.HTTP_201_CREATED)
+
+        # else user is Yur human
+        else:
+            tin = request.data.get("tin", None)
+            director_firstname = request.data.get("director_firstname", None)
+            file = request.FILES.get('file', None)
+
+
+            if not tin  or not director_firstname or not file:
+                raise validators.ValidationError(detail={
+                    "error msg": "tin, file or director-firstname will not be empty"
+                }, code=status.HTTP_400_BAD_REQUEST)
+
+            if UserData.objects.filter(username=tin).exists():
+                user_obj = UserData.objects.get(username=tin)
+            else:
+                user_obj = UserData(
+                    username=str(request.data.get("tin")),
+                    type=2,
+                    role=role_user,
+                )
+                user_obj.set_password(director_firstname[0] + tin + director_firstname[-1])
+                user_obj.save()
+            if YurUser.objects.filter(userdata=user_obj).exists():
+                user = YurUser.objects.get(userdata=user_obj)
+            else:
+                serializer_class_user = self.serializer_class_yur_user(data=request.data)
+                serializer_class_user.is_valid(raise_exception=True)
+                user = serializer_class_user.save(
+                    userdata=user_obj, user_type=2
+                )
+            
+            contract_tarif_device_serializer = self.serializer_class_contract_tarif_device(data=request.data)
+            contract_tarif_device_serializer.is_valid(raise_exception=True)
+
+            price_total_old_contract = total_old_contract_price(
+                electricity=contract_tarif_device_serializer.validated_data.get("total_electricity"),
+                tarif_pk=contract_tarif_device_serializer.validated_data.get("tarif"),
+                tarif_count=contract_tarif_device_serializer.validated_data.get("rack_count"),
+                connect_method_pk=contract_tarif_device_serializer.validated_data.get("connect_method"),
+                connect_method_count=contract_tarif_device_serializer.validated_data.get("odf_count"),
+                if_tarif_is_unit=request.data.get("if_tarif_is_unit")
+
+            )
+
+            today = datetime.now().date()
+            prefix = 'CC'
+            id_code = generate_contract_number(today, prefix)
+
+            contract_serializer = self.serializer_class_contract(data=request.data)
+            contract_serializer.is_valid(raise_exception=True)
+            contract = contract_serializer.save(
+                client=user_obj,
+                id_code=id_code,
+                contract_cash=price_total_old_contract,
+                payed_cash=0,  # payed cash is 0, now
+                status=Status.objects.get(name="Jarayonda"),
+                contract_status=ContractStatus.objects.get(name="Aktiv")
+            )
+
+            file = request.FILES.get('file', None)
+            if file:
+                OldContractFile.objects.create(contract=contract, file=file)
+
+            contract_tarif_device = contract_tarif_device_serializer.save(
+                contract=contract, client=user_obj, price=price_total_old_contract
+            )
+
+            return Response({
+                'user-data': self.serializer_class_yur_user(user).data,
+                'contract-data': self.serializer_class_contract(contract).data,
+                'tarif': self.serializer_class_contract_tarif_device(contract_tarif_device).data
+            }, status=status.HTTP_201_CREATED)
