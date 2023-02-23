@@ -1,11 +1,14 @@
 from django.urls import path
 
-from .views import DeleteUserContract, GetRackContractDetailWithNumber, GetUnitContractDetailWithNumber, ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDetailAPIView, \
-    UserDetailAPIView, TarifListAPIView, DeviceListAPIView, OfferCreateAPIView, \
-    OfferDetailAPIView, GetGroupAdminDataAPIView, ServiceCreateAPIView, DocumentCreateAPIView, SavedServiceAPIView, \
-    SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService, CreateContractFileAPIView, SavePkcs, GetContractFile, \
-    GetUserContracts, GetContractFileWithID, ContractDetail, GetGroupContract, ConfirmContract, \
-    ConnectMethodListAPIView, GetPinnedUserDataAPIView
+from contracts.views import (
+    DeleteUserContract, GetRackContractDetailWithNumber, GetUnitContractDetailWithNumber,
+    ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDetailAPIView,
+    UserDetailAPIView, TarifListAPIView, DeviceListAPIView, OfferCreateAPIView,
+    OfferDetailAPIView, GetGroupAdminDataAPIView, ServiceCreateAPIView, DocumentCreateAPIView, SavedServiceAPIView,
+    SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService, CreateContractFileAPIView, SavePkcs, GetContractFile,
+    GetUserContracts, GetContractFileWithID, ContractDetail, GetGroupContract, ConfirmContract,
+    ConnectMethodListAPIView, GetPinnedUserDataAPIView, AddOldContractsViews
+)
 
 urlpatterns = [
     path('services', ListAllServicesAPIView.as_view(), name='ListAllServicesAPIView'),
@@ -29,6 +32,9 @@ urlpatterns = [
     path('contract', GetContractFile.as_view(), name='GetContractFile'),
     path('contract-file-by-id', GetContractFileWithID.as_view(), name='GetContractFileWithID'),
     path('contract-detail/<int:pk>', ContractDetail.as_view(), name='ContractDetail'),
+
+    path('add-old-contract/<str:usertype>', AddOldContractsViews.as_view(), name="add-old-contract"),
+
     path('user-contracts', GetUserContracts.as_view(), name='GetUserContracts'),
     path('group-contracts', GetGroupContract.as_view(), name='GetGroupContract'),
     path('confirm-contract', ConfirmContract.as_view(), name='ConfirmContract'),

@@ -6,7 +6,7 @@ from accounts.serializers import GroupSerializer, FizUserSerializer, YurUserSeri
     YurUserSerializerForContractDetail, FizUserSerializerForContractDetail
 from .models import Service, Tarif, Device, Contract, UserContractTarifDevice, UserDeviceCount, Offer, Document, \
     Element, TarifElement, SavedService, Pkcs, ExpertSummary, Contracts_Participants, ContractStatus, ConnetMethod, \
-    ExpertSummaryDocument
+    ExpertSummaryDocument, OldContractFile
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -249,3 +249,29 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
     class Meta:
         model = Contracts_Participants
         fields = '__all__'
+
+
+# old contracts
+class UserOldContractTarifDeviceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserContractTarifDevice
+        exclude = ["client", "price"]
+
+
+class AddOldContractFilesSerializers(serializers.ModelSerializer):
+
+    class Meta:
+        model = OldContractFile
+        fields = ["id", "file"]
+
+
+class AddOldContractSerializers(serializers.ModelSerializer):
+    file = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Contract
+        fields = ["id", "service", "contract_number", "contract_date", "expiration_date", "tarif", "file"]
+
+    @staticmethod
+    def get_file(obj):
+        return AddOldContractFilesSerializers(obj.old_contract_file.all(), many=True).data
