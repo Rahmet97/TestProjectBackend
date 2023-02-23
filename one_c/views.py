@@ -27,7 +27,7 @@ class CreateInvoiceAPIView(APIView):
         contract = Contract.objects.get(pk=contract_id)
         invoice = Invoice.objects.create(
             customer=contract.client,
-            number=f'{datetime.now().month}{datetime.now().year % 100}',
+            number=f'{contract.id_code}/{str(datetime.now().month).zfill(2)}{datetime.now().year % 100}',
             contract=contract,
             status=Status.objects.get(name='Yangi')
         )
@@ -60,10 +60,34 @@ class CreateInvoiceAPIView(APIView):
                 "quantity": quantity,
                 "Price": float(invoice.contract.tarif.price),
                 "amount": float(invoice.contract.contract_cash) / 1.12,
-                "amountVAT": float(invoice.contract.contract_cash) * 0.12
+                "amountVAT": float(invoice.contract.contract_cash) / 1.12 * 0.12
             }]
         }
         print(data)
         print(json.dumps(data))
         response = requests.get(url, headers=headers, data=json.dumps(data))
         return Response(response.content)
+
+
+class UpdateInvoiceStatus(APIView):
+    permission_classes = ()
+
+    def post(self, request):
+        try:
+            number = request.data['invoiceNum']
+            status = int(request.data['invoiceStatus'])
+            status_object = Status.objects.get(status_code=status)
+            invoice = Invoice.objects.get(number=number)
+            invoice.status = status_object
+            invoice.save()
+            data = {
+                "result": 0,
+                "errorMessage": ""
+            }
+        except Exception as e:
+            data = {
+                "result": 1,
+                "errorMessage": f"{e}"
+            }
+            return Response({"OperationResult": data}, status=405)
+        return Response({"OperationResult": data}, status=200)
