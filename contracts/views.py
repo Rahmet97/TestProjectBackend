@@ -3,6 +3,7 @@ import hashlib
 import json
 import math
 import xmltodict
+from decimal import Decimal
 
 import requests
 from django.conf import settings
@@ -25,7 +26,7 @@ from accounts.serializers import FizUserSerializer, YurUserSerializer, FizUserSe
 from services.models import Rack, Unit, DeviceUnit
 from .models import Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice, \
     UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus, Pkcs, ExpertSummary, Contracts_Participants, \
-    ConnetMethod, Participant, OldContractFile
+    ConnetMethod, Participant, OldContractFile, ServiceParticipants
 from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
     OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer, PkcsSerializer, \
     ContractSerializerForContractList, ContractSerializerForBackoffice, ExpertSummarySerializer, \
@@ -929,7 +930,8 @@ def total_old_contract_price(
     else:
         working_electricity = if_tarif_is_unit * 450
         if electricity > working_electricity:
-            price += math.ceil((electricity - working_electricity) / 100) * 23000
+            a = Decimal(math.ceil((electricity - working_electricity) / 100) * 23000)
+            price += a
 
     if connect_method.name == 'ODF':
 
@@ -945,7 +947,7 @@ class AddOldContractsViews(APIView):
     serializer_class_contract = AddOldContractSerializers
     serializer_class_contract_tarif_device = UserOldContractTarifDeviceSerializer
 
-    # permission_classes = []
+    permission_classes = [IsAuthenticated]
     userTtype = {
         "fiz": True,
         "yur": False
@@ -1027,6 +1029,17 @@ class AddOldContractsViews(APIView):
             contract_tarif_device = contract_tarif_device_serializer.save(
                 contract=contract, client=user_obj, price=price_total_old_contract
             )
+            
+            service_participants = ServiceParticipants.objects.filter(participant__service=contract.service)
+            
+            kelishildi = AgreementStatus.objects.get(name="Kelishildi")
+
+            for obj in service_participants:
+                Contracts_Participants.objects.create(
+                    contract=contract,
+                    role=obj.role,
+                    agreement_status=kelishildi
+                )
 
             return Response({
                 'user-data': self.serializer_class_fiz_user(user).data,
@@ -1099,6 +1112,15 @@ class AddOldContractsViews(APIView):
             contract_tarif_device = contract_tarif_device_serializer.save(
                 contract=contract, client=user_obj, price=price_total_old_contract
             )
+
+            service_participants = ServiceParticipants.objects.filter(participant__service=contract.service)
+
+            for obj in service_participants:
+                Contracts_Participants.objects.create(
+                    contract=contract, 
+                    role=obj.role,
+                    agreement_status=AgreementStatus.objects.get(name="Kelishildi")
+                )
 
             return Response({
                 'user-data': self.serializer_class_yur_user(user).data,
