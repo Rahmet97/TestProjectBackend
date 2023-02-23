@@ -184,6 +184,7 @@ class YurUser(models.Model):
     billingFlat = models.IntegerField(blank=True, null=True)
     billingPostCode = models.CharField(max_length=20, blank=True, null=True)
     billingCadastreNumber = models.CharField(max_length=36, blank=True, null=True)
+    position = models.CharField(max_length=255, blank=True, null=True)
     director_lastname = models.CharField(max_length=50, blank=True, null=True)
     director_firstname = models.CharField(max_length=50, blank=True, null=True)
     director_middlename = models.CharField(max_length=50, blank=True, null=True)
