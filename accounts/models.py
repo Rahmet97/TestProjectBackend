@@ -78,9 +78,9 @@ class UserData(AbstractUser):
         (FIZ, 'Fizik'),
         (YUR, 'Yuridik')
     )
-    role = models.ForeignKey(Role, on_delete=models.CASCADE, null=True)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
-    type = models.IntegerField(choices=user_type, null=True)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, blank=True, null=True)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True)
+    type = models.IntegerField(choices=user_type, blank=True, null=True)
 
     objects = CustomUserManager()
 
