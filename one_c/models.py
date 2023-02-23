@@ -41,3 +41,13 @@ class Nomenclature(models.Model):
 
     def __str__(self):
         return self.service.name
+
+
+class PayedInformation(models.Model):
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    payed_cash = models.FloatField()
+    payed_time = models.DateTimeField()
+
+    def __str__(self):
+        return self.contract.contract_number
