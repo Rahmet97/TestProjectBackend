@@ -1,3 +1,5 @@
+from abc import ABC
+
 from rest_framework import serializers
 from .models import Group, RolePermission, Role, Permission, FizUser, YurUser, UserData, BankMFOName
 
@@ -97,3 +99,18 @@ class PinUserToGroupRoleSerializer(serializers.Serializer):
     group = serializers.IntegerField()
     role = serializers.IntegerField()
 
+
+# For old contracts
+class FizUserForOldContractSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = FizUser
+        fields = ["first_name", "mid_name", "sur_name", "per_adr", "mob_phone_no", "email"]
+
+
+class YurUserForOldContractSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = YurUser
+        fields = [
+            "name", "per_adr", "director_firstname", "director_lastname", "director_middlename",
+            "bank_mfo", "paymentAccount", "xxtut", "ktut", "oked"
+        ]

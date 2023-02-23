@@ -1,5 +1,3 @@
-import uuid
-
 from django.db import models
 
 from accounts.models import UserData
@@ -40,4 +38,3 @@ class Nomenclature(models.Model):
 
     def __str__(self):
         return self.service.name
-
