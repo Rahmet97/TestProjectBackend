@@ -112,5 +112,5 @@ class YurUserForOldContractSerializers(serializers.ModelSerializer):
         model = YurUser
         fields = [
             "name", "per_adr", "director_firstname", "director_lastname", "director_middlename",
-            "bank_mfo", "paymentAccount", "xxtut", "ktut", "oked"
+            "bank_mfo", "paymentAccount", "xxtut", "ktut", "oked", "position"
         ]
