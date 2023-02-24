@@ -69,26 +69,12 @@ def file_downloader(base64file, pk):
 
 
 @shared_task
-def generate_contract_number(contract_date, obj_pk):
+def generate_contract_number(obj_pk):
 
     prefix = f"C{obj_pk}"
-
-    year = contract_date.strftime("%y")
-    month = contract_date.strftime("%m")
-    day = contract_date.strftime("%d")
-
-    latest_contract = Contract.objects.filter(
-        id_code__startswith=f"{prefix}{year}{month}{day}"
-    ).order_by("-id").first()
-
-    counter = 1
-    if latest_contract:
-        counter = int(latest_contract.contract_number.split("-")[-1]) + 1
-        
-    contract_id_code = f"{prefix}{year}{month}{day}{str(counter).zfill(3)}"
     
     contract_obj = Contract.objects.get(id=obj_pk)
-    contract_obj.id_code = contract_id_code
+    contract_obj.id_code = prefix
     contract_obj.save()
     return f"Updated {contract_obj.contract_number} contract's id_code"
 
