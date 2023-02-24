@@ -984,7 +984,7 @@ class AddOldContractsViews(APIView):
                     last_name=request.data.get("last_name"),
                     role=role_user
                 )
-                user_obj.set_password(first_name[0] + pin + first_name[-1])
+                user_obj.set_password(first_name[0].upper() + pin + first_name[-1].upper())
                 user_obj.save()
             if FizUser.objects.filter(userdata=user_obj).exists():
                 user = FizUser.objects.get(userdata=user_obj)
@@ -1004,7 +1004,7 @@ class AddOldContractsViews(APIView):
                 tarif_count=contract_tarif_device_serializer.validated_data.get("rack_count"),
                 connect_method_pk=contract_tarif_device_serializer.validated_data.get("connect_method"),
                 connect_method_count=contract_tarif_device_serializer.validated_data.get("odf_count"),
-                if_tarif_is_unit=request.data.get("if_tarif_is_unit")
+                if_tarif_is_unit=int(request.data.get("if_tarif_is_unit", 0))
             )
 
             today = datetime.now().date()
@@ -1066,7 +1066,7 @@ class AddOldContractsViews(APIView):
                     type=2,
                     role=role_user,
                 )
-                user_obj.set_password(director_firstname[0] + tin + director_firstname[-1])
+                user_obj.set_password(director_firstname[0].upper() + tin + director_firstname[-1].upper())
                 user_obj.save()
             if YurUser.objects.filter(userdata=user_obj).exists():
                 user = YurUser.objects.get(userdata=user_obj)
@@ -1086,7 +1086,7 @@ class AddOldContractsViews(APIView):
                 tarif_count=contract_tarif_device_serializer.validated_data.get("rack_count"),
                 connect_method_pk=contract_tarif_device_serializer.validated_data.get("connect_method"),
                 connect_method_count=contract_tarif_device_serializer.validated_data.get("odf_count"),
-                if_tarif_is_unit=request.data.get("if_tarif_is_unit")
+                if_tarif_is_unit=int(request.data.get("if_tarif_is_unit", 0))
 
             )
 
