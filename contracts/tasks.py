@@ -66,3 +66,8 @@ def generate_contract_number(contract_date, prefix):
     contract_number = f"{prefix}{year}{month}{day}{str(counter).zfill(3)}"
 
     return contract_number
+
+
+@shared_task
+def hello():
+    return "Hello World!"
