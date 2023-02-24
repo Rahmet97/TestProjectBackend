@@ -25,7 +25,7 @@ class Invoice(models.Model):
     date = models.DateTimeField(auto_now=True)
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
     status = models.ForeignKey(Status, on_delete=models.CASCADE)
-    document_type = models.CharField(max_length=10)
+    document_type = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
         return self.number
