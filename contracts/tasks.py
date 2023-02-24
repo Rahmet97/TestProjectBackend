@@ -89,3 +89,8 @@ def generate_contract_number(contract_date, prefix, obj_pk):
     contract_obj.id_code = contract_id_code
     contract_obj.save()
     return f"Updated {contract_obj.contract_number} contract's id_code"
+
+
+@shared_task
+def hello():
+    return "Hello World!"

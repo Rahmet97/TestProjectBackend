@@ -114,12 +114,6 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:3001"
 ]
 
-CELERY_RESULT_BACKEND = "django-db"
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_REDIS_URL")
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
-
-CSRF_COOKIE_HTTPONLY = True
-
 ROOT_URLCONF = 'TestProject.urls'
 
 TEMPLATES = [
@@ -246,6 +240,17 @@ USE_I18N = True
 USE_TZ = True
 
 AUTH_USER_MODEL = "accounts.UserData"
+
+# celery configurations
+CELERY_RESULT_BACKEND = os.getenv("CELERY_BROKER_REDIS_URL", "redis://localhost:6379/0")
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_REDIS_URL", "redis://localhost:6379/0")
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
+# CELERY_ACCEPT_CONTENT = ['application/json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+CSRF_COOKIE_HTTPONLY = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/

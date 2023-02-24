@@ -38,9 +38,21 @@ class CreateInvoiceAPIView(APIView):
             "Authorization": f"Basic {base64.b64encode(f'{username}:{password}'.encode()).decode()}"
         }
         if invoice.customer.type == 1:
-            customer_name = FizUser.objects.get(userdata=invoice.customer).full_name
+            user = FizUser.objects.get(userdata=invoice.customer)
+            customer_name = user.full_name
+            customer_inn = user.pin
+            customer_nds = None
+            customer_address = user.per_adr
+            customer_account = None
+            customer_mfo = None
         else:
-            customer_name = YurUser.objects.get(userdata=invoice.customer).name
+            user = YurUser.objects.get(userdata=invoice.customer)
+            customer_name = user.name
+            customer_inn = user.tin
+            customer_nds = None
+            customer_address = user.per_adr
+            customer_account = user.paymentAccount
+            customer_mfo = user.bank_mfo.mfo
         user_contract_tarif_device = UserContractTarifDevice.objects.get(contract=contract)
         if invoice.contract.tarif.name == 'Rack-1':
             quantity = user_contract_tarif_device.rack_count
@@ -52,6 +64,11 @@ class CreateInvoiceAPIView(APIView):
             "ID": str(invoice.id),
             "customerID": str(invoice.customer.id),
             "customerName": customer_name,
+            "customerINN": customer_inn,
+            "customerNDS": customer_nds,
+            "customerAdress": customer_address,
+            "customerAccount": customer_account,
+            "customerMFO": customer_mfo,
             "invoiceDate": str(invoice.date).replace(' ', 'T').split('.')[0],
             "invoiceNum": f'{invoice.contract.id_code}/{invoice.number}',
             "сontractID": invoice.contract.contract_number,
