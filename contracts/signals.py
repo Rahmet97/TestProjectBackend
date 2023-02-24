@@ -11,6 +11,5 @@ from .tasks import generate_contract_number
 def generate_contract_id(sender, instance, created, **kwargs):
     if created:
         today = datetime.now().date()
-        prefix = f"C{instance.pk}"
         obj_pk = instance.pk
-        generate_contract_number.delay(today, prefix, obj_pk)
+        generate_contract_number.delay(today, obj_pk)

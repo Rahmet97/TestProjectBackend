@@ -69,7 +69,9 @@ def file_downloader(base64file, pk):
 
 
 @shared_task
-def generate_contract_number(contract_date, prefix, obj_pk):
+def generate_contract_number(contract_date, obj_pk):
+
+    prefix = f"C{obj_pk}"
 
     year = contract_date.strftime("%y")
     month = contract_date.strftime("%m")

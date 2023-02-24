@@ -435,9 +435,11 @@ class CreateContractFileAPIView(APIView):
                 client = request.user
             else:
                 client = request.data['client']
-            today = datetime.now().date()
-            prefix = 'CC'
-            id_code = generate_contract_number(today, prefix)
+
+            # today = datetime.now().date()
+            # prefix = 'CC'
+            # id_code = generate_contract_number(today, prefix)
+            
             contract = Contract.objects.create(
                 service_id=int(request.data['service_id']),
                 contract_number=context['contract_number'],
@@ -450,7 +452,7 @@ class CreateContractFileAPIView(APIView):
                 tarif_id=int(request.data['tarif']),
                 base64file=base64code,
                 hashcode=hash_code,
-                id_code=id_code
+                # id_code=id_code
             )
             contract.save()
             service = contract.service.name
@@ -1007,15 +1009,15 @@ class AddOldContractsViews(APIView):
                 if_tarif_is_unit=int(request.data.get("if_tarif_is_unit", 0))
             )
 
-            today = datetime.now().date()
-            prefix = 'CC'
-            id_code = generate_contract_number(today, prefix)
+            # today = datetime.now().date()
+            # prefix = 'CC'
+            # id_code = generate_contract_number(today, prefix)
 
             contract_serializer = self.serializer_class_contract(data=request.data)
             contract_serializer.is_valid(raise_exception=True)
             contract = contract_serializer.save(
                 client=user_obj,
-                id_code=id_code,
+                # id_code=id_code,
                 contract_cash=price_total_old_contract,
                 payed_cash=0,  # payed cash is 0, now
                 status=Status.objects.get(name="Jarayonda"),
@@ -1090,15 +1092,15 @@ class AddOldContractsViews(APIView):
 
             )
 
-            today = datetime.now().date()
-            prefix = 'CC'
-            id_code = generate_contract_number(today, prefix)
+            # today = datetime.now().date()
+            # prefix = 'CC'
+            # id_code = generate_contract_number(today, prefix)
 
             contract_serializer = self.serializer_class_contract(data=request.data)
             contract_serializer.is_valid(raise_exception=True)
             contract = contract_serializer.save(
                 client=user_obj,
-                id_code=id_code,
+                # id_code=id_code,
                 contract_cash=price_total_old_contract,
                 payed_cash=0,  # payed cash is 0, now
                 status=Status.objects.get(name="Jarayonda"),
