@@ -33,6 +33,8 @@ class ContractStatus(models.Model):
 class Element(models.Model):
     name = models.CharField(max_length=255)
     cost = models.DecimalField(max_digits=10, decimal_places=2)
+    new_cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    new_cost_date = models.DateField(blank=True, null=True)
     quantity = models.IntegerField()
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
 
