@@ -281,5 +281,5 @@ poetry.toml
 
 venv/
 db.sqlite3
-.idea/
+.idea
 .env
