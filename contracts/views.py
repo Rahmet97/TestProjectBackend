@@ -622,6 +622,7 @@ class ContractDetail(APIView):
             contract_participants = None
         if (request.user.role.name == "bo'lim boshlig'i" or
             request.user.role.name == "direktor o'rinbosari" or
+            request.user.role.name == "dasturchi" or
             request.user.role.name == "direktor") and \
                 contract_participants.agreement_status.name == "Yuborilgan":
             agreement_status = AgreementStatus.objects.get(
@@ -667,6 +668,7 @@ class GetGroupContract(APIView):
         group = request.user.group
         if request.user.role.name.lower() == "bo'lim boshlig'i" \
                 or request.user.role.name.lower() == "direktor o'rinbosari" \
+                or request.user.role.name.lower() == "dasturchi" \
                 or request.user.role.name.lower() == 'direktor':
             contracts = None
             barcha_data = Contract.objects.filter(
