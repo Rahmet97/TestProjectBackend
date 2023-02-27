@@ -65,7 +65,6 @@ class DeviceSerializer(serializers.ModelSerializer):
 
 # old contract file serializers
 class AddOldContractFilesSerializers(serializers.ModelSerializer):
-
     class Meta:
         model = OldContractFile
         fields = ["id", "file"]
@@ -123,24 +122,24 @@ class ContractSerializerForBackoffice(serializers.ModelSerializer):
 
     def get_arrearage(self, obj):
         return obj.contract_cash - obj.payed_cash
-    
+
     def get_old_contract(self, obj):
         old_contract = obj.old_contract_file.all()
-        
+
         context = {
-            "has_old_contract":False,
+            "has_old_contract": False,
             "old_contract": None
         }
-        
+
         if old_contract:
-            context['has_old_contract']=  True
+            context['has_old_contract'] = True
             context['old_contract'] = AddOldContractFilesSerializers(old_contract, many=True).data
         return context
 
     class Meta:
         model = Contract
         fields = (
-            'id', 'client', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash', 
+            'id', 'client', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash',
             'payed_cash', 'arrearage', 'contract_status', 'old_contract'
         )
 
@@ -273,7 +272,6 @@ class UserOldContractTarifDeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserContractTarifDevice
         exclude = ["client", "price"]
-
 
 
 class AddOldContractSerializers(serializers.ModelSerializer):
