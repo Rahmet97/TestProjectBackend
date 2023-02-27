@@ -96,9 +96,11 @@ class UpdateInvoiceStatus(APIView):
         try:
             number = request.data['invoiceNum']
             status = int(request.data['invoiceStatus'])
+            document_type = request.data['documentType']
             status_object = Status.objects.get(status_code=status)
             invoice = Invoice.objects.get(number=number)
             invoice.status = status_object
+            invoice.document_type = document_type
             invoice.save()
             data = {
                 "result": 0,
