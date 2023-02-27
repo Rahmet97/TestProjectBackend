@@ -1,10 +1,13 @@
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 
-from .views import GroupCreateAPIView, GroupUpdateDeleteAPIView, PinUserToGroupRole, RoleCreateAPIView, \
-    PermissionCreateAPIView, GroupListAPIView, PermissionListAPIView, RoleUpdateDeleteAPIView, \
-    PermissionUpdateDeleteAPIView, GroupDetailAPIView, UpdateYurUserAPIView, UpdateFizUserAPIView, GetBankNameAPIView, \
-    GetCurrentTimeAPIView
+from .views import (
+    GroupCreateAPIView, GroupUpdateDeleteAPIView, PinUserToGroupRole, RoleCreateAPIView,
+    PermissionCreateAPIView, GroupListAPIView, PermissionListAPIView, RoleUpdateDeleteAPIView,
+    PermissionUpdateDeleteAPIView, GroupDetailAPIView, UpdateYurUserAPIView, UpdateFizUserAPIView, 
+    GetBankNameAPIView, GetCurrentTimeAPIView, UniconDataAPIView
+)
+
 
 urlpatterns = [
     path('role-create', RoleCreateAPIView.as_view(), name='RoleCreate'),
@@ -21,4 +24,6 @@ urlpatterns = [
     path('update-fizuser/<int:pk>', UpdateFizUserAPIView.as_view(), name='UpdateFizUserAPIView'),
     path('get-bank', GetBankNameAPIView.as_view(), name='GetBankNameAPIView'),
     path('current-time', GetCurrentTimeAPIView.as_view(), name='GetCurrentTimeAPIView'),
+
+    path('unicon-data', UniconDataAPIView.as_view(), name="unicon-data")
 ]

@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName
-from rest_framework import generics
+from rest_framework import generics, status
 
 from .permissions import SuperAdminPermission, EmployeePermission, AdminPermission
 from .serializers import GroupSerializer, RoleSerializer, PermissionSerializer, PinUserToGroupRoleSerializer, \
@@ -106,4 +106,25 @@ class GetCurrentTimeAPIView(APIView):
 
     def get(self, request):
         current_time = datetime.now()
-        return Response({'current_time': current_time})
+        return Response({'current_time': current_time})    
+
+
+class UniconDataAPIView(APIView):
+    serializer_class=YurUserSerializer
+    permission_classes = []
+
+
+    def get_obj(self):
+        return YurUser.objects.get(userdata__role__name="direktor", tin="123456789")
+    
+    # Unicon data larini olish ya'ni unicon directorini
+    def get(self, request):
+        serializer = self.serializer_class(self.get_obj())
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+    
+    # Unicon data larini ozgartirish ya'ni unicon directorini
+    def patch(self, request):
+        serializer = self.serializer_class(self.get_obj(), request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

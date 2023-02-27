@@ -1,5 +1,3 @@
-from abc import ABC
-
 from rest_framework import serializers
 from .models import Group, RolePermission, Role, Permission, FizUser, YurUser, UserData, BankMFOName
 
