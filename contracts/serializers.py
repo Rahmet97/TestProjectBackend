@@ -104,7 +104,6 @@ class ContractSerializerForBackoffice(serializers.ModelSerializer):
     arrearage = serializers.SerializerMethodField()
     client = serializers.SerializerMethodField()
     contract_status = ContractStatusSerializerForContractsList()
-    old_contract = serializers.SerializerMethodField()
 
     def get_client(self, obj):
         try:
@@ -123,6 +122,22 @@ class ContractSerializerForBackoffice(serializers.ModelSerializer):
     def get_arrearage(self, obj):
         return obj.contract_cash - obj.payed_cash
 
+    class Meta:
+        model = Contract
+        fields = (
+            'id', 'client', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash',
+            'payed_cash', 'arrearage', 'contract_status'
+        )
+
+
+class ContractSerializerForDetail(serializers.ModelSerializer):
+    arrearage = serializers.SerializerMethodField()
+    contract_status = ContractStatusSerializerForContractsList()
+    old_contract = serializers.SerializerMethodField()
+
+    def get_arrearage(self, obj):
+        return obj.contract_cash - obj.payed_cash
+    
     def get_old_contract(self, obj):
         old_contract = obj.old_contract_file.all()
 
@@ -139,23 +154,9 @@ class ContractSerializerForBackoffice(serializers.ModelSerializer):
     class Meta:
         model = Contract
         fields = (
-            'id', 'client', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash',
-            'payed_cash', 'arrearage', 'contract_status', 'old_contract'
-        )
-
-
-class ContractSerializerForDetail(serializers.ModelSerializer):
-    arrearage = serializers.SerializerMethodField()
-    contract_status = ContractStatusSerializerForContractsList()
-
-    def get_arrearage(self, obj):
-        return obj.contract_cash - obj.payed_cash
-
-    class Meta:
-        model = Contract
-        fields = (
             'id', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash', 'payed_cash',
-            'arrearage', 'contract_status', 'base64file', 'hashcode')
+            'arrearage', 'contract_status', 'base64file', 'hashcode', 'old_contract'
+        )
 
 
 class UserContractTarifDeviceSerializer(serializers.ModelSerializer):
