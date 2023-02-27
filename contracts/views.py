@@ -666,10 +666,11 @@ class GetGroupContract(APIView):
 
     def get(self, request):
         group = request.user.group
-        if request.user.role.name.lower() == "bo'lim boshlig'i" \
-                or request.user.role.name.lower() == "direktor o'rinbosari" \
-                or request.user.role.name.lower() == "dasturchi" \
-                or request.user.role.name.lower() == 'direktor':
+        if (request.user.role.name.lower() == "bo'lim boshlig'i"
+            ) or (request.user.role.name.lower() == "direktor o'rinbosari"
+            ) or (request.user.role.name.lower() == "dasturchi"
+            ) or (request.user.role.name.lower() == 'direktor'):
+            
             contracts = None
             barcha_data = Contract.objects.filter(
                 service__group=group).order_by('-condition', '-contract_date')

@@ -63,6 +63,14 @@ class DeviceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+# old contract file serializers
+class AddOldContractFilesSerializers(serializers.ModelSerializer):
+
+    class Meta:
+        model = OldContractFile
+        fields = ["id", "file"]
+
+
 class ContractSerializer(serializers.ModelSerializer):
     contract_number = serializers.SerializerMethodField()
 
@@ -97,6 +105,7 @@ class ContractSerializerForBackoffice(serializers.ModelSerializer):
     arrearage = serializers.SerializerMethodField()
     client = serializers.SerializerMethodField()
     contract_status = ContractStatusSerializerForContractsList()
+    old_contract = serializers.SerializerMethodField()
 
     def get_client(self, obj):
         try:
@@ -114,12 +123,26 @@ class ContractSerializerForBackoffice(serializers.ModelSerializer):
 
     def get_arrearage(self, obj):
         return obj.contract_cash - obj.payed_cash
+    
+    def get_old_contract(self, obj):
+        old_contract = obj.old_contract_file.all()
+        
+        context = {
+            "has_old_contract":False,
+            "old_contract": None
+        }
+        
+        if old_contract:
+            context['has_old_contract']=  True
+            context['old_contract'] = AddOldContractFilesSerializers(old_contract, many=True).data
+        return context
 
     class Meta:
         model = Contract
         fields = (
-            'id', 'client', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash', 'payed_cash',
-            'arrearage', 'contract_status')
+            'id', 'client', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash', 
+            'payed_cash', 'arrearage', 'contract_status', 'old_contract'
+        )
 
 
 class ContractSerializerForDetail(serializers.ModelSerializer):
@@ -257,12 +280,6 @@ class UserOldContractTarifDeviceSerializer(serializers.ModelSerializer):
         model = UserContractTarifDevice
         exclude = ["client", "price"]
 
-
-class AddOldContractFilesSerializers(serializers.ModelSerializer):
-
-    class Meta:
-        model = OldContractFile
-        fields = ["id", "file"]
 
 
 class AddOldContractSerializers(serializers.ModelSerializer):
