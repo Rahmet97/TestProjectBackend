@@ -620,13 +620,13 @@ class ContractDetail(APIView):
             )
         except Contracts_Participants.DoesNotExist:
             contract_participants = None
-        if (request.user.role.name == "bo'lim boshlig'i" or
-            request.user.role.name == "direktor o'rinbosari" or
-            request.user.role.name == "dasturchi" or
-            request.user.role.name == "direktor") and \
-                contract_participants.agreement_status.name == "Yuborilgan":
-            agreement_status = AgreementStatus.objects.get(
-                name="Ko'rib chiqilmoqda")
+        if (request.user.role.name == "bo'lim boshlig'i"
+            ) or (request.user.role.name == "direktor o'rinbosari"
+            ) or (request.user.role.name == "dasturchi"
+            ) or (request.user.role.name == "direktor"
+            ) and (contract_participants.agreement_status.name == "Yuborilgan"):
+
+            agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
             contract_participants.agreement_status = agreement_status
             contract_participants.save()
         client = contract.client
@@ -636,8 +636,7 @@ class ContractDetail(APIView):
         else:
             user = FizUser.objects.get(userdata=client)
             client_serializer = FizUserSerializer(user)
-        participants = Contracts_Participants.objects.filter(
-            contract=contract).order_by('role_id')
+        participants = Contracts_Participants.objects.filter(contract=contract).order_by('role_id')
         participant_serializer = ContractParticipantsSerializers(
             participants, many=True)
         try:
@@ -666,10 +665,10 @@ class GetGroupContract(APIView):
 
     def get(self, request):
         group = request.user.group
-        if (request.user.role.name.lower() == "bo'lim boshlig'i"
-            ) or (request.user.role.name.lower() == "direktor o'rinbosari"
-            ) or (request.user.role.name.lower() == "dasturchi"
-            ) or (request.user.role.name.lower() == 'direktor'):
+        if (request.user.role.name == "bo'lim boshlig'i"
+            ) or (request.user.role.name == "direktor o'rinbosari"
+            ) or (request.user.role.name == "dasturchi"
+            ) or (request.user.role.name == 'direktor'):
             
             contracts = None
             barcha_data = Contract.objects.filter(
