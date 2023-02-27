@@ -31,7 +31,7 @@ class ContractStatus(models.Model):
 
 
 class Element(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=255)
     cost = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.IntegerField()
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
@@ -51,17 +51,10 @@ class Tarif(models.Model):
     name = models.CharField(max_length=30)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    elements = models.ManyToManyField(Element)
 
     def __str__(self):
         return self.name
-
-
-class TarifElement(models.Model):
-    tarif = models.ForeignKey(Tarif, on_delete=models.CASCADE)
-    element = models.ForeignKey(Element, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f'{self.tarif.name} {self.element.name}'
 
 
 class TarifLog(models.Model):
@@ -159,7 +152,7 @@ class OldContractFile(models.Model):
     file = models.FileField(upload_to=slugify_upload)
 
     def __str__(self):
-        return f"{self.contract.contract_number} {self.contract.id_code} - old contract file"
+        return f"{self.contract} - old contract file"
 
 
 class UserContractTarifDevice(models.Model):

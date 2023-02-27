@@ -5,7 +5,7 @@ from accounts.models import YurUser, FizUser, UserData
 from accounts.serializers import GroupSerializer, FizUserSerializer, YurUserSerializer, \
     YurUserSerializerForContractDetail, FizUserSerializerForContractDetail
 from .models import Service, Tarif, Device, Contract, UserContractTarifDevice, UserDeviceCount, Offer, Document, \
-    Element, TarifElement, SavedService, Pkcs, ExpertSummary, Contracts_Participants, ContractStatus, ConnetMethod, \
+    Element, SavedService, Pkcs, ExpertSummary, Contracts_Participants, ContractStatus, ConnetMethod, \
     ExpertSummaryDocument, OldContractFile
 
 
@@ -186,12 +186,6 @@ class OfferSerializer(serializers.ModelSerializer):
 class ElementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Element
-        fields = '__all__'
-
-
-class TarifElementSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TarifElement
         fields = '__all__'
 
 

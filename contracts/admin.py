@@ -11,7 +11,6 @@ admin.site.register((
     Offer,
     Document,
     Tarif,
-    TarifElement,
     Contract,
     ContractStatus,
     AgreementStatus,
@@ -23,5 +22,5 @@ admin.site.register((
     ExpertSummary,
     ExpertSummaryDocument,
 
-    OldContractFile # test
+    OldContractFile  # test
 ))
