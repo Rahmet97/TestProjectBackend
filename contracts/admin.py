@@ -21,5 +21,7 @@ admin.site.register((
     Participant,
     ServiceParticipants,
     ExpertSummary,
-    ExpertSummaryDocument
+    ExpertSummaryDocument,
+
+    OldContractFile # test
 ))
