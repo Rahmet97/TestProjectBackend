@@ -259,7 +259,7 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
             summary = ExpertSummary.objects.filter(contract=obj.contract).get(user=userdata)
             serializer = ExpertSummarySerializer(summary)
             return serializer.data
-        except ExpertSummary.DoesNotExist:
+        except:
             return dict()
 
     def get_agreement_status(self, obj):
