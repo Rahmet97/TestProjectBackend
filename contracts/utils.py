@@ -1,16 +1,78 @@
 import os
-import math
+import qrcode
 import subprocess
 
-from django.http.response import HttpResponse
-
+from django.conf import settings
 from rest_framework import validators, status
-from .models import Tarif, ConnetMethod, UserContractTarifDevice
 
 
 def error_response_404():
     raise validators.ValidationError(
         detail={"message": "Object is not found 404"}, code=status.HTTP_404_NOT_FOUND)
+
+
+# Numbers to word
+class NumbersToWord:
+
+    # Digit Numbers to word: 21 -> yigirma bir
+    def _hundreds(self, m):
+        digits = {
+            1: "bir", 2: "ikki", 3: "uch", 4: "to'rt", 5: "besh", 6: "olti", 7: "yetti", 8: "sakkiz", 9: "to'qqiz",
+            10: "o'n", 20: "yigirma", 30: "o'ttiz", 40: "qirq", 50: "ellik", 60: "oltmish", 70: "yetmish", 80: "sakson",
+            90: "to'qson"
+        }
+
+        d1 = m // 100
+        d2 = (m // 10) % 10
+        d3 = m % 10
+        s1, s2, s3 = '', '', ''
+        if d1 != 0:
+            s1 = f'{digits[d1]} yuz '
+        if d2 != 0:
+            s2 = digits[d2 * 10] + ' '
+        if d3 != 0:
+            s3 = digits[d3] + ' '
+
+        return s1 + s2 + s3
+
+    # Numbers to word
+    def _number2word(self, n):
+        d1 = {0: "", 1: "ming ", 2: "million ", 3: "milliard ", 4: "trillion "}
+
+        fraction = []
+        while n > 0:
+            r = n % 1000
+            fraction.append(r)
+            n //= 1000
+
+        s = ''
+        for i in range(len(fraction)):
+            if fraction[i] != 0:
+                yuz = self.hundreds(fraction[i]) + d1[i]
+                s = yuz + s
+
+        return s.rstrip()
+    
+    # change number to word
+    def change_num_to_word(self, n: int) -> str:
+        return self._number2word(n=n) 
+
+
+# create qr code
+def create_qr(link):
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=4
+    )
+    file_name = link.split('/')[-1]
+    file_path = f"{settings.MEDIA_ROOT}/qr/"
+    qr.add_data(link)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
+    img.save(file_path + file_name.split('.')[0] + '_' + '.png')
+    return file_path + file_name.split('.')[0] + '_' + '.png'
 
 
 def convert_docx_to_pdf(docx_file_path: str):
@@ -32,9 +94,9 @@ def convert_docx_to_pdf(docx_file_path: str):
     return f"{pdf_file_path}/{docx_file_path.split('/')[-1].split('.')[0]}.pdf"
 
 
-def delete_pdf_file(pdf_file_path: str):
-    if os.path.exists(pdf_file_path):
-        os.remove(pdf_file_path)
-        print(f"The file has been deleted.")
+def delete_file(file_path: str):
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        print("The file has been deleted.")
     else:
-        print(f"The file does not exist.")
+        print("The file does not exist.")
