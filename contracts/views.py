@@ -330,31 +330,31 @@ class CreateContractFileAPIView(APIView):
         file_path = f"{settings.MEDIA_ROOT}/qr/"
         qr.add_data(f"{fullname}. {link}")
         qr.make(fit=True)
-        img = qr.make_image(fill_color="black",
-                            back_color="white").convert('RGB')
+        img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
         img.save(file_path + file_name.split('.')
         [0] + '_' + str(number) + '.png')
         return file_path + file_name.split('.')[0] + '_' + str(number) + '.png'
 
-    def get(self, request):
-        director = UserData.objects.get(role__name='direktor')
-        data = {
+    # def get(self, request):
+    #     director = UserData.objects.get(role__name='direktor')
+    #     data = {
 
-        }
-        return 0
+    #     }
+    #     return 0
 
     def post(self, request):
         context = dict()
         tarif = Tarif.objects.get(pk=int(request.data['tarif'])).name
+
         try:
             number = Contract.objects.last().id + 1
         except AttributeError:
             number = 1
-        prefix = Service.objects.get(
-            pk=int(request.data['service_id'])).group.prefix
+        prefix = Service.objects.get(pk=int(request.data['service_id'])).group.prefix
+        
         if request.user.type == 2:
             context['u_type'] = 'yuridik'
-            context['contract_number'] = prefix + '-' + str(number)
+            context['contract_number'] = prefix + '-' + str(number)  # --
             context['year'] = datetime.now().year
             context['month'] = datetime.now().month
             context['day'] = datetime.now().day
@@ -362,12 +362,10 @@ class CreateContractFileAPIView(APIView):
             context['client_fullname'] = request.data['director_fullname']
             director = request.data['director_fullname'].split()
             context['director'] = f"{director[1][0]}.{director[2][0]}.{director[0]}"
-            context['price'] = int(request.data['price']) * \
-                               (12 - int(datetime.now().month))
+            context['price'] = int(request.data['price']) * 12 - int(datetime.now().month)
             context['price_text'] = self.number2word(int(context['price']))
             context['price_month'] = request.data['price']
-            context['price_month_text'] = self.number2word(
-                int(context['price_month']))
+            context['price_month_text'] = self.number2word(int(context['price_month']))
             context['price_month_avans'] = request.data['price']
             context['price_month_avans_text'] = context['price_month_text']
             context['per_adr'] = request.data['per_adr']
@@ -392,12 +390,10 @@ class CreateContractFileAPIView(APIView):
             client_short = request.data['full_name'].split()
             context['client'] = f"{client_short[1][0]}.{client_short[2][0]}.{client_short[0]}"
             context['client_fullname'] = request.data['full_name']
-            context['price'] = int(request.data['price']) * \
-                               (12 - int(datetime.now().month) + 1)
+            context['price'] = int(request.data['price']) * (12 - int(datetime.now().month) + 1)
             context['price_text'] = self.number2word(int(context['price']))
             context['price_month'] = request.data['price']
-            context['price_month_text'] = self.number2word(
-                int(context['price_month']))
+            context['price_month_text'] = self.number2word(int(context['price_month']))
             context['price_month_avans'] = request.data['price']
             context['price_month_avans_text'] = context['price_month_text']
             context['per_adr'] = request.data['per_adr']
@@ -408,29 +404,27 @@ class CreateContractFileAPIView(APIView):
             context['host'] = 'http://' + request.META['HTTP_HOST']
         context['qr_unicon'] = ''
         context['qr_client'] = ''
+        
         contract_file_for_preview = file_creator(context, 1)
         hashcode = hashlib.md5()
-        hashcode.update(base64.b64encode(
-            open('/usr/src/app/media/Contract/' + contract_file_for_preview, 'rb').read()))
+        hashcode.update(base64.b64encode(open('/usr/src/app/media/Contract/' + contract_file_for_preview, 'rb').read()))
         hash_code = hashcode.hexdigest()
-        link = 'http://' + request.META['HTTP_HOST'] + \
-               '/contracts/contract?hash=' + hash_code
+
+        link = 'http://' + request.META['HTTP_HOST'] + '/contracts/contract?hash=' + hash_code
         direktor_id = UserData.objects.get(role__name='direktor')
         direktor = YurUser.objects.get(userdata=direktor_id)
         direktor_fullname = f'{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}'
+        
         context['qr_unicon'] = self.create_qr(direktor_fullname, link, 1)
-        context['qr_client'] = self.create_qr(
-            context['client_fullname'], link, 2)
-        contract_file = open('/usr/src/app/media/Contract/' +
-                             str(file_creator(context, 0)), 'rb').read()
+        context['qr_client'] = self.create_qr(context['client_fullname'], link, 2)
+        contract_file = open('/usr/src/app/media/Contract/' + str(file_creator(context, 0)), 'rb').read()
         base64code = base64.b64encode(contract_file)
 
         if int(request.data['save']):
             status = Status.objects.filter(name='Yangi').first()
-            contract_status = ContractStatus.objects.filter(
-                name='Yangi').first()
-            agreement_status = AgreementStatus.objects.filter(
-                name='Yuborilgan').first()
+            contract_status = ContractStatus.objects.filter(name='Yangi').first()
+            agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
+
             if request.user.role.name == 'mijoz':
                 client = request.user
             else:
@@ -456,8 +450,7 @@ class CreateContractFileAPIView(APIView):
             )
             contract.save()
             service = contract.service.name
-            participants = Participant.objects.get(service_id=int(
-                request.data['service_id'])).participants.all()
+            participants = Participant.objects.get(service_id=int(request.data['service_id'])).participants.all()
             for participant in participants:
                 print(participant)
                 Contracts_Participants.objects.create(
