@@ -46,7 +46,7 @@ class UserDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserData
-        fields = ('id', 'username', 'role', 'group')
+        fields = ('id', 'username', 'role', 'group', 'type')
 
 
 class FizUserSerializer(serializers.ModelSerializer):
@@ -102,7 +102,7 @@ class PinUserToGroupRoleSerializer(serializers.Serializer):
 class FizUserForOldContractSerializers(serializers.ModelSerializer):
     class Meta:
         model = FizUser
-        fields = ["first_name", "mid_name", "sur_name", "per_adr", "mob_phone_no", "email", "pport_no"]
+        fields = ["first_name", "mid_name", "sur_name", "per_adr", "mob_phone_no", "email", "pport_no", "pin"]
 
 
 class YurUserForOldContractSerializers(serializers.ModelSerializer):

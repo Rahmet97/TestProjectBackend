@@ -110,10 +110,10 @@ class ContractSerializerForBackoffice(serializers.ModelSerializer):
             client_id = Contract.objects.select_related('client').get(id=obj.id).client
             if client_id.type == 2:
                 clientt = YurUser.objects.get(userdata=client_id)
-                serializer = YurUserSerializer(clientt)
+                serializer = YurUserSerializerForContractDetail(clientt)
             else:
                 clientt = FizUser.objects.get(userdata=client_id)
-                serializer = FizUserSerializer(clientt)
+                serializer = FizUserSerializerForContractDetail(clientt)
         except Contract.DoesNotExist:
             return dict()
 
