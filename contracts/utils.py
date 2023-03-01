@@ -82,21 +82,12 @@ def convert_docx_to_pdf(docx_file_path: str):
     return:
         pdf file path
     """
-    
-    # path = "/".join(docx_file_path.split('/')[0:-1]) + '/'
-    # pdf_file_path = f"{path}{docx_file_path.split('/')[-1].split('.')[0]}.pdf"
-    # pdf_file_path = f"{path}"
-
-    # Create the command to convert DOCX to PDF using libreoffice
-    # command = ['libreoffice', '--headless', '--convert-to', 'pdf', docx_file_path, '--outdir', path]
-    # command = ['libreoffice', '--convert-to', 'pdf', '--headless', '--stdout', docx_file_path]
-    # Run the command in the terminal using subprocess
-
     path = "/".join(docx_file_path.split('/')[0:-1]) + '/'
     pdf_file_path = f"{path}{docx_file_path.split('/')[-1].split('.')[0]}.pdf"
 
     # Create the command to convert DOCX to PDF using libreoffice
-    command = ['libreoffice', '--headless', '--convert-to', 'pdf', docx_file_path, '--outdir', path]
+    # command = ['libreoffice', '--headless', '--convert-to', 'pdf', docx_file_path, '--outdir', path]
+    command = ['libreoffice', '--headless', '--convert-to', 'pdf:writer_pdf_Export:UTF8', docx_file_path, '--outdir', path]
     
     # Run the command in the terminal using subprocess with utf-8 encoding
     subprocess.call(command, encoding='utf-8')
