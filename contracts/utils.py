@@ -48,7 +48,7 @@ class NumbersToWord:
         s = ''
         for i in range(len(fraction)):
             if fraction[i] != 0:
-                yuz = self.hundreds(fraction[i]) + d1[i]
+                yuz = self._hundreds(fraction[i]) + d1[i]
                 s = yuz + s
 
         return s.rstrip()
