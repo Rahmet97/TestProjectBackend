@@ -83,7 +83,7 @@ def convert_docx_to_pdf(docx_file_path: str):
         pdf file path
     """
     
-    path = "/".join(docx_file_path.split('/')[0:-1])
+    path = "/".join(docx_file_path.split('/')[0:-1]) + '/'
     # pdf_file_path = f"{path}"
 
     # Create the command to convert DOCX to PDF using libreoffice
