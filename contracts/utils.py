@@ -84,14 +84,14 @@ def convert_docx_to_pdf(docx_file_path: str):
     """
     
     path = "/".join(docx_file_path.split('.')[0].split('/')[:-1])
-    pdf_file_path = f"{path}"
+    # pdf_file_path = f"{path}"
 
     # Create the command to convert DOCX to PDF using libreoffice
-    command = ['libreoffice', '--headless', '--convert-to', 'pdf', docx_file_path, '--outdir', pdf_file_path]
+    command = ['libreoffice', '--headless', '--convert-to', 'pdf', path, '--outdir', pdf_file_path]
     # Run the command in the terminal using subprocess
     subprocess.run(command)
-    print("pdf", f"{pdf_file_path}{docx_file_path.split('/')[-1].split('.')[0]}.pdf")
-    return f"{pdf_file_path}{docx_file_path.split('/')[-1].split('.')[0]}.pdf"
+    print("pdf", f"{path}{docx_file_path.split('/')[-1].split('.')[0]}.pdf")
+    return f"{path}{docx_file_path.split('/')[-1].split('.')[0]}.pdf"
 
 
 def delete_file(file_path: str):

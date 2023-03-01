@@ -349,12 +349,15 @@ class CreateContractFileAPIView(APIView):
         # dxoc file
         contract_file_for_preview = file_creator(context, 1)
         # pdf file
+        print("contract_file_for_preview: ", contract_file_for_preview)
         contract_file_for_preview_pdf = convert_docx_to_pdf(str(contract_file_for_preview))
+        print("contract_file_for_preview_pdf: ", contract_file_for_preview_pdf)
         # docx file ni ochirish
-        delete_file(str(contract_file_for_preview))
+        delete_file(f"/usr/src/app/{str(contract_file_for_preview)}")
         # -------
         hashcode = hashlib.md5()
-        hashcode.update(base64.b64encode(open('/usr/src/app/media/Contract/' + contract_file_for_preview_pdf, 'rb').read()))
+        # hashcode.update(base64.b64encode(open('/usr/src/app/media/Contract/' + contract_file_for_preview_pdf, 'rb').read()))
+        hashcode.update(base64.b64encode(open('/usr/src/app/' + contract_file_for_preview_pdf, 'rb').read()))
         hash_code = hashcode.hexdigest()
 
         link = 'http://' + request.META['HTTP_HOST'] + '/contracts/contract?hash=' + hash_code
@@ -369,9 +372,11 @@ class CreateContractFileAPIView(APIView):
         # pdf file
         contract_file_for_base64_pdf = convert_docx_to_pdf(str(contract_file_for_base64))
         # docx fileni ochirish
-        delete_file(str(contract_file_for_base64))
+        delete_file(f"/usr/src/app/media/{str(contract_file_for_base64)}")
         # -------
-        contract_file = open('/usr/src/app/media/Contract/' + str(contract_file_for_base64_pdf), 'rb').read()
+        # contract_file = open('/usr/src/app/media/Contract/' + str(contract_file_for_base64_pdf), 'rb').read()
+        contract_file = open('/usr/src/app/media/' + str(contract_file_for_base64_pdf), 'rb').read()
+
         base64code = base64.b64encode(contract_file)
 
         if int(request.data['save']):
