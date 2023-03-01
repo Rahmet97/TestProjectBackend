@@ -46,7 +46,7 @@ class UserDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserData
-        fields = ('id', 'username', 'role', 'group')
+        fields = ('id', 'username', 'role', 'group', 'type')
 
 
 class FizUserSerializer(serializers.ModelSerializer):
