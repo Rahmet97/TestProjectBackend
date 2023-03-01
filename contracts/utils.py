@@ -87,7 +87,7 @@ def convert_docx_to_pdf(docx_file_path: str):
 
     # Create the command to convert DOCX to PDF using libreoffice
     command = ['libreoffice', '--headless', '--convert-to', 'pdf', docx_file_path, '--outdir', path]
-    command = ['libreoffice', '--headless', '--convert-to', 'pdf', '--convert-to', 'pdf:writer_pdf_Export', docx_file_path, '--outdir', path, '--nofirststartwizard', '--nolockcheck', '--nologo', '--nodisplay', '--norestore', '--convert-images-to-jpg', '--writer-pdf-embedfonts', '--writer-pdf-use-cff', '--writer-pdf-subset-fonts']    
+    # command = ['libreoffice', '--headless', '--convert-to', 'pdf', '--convert-to', 'pdf:writer_pdf_Export', docx_file_path, '--outdir', path, '--nofirststartwizard', '--nolockcheck', '--nologo', '--nodisplay', '--norestore', '--convert-images-to-jpg', '--writer-pdf-embedfonts', '--writer-pdf-use-cff', '--writer-pdf-subset-fonts']    
     # command = ['libreoffice', '--headless', '--convert-to', 'pdf', '--convert-to', 'pdf:writer_pdf_Export', '--outdir', path, '--nofirststartwizard', '--nolockcheck', '--nologo', '--nodisplay', '--norestore', '--convert-images-to-jpg', '--writer-pdf-embedfonts', '--writer-pdf-use-cff', '--writer-pdf-subset-fonts', docx_file_path]    
     
     # Run the command in the terminal using subprocess with utf-8 encoding
