@@ -90,8 +90,8 @@ def convert_docx_to_pdf(docx_file_path: str):
     command = ['libreoffice', '--headless', '--convert-to', 'pdf', docx_file_path, '--outdir', pdf_file_path]
     # Run the command in the terminal using subprocess
     subprocess.run(command)
-    
-    return f"{pdf_file_path}/{docx_file_path.split('/')[-1].split('.')[0]}.pdf"
+    print("pdf", f"{pdf_file_path}{docx_file_path.split('/')[-1].split('.')[0]}.pdf")
+    return f"{pdf_file_path}{docx_file_path.split('/')[-1].split('.')[0]}.pdf"
 
 
 def delete_file(file_path: str):
