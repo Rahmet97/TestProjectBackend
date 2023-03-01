@@ -33,5 +33,5 @@ class ElementUpdateAPIView(RetrieveUpdateAPIView):
 class CalculateTariffSummAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request):
+    def post(self, request):
         pass
