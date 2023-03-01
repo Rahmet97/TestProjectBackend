@@ -8,7 +8,6 @@ from decimal import Decimal
 import requests
 from django.conf import settings
 
-import qrcode
 from datetime import datetime, timedelta
 
 from django.db.models import Q, Sum
@@ -33,8 +32,10 @@ from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, U
     ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail, \
     ConnectMethodSerializer, AddOldContractSerializers, UserOldContractTarifDeviceSerializer
 
-from .utils import error_response_404
+from .utils import error_response_404, create_qr, NumbersToWord, convert_docx_to_pdf, delete_file
 from .tasks import file_creator, file_downloader, generate_contract_number
+
+num2word = NumbersToWord()
 
 
 class ListAllServicesAPIView(generics.ListAPIView):
@@ -282,66 +283,6 @@ class SelectedTarifDevicesAPIView(APIView):
 class CreateContractFileAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def hundreds(self, m):
-        digits = {
-            1: "bir", 2: "ikki", 3: "uch", 4: "to'rt", 5: "besh", 6: "olti", 7: "yetti", 8: "sakkiz", 9: "to'qqiz",
-            10: "o'n", 20: "yigirma", 30: "o'ttiz", 40: "qirq", 50: "ellik", 60: "oltmish", 70: "yetmish", 80: "sakson",
-            90: "to'qson"
-        }
-
-        d1 = m // 100
-        d2 = (m // 10) % 10
-        d3 = m % 10
-        s1, s2, s3 = '', '', ''
-        if d1 != 0:
-            s1 = f'{digits[d1]} yuz '
-        if d2 != 0:
-            s2 = digits[d2 * 10] + ' '
-        if d3 != 0:
-            s3 = digits[d3] + ' '
-
-        return s1 + s2 + s3
-
-    def number2word(self, n):
-        d1 = {0: "", 1: "ming ", 2: "million ", 3: "milliard ", 4: "trillion "}
-
-        fraction = []
-        while n > 0:
-            r = n % 1000
-            fraction.append(r)
-            n //= 1000
-
-        s = ''
-        for i in range(len(fraction)):
-            if fraction[i] != 0:
-                yuz = self.hundreds(fraction[i]) + d1[i]
-                s = yuz + s
-
-        return s.rstrip()
-
-    def create_qr(self, fullname, link, number):
-        qr = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_H,
-            box_size=10,
-            border=4
-        )
-        file_name = link.split('/')[-1]
-        file_path = f"{settings.MEDIA_ROOT}/qr/"
-        qr.add_data(f"{fullname}. {link}")
-        qr.make(fit=True)
-        img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
-        img.save(file_path + file_name.split('.')
-        [0] + '_' + str(number) + '.png')
-        return file_path + file_name.split('.')[0] + '_' + str(number) + '.png'
-
-    # def get(self, request):
-    #     director = UserData.objects.get(role__name='direktor')
-    #     data = {
-
-    #     }
-    #     return 0
-
     def post(self, request):
         context = dict()
         tarif = Tarif.objects.get(pk=int(request.data['tarif'])).name
@@ -363,9 +304,9 @@ class CreateContractFileAPIView(APIView):
             director = request.data['director_fullname'].split()
             context['director'] = f"{director[1][0]}.{director[2][0]}.{director[0]}"
             context['price'] = int(request.data['price']) * 12 - int(datetime.now().month)
-            context['price_text'] = self.number2word(int(context['price']))
+            context['price_text'] = num2word.number2word(int(context['price']))
             context['price_month'] = request.data['price']
-            context['price_month_text'] = self.number2word(int(context['price_month']))
+            context['price_month_text'] = num2word.number2word(int(context['price_month']))
             context['price_month_avans'] = request.data['price']
             context['price_month_avans_text'] = context['price_month_text']
             context['per_adr'] = request.data['per_adr']
@@ -391,9 +332,9 @@ class CreateContractFileAPIView(APIView):
             context['client'] = f"{client_short[1][0]}.{client_short[2][0]}.{client_short[0]}"
             context['client_fullname'] = request.data['full_name']
             context['price'] = int(request.data['price']) * (12 - int(datetime.now().month) + 1)
-            context['price_text'] = self.number2word(int(context['price']))
+            context['price_text'] = num2word.number2word(int(context['price']))
             context['price_month'] = request.data['price']
-            context['price_month_text'] = self.number2word(int(context['price_month']))
+            context['price_month_text'] = num2word.number2word(int(context['price_month']))
             context['price_month_avans'] = request.data['price']
             context['price_month_avans_text'] = context['price_month_text']
             context['per_adr'] = request.data['per_adr']
@@ -402,22 +343,35 @@ class CreateContractFileAPIView(APIView):
             context['count'] = request.data['count']
             context['price2'] = request.data['price']
             context['host'] = 'http://' + request.META['HTTP_HOST']
-        context['qr_unicon'] = ''
-        context['qr_client'] = ''
         
+        context['qr_code'] = ''
+        # -------
+        # dxoc file
         contract_file_for_preview = file_creator(context, 1)
+        # pdf file
+        contract_file_for_preview_pdf = convert_docx_to_pdf(str(contract_file_for_preview))
+        # docx file ni ochirish
+        delete_file(str(contract_file_for_preview))
+        # -------
         hashcode = hashlib.md5()
-        hashcode.update(base64.b64encode(open('/usr/src/app/media/Contract/' + contract_file_for_preview, 'rb').read()))
+        hashcode.update(base64.b64encode(open('/usr/src/app/media/Contract/' + contract_file_for_preview_pdf, 'rb').read()))
         hash_code = hashcode.hexdigest()
 
         link = 'http://' + request.META['HTTP_HOST'] + '/contracts/contract?hash=' + hash_code
-        direktor_id = UserData.objects.get(role__name='direktor')
-        direktor = YurUser.objects.get(userdata=direktor_id)
-        direktor_fullname = f'{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}'
+
+        # direktor = YurUser.objects.get(userdata__role__name="direktor")
+        # direktor_fullname = f"{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}"
         
-        context['qr_unicon'] = self.create_qr(direktor_fullname, link, 1)
-        context['qr_client'] = self.create_qr(context['client_fullname'], link, 2)
-        contract_file = open('/usr/src/app/media/Contract/' + str(file_creator(context, 0)), 'rb').read()
+        context['qr_code'] = create_qr(link)
+        # -------
+        # docx file
+        contract_file_for_base64 = file_creator(context, 0)
+        # pdf file
+        contract_file_for_base64_pdf = convert_docx_to_pdf(str(contract_file_for_base64))
+        # docx fileni ochirish
+        delete_file(str(contract_file_for_base64))
+        # -------
+        contract_file = open('/usr/src/app/media/Contract/' + str(contract_file_for_base64_pdf), 'rb').read()
         base64code = base64.b64encode(contract_file)
 
         if int(request.data['save']):
@@ -429,10 +383,6 @@ class CreateContractFileAPIView(APIView):
                 client = request.user
             else:
                 client = request.data['client']
-
-            # today = datetime.now().date()
-            # prefix = 'CC'
-            # id_code = generate_contract_number(today, prefix)
             
             contract = Contract.objects.create(
                 service_id=int(request.data['service_id']),
@@ -446,10 +396,11 @@ class CreateContractFileAPIView(APIView):
                 tarif_id=int(request.data['tarif']),
                 base64file=base64code,
                 hashcode=hash_code,
-                # id_code=id_code
             )
             contract.save()
-            service = contract.service.name
+
+            # service = contract.service.name
+
             participants = Participant.objects.get(service_id=int(request.data['service_id'])).participants.all()
             for participant in participants:
                 print(participant)
@@ -458,8 +409,13 @@ class CreateContractFileAPIView(APIView):
                     role=participant,
                     agreement_status=agreement_status
                 ).save()
+
             serializer = ContractSerializer(contract)
             return Response(serializer.data)
+        
+        # Saqlanmedigan filelarni logikasini qolishim kk
+        # qr_code fileni ochirish kk
+        # 
         return Response({
             'file_path': '/media/Contract/' + str(contract_file_for_preview),
             'base64file': base64code
