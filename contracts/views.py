@@ -420,7 +420,7 @@ class CreateContractFileAPIView(APIView):
         # qr_code fileni ochirish kk
         # 
         return Response({
-            'file_path': '/media/Contract/' + str(contract_file_for_preview).split('/')[-1],
+            'file_path': '/media/Contract/' + str(contract_file_for_preview_pdf).split('/')[-1],
             'base64file': base64code
         })
 
