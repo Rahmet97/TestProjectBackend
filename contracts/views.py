@@ -8,7 +8,6 @@ from decimal import Decimal
 import requests
 from django.conf import settings
 
-import qrcode
 from datetime import datetime, timedelta
 
 from django.db.models import Q, Sum
@@ -33,7 +32,7 @@ from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, U
     ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail, \
     ConnectMethodSerializer, AddOldContractSerializers, UserOldContractTarifDeviceSerializer
 
-from .utils import error_response_404, create_qr, NumbersToWord
+from .utils import error_response_404, create_qr, NumbersToWord, convert_docx_to_pdf, delete_file
 from .tasks import file_creator, file_downloader, generate_contract_number
 
 num2word = NumbersToWord()
@@ -346,12 +345,16 @@ class CreateContractFileAPIView(APIView):
             context['host'] = 'http://' + request.META['HTTP_HOST']
         
         context['qr_code'] = ''
-        
-        # pdf ga otikizib ketishim kk
+        # -------
+        # dxoc file
         contract_file_for_preview = file_creator(context, 1)
-
+        # pdf file
+        contract_file_for_preview_pdf = convert_docx_to_pdf(str(contract_file_for_preview))
+        # docx file ni ochirish
+        delete_file(str(contract_file_for_preview))
+        # -------
         hashcode = hashlib.md5()
-        hashcode.update(base64.b64encode(open('/usr/src/app/media/Contract/' + contract_file_for_preview, 'rb').read()))
+        hashcode.update(base64.b64encode(open('/usr/src/app/media/Contract/' + contract_file_for_preview_pdf, 'rb').read()))
         hash_code = hashcode.hexdigest()
 
         link = 'http://' + request.META['HTTP_HOST'] + '/contracts/contract?hash=' + hash_code
@@ -360,10 +363,15 @@ class CreateContractFileAPIView(APIView):
         # direktor_fullname = f"{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}"
         
         context['qr_code'] = create_qr(link)
-        
-        # pdf ga otikizib ketishim kk
+        # -------
+        # docx file
         contract_file_for_base64 = file_creator(context, 0)
-        contract_file = open('/usr/src/app/media/Contract/' + str(contract_file_for_base64), 'rb').read()
+        # pdf file
+        contract_file_for_base64_pdf = convert_docx_to_pdf(str(contract_file_for_base64))
+        # docx fileni ochirish
+        delete_file(str(contract_file_for_base64))
+        # -------
+        contract_file = open('/usr/src/app/media/Contract/' + str(contract_file_for_base64_pdf), 'rb').read()
         base64code = base64.b64encode(contract_file)
 
         if int(request.data['save']):
