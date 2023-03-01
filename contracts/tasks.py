@@ -14,7 +14,7 @@ from contracts.models import Contract
 # @shared_task
 def file_creator(context, number):
     try:
-        doc = DocxTemplate(settings.MEDIA_ROOT + f'/Shablonlar/Colocation_shablon_{context["u_type"]}.docx', encoding='utf-8')
+        doc = DocxTemplate(settings.MEDIA_ROOT + f'/Shablonlar/Colocation_shablon_{context["u_type"]}.docx')
         context['page_break'] = '\f'
         # if context['qr_unicon']:
         #     path_media1 = str(context['qr_unicon']).split('/')
