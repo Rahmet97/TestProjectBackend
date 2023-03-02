@@ -499,7 +499,7 @@ class GetContractFile(APIView):
     def get(self, request):
         hashcode = request.GET.get('hash')
         contract = Contract.objects.get(hashcode=hashcode)
-        if contract.contract_status.name == "To'lov kutilmoqda":
+        if contract.contract_status.name == "To'lov kutilmoqda" or contract.contract_status.name == 'Aktiv':
             file_pdf = file_downloader(
                 bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id)
         else:
