@@ -353,7 +353,7 @@ class CreateContractFileAPIView(APIView):
         contract_file_for_preview_pdf = convert_docx_to_pdf(str(contract_file_for_preview))
         print("contract_file_for_preview_pdf: ", contract_file_for_preview_pdf)
         # docx file ni ochirish
-        delete_file(contract_file_for_preview)
+        # delete_file(contract_file_for_preview)
         # -------
         hashcode = hashlib.md5()
         hashcode.update(base64.b64encode(open(contract_file_for_preview_pdf, 'rb').read()))
@@ -371,7 +371,7 @@ class CreateContractFileAPIView(APIView):
         # pdf file
         contract_file_for_base64_pdf = convert_docx_to_pdf(str(contract_file_for_base64))
         # docx fileni ochirish
-        delete_file(contract_file_for_base64)
+        # delete_file(contract_file_for_base64)
         # -------
         contract_file = open(contract_file_for_base64_pdf, 'rb').read()
 
@@ -420,7 +420,8 @@ class CreateContractFileAPIView(APIView):
         # qr_code fileni ochirish kk
         # 
         return Response({
-            'file_path': '/media/Contract/' + str(contract_file_for_preview).split('/')[-1],
+            'file_path': '/media/Contract/' + str(contract_file_for_preview_pdf).split('/')[-1],
+            'file_path_doc': '/media/Contract/' + str(contract_file_for_preview).split('/')[-1],
             'base64file': base64code
         })
 
