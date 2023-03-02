@@ -48,10 +48,10 @@ def file_creator(context, number):
 # @shared_task
 def file_downloader(base64file, pk):
     decoded_file = base64.b64decode(base64file)
-    file_docx = open(f'/usr/src/app/media/Contract/DM-{pk}.docx', 'wb')
+    file_docx = open(f'/usr/src/app/media/Contract/DM-{pk}.pdf', 'wb')
     file_docx.write(decoded_file)
     file_docx.close()
-    return f'DM-{pk}.docx'
+    return f'DM-{pk}.pdf'
 
 
 # @shared_task
