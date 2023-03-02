@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'import_export',
     'services',
     'one_c',
+    'billing',
 ]
 
 MIDDLEWARE = [
