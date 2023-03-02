@@ -2,6 +2,10 @@ import os
 import qrcode
 import subprocess
 
+import docx
+from docx.enum.style import WD_STYLE_TYPE
+from docx.shared import Pt
+
 from django.conf import settings
 from rest_framework import validators, status
 
@@ -75,6 +79,26 @@ def create_qr(link):
     return file_path + file_name.split('.')[0] + '_' + '.png'
 
 
+def set_docx_font_style(docx_file_path):
+    # Open the DOCX file with python-docx
+    doc = docx.Document(docx_file_path)
+
+    # Create a new style based on the existing Normal style with Times New Roman font
+    times_new_roman_style = doc.styles.add_style('Times New Roman', WD_STYLE_TYPE.PARAGRAPH)
+    font = times_new_roman_style.font
+    font.name = 'Times New Roman'
+
+    # Apply the Times New Roman style to all paragraphs in the document
+    for paragraph in doc.paragraphs:
+        paragraph.style = times_new_roman_style
+
+    # Save the modified document to a new file
+    new_docx_file_path = os.path.splitext(docx_file_path)[0] + '_modified.docx'
+    doc.save(new_docx_file_path)
+
+    return new_docx_file_path
+
+
 def convert_docx_to_pdf(docx_file_path: str):
     """
     Convert a DOCX file to PDF using LibreOffice.
@@ -82,6 +106,8 @@ def convert_docx_to_pdf(docx_file_path: str):
     :param docx_file_path: str, the path to the DOCX file
     :return: str, the path to the converted PDF file
     """
+    docx_file_path = set_docx_font_style(docx_file_path)
+
     path = "/".join(docx_file_path.split('/')[0:-1]) + '/'
     pdf_file_path = f"{path}{docx_file_path.split('/')[-1].split('.')[0]}.pdf"
 
