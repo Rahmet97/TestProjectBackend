@@ -5,7 +5,8 @@ WORKDIR /usr/src/app
 RUN apk update \
     && apk add postgresql-dev gcc python3-dev musl-dev \
     && apk add redis \
-    && apk add libreoffice
+    && apk add libreoffice \
+    && apk add --no-cache freetype-dev jpeg-dev zlib-dev
 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
