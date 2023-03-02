@@ -35,7 +35,7 @@ class ElementUpdateAPIView(RetrieveUpdateAPIView):
 
 
 class CalculateTariffSummAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = ()
 
     @swagger_auto_schema(query_serializer=RequestSerializer)
     def post(self, request):
@@ -60,11 +60,11 @@ class CalculateTariffSummAPIView(APIView):
             'elements': amounts,
             'total': total
         }
-        billing_log = BillingLog.objects.create(
-            user=request.user,
-            fr=fr,
-            request=rqst.data,
-            response=data
-        )
-        billing_log.save()
+        # billing_log = BillingLog.objects.create(
+        #     user=request.user,
+        #     fr=fr,
+        #     request=rqst.data,
+        #     response=data
+        # )
+        # billing_log.save()
         return Response(data)
