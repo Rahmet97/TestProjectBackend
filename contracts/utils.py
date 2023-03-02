@@ -2,6 +2,12 @@ import os
 import qrcode
 import subprocess
 
+from io import BytesIO
+from django.http import HttpResponse
+from django.template.loader import get_template
+
+from xhtml2pdf import pisa
+
 import docx
 from docx.enum.style import WD_STYLE_TYPE
 from docx.shared import Pt
@@ -13,6 +19,10 @@ from rest_framework import validators, status
 def error_response_404():
     raise validators.ValidationError(
         detail={"message": "Object is not found 404"}, code=status.HTTP_404_NOT_FOUND)
+
+def error_response_500():
+    raise validators.ValidationError(
+        detail={"message": "Internal server error"}, code=500)
 
 
 # Numbers to word
@@ -127,6 +137,19 @@ def convert_docx_to_pdf(docx_file_path: str):
     # subprocess.call(command)
     print("pdf", pdf_file_path)
     return pdf_file_path
+
+
+def render_to_pdf(template_src: str, context_dict={}):
+    template = get_template(template_name=template_src)
+    html = template.render(context_dict)
+    
+    result = BytesIO()
+    # pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result)
+
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return None
 
 
 def delete_file(file_path: str):

@@ -1,3 +1,4 @@
+import os
 import base64
 import hashlib
 import json
@@ -11,7 +12,7 @@ from django.conf import settings
 from datetime import datetime, timedelta
 
 from django.db.models import Q, Sum
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, validators, status
 from rest_framework.permissions import IsAuthenticated
@@ -32,7 +33,7 @@ from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, U
     ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail, \
     ConnectMethodSerializer, AddOldContractSerializers, UserOldContractTarifDeviceSerializer
 
-from .utils import error_response_404, create_qr, NumbersToWord, convert_docx_to_pdf, delete_file
+from .utils import error_response_404, create_qr, NumbersToWord, convert_docx_to_pdf, delete_file, render_to_pdf, error_response_500
 from .tasks import file_creator, file_downloader, generate_contract_number
 
 num2word = NumbersToWord()
@@ -280,6 +281,169 @@ class SelectedTarifDevicesAPIView(APIView):
         return Response({'price': price})
 
 
+# class CreateContractFileAPIView(APIView):
+#     permission_classes = (IsAuthenticated,)
+
+#     def post(self, request):
+#         context = dict()
+#         tarif = Tarif.objects.get(pk=int(request.data['tarif'])).name
+
+#         try:
+#             number = Contract.objects.last().id + 1
+#         except AttributeError:
+#             number = 1
+#         prefix = Service.objects.get(pk=int(request.data['service_id'])).group.prefix
+        
+#         if request.user.type == 2:
+#             context['u_type'] = 'yuridik'
+#             context['contract_number'] = prefix + '-' + str(number)  # --
+#             context['year'] = datetime.now().year
+#             context['month'] = datetime.now().month
+#             context['day'] = datetime.now().day
+#             context['client'] = request.data['name']
+#             context['client_fullname'] = request.data['director_fullname']
+#             director = request.data['director_fullname'].split()
+#             context['director'] = f"{director[1][0]}.{director[2][0]}.{director[0]}"
+#             context['price'] = int(request.data['price']) * 12 - int(datetime.now().month)
+#             context['price_text'] = num2word.change_num_to_word(int(context['price']))
+#             context['price_month'] = request.data['price']
+#             context['price_month_text'] = num2word.change_num_to_word(int(context['price_month']))
+#             context['price_month_avans'] = request.data['price']
+#             context['price_month_avans_text'] = context['price_month_text']
+#             context['per_adr'] = request.data['per_adr']
+#             context['tin'] = request.data['tin']
+#             context['mfo'] = request.data['mfo']
+#             context['oked'] = request.data['oked']
+#             context['hr'] = request.data['hr']
+#             context['bank'] = request.data['bank']
+#             context['tarif'] = tarif
+#             context['count'] = request.data['count']
+#             context['price2'] = request.data['price']
+#             context['host'] = 'http://' + request.META['HTTP_HOST']
+#         else:
+#             context['u_type'] = 'fizik'
+#             context['contract_number'] = prefix + '-' + str(number)
+#             context['year'] = datetime.now().year
+#             context['month'] = datetime.now().month
+#             context['day'] = datetime.now().day
+#             context['pport_issue_place'] = request.data['pport_issue_place']
+#             context['pport_issue_date'] = request.data['pport_issue_date']
+#             context['pport_no'] = request.data['pport_no']
+#             client_short = request.data['full_name'].split()
+#             context['client'] = f"{client_short[1][0]}.{client_short[2][0]}.{client_short[0]}"
+#             context['client_fullname'] = request.data['full_name']
+#             context['price'] = int(request.data['price']) * (12 - int(datetime.now().month) + 1)
+#             context['price_text'] = num2word.change_num_to_word(int(context['price']))
+#             context['price_month'] = request.data['price']
+#             context['price_month_text'] = num2word.change_num_to_word(int(context['price_month']))
+#             context['price_month_avans'] = request.data['price']
+#             context['price_month_avans_text'] = context['price_month_text']
+#             context['per_adr'] = request.data['per_adr']
+#             context['pin'] = request.data['pin']
+#             context['tarif'] = tarif
+#             context['count'] = request.data['count']
+#             context['price2'] = request.data['price']
+#             context['host'] = 'http://' + request.META['HTTP_HOST']
+        
+#         context['qr_code'] = ''
+#         # -------
+#         # dxoc file
+#         # contract_file_for_preview = file_creator(context, 1)
+#         # pdf file
+#         # print("contract_file_for_preview: ", contract_file_for_preview)
+#         # contract_file_for_preview_pdf = convert_docx_to_pdf(str(contract_file_for_preview))
+#         # print("contract_file_for_preview_pdf: ", contract_file_for_preview_pdf)
+#         # docx file ni ochirish
+#         # delete_file(contract_file_for_preview)
+#         # -------
+#         hashcode = hashlib.md5()
+#         hashcode.update(base64.b64encode(open(contract_file_for_preview_pdf, 'rb').read()))
+#         hash_code = hashcode.hexdigest()
+
+#         link = 'http://' + request.META['HTTP_HOST'] + '/contracts/contract?hash=' + hash_code
+
+#         # direktor = YurUser.objects.get(userdata__role__name="direktor")
+#         # direktor_fullname = f"{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}"
+        
+#         # context['qr_code'] = create_qr(link)
+#         # # -------
+#         # # docx file
+#         # contract_file_for_base64 = file_creator(context, 0)
+#         # # pdf file
+#         # contract_file_for_base64_pdf = convert_docx_to_pdf(str(contract_file_for_base64))
+#         # # docx fileni ochirish
+#         # # delete_file(contract_file_for_base64)
+#         # # -------
+#         # contract_file = open(contract_file_for_base64_pdf, 'rb').read()
+
+#         # base64code = base64.b64encode(contract_file)
+
+#         if int(request.data['save']):
+
+#             context['qr_code'] = create_qr(link)
+#             # -------
+#             # rendered html file
+#             contract_file_for_base64 = file_creator(context, 0)
+#             # pdf file
+#             contract_file_for_base64_pdf = convert_docx_to_pdf(str(contract_file_for_base64))
+#             # -------
+#             contract_file = open(contract_file_for_base64_pdf, 'rb').read()
+
+#             base64code = base64.b64encode(contract_file)
+
+#             status = Status.objects.filter(name='Yangi').first()
+#             contract_status = ContractStatus.objects.filter(name='Yangi').first()
+#             agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
+
+#             if request.user.role.name == 'mijoz':
+#                 client = request.user
+#             else:
+#                 client = request.data['client']
+            
+#             contract = Contract.objects.create(
+#                 service_id=int(request.data['service_id']),
+#                 contract_number=context['contract_number'],
+#                 contract_date=datetime.now(),
+#                 client=client,
+#                 status=status,
+#                 contract_status=contract_status,
+#                 contract_cash=int(context['price_month']),
+#                 payed_cash=0,
+#                 tarif_id=int(request.data['tarif']),
+#                 base64file=base64code,
+#                 hashcode=hash_code,
+#             )
+#             contract.save()
+
+#             # pdf fileni ochirish
+#             # delete_file(contract_file_for_base64)
+
+#             # service = contract.service.name
+
+#             participants = Participant.objects.get(service_id=int(request.data['service_id'])).participants.all()
+#             for participant in participants:
+#                 print(participant)
+#                 Contracts_Participants.objects.create(
+#                     contract=contract,
+#                     role=participant,
+#                     agreement_status=agreement_status
+#                 ).save()
+
+#             serializer = ContractSerializer(contract)
+#             return Response(serializer.data)
+        
+#         # Saqlanmedigan filelarni logikasini qolishim kk
+#         # qr_code fileni ochirish kk
+#         # 
+#         # return Response({
+#         #     'file_path': '/media/Contract/' + str(contract_file_for_preview_pdf).split('/')[-1],
+#         #     'file_path_doc': '/media/Contract/' + str(contract_file_for_preview).split('/')[-1],
+#         #     'base64file': base64code
+#         # })
+#         return 
+
+
+
 class CreateContractFileAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -345,39 +509,46 @@ class CreateContractFileAPIView(APIView):
             context['host'] = 'http://' + request.META['HTTP_HOST']
         
         context['qr_code'] = ''
-        # -------
-        # dxoc file
-        contract_file_for_preview = file_creator(context, 1)
-        # pdf file
-        print("contract_file_for_preview: ", contract_file_for_preview)
-        contract_file_for_preview_pdf = convert_docx_to_pdf(str(contract_file_for_preview))
-        print("contract_file_for_preview_pdf: ", contract_file_for_preview_pdf)
-        # docx file ni ochirish
-        # delete_file(contract_file_for_preview)
-        # -------
-        hashcode = hashlib.md5()
-        hashcode.update(base64.b64encode(open(contract_file_for_preview_pdf, 'rb').read()))
-        hash_code = hashcode.hexdigest()
-
-        link = 'http://' + request.META['HTTP_HOST'] + '/contracts/contract?hash=' + hash_code
-
-        # direktor = YurUser.objects.get(userdata__role__name="direktor")
-        # direktor_fullname = f"{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}"
         
-        context['qr_code'] = create_qr(link)
-        # -------
-        # docx file
-        contract_file_for_base64 = file_creator(context, 0)
-        # pdf file
-        contract_file_for_base64_pdf = convert_docx_to_pdf(str(contract_file_for_base64))
-        # docx fileni ochirish
-        # delete_file(contract_file_for_base64)
-        # -------
-        contract_file = open(contract_file_for_base64_pdf, 'rb').read()
-
-        base64code = base64.b64encode(contract_file)
 
         if int(request.data['save']):
+            context['contract_number'] = prefix + '-' + str(number)  # --
+
+            # -------
+            # rendered html file
+            # contract_file_for_base64 = file_creator(context, 0)
+            # pdf file
+            # contract_file_for_base64_pdf = convert_docx_to_pdf(str(contract_file_for_base64))
+            contract_file_for_base64_pdf = None
+            pdf = render_to_pdf(template_src="shablon.html", context_dict=context)
+
+            if pdf:
+                output_dir = '/usr/src/app/media/Contracts/pdf'
+                os.makedirs(output_dir, exist_ok=True)
+                contract_file_for_base64_pdf = f"{output_dir}/{context.get('contract_number')}_{context.get('client_fullname')}.pdf"
+                with open(contract_file_for_base64_pdf, 'wb') as f:
+                    f.write(pdf.content)
+            else:
+                error_response_500()
+            
+            if contract_file_for_base64_pdf == None:
+                error_response_500()
+
+            # -------
+            contract_file = open(contract_file_for_base64_pdf, 'rb').read()
+            base64code = base64.b64encode(contract_file)
+
+            hashcode = hashlib.md5()
+            hashcode.update(base64.b64encode(open(contract_file_for_base64_pdf, 'rb').read()))
+            hash_code = hashcode.hexdigest()
+
+            link = 'http://' + request.META['HTTP_HOST'] + '/contracts/contract?hash=' + hash_code
+            qr_code = create_qr(link)
+            context['qr_code'] = qr_code
+
+            # direktor = YurUser.objects.get(userdata__role__name="direktor")
+            # direktor_fullname = f"{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}"
+
             status = Status.objects.filter(name='Yangi').first()
             contract_status = ContractStatus.objects.filter(name='Yangi').first()
             agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
@@ -402,6 +573,11 @@ class CreateContractFileAPIView(APIView):
             )
             contract.save()
 
+            # pdf fileni ochirish
+            # delete_file(contract_file_for_base64_pdf)  # keyinroq ishlatamiz
+            # qr_code fileni ochirish kk
+            # delete_file(qr_code)  # keyinroq ishlatamiz
+
             # service = contract.service.name
 
             participants = Participant.objects.get(service_id=int(request.data['service_id'])).participants.all()
@@ -416,14 +592,31 @@ class CreateContractFileAPIView(APIView):
             serializer = ContractSerializer(contract)
             return Response(serializer.data)
         
-        # Saqlanmedigan filelarni logikasini qolishim kk
-        # qr_code fileni ochirish kk
-        # 
-        return Response({
-            'file_path': '/media/Contract/' + str(contract_file_for_preview_pdf).split('/')[-1],
-            'file_path_doc': '/media/Contract/' + str(contract_file_for_preview).split('/')[-1],
-            'base64file': base64code
-        })
+        return render(request=request, template_name="shablon.html", context=context)
+
+
+class TestHtmlToPdf(APIView):
+
+    def post(self, request):
+        context = {
+            "name": request.data["name"],
+            "name2": request.data["name2"]
+        }
+        if int(request.data['save']):
+            pdf = render_to_pdf(template_src="shablon.html", context_dict=context)
+            
+            if pdf:
+                output_dir = '/usr/src/app/media/Contracts/pdf'
+                os.makedirs(output_dir, exist_ok=True)
+
+                with open(f"{output_dir}/{context.get('name')}.pdf", 'wb') as f:
+                    f.write(pdf.content)
+
+            return Response(data={
+                "pdf": f"media/Contracts/pdf/{context.get('name')}.pdf"
+                }, status=200)
+
+        return render(request=request, template_name="shablon.html", context=context)
 
 
 class SavePkcs(APIView):
