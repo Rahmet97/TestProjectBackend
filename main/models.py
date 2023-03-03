@@ -24,7 +24,7 @@ class Application(models.Model):
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-    file = models.FileField(upload_to="application/files", blank=True, null=True)
+    file = models.FileField(upload_to="application/files")
 
     def __str__(self):
         return self.name
