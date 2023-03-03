@@ -543,8 +543,7 @@ class CreateContractFileAPIView(APIView):
             hash_code = hashcode.hexdigest()
 
             link = 'http://' + request.META['HTTP_HOST'] + '/contracts/contract?hash=' + hash_code
-            qr_code = create_qr(link)
-            context['qr_code'] = qr_code
+            context['qr_code'] = create_qr(link)
 
             # direktor = YurUser.objects.get(userdata__role__name="direktor")
             # direktor_fullname = f"{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}"
@@ -575,8 +574,6 @@ class CreateContractFileAPIView(APIView):
 
             # pdf fileni ochirish
             # delete_file(contract_file_for_base64_pdf)  # keyinroq ishlatamiz
-            # qr_code fileni ochirish kk
-            # delete_file(qr_code)  # keyinroq ishlatamiz
 
             # service = contract.service.name
 
