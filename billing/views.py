@@ -50,12 +50,12 @@ class CalculateTariffSummAPIView(APIView):
             amounts.append({
                 'element': int(i["element"]),
                 'quantity': quantity,
-                'cost_without_vat': element.cost / 1.12,
+                'cost_without_vat': float(element.cost) / 1.12,
                 'vat': '12%',
-                'amount_vat': element.cost - element.cost / 1.12,
-                'cost': element.cost
+                'amount_vat': float(element.cost) - float(element.cost) / 1.12,
+                'cost': float(element.cost)
             })
-            total += element.cost
+            total += float(element.cost)
         data = {
             'elements': amounts,
             'total': total

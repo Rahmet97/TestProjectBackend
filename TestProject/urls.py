@@ -43,6 +43,7 @@ urlpatterns = [
     path('contracts/', include("contracts.urls")),
     path('services/', include("services.urls")),
     path('one-c/', include("one_c.urls")),
+    path('billing/', include("billing.urls")),
     path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name="swagger-schema"),
