@@ -22,7 +22,7 @@ def error_response_404():
 
 def error_response_500():
     raise validators.ValidationError(
-        detail={"message": "Internal server error"}, code=500)
+        detail={"message": "Internal server error 500"}, code=500)
 
 
 # Numbers to word
