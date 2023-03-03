@@ -8,6 +8,7 @@ from decimal import Decimal
 
 import requests
 from django.conf import settings
+from django.http import HttpResponse, Http404
 
 from datetime import datetime, timedelta
 
@@ -523,7 +524,7 @@ class CreateContractFileAPIView(APIView):
             pdf = render_to_pdf(template_src="shablon.html", context_dict=context)
 
             if pdf:
-                output_dir = '/usr/src/app/media/Contracts/pdf'
+                output_dir = '/usr/src/app/media/Contract/pdf'
                 os.makedirs(output_dir, exist_ok=True)
                 contract_file_for_base64_pdf = f"{output_dir}/{context.get('contract_number')}_{context.get('client_fullname')}.pdf"
                 with open(contract_file_for_base64_pdf, 'wb') as f:
@@ -542,8 +543,12 @@ class CreateContractFileAPIView(APIView):
             hashcode.update(base64.b64encode(open(contract_file_for_base64_pdf, 'rb').read()))
             hash_code = hashcode.hexdigest()
 
-            link = 'http://' + request.META['HTTP_HOST'] + '/contracts/contract?hash=' + hash_code
-            context['qr_code'] = create_qr(link)
+            # link = 'http://' + request.META['HTTP_HOST'] + '/contracts/contract?hash=' + hash_code
+            link = 'http://' + request.META['HTTP_HOST'] + f'/contracts/contract/{hash_code}'
+
+            qr_code = create_qr(link)
+            print("qr_code: ", qr_code)
+            context['qr_code'] = qr_code
 
             # direktor = YurUser.objects.get(userdata__role__name="direktor")
             # direktor_fullname = f"{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}"
@@ -573,7 +578,9 @@ class CreateContractFileAPIView(APIView):
             contract.save()
 
             # pdf fileni ochirish
-            # delete_file(contract_file_for_base64_pdf)  # keyinroq ishlatamiz
+            delete_file(contract_file_for_base64_pdf)  # keyinroq ishlatamiz
+            # qr_code fileni ochirish
+            delete_file(qr_code) 
 
             # service = contract.service.name
 
@@ -592,6 +599,7 @@ class CreateContractFileAPIView(APIView):
         return render(request=request, template_name="shablon.html", context=context)
 
 
+# Test uchun qilingan view keyinroq o'chirib tashlimiz
 class TestHtmlToPdf(APIView):
 
     def post(self, request):
@@ -603,14 +611,14 @@ class TestHtmlToPdf(APIView):
             pdf = render_to_pdf(template_src="shablon.html", context_dict=context)
             
             if pdf:
-                output_dir = '/usr/src/app/media/Contracts/pdf'
+                output_dir = '/usr/src/app/media/Contract/pdf'
                 os.makedirs(output_dir, exist_ok=True)
 
                 with open(f"{output_dir}/{context.get('name')}.pdf", 'wb') as f:
                     f.write(pdf.content)
 
             return Response(data={
-                "pdf": f"media/Contracts/pdf/{context.get('name')}.pdf"
+                "pdf": f"media/Contract/pdf/{context.get('name')}.pdf"
                 }, status=200)
 
         return render(request=request, template_name="shablon.html", context=context)
@@ -687,47 +695,59 @@ class SavePkcs(APIView):
 class GetContractFile(APIView):
     permission_classes = ()
 
-    def get(self, request):
-        hashcode = request.GET.get('hash')
-        contract = Contract.objects.get(hashcode=hashcode)
+    def get(self, request, hash_code):
+        # hashcode = request.GET.get('hash')
+        contract = Contract.objects.get(hashcode=hash_code)
+
         if contract.contract_status.name == "To'lov kutilmoqda" or contract.contract_status.name == 'Aktiv':
-            file_pdf = file_downloader(
-                bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id)
-        else:
-            if contract.client.type == 2:
-                body = {
-                    'service_id': '',
-                    'tarif': '',
-                    'name': '',
-                    'director_fullname': '',
-                    'per_adr': '',
-                    'tin': '',
-                    'mfo': '',
-                    'oked': '',
-                    'hr': '',
-                    'bank': '',
-                    'price': '',
-                    'count': '',
-                    'devices': '',
-                    'save': 1,
-                }
-            else:
-                body = {
-                    'service_id': '',
-                    'tarif': '',
-                    'pport_issue_place': '',
-                    'pport_issue_date': '',
-                    'pport_no': '',
-                    'full_name': '',
-                    'price': '',
-                    'per_adr': '',
-                    'pin': '',
-                    'count': '',
-                    'devices': '',
-                    'save': 1,
-                }
-            file_pdf = None
-        return redirect(u'/media/Contract/' + file_pdf)
+            file_pdf_path, pdf_file_name = file_downloader(
+                bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id
+            )
+            if os.path.exists(file_pdf_path):
+                with open(file_pdf_path, 'rb') as fh:
+                    response = HttpResponse(fh.read(), content_type="application/pdf")
+                    response['Content-Disposition'] = f'attachment; filename="{pdf_file_name}"'
+                    delete_file(file_pdf_path)
+                    return response
+        
+        return Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
+        # else:
+        #     # if contract.client.type == 2:
+        #     #     body = {
+        #     #         'service_id': '',
+        #     #         'tarif': '',
+        #     #         'name': '',
+        #     #         'director_fullname': '',
+        #     #         'per_adr': '',
+        #     #         'tin': '',
+        #     #         'mfo': '',
+        #     #         'oked': '',
+        #     #         'hr': '',
+        #     #         'bank': '',
+        #     #         'price': '',
+        #     #         'count': '',
+        #     #         'devices': '',
+        #     #         'save': 1,
+        #     #     }
+        #     # else:
+        #     #     body = {
+        #     #         'service_id': '',
+        #     #         'tarif': '',
+        #     #         'pport_issue_place': '',
+        #     #         'pport_issue_date': '',
+        #     #         'pport_no': '',
+        #     #         'full_name': '',
+        #     #         'price': '',
+        #     #         'per_adr': '',
+        #     #         'pin': '',
+        #     #         'count': '',
+        #     #         'devices': '',
+        #     #         'save': 1,
+        #     #     }
+        #     # file_pdf = None
+        #     return Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # return redirect(u'/media/Contract/' + file_pdf)
 
 
 class GetUserContracts(APIView):

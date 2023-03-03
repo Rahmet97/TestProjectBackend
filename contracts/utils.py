@@ -85,8 +85,12 @@ def create_qr(link):
     qr.add_data(link)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
-    img.save(file_path + file_name.split('.')[0] + '_' + '.png')
-    return file_path + file_name.split('.')[0] + '_' + '.png'
+    # img.save(file_path + file_name.split('.')[0] + '.png')
+    img.save(file_path + file_name.split('/')[-1] + '.png')
+    
+    print("qr_file_name: ", file_name.split('/')[-1] + '.png')
+
+    return file_path + file_name.split('.')[0] + '.png'
 
 
 def set_docx_font_style(docx_file_path):

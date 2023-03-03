@@ -27,9 +27,15 @@ urlpatterns = [
     path('selected-tarif-devices', SelectedTarifDevicesAPIView.as_view(), name='SelectedTarifDevicesAPIView'),
     path('tarif-elements-devices', TarifAPIView.as_view(), name='TarifAPIView'),
     path('delete-saved-service/<int:pk>', DeleteSavedService.as_view(), name='DeleteSavedService'),
+
     path('contract-create', CreateContractFileAPIView.as_view(), name='CreateContractFileAPIView'),
+    
     path('save-pkcs', SavePkcs.as_view(), name='SavePkcs'),
-    path('contract', GetContractFile.as_view(), name='GetContractFile'),
+
+    # path('contract', GetContractFile.as_view(), name='GetContractFile'),
+    path('contract/<str:hash_code>', GetContractFile.as_view(), name='GetContractFile'),
+
+    
     path('contract-file-by-id', GetContractFileWithID.as_view(), name='GetContractFileWithID'),
     path('contract-detail/<int:pk>', ContractDetail.as_view(), name='ContractDetail'),
 

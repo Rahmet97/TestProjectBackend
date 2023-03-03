@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
 
@@ -219,7 +220,7 @@
     </h3>
     <div class='d-flex' style="justify-content: space-between; margin-bottom: 20px">
       <strong>Toshkent sh.</strong>
-      <strong>{moment(new Date()).format('DD.MM.YYYY')}</strong>
+      <strong>{{year}}.{{month}}.{{day}}</strong>
     </div>
     <p class='requirement-text'>
       <strong>“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar
@@ -252,7 +253,7 @@
     <p class='requirement-text'>
       &nbsp;&nbsp;2.1. Ushbu shartnomaning umumiy summasi ushbu shartnomaning ajralmas qismi
       hisoblangan <strong>1-ilovada</strong> ko'rsatilgan shartnoma narxini kelishish bayonnomasiga muvofiq
-      QQSni o'z ichiga olgan holda. <strong>{savedContractDetails.price}</strong> <strong>(to&#39;rt million uch yuz
+      QQSni o'z ichiga olgan holda. <strong>{{price}}</strong> <strong>(to&#39;rt million uch yuz
         oltmish to&#39;rt ming ikki
         yuz ellik)</strong> so'mni tashkil etadi, bu summa ichiga uskunalarni joylashtirish xizmatlari
       uchun qat'iy belgilangan oylik abonent to'lovi uchun 396750 (uch yuz to&#39;qson olti ming
@@ -542,7 +543,7 @@
           “Aloqabank” <br>
         </p>
         <span>M.M. Maxmudov</span> <br>
-        <span>{{qr_code}}</span>
+        <span><img src="{{qr_code}}"></span>
       </div>
       <div>
         <h4 class="requirement-title">BUYURTMACHI</h4>
@@ -554,7 +555,8 @@
           JShShIR: {{pin}} <br>
         </p> <br> <br> <br> <br> <br>
         <span>{{client}}</span> <br>
-        <span>{{qr_code}}</span>
+        <span><img src="{{qr_code}}"></span>
+
         <span>
           {{page_break}}{{day}}.{{month}}.{{year}}
         </span>
@@ -618,13 +620,13 @@
         <h4 class="requirement-title">IJROCHI</h4>
         <span>“UNICON.UZ” DUK</span>
         <span>M.M. Maxmudov</span> <br>
-        <span>{{qr_code}}</span>
+        <span><img src="{{qr_code}}"></span>
       </div>
       <div>
         <h4 class="requirement-title">BUYURTMACHI</h4>
         <span>{{client_fullname}}</span>
         <span>{{client}}</span> <br>
-        <span>{{qr_code}}</span>
+        <span><img src="{{qr_code}}"></span>
       </div>
     </div>
   </div>
