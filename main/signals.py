@@ -34,12 +34,13 @@ def send_application_using_telegram_bot(sender, instance, created, **kwargs):
         else:  # yuridik shaxs
             pined_user = YurUser.objects.get(userdata=pined_user)
 
-        message_text = f"<b>Bo'lim:</b> {instance.service.name}\n" \
-                       f"<b>Masul shaxsga tegishli email:</b> {pined_user.email}\n\n"\
-                       f"<b>FISH/Tashkilot nomi:</b> {instance.name}\n" \
-                       f"<b>E-mail:</b> {instance.email}\n" \
-                       f"<b>Tel:</b> {instance.phone}\n" \
-                       f"<b>Xabbar:</b> {instance.message}\n" \
+        message_text = f"<b>Bo'lim: </b> {instance.service.group.name}\n" \
+                       f"<b>Xizmat: </b> {instance.service.name}\n" \
+                       f"<b>Masul shaxsga tegishli email: </b> {pined_user.email}\n\n"\
+                       f"<b>FISH/Tashkilot nomi: </b> {instance.name}\n" \
+                       f"<b>E-mail: </b>{instance.email}\n" \
+                       f"<b>Tel: </b>{instance.phone}\n" \
+                       f"<b>Xabbar: </b>{instance.message}\n" \
                        f"<b>Yuborilgan vaqti: </b>{t.strftime('%d.%M.%Y %H:%M')}" \
                        f"\n\n{initial_info}"
 
