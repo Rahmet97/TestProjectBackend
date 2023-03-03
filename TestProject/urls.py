@@ -38,12 +38,16 @@ schema_view = swagger_get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
     path('api/oauth/', include("oneid.urls")),
     path('accounts/', include("accounts.urls")),
     path('contracts/', include("contracts.urls")),
     path('services/', include("services.urls")),
     path('one-c/', include("one_c.urls")),
     path('billing/', include("billing.urls")),
+
+    path('main/', include('main.urls')),
+
     path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name="swagger-schema"),
