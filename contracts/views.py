@@ -231,7 +231,7 @@ class SelectedTarifDevicesAPIView(APIView):
         electricity = 0
         lishniy_electricity = 0
         price = 0
-        tarif = Tarif.objects.get(pk=int(request.data['tarif']['tarif']))
+        tarif = Tarif.objects.get(pk=int(request.data['tarif']))
         if tarif.name == 'Rack-1':
             for device in devices:
                 electricity += int(device['electricity']) * int(device['device_count'])
