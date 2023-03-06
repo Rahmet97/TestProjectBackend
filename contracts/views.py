@@ -566,7 +566,7 @@ class CreateContractFileAPIView(APIView):
                 contract_status=contract_status,
                 contract_cash=int(context['price_month']),
                 payed_cash=0,
-                tarif_id=int(request.data['tarif']['tarif']),
+                tarif_id=int(request.data['tarif']),
                 base64file=base64code,
                 hashcode=hash_code,
             )
