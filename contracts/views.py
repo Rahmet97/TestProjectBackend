@@ -575,7 +575,7 @@ class CreateContractFileAPIView(APIView):
             # pdf fileni ochirish
             delete_file(contract_file_for_base64_pdf)  # keyinroq ishlatamiz
             # qr_code fileni ochirish
-            delete_file(qr_code) 
+            # delete_file(qr_code) 
 
             # service = contract.service.name
 
