@@ -445,13 +445,13 @@ class CreateContractFileAPIView(APIView):
 
     def post(self, request):
         context = dict()
-        tarif = Tarif.objects.get(pk=int(request.data['tarif'])).name
+        tarif = Tarif.objects.get(pk=int(request.data['tarif']['tarif'])).name
 
         try:
             number = Contract.objects.last().id + 1
         except AttributeError:
             number = 1
-        prefix = Service.objects.get(pk=int(request.data['service_id'])).group.prefix
+        prefix = Service.objects.get(pk=int(request.data['service_id']['service_id'])).group.prefix
         
         if request.user.type == 2:
             context['u_type'] = 'yuridik'
@@ -558,7 +558,7 @@ class CreateContractFileAPIView(APIView):
                 client = request.data['client']
             
             contract = Contract.objects.create(
-                service_id=int(request.data['service_id']),
+                service_id=int(request.data['service_id']['service_id']),
                 contract_number=context['contract_number'],
                 contract_date=datetime.now(),
                 client=client,
@@ -566,7 +566,7 @@ class CreateContractFileAPIView(APIView):
                 contract_status=contract_status,
                 contract_cash=int(context['price_month']),
                 payed_cash=0,
-                tarif_id=int(request.data['tarif']),
+                tarif_id=int(request.data['tarif']['tarif']),
                 base64file=base64code,
                 hashcode=hash_code,
             )
@@ -579,7 +579,7 @@ class CreateContractFileAPIView(APIView):
 
             # service = contract.service.name
 
-            participants = Participant.objects.get(service_id=int(request.data['service_id'])).participants.all()
+            participants = Participant.objects.get(service_id=int(request.data['service_id']['service_id'])).participants.all()
             for participant in participants:
                 print(participant)
                 Contracts_Participants.objects.create(
