@@ -231,21 +231,16 @@ class SelectedTarifDevicesAPIView(APIView):
         electricity = 0
         lishniy_electricity = 0
         price = 0
-        tarif = Tarif.objects.get(pk=int(request.data['tarif']))
+        tarif = Tarif.objects.get(pk=int(request.data['tarif']['tarif']))
         if tarif.name == 'Rack-1':
             for device in devices:
-                electricity += int(device['electricity']) * \
-                               int(device['device_count'])
+                electricity += int(device['electricity']) * int(device['device_count'])
             if electricity > int(request.data['rack_count']) * 7500:
-                lishniy_electricity = electricity - \
-                                      int(request.data['rack_count']) * 7500
-            price = tarif.price * \
-                    int(request.data['rack_count']) + \
-                    math.ceil(lishniy_electricity / 100) * 23000
+                lishniy_electricity = electricity - int(request.data['rack_count']) * 7500
+            price = tarif.price * int(request.data['rack_count']) + math.ceil(lishniy_electricity / 100) * 23000
         else:
             for device in devices:
-                unit_count = int(device['device_count']) * \
-                             int(device['units_count'])
+                unit_count = int(device['device_count']) * int(device['units_count'])
                 if int(device['electricity']) > 450:
                     lishniy_electricity = int(device['electricity']) - 450
                 price += tarif.price * unit_count + math.ceil(lishniy_electricity / 100) * 23000 * int(
