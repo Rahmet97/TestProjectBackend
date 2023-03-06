@@ -445,7 +445,7 @@ class CreateContractFileAPIView(APIView):
 
     def post(self, request):
         context = dict()
-        tarif = Tarif.objects.get(pk=int(request.data['tarif']['tarif'])).name
+        tarif = Tarif.objects.get(pk=int(request.data['tarif'])).name
 
         try:
             number = Contract.objects.last().id + 1
