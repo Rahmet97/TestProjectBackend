@@ -451,7 +451,7 @@ class CreateContractFileAPIView(APIView):
             number = Contract.objects.last().id + 1
         except AttributeError:
             number = 1
-        prefix = Service.objects.get(pk=int(request.data['service_id']['service_id'])).group.prefix
+        prefix = Service.objects.get(pk=int(request.data['service_id'])).group.prefix
         
         if request.user.type == 2:
             context['u_type'] = 'yuridik'
