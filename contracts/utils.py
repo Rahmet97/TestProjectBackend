@@ -89,6 +89,9 @@ def create_qr(link):
     img.save(file_path + file_name.split('/')[-1] + '.png')
     
     print("qr_file_name: ", file_name.split('/')[-1] + '.png')
+    print("qr_file_path1: ", file_path + file_name.split('/')[-1] + '.png')
+    print("qr_file_path2: ", file_path + file_name.split('.')[0] + '.png')
+
 
     return file_path + file_name.split('.')[0] + '.png'
 
