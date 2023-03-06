@@ -1,3 +1,5 @@
+{% load static %}
+
 <!doctype html>
 <html lang="en">
 
@@ -542,7 +544,7 @@
           “Aloqabank” <br>
         </p>
         <span>M.M. Maxmudov</span> <br>
-        <span>{{qr_code}}</span>
+        <span><img src="{% static '{{qr_code}}' %}" alt=""></span>
       </div>
       <div>
         <h4 class="requirement-title">BUYURTMACHI</h4>
@@ -554,7 +556,7 @@
           JShShIR: {{pin}} <br>
         </p> <br> <br> <br> <br> <br>
         <span>{{client}}</span> <br>
-        <span>{{qr_code}}</span>
+        <span><img src="{% static '{{qr_code}}' %}" alt=""></span>
         <span>
           {{page_break}}{{day}}.{{month}}.{{year}}
         </span>
@@ -632,13 +634,13 @@
         <h4 class="requirement-title">IJROCHI</h4>
         <span>“UNICON.UZ” DUK</span>
         <span>M.M. Maxmudov</span> <br>
-        <span>{{qr_code}}</span>
+        <span><img src="{% static '{{qr_code}}' %}" alt=""></span>
       </div>
       <div>
         <h4 class="requirement-title">BUYURTMACHI</h4>
         <span>{{client_fullname}}</span>
         <span>{{client}}</span> <br>
-        <span>{{qr_code}}</span>
+        <span><img src="{% static '{{qr_code}}' %}" alt=""></span>
       </div>
     </div>
   </div>
