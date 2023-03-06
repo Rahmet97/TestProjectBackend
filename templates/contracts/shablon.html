@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
 
@@ -213,7 +214,7 @@
     <h3 class='requirement-title-main'>
       <strong>“Co-location” xizmatini ko'rsatish to'g'risidagi</strong>
       <br />
-      <strong>DM-128-sonli</strong>
+      <strong>{{ contract_number }}-sonli</strong>
       <br />
       <strong>Shartnoma</strong>
     </h3>
@@ -224,7 +225,7 @@
     <p class='requirement-text'>
       <strong>“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar
         korxonasi</strong>, keyingi o'rinlarda “Ijrochi” deb yuritiladi, Nizom asosida ish yurituvchi,
-      direktor <strong>M.M. Maxmudov</strong> bir tomondan, {{per_adr}}, -
+      direktor <strong>M.M. Maxmudov</strong> bir tomondan, {{ per_adr }}, -
       yashovchi, {{pport_no}} raqamli fuqarolik pasporti
       egasi fuqaro <strong>{{client_fullname}}</strong> keyingi o'rinlarda “Buyurtmachi” deb yuritiladi,
       ikkinchi tomondan, keyingi o'rinlarda birgalikda “Tomonlar”deb yuritiladi, ushbu
@@ -537,12 +538,12 @@
           MFO: 00401 <br>
           OKED: 72190 <br>
           H/r: 2021 0000 9001 5527 <br>
-           8001 <br>
+            8001 <br>
           Bank: Toshkent sh. AT <br>
           “Aloqabank” <br>
         </p>
         <span>M.M. Maxmudov</span> <br>
-        <span>{{qr_code}}</span>
+        <span><img src="{{qr_code}}"></span>
       </div>
       <div>
         <h4 class="requirement-title">BUYURTMACHI</h4>
@@ -554,7 +555,8 @@
           JShShIR: {{pin}} <br>
         </p> <br> <br> <br> <br> <br>
         <span>{{client}}</span> <br>
-        <span>{{qr_code}}</span>
+        <span><img src="{{qr_code}}"></span>
+
         <span>
           {{page_break}}{{day}}.{{month}}.{{year}}
         </span>
@@ -567,7 +569,7 @@
         korxonasi</strong>, keyingi o'rinlarda “Ijrochi” deb yuritiladi, Nizom asosida ish yurituvchi,
       direktor <strong>M.M. Maxmudov</strong> bir tomondan, {{per_adr}}, -
       yashovchi, {{pport_no}} raqamli fuqarolik pasporti
-      egasi fuqaro <strong>{{full_name}}</strong> keyingi o'rinlarda “Buyurtmachi” deb yuritiladi,
+      egasi fuqaro <strong>{{client_fullname}}</strong> keyingi o'rinlarda “Buyurtmachi” deb yuritiladi,
       ikkinchi tomondan, keyingi o'rinlarda birgalikda “Tomonlar”deb yuritiladi, <br>
        Toshkent shahri Mingbuloq ko'chasi 38-uy manzilidagi Ijrochining Data-markaziga
       joylashtirgan holda ushbu Shartnoma shartlarida belgilangan tartibda “Co-location”
@@ -577,50 +579,36 @@
       erishilganligi to'g'risida ushbu Dalolatnomani imzolashdi.
     </p>
     <h4 class="requirement-title">Xizmatlar ro`yxati va to`lov miqdori jadvali</h4>
-    <table border="3" cellpadding="10" cellspacing="0">
-      <thead>
-        <colgroup>
-          <col width="5%" />
-          <col width="30%" />
-          <col width="30%" />
-          <col width="20%" span="1" />
-        </colgroup>
-        <tr>
-          <th align="center" class="col-item-name">T/r</th>
-          <th align="center" class="col-quantity">Xizmat nomlanishi</th>
-          <th align="center" class="col-price">Soni</th>
-          <th align="center" class="col-price">Miqdori (QQS bilan)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <tbody>
-            <td class="price_txt" scope="col" align="left" colspan="4"><strong>I. Bir marttalik to`lovlar</strong></td>
-          </tbody>
-        </tr>
-        <tr>
-          <td align="center">1</td>
-          <td align="center">Qurilmalarni montaj qilish</td>
-          <td align="center">-</td>
-          <td align="center">0</td>
-        </tr>
-        <tr>
-          <tbody>
-            <td class="price_txt" scope="col" align="left" colspan="4"><strong>II. Har oylik abonent to`lovlari</strong></td>
-          </tbody>
-        </tr>
-        <tr>
-          <td align="center">1</td>
-          <td align="center">{{tarif}}</td>
-          <td align="center">{{tarif_count}}</td>
-          <td align="center">{{price2}}</td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <td class="price_txt" scope="col" align="right" colspan="3">Jami:</td>
-        <td align="center">{{price_month}}</td>
-      </tfoot>
-    </table>
+    <div class="head">
+      <div class="d-flex" style="border: 1px solid #000;">
+        <span style="width: 5%; text-align: center;">T.r</span>
+        <span style="width: 25%;">Hizmat nomlanishi</span>
+        <span style="width: 15%;">Soni</span>
+        <span style="width: 20%;">Miqdori (QQS bilan)
+        </span>
+      </div>
+      <div style="padding: 10px 30px; font-weight: 700; border-right: 1px solid #000; border-left: 1px solid #000;">I.
+        Bir marttalik to`lovlar</div>
+      <div class="d-flex" style="border: 1px solid #000;">
+        <span style="width: 5%; text-align: center;">1</span>
+        <span style="width: 25%;">Qurilmalarni montaj qilish</span>
+        <span style="width: 15%;">-</span>
+        <span style="width: 20%;">0</span>
+      </div>
+      <div style="padding: 10px 30px; font-weight: 700; border-right: 1px solid #000; border-left: 1px solid #000;">
+        II. Har oylik abonent to`lovlari</div>
+      <div class="d-flex" style="border: 1px solid #000;">
+        <span style="width: 5%; text-align: center;">1</span>
+        <span style="width: 25%;">{{tarif}}</span>
+        <span style="width: 15%;">{{count}}</span>
+        <span style="width: 20%;">{{price2}}</span>
+      </div>
+      <div class="d-flex"
+        style="justify-content: flex-end; border-left: 1px solid #000; border-bottom: 1px solid #000; border-right: 1px solid #000;">
+        <span style="padding-right: 10px;">Jami:</span>
+        <span style="width: 29.4%; text-align: center;">{{price_month}}</span>
+      </div>
+    </div>
     <br>
     <p class="requirement-text">
       Ushbu Dalolatnoma Ijrochi va Buyurtmachi o'rtasidagi o'zaro hisob-kitoblar uchun
@@ -632,13 +620,13 @@
         <h4 class="requirement-title">IJROCHI</h4>
         <span>“UNICON.UZ” DUK</span>
         <span>M.M. Maxmudov</span> <br>
-        <span>{{qr_code}}</span>
+        <span><img src="{{qr_code}}"></span>
       </div>
       <div>
         <h4 class="requirement-title">BUYURTMACHI</h4>
         <span>{{client_fullname}}</span>
         <span>{{client}}</span> <br>
-        <span>{{qr_code}}</span>
+        <span><img src="{{qr_code}}"></span>
       </div>
     </div>
   </div>
