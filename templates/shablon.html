@@ -109,12 +109,17 @@
 
     .justify_evenly {
       display: flex;
-      justify-content: space-evenly;
+      justify-content: space-between;
+    }
+
+    .justify_evenly div {
+      width: 45%;
     }
 
     .justify_evenly span {
       display: flex;
       justify-content: center;
+      text-align: center;
     }
 
     .requirement-title {
@@ -544,7 +549,7 @@
           “Aloqabank” <br>
         </p>
         <span>M.M. Maxmudov</span> <br>
-        <span><img src='http://api.unicon.uz/media/qr/{{hash_code}}.png'  alt=""></span>
+        <span><img width="130px" src='http://api.unicon.uz/media/qr/{{hash_code}}.png'  alt=""></span>
       </div>
       <div>
         <h4 class="requirement-title">BUYURTMACHI</h4>
@@ -556,7 +561,7 @@
           JShShIR: {{pin}} <br>
         </p> <br> <br> <br> <br> <br>
         <span>{{client}}</span> <br>
-        <span><img src='http://api.unicon.uz/media/qr/{{hash_code}}.png' alt=""></span>
+        <span><img width="130px" src='http://api.unicon.uz/media/qr/{{hash_code}}.png' alt=""></span>
         <span>
           {{page_break}}{{day}}.{{month}}.{{year}}
         </span>
@@ -634,13 +639,13 @@
         <h4 class="requirement-title">IJROCHI</h4>
         <span>“UNICON.UZ” DUK</span>
         <span>M.M. Maxmudov</span> <br>
-        <span><img src='http://api.unicon.uz/media/qr/{{hash_code}}.png'  alt=""></span>
+        <span><img width="130px" src='http://api.unicon.uz/media/qr/{{hash_code}}.png'  alt=""></span>
       </div>
       <div>
         <h4 class="requirement-title">BUYURTMACHI</h4>
         <span>{{client_fullname}}</span>
         <span>{{client}}</span> <br>
-        <span><img src='http://api.unicon.uz/media/qr/{{hash_code}}.png' alt=""></span>
+        <span><img width="130px" src='http://api.unicon.uz/media/qr/{{hash_code}}.png' alt=""></span>
       </div>
     </div>
   </div>

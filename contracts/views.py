@@ -521,7 +521,6 @@ class CreateContractFileAPIView(APIView):
 
             link = 'http://' + request.META['HTTP_HOST'] + f'/contracts/contract/{hash_code}'
             qr_code = create_qr(link)
-            print("=========== qr_code: ", qr_code)
             context['hash_code'] = hash_code
             
 
@@ -577,9 +576,9 @@ class CreateContractFileAPIView(APIView):
             contract.save()
 
             # pdf fileni ochirish
-            delete_file(contract_file_for_base64_pdf)  # keyinroq ishlatamiz
+            delete_file(contract_file_for_base64_pdf)
             # qr_code fileni ochirish
-            # delete_file(qr_code) 
+            delete_file(qr_code) 
 
             # service = contract.service.name
 
