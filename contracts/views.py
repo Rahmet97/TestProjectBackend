@@ -443,6 +443,11 @@ class SelectedTarifDevicesAPIView(APIView):
 class CreateContractFileAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
+    def generate_hash_code(self, text: str):
+        hashcode = hashlib.md5(text.encode())
+        hash_code = hashcode.hexdigest()
+        return hash_code
+
     def post(self, request):
         context = dict()
         tarif = Tarif.objects.get(pk=int(request.data['tarif'])).name
@@ -510,6 +515,15 @@ class CreateContractFileAPIView(APIView):
         if int(request.data['save']):
             context['contract_number'] = prefix + '-' + str(number)  # --
 
+            hash_code = self.generate_hash_code(
+                text=f"{context.get('client_fullname')}{context.get('contract_number')}{context.get('u_type')}{datetime.now()}"
+            )
+
+            link = 'http://' + request.META['HTTP_HOST'] + f'/contracts/contract/{hash_code}'
+            qr_code = create_qr(link)
+            print("=========== qr_code: ", qr_code)
+            context['qr_code'] = qr_code
+
             # -------
             # rendered html file
             # contract_file_for_base64 = file_creator(context, 0)
@@ -533,17 +547,6 @@ class CreateContractFileAPIView(APIView):
             # -------
             contract_file = open(contract_file_for_base64_pdf, 'rb').read()
             base64code = base64.b64encode(contract_file)
-
-            hashcode = hashlib.md5()
-            hashcode.update(base64.b64encode(open(contract_file_for_base64_pdf, 'rb').read()))
-            hash_code = hashcode.hexdigest()
-
-            # link = 'http://' + request.META['HTTP_HOST'] + '/contracts/contract?hash=' + hash_code
-            link = 'http://' + request.META['HTTP_HOST'] + f'/contracts/contract/{hash_code}'
-
-            qr_code = create_qr(link)
-            print("=========== qr_code: ", qr_code)
-            context['qr_code'] = qr_code
 
             # direktor = YurUser.objects.get(userdata__role__name="direktor")
             # direktor_fullname = f"{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}"
@@ -770,6 +773,7 @@ class ContractDetail(APIView):
 
     def get(self, request, pk):
         contract = Contract.objects.select_related('client').get(pk=pk)
+        print(contract)
         contract_serializer = ContractSerializerForDetail(contract)
         try:
             contract_participants = Contracts_Participants.objects.filter(contract=contract).get(
