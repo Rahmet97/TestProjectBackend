@@ -522,7 +522,8 @@ class CreateContractFileAPIView(APIView):
             link = 'http://' + request.META['HTTP_HOST'] + f'/contracts/contract/{hash_code}'
             qr_code = create_qr(link)
             print("=========== qr_code: ", qr_code)
-            context['qr_code'] = qr_code
+            context['hash_code'] = hash_code
+            
 
             # -------
             # rendered html file
