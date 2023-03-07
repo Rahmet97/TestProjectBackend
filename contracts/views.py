@@ -522,6 +522,7 @@ class CreateContractFileAPIView(APIView):
             link = 'http://' + request.META['HTTP_HOST'] + f'/contracts/contract/{hash_code}'
             qr_code = create_qr(link)
             context['hash_code'] = hash_code
+            context['qr_code'] = f"http://api.unicon.uz/media/qr/{hash_code}.png"
             
 
             # -------
