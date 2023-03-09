@@ -9,7 +9,7 @@ RUN apk update \
     && apk add --no-cache freetype-dev jpeg-dev zlib-dev
 
 COPY requirements.txt ./
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 COPY ./static .
 RUN rm -r /media
 COPY ./media .
