@@ -1,4 +1,5 @@
 import os
+import urllib
 import qrcode
 import subprocess
 
@@ -14,6 +15,9 @@ from docx.shared import Pt
 
 from django.conf import settings
 from rest_framework import validators, status
+
+from xhtml2pdf.default import DEFAULT_CSS
+from xhtml2pdf.util import CSSUtil
 
 
 def error_response_404():
@@ -146,17 +150,65 @@ def convert_docx_to_pdf(docx_file_path: str):
     return pdf_file_path
 
 
+# def render_to_pdf(template_src: str, context_dict={}):
+#     template = get_template(template_name=template_src)
+#     html = template.render(context_dict)
+    
+#     result = BytesIO()
+#     # pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+#     pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result)
+
+#     pdf_content_with_page_breaks = insert_page_breaks(result.getvalue())
+
+#     if not pdf.err:
+#         return HttpResponse(pdf_content_with_page_breaks, content_type='application/pdf')
+#     return None
+
+# def insert_page_breaks(pdf_content):
+#     page_break_tag = '<hr style="page-break-before: always;">'
+#     pdf_content_with_page_breaks = pdf_content.replace(b'<body>', b'<body>' + page_break_tag.encode('utf-8'))
+#     return pdf_content_with_page_breaks
+
+
+# ---
 def render_to_pdf(template_src: str, context_dict={}):
     template = get_template(template_name=template_src)
     html = template.render(context_dict)
-    
-    result = BytesIO()
-    # pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
-    pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result)
 
-    if not pdf.err:
-        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    pdf_content = generate_pdf(html)
+
+    pdf_content_with_page_breaks = insert_page_breaks(pdf_content)
+
+    if not pdf_content.err:
+        response = HttpResponse(pdf_content_with_page_breaks, content_type='application/pdf')
+        response['Content-Disposition'] = 'filename=' + f"{context_dict['client_fullname']}-contract.pdf"
+        return response
     return None
+
+def generate_pdf(html):
+    result = BytesIO()
+    css_util = CSSUtil(DEFAULT_CSS)
+    pisa_status = pisa.CreatePDF(BytesIO(html.encode("utf-8")), result, encoding='utf-8', show_error_as_pdf=True, link_callback=fetch_css)
+    if pisa_status.err:
+        raise Exception("Failed to create PDF file: %s" % pisa_status.err)
+    pdf_content = result.getvalue()
+    pdf_content_with_styles = css_util.apply_styles(pdf_content)
+    return pdf_content_with_styles
+
+def fetch_css(uri, rel):
+    if uri.startswith('http:') or uri.startswith('https:'):
+        with urllib.request.urlopen(uri) as f:
+            return f.read()
+    else:
+        with open(uri) as f:
+            return f.read()
+
+def insert_page_breaks(pdf_content):
+    page_break_tag = '<hr style="page-break-before: always;">'
+    pdf_content_with_page_breaks = pdf_content.replace(b'<body>', b'<body>' + page_break_tag.encode('utf-8'))
+    return pdf_content_with_page_breaks
+
+# ---
 
 
 def delete_file(file_path: str):
