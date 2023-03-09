@@ -175,39 +175,50 @@ def render_to_pdf(template_src: str, context_dict={}):
     template = get_template(template_name=template_src)
     html = template.render(context_dict)
 
-    pdf_content = generate_pdf(html)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(
+        BytesIO(html.encode("utf-8")),
+        result,
+        encoding='utf-8',
+        show_error_as_pdf=True,
+        context=pisaContext()
+    )
 
-    pdf_content_with_page_breaks = insert_page_breaks(pdf_content)
-
-    if not pdf_content.err:
-        response = HttpResponse(pdf_content_with_page_breaks, content_type='application/pdf')
-        response['Content-Disposition'] = 'filename=' + f"{context_dict['client_fullname']}-contract.pdf"
-        return response
+    if not pdf.err:
+        pdf_content_with_page_breaks = insert_page_breaks(result.getvalue())
+        return HttpResponse(pdf_content_with_page_breaks, content_type='application/pdf')
     return None
 
-def generate_pdf(html):
-    result = BytesIO()
-    css_util = CSSUtil(DEFAULT_CSS)
-    pisa_status = pisa.CreatePDF(BytesIO(html.encode("utf-8")), result, encoding='utf-8', show_error_as_pdf=True, link_callback=fetch_css)
-    if pisa_status.err:
-        raise Exception("Failed to create PDF file: %s" % pisa_status.err)
-    pdf_content = result.getvalue()
-    pdf_content_with_styles = css_util.apply_styles(pdf_content)
-    return pdf_content_with_styles
 
-def fetch_css(uri, rel):
-    if uri.startswith('http:') or uri.startswith('https:'):
-        with urllib.request.urlopen(uri) as f:
-            return f.read()
-    else:
-        with open(uri) as f:
-            return f.read()
+class pisaContext:
+    def __init__(self):
+        self._setup()
+
+    def _setup(self):
+        self.context = pisa.Context()
+        self.context.set_base_url('')
+
+        # Set CSS
+        self.context.default_css = None
+        self.context.user_css = None
+        self.context.font_config = None
+        self.context.set_pre_processor(None)
+        self.context.set_post_processor(None)
+
+        # Set default page size
+        self.context.set_size('A4')
+
+    def __enter__(self):
+        return self.context
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
 
 def insert_page_breaks(pdf_content):
     page_break_tag = '<hr style="page-break-before: always;">'
     pdf_content_with_page_breaks = pdf_content.replace(b'<body>', b'<body>' + page_break_tag.encode('utf-8'))
     return pdf_content_with_page_breaks
-
 # ---
 
 
