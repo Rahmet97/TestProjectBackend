@@ -510,11 +510,12 @@ class CreateContractFileAPIView(APIView):
             context['host'] = 'http://' + request.META['HTTP_HOST']
         
         context['qr_code'] = ''
+        context['page_break'] = False
         context['datetime'] = datetime.now().strftime('%d.%m.%Y')
-        
+
 
         if int(request.data['save']):
-            context['page_break'] = '<hr style="page-break-before: always;">'
+            context['page_break'] = True
             context['contract_number'] = prefix + '-' + str(number)  # --
 
             hash_code = self.generate_hash_code(
