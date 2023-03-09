@@ -15,7 +15,7 @@ from docx.shared import Pt
 from django.conf import settings
 from rest_framework import validators, status
 
-from xhtml2pdf.default import DEFAULT_CSS
+# from xhtml2pdf.default import DEFAULT_CSS
 
 
 def error_response_404():
@@ -174,43 +174,30 @@ def render_to_pdf(template_src: str, context_dict={}):
     html = template.render(context_dict)
 
     result = BytesIO()
-    pdf = pisa.pisaDocument(
+    pdf = pisa.CreatePDF(
         BytesIO(html.encode("utf-8")),
         result,
         encoding='utf-8',
         show_error_as_pdf=True,
-        context=pisaContext()
+        link_callback=None,
+        debug=0,
+        path='',
+        default_css=None,
+        user_css=None,
+        font_config=None,
+        all_texts=False,
+        xhtml=False,
+        xml_output=None,
+        keep_tmp=False,
+        strict=False,
+        raise_exception=True,
+        pisa_context=pisa.PisaContext()
     )
 
     if not pdf.err:
         pdf_content_with_page_breaks = insert_page_breaks(result.getvalue())
         return HttpResponse(pdf_content_with_page_breaks, content_type='application/pdf')
     return None
-
-
-class pisaContext:
-    def __init__(self):
-        self._setup()
-
-    def _setup(self):
-        self.context = pisa.Context()
-        self.context.set_base_url('')
-
-        # Set CSS
-        self.context.default_css = None
-        self.context.user_css = None
-        self.context.font_config = None
-        self.context.set_pre_processor(None)
-        self.context.set_post_processor(None)
-
-        # Set default page size
-        self.context.set_size('A4')
-
-    def __enter__(self):
-        return self.context
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
 
 
 def insert_page_breaks(pdf_content):
