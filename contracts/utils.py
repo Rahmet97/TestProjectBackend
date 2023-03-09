@@ -4,7 +4,7 @@ import subprocess
 
 from io import BytesIO
 from django.http import HttpResponse
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
 
 from xhtml2pdf import pisa
 
@@ -167,7 +167,22 @@ def insert_page_breaks(pdf_content):
     return pdf_content_with_page_breaks
 
 
-# ---
+def render_to_pdf(template_src: str, context_dict={}):
+    html = render_to_string(template_name=template_src, context=context_dict)
+
+    # Read the CSS file into a string
+    with open("/usr/src/app/static/shablon/shablon.css", "r") as css_file:
+        css = css_file.read()
+    
+    # Generate a PDF file from the HTML and CSS using xhtml2pdf
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="my_pdf.pdf"'
+    pdf = pisa.CreatePDF(html, dest=response, encoding="utf-8", css=css)
+    if pdf.err:
+        return HttpResponse("Error generating PDF file.")
+    return response
+
+
 # def render_to_pdf(template_src: str, context_dict={}):
 #     template = get_template(template_name=template_src)
 #     html = template.render(context_dict)
@@ -203,7 +218,6 @@ def insert_page_breaks(pdf_content):
 #     page_break_tag = '<hr style="page-break-before: always;">'
 #     pdf_content_with_page_breaks = pdf_content.replace(b'<body>', b'<body>' + page_break_tag.encode('utf-8'))
 #     return pdf_content_with_page_breaks
-# ---
 
 
 def delete_file(file_path: str):
