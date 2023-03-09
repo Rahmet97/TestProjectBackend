@@ -510,9 +510,11 @@ class CreateContractFileAPIView(APIView):
             context['host'] = 'http://' + request.META['HTTP_HOST']
         
         context['qr_code'] = ''
+        context['datetime'] = datetime.strftime('%d.%M.%Y')
         
 
         if int(request.data['save']):
+            context['page_break'] = '<hr style="page-break-before: always;">'
             context['contract_number'] = prefix + '-' + str(number)  # --
 
             hash_code = self.generate_hash_code(
@@ -783,6 +785,7 @@ class ContractDetail(APIView):
             )
         except Contracts_Participants.DoesNotExist:
             contract_participants = None
+        
         if (request.user.role.name == "bo'lim boshlig'i"
             ) or (request.user.role.name == "direktor o'rinbosari"
             ) or (request.user.role.name == "dasturchi"
@@ -792,27 +795,33 @@ class ContractDetail(APIView):
             agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
             contract_participants.agreement_status = agreement_status
             contract_participants.save()
+            
         client = contract.client
+
         if client.type == 2:
             user = YurUser.objects.get(userdata=client)
             client_serializer = YurUserSerializerForContractDetail(user)
         else:
             user = FizUser.objects.get(userdata=client)
             client_serializer = FizUserSerializer(user)
+
         participants = Contracts_Participants.objects.filter(contract=contract).order_by('role_id')
-        participant_serializer = ContractParticipantsSerializers(
-            participants, many=True)
+        participant_serializer = ContractParticipantsSerializers(participants, many=True)
+
         try:
             expert_summary_value = ExpertSummary.objects.get(
                 Q(contract=contract),
                 Q(user=request.user),
-                Q(user__group=request.user.group)).summary
+                Q(user__group=request.user.group)
+            ).summary
         except ExpertSummary.DoesNotExist:
             expert_summary_value = 0
+        
         if int(expert_summary_value) == 1:
             expert_summary = True
         else:
             expert_summary = False
+
         return Response(
             {
                 'contract': contract_serializer.data,

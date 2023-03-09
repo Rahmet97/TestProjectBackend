@@ -226,7 +226,7 @@
     </h3>
     <div class='d-flex' style="justify-content: space-between; margin-bottom: 20px">
       <strong>Toshkent sh.</strong>
-      <strong>{{year}}.{{month}}.{{day}}</strong>
+      <strong>{{datetime}}</strong>
     </div>
     <p class='requirement-text'>
       <strong>“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar
@@ -562,12 +562,15 @@
         </p> <br> <br> <br> <br> <br>
         <span>{{client}}</span> <br>
         <span><img width="130px" src='{{qr_code}}' alt=""></span>
-        <span>
-          {{page_break}}{{day}}.{{month}}.{{year}}
-        </span>
-        <span style="justify-content: center;">{{contract_number}}-sonli shartnomaga</span>
       </div>
-    </div> <br>
+    </div> <br> 
+    <div style="display: flex; justify-content: end; flex-direction: column; align-items: flex-end;">
+      <span>
+        {{page_break}}{{datetime}}
+      </span>
+      <span style="justify-content: center;">{{contract_number}}-sonli shartnomaga</span>
+      <span style="justify-content: end;">1-ilova</span>
+    </div>
     <h4 class="requirement-title">MUAYYAN NARXGA KELISHISH DALOLATNOMASI</h4>
     <p class='requirement-text'>
       <strong>“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar
