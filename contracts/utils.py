@@ -1,5 +1,4 @@
 import os
-import urllib
 import qrcode
 import subprocess
 
@@ -17,7 +16,6 @@ from django.conf import settings
 from rest_framework import validators, status
 
 from xhtml2pdf.default import DEFAULT_CSS
-from xhtml2pdf.util import CSSUtil
 
 
 def error_response_404():
