@@ -510,7 +510,7 @@ class CreateContractFileAPIView(APIView):
             context['host'] = 'http://' + request.META['HTTP_HOST']
         
         context['qr_code'] = ''
-        context['datetime'] = datetime.now().strftime('%d.%M.%Y')
+        context['datetime'] = datetime.now().strftime('%d.%m.%Y')
         
 
         if int(request.data['save']):
