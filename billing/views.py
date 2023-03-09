@@ -56,7 +56,7 @@ class ColocationTariffSummAPIView(APIView):
             electr = Element.objects.get(Q(keyword='electricity'), Q(cost=0), Q(tariff=tariff)).cost * device_count
         else:
             electr = Element.objects.get(Q(keyword='electricity'), Q(cost=0), Q(tariff=tariff)).cost * count
-        price_e = Element.objects.get(Q(keyword='electricity'), Q(tariff=tariff)).exclude(cost=0)
+        price_e = Element.objects.get(Q(keyword='electricity'), Q(tariff=tariff), Q(cost__gt=0))
         if electricity > electr:
             price_electricity = math.ceil((electricity - electr) / price_e.quantity) * price_e.cost
         else:
