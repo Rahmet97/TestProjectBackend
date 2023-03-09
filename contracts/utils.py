@@ -171,7 +171,7 @@ def render_to_pdf(template_src: str, context_dict={}):
     html = render_to_string(template_name=template_src, context=context_dict)
 
     # Read the CSS file into a string
-    with open("my_styles.css", "r") as css_file:
+    with open("/usr/src/app/static/shablon/shablon.css", "r") as css_file:
         css = css_file.read()
     
     # Generate a PDF file from the HTML and CSS using xhtml2pdf
