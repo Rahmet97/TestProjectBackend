@@ -30,19 +30,6 @@ class ContractStatus(models.Model):
         return self.name
 
 
-class Element(models.Model):
-    name = models.CharField(max_length=255)
-    cost = models.DecimalField(max_digits=10, decimal_places=2)
-    keyword = models.CharField(max_length=30, blank=True, null=True)
-    new_cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    new_cost_date = models.DateField(blank=True, null=True)
-    quantity = models.IntegerField()
-    group = models.ForeignKey(Group, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
-
-
 class Status(models.Model):
     name = models.CharField(max_length=50)
 
@@ -54,7 +41,20 @@ class Tarif(models.Model):
     name = models.CharField(max_length=30)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    elements = models.ManyToManyField(Element)
+
+    def __str__(self):
+        return self.name
+
+
+class Element(models.Model):
+    name = models.CharField(max_length=255)
+    cost = models.DecimalField(max_digits=10, decimal_places=2)
+    keyword = models.CharField(max_length=30, blank=True, null=True)
+    new_cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    new_cost_date = models.DateField(blank=True, null=True)
+    quantity = models.IntegerField()
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    tariff = models.ForeignKey(Tarif, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.name

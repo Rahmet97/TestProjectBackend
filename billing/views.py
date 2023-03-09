@@ -36,45 +36,18 @@ class ElementUpdateAPIView(RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
 
 
-class CalculateTariffSummAPIView(APIView):
+class ColocationTariffSummAPIView(APIView):
     permission_classes = ()
 
-    @swagger_auto_schema(query_serializer=RequestSerializer)
     def post(self, request):
         group = Group.objects.get(pk=int(request.data['group']))
         service = Service.objects.get(pk=int(request.data['service']))
         tariff = Tarif.objects.get(pk=int(request.data['tariff']))
-        if service.name == "Co-location":
-            elements = request.data['elements']
-            for i in elements.keys():
-                if Element.objects.get(Q(group=group), Q(tarif__elements=0), Q(keyword=request.data['keyword'])):
-                    pass
-        # rqst = RequestSerializer(request.data)
-        # elements = request.data['elements']
-        # fr = request.data['from']
-        # amounts = []
-        # total = 0
-        # for i in elements:
-        #     element = Element.objects.get(pk=int(i["element"]))
-        #     quantity = int(i["quantity"])
-        #     amounts.append({
-        #         'element': int(i["element"]),
-        #         'quantity': quantity,
-        #         'cost_without_vat': float(element.cost) / 1.12,
-        #         'vat': '12%',
-        #         'amount_vat': float(element.cost) - float(element.cost) / 1.12,
-        #         'cost': float(element.cost)
-        #     })
-        #     total += float(element.cost)
-        # data = {
-        #     'elements': amounts,
-        #     'total': total
-        # }
-        # billing_log = BillingLog.objects.create(
-        #     user=request.user,
-        #     fr=fr,
-        #     request=rqst.data,
-        #     response=data
-        # )
-        # billing_log.save()
-        # return Response(data)
+        count = int(request.data['count'])
+        device_count = request.data.get('device_count', None)
+        odf_count = request.data.get('odf_count', None)
+        electricity = request.data['electricity']
+
+
+
+        return Response({})
