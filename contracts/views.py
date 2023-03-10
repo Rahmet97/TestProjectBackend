@@ -484,6 +484,7 @@ class CreateContractFileAPIView(APIView):
             context['count'] = request.data['count']
             context['price2'] = request.data['price']
             context['host'] = 'http://' + request.META['HTTP_HOST']
+            context["get_director_short_full_name"] = YurUser.objects.get(userdata=request.user).get_director_short_full_name
         else:
             context['u_type'] = 'fizik'
             context['contract_number'] = prefix + '-' + str(number)
@@ -534,7 +535,7 @@ class CreateContractFileAPIView(APIView):
             # pdf file
             # contract_file_for_base64_pdf = convert_docx_to_pdf(str(contract_file_for_base64))
             contract_file_for_base64_pdf = None
-            pdf = render_to_pdf(template_src="shablon.html", context_dict=context)
+            pdf = render_to_pdf(template_src="colocation.html", context_dict=context)
 
             if pdf:
                 output_dir = '/usr/src/app/media/Contract/pdf'
@@ -598,7 +599,7 @@ class CreateContractFileAPIView(APIView):
             serializer = ContractSerializer(contract)
             return Response(serializer.data)
         
-        return render(request=request, template_name="shablon.html", context=context)
+        return render(request=request, template_name="colocation.html", context=context)
 
 
 # Test uchun qilingan view keyinroq o'chirib tashlimiz

@@ -227,3 +227,7 @@ class YurUser(models.Model):
 
     def __str__(self):
         return self.name
+    
+    @property
+    def get_director_short_full_name(self):
+        return f"{str(self.director_firstname)[0]}.{str(self.director_middlename)[0]} {self.director_lastname}"
