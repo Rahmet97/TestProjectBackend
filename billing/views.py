@@ -1,4 +1,3 @@
-import json
 import math
 
 from django.db.models import Q
@@ -78,23 +77,23 @@ class ColocationTariffSummAPIView(APIView):
             'elements': [
                 {
                     'element': tariff.name,
-                    'price': float(tariff.price),
+                    'price': tariff.price,
                     'count': count,
-                    'amount': float(tariff.price * count)
+                    'amount': tariff.price * count
                 },
                 {
                     'element': 'electricity',
-                    'price': float(price_e),
+                    'price': price_e.cost,
                     'count': electricity,
-                    'amount': float(price_electricity)
+                    'amount': price_electricity
                 },
                 {
                     'element': 'odf',
-                    'price': float(price_o),
+                    'price': price_o.cost,
                     'count': odf_count,
-                    'amount': float(price_odf)
+                    'amount': price_odf
                 },
             ],
             'amount': amount
         }
-        return Response(json.dumps(data))
+        return Response(data)
