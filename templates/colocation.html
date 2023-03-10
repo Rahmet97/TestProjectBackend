@@ -1,4 +1,3 @@
-{% load static %}
 <!doctype html>
 <html lang="en">
 
@@ -111,6 +110,10 @@
       justify-content: space-evenly;
     }
 
+    .justify_evenly div {
+      width: 50%;
+    }
+
     .justify_evenly span {
       display: flex;
       justify-content: center;
@@ -138,6 +141,16 @@
       margin-bottom: 12px;
       margin-top: 0;
       text-align: justify;
+    }
+
+    .requirement-title.justify-content .requirement-text.justify-content {
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
+    }
+
+    .requirement-text.justify-content span {
+      text-align: center;
     }
 
     table {
@@ -206,6 +219,38 @@
     .head span:last-child {
       border: none;
     }
+
+    .contract_number {
+      justify-content: center;
+    }
+
+    .ilova {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      flex-direction: column;
+    }
+
+    .text-align {
+      text-align: center;
+    }
+
+    .between {
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
+    }
+
+    table th img {
+      width: 130px;
+    }
+
+    .table_ijro {
+      border: none !important;
+    }
+    .d-flex table {
+      border: none !important;
+    }
   </style>
 </head>
 
@@ -214,18 +259,28 @@
     <h3 class='requirement-title-main'>
       <strong>“Co-location” xizmatini ko'rsatish to'g'risidagi</strong>
       <br />
-      <strong>{{ contract_number }}-sonli</strong>
+      <strong>{{contract_number}}-sonli</strong>
       <br />
       <strong>Shartnoma</strong>
     </h3>
     <div class='d-flex' style="justify-content: space-between; margin-bottom: 20px">
-      <strong>Toshkent sh.</strong>
-      <strong>{{year}}.{{month}}.{{day}}</strong>
+      <table>
+        <thead>
+          <colgroup>
+            <col width="5%" />
+            <col width="5%" />
+          </colgroup>
+          <tr>
+            <th align="left" class="col-quantity">Toshkent sh.</th>
+            <th align="right" class="col-price">{{datetime}}</th>
+          </tr>
+        </thead>
+      </table>
     </div>
     <p class='requirement-text'>
       <strong>“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar
         korxonasi</strong>, keyingi o'rinlarda “Ijrochi” deb yuritiladi, Nizom asosida ish yurituvchi,
-      direktor <strong>M.M. Maxmudov</strong> bir tomondan, {{ per_adr }}, -
+      direktor <strong>M.M. Maxmudov</strong> bir tomondan, {{per_adr}}, -
       yashovchi, {{pport_no}} raqamli fuqarolik pasporti
       egasi fuqaro <strong>{{client_fullname}}</strong> keyingi o'rinlarda “Buyurtmachi” deb yuritiladi,
       ikkinchi tomondan, keyingi o'rinlarda birgalikda “Tomonlar”deb yuritiladi, ushbu
@@ -251,25 +306,16 @@
     </p>
     <h4 class='requirement-title'>2. Shartnomaning umumiy miqdori va o'zaro hisob-kitoblar tartibi</h4>
     <p class='requirement-text'>
-      &nbsp;&nbsp;2.1. Ushbu shartnomaning umumiy summasi ushbu shartnomaning ajralmas qismi
-      hisoblangan <strong>1-ilovada</strong> ko'rsatilgan shartnoma narxini kelishish bayonnomasiga muvofiq
-      QQSni o'z ichiga olgan holda. <strong>{{price}}</strong> <strong>(to&#39;rt million uch yuz
-        oltmish to&#39;rt ming ikki
-        yuz ellik)</strong> so'mni tashkil etadi, bu summa ichiga uskunalarni joylashtirish xizmatlari
-      uchun qat'iy belgilangan oylik abonent to'lovi uchun 396750 (uch yuz to&#39;qson olti ming
-      yetti yuz ellik) so'm kiradi.
-      Xizmatlar uchun to'lov har oy ushbu Shartnomaga muvofiq oylik abonent to'lovi
-      summasini oldindan 100 foizi miqdorda to'lash asosida amalga oshiriladi. <br />
+      &nbsp;&nbsp;2.1. Ushbu shartnomaning ajralmas qismi hisoblangan 1-ilovada ko'rsatilgan shartnoma narxini kelishish
+      bayonnomasiga muvofiq QQSni o'z ichiga olgan holda uskunalarni joylashtirish xizmatlari uchun qat'iy belgilangan
+      oylik abonent to'lovi uchun {{price_month}} ({{price_month_text}}) so'mni tashkil etadi. <br />
+      Xizmatlar uchun to'lov har oy ushbu Shartnomaga muvofiq oylik abonent to'lovi summasini oldindan 100 foizi
+      miqdorda to'lash asosida amalga oshiriladi.
       &nbsp;&nbsp;2.2. Buyurtmachi to'lovni quyidagi tartibda amalga oshiradi:
-      Buyurtmachi tomonidan to'lovlarni amalga oshirish majburiyati ushbu shartnoma
-      Tomonlar o'zaro imzolagan kundan boshlab yuzaga keladi va Buyurtmachi 396750 (uch
-      yuz to&#39;qson olti ming yetti yuz ellik) so'mni tashkil etadigan oylik abonent to'lovi
-      miqdorining 100% (yuz foiz) miqdorida avans to'lovini ushbu shartnoma imzolangan
-      kundan boshlab 5 (besh) kuni ichida amalga oshiradi. <br>
-      Keyingi oydan boshlab Buyurtmachi 3 (uch) ish kuni ichida Ijrochi tomonidan
-      taqdim etilgan hisob-faktura va xizmatlarni ko'rsatish (ishlarni bajarish) to'g'risidagi
-      dalolatnoma asosida Buyurtmachi tomonidan qabul qilingan paytdan boshlab Uskunalarni joylashtirish xizmatlari
-      uchun oylik abonent to'lovini to'lab boradi. <br>
+      Buyurtmachi tomonidan to'lovlarni amalga oshirish majburiyati ushbu shartnoma Tomonlar o'zaro imzolagan kundan
+      boshlab yuzaga keladi va Buyurtmachi {{price_month_avans}} ({{price_month_avans_text}}) so'mni tashkil etadigan
+      oylik abonent to'lovi miqdorining 100% (yuz foiz) miqdorida avans to'lovini ushbu shartnoma imzolangan kundan
+      boshlab 5 (besh) kuni ichida amalga oshiradi. <br>
        2.3. Buyurtmachi tomonidan ushbu shartnoma bo'yicha Ijrochi tomonidan taqdim etilgan xizmatlardan foydalanmaslik
       ushbu xizmatlar uchun to'lanmaslik uchun sabab bo'lmaydi. <br>
        2.4. Agar Buyurtmachi Ijrochi tomonidan ko'rsatilgan xizmatlar bo'yicha o'z da'volarini 10 (o'n) ish kuni ichida
@@ -502,8 +548,8 @@
     </p>
     <h4 class="requirement-title">9. Yakuniy qoidalar</h4>
     <p class="requirement-text">
-       9.1. Ushbu Shartnoma Tomonlar imzolagan paytdan boshlab kuchga kiradi va 2022
-      yil 31 dekabrga qadar amal qiladi.
+       9.1. Ushbu Shartnoma {{datetime}} yildan boshlab kuchga kiradi va Tomonlarning barcha
+      majburiyatlari bajarilgunga qadar amal qiladi.
       Agar, Shartnomaning belgilangan amal qilish muddati tugaganidan so`ng, Tomonlar
       o'z shartlarini bajarishni davom ettirsa va tomonlarning hech biri uning bekor qilinishini
       e'lon qilmagan bo`lsa, Shartnoma har bir keyingi yilga avtomatik ravishda uzaytiriladi. <br>
@@ -526,43 +572,110 @@
       nusxalar birxil yuridik kuchga ega.
     </p>
     <h4 class="requirement-title">10. Yuridik manzillar, bank rekvizitlari va tomonlarning imzolari</h4>
-    <div class="justify_evenly">
-      <div>
-        <h4 class="requirement-title">IJROCHI</h4>
-        <span>“UNICON.UZ” DUK</span>
-        <p class="requirement-text">
-          <br>
-          Manzil: 100087, Toshkent sh.
-          Mingbuloq ko`chasi, 38-uy. <br>
-          STIR: 200 898 586 <br>
-          MFO: 00401 <br>
-          OKED: 72190 <br>
-          H/r: 2021 0000 9001 5527 <br>
-            8001 <br>
-          Bank: Toshkent sh. AT <br>
-          “Aloqabank” <br>
-        </p>
-        <span>M.M. Maxmudov</span> <br>
-        <span><img src="{{qr_code}}"></span>
-      </div>
-      <div>
-        <h4 class="requirement-title">BUYURTMACHI</h4>
-        <span>{{client_fullname}}</span>
-        <p class="requirement-text">
-          <br>
-          Manzil: {{client_add}} <br>
-          Pasport s/r: {{pport_no}} <br>
-          JShShIR: {{pin}} <br>
-        </p> <br> <br> <br> <br> <br>
-        <span>{{client}}</span> <br>
-        <span><img src="{{qr_code}}"></span>
-
-        <span>
-          {{page_break}}{{day}}.{{month}}.{{year}}
-        </span>
-        <span style="justify-content: center;">{{contract_number}}-sonli shartnomaga</span>
-      </div>
-    </div> <br>
+    <table class="table_ijro" cellpadding="10" cellspacing="0">
+      <thead>
+        <colgroup>
+          <col width="30%" />
+          <col width="5%" />
+          <col width="30%" span="1" />
+        </colgroup>
+        <tr>
+          <th align="center" class="col-quantity">IJROCHI</th>
+          <th align="center" class="col-price"></th>
+          <th align="center" class="col-price">BUYURTMACHI</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+        </tr>
+        <tr>
+          <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi</td>
+          <td align="center"></td>
+          <td align="center">{{client_fullname}}</td>
+        </tr>
+        <tr>
+        </tr>
+        <tr>
+          <td align="left">
+            Manzil: 100087, Toshkent sh. Mingbuloq ko`chasi, 38-uy. <br>
+            STIR: 200 898 586 <br>
+            MFO: 00401 <br>
+            OKED: 72190 <br>
+            H/r: 2021 0000 9001 5527 8001 <br>
+            Bank: Toshkent sh. AT “Aloqabank”
+          </td>
+          <td align="center"></td>
+          <td align="left">
+            Manzil: {{per_adr}}. <br>
+            STIR: {{tin}} <br>
+            MFO: {{mfo}} <br>
+            OKED: {{oked}} <br>
+            H/r: {{hr}} <br>
+            Bank: {{bank}}
+          </td>
+        </tr>
+        <tr>
+          <td align="center">M.M. Maxmudov</td>
+          <td align="center"></td>
+          <td align="center">{{get_director_short_full_name}}</td>
+        </tr>
+        <tr>
+          <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
+          <td align="center"></td>
+          <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
+        </tr>
+      </tbody>
+    </table> <br>
+    <table border="1" cellpadding="10" cellspacing="0">
+      <tr>
+        <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
+      </tr>
+      <tr>
+        <th>Shartnoma raqami</th>
+        <th>{{contract_number}}</th>
+        <th rowspan="2">
+          <img src="{{qr_code}}"
+            alt="">
+        </th>
+      </tr>
+      <tr>
+        <th>Shartnoma sanasi</th>
+        <th>{{datetime}}</th>
+      </tr>
+    </table>
+    <br>
+    <table border="1" cellpadding="10" cellspacing="0">
+      <tr>
+        <th></th>
+        <th>yil</th>
+        <th rowspan="4">
+          <img src="{{qr_code}}"
+            alt="">
+        </th>
+      </tr>
+      <tr>
+        <th>Shartnoma raqami</th>
+        <th>{{contract_number}}</th>
+      </tr>
+      <tr>
+        <th>Ijrochining STIR raqami</th>
+        <th>200 898 586</th>
+      </tr>
+      <tr>
+        <th>Buyurtmachining STIR/JShShIR raqami</th>
+        <th>{{tin}}</th>
+      </tr>
+    </table> <br>
+    {% if page_break %}
+    <hr style="page-break-before: always;">
+    {% endif %}
+    <div class="ilova">
+      <span>
+        {{datetime}}
+      </span>
+      <span class="contract_number">{{contract_number}}-sonli shartnomaga</span>
+      <span class="contract_number">1-ilova</span>
+    </div>
     <h4 class="requirement-title">MUAYYAN NARXGA KELISHISH DALOLATNOMASI</h4>
     <p class='requirement-text'>
        <strong>“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar
@@ -579,56 +692,143 @@
       erishilganligi to'g'risida ushbu Dalolatnomani imzolashdi.
     </p>
     <h4 class="requirement-title">Xizmatlar ro`yxati va to`lov miqdori jadvali</h4>
-    <div class="head">
-      <div class="d-flex" style="border: 1px solid #000;">
-        <span style="width: 5%; text-align: center;">T.r</span>
-        <span style="width: 25%;">Hizmat nomlanishi</span>
-        <span style="width: 15%;">Soni</span>
-        <span style="width: 20%;">Miqdori (QQS bilan)
-        </span>
-      </div>
-      <div style="padding: 10px 30px; font-weight: 700; border-right: 1px solid #000; border-left: 1px solid #000;">I.
-        Bir marttalik to`lovlar</div>
-      <div class="d-flex" style="border: 1px solid #000;">
-        <span style="width: 5%; text-align: center;">1</span>
-        <span style="width: 25%;">Qurilmalarni montaj qilish</span>
-        <span style="width: 15%;">-</span>
-        <span style="width: 20%;">0</span>
-      </div>
-      <div style="padding: 10px 30px; font-weight: 700; border-right: 1px solid #000; border-left: 1px solid #000;">
-        II. Har oylik abonent to`lovlari</div>
-      <div class="d-flex" style="border: 1px solid #000;">
-        <span style="width: 5%; text-align: center;">1</span>
-        <span style="width: 25%;">{{tarif}}</span>
-        <span style="width: 15%;">{{count}}</span>
-        <span style="width: 20%;">{{price2}}</span>
-      </div>
-      <div class="d-flex"
-        style="justify-content: flex-end; border-left: 1px solid #000; border-bottom: 1px solid #000; border-right: 1px solid #000;">
-        <span style="padding-right: 10px;">Jami:</span>
-        <span style="width: 29.4%; text-align: center;">{{price_month}}</span>
-      </div>
-    </div>
+    <table border="1" cellpadding="10" cellspacing="0">
+      <thead>
+        <colgroup>
+          <col width="5%" />
+          <col width="30%" />
+          <col width="30%" />
+          <col width="20%" span="1" />
+        </colgroup>
+        <tr>
+          <th align="center" class="col-item-name">T/r</th>
+          <th align="center" class="col-quantity">Xizmat nomlanishi</th>
+          <th align="center" class="col-price">Soni</th>
+          <th align="center" class="col-price">Miqdori (QQS bilan)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+      <tbody>
+        <td class="price_txt" scope="col" align="left" colspan="4"><strong>I. Bir marttalik to`lovlar</strong></td>
+      </tbody>
+      </tr>
+      <tr>
+        <td align="center">1</td>
+        <td align="center">Qurilmalarni montaj qilish</td>
+        <td align="center">-</td>
+        <td align="center">0</td>
+      </tr>
+      <tr>
+        <tbody>
+          <td class="price_txt" scope="col" align="left" colspan="4"><strong>II. Har oylik abonent to`lovlari</strong>
+          </td>
+        </tbody>
+      </tr>
+      <tr>
+        <td align="center">1</td>
+        <td align="center">{{tarif}}</td>
+        <td align="center">{{tarif_count}}</td>
+        <td align="center">{{price2}}</td>
+      </tr>
+      <tr>
+        <td align="center">2</td>
+        <td align="center">{{internet}}</td>
+        <td align="center">{{count}}</td>
+        <td align="center">{{price2}}</td>
+      </tr>
+      <tr>
+        <td align="center">3</td>
+        <td align="center">{{electrocity}}</td>
+        <td align="center">{{count}}</td>
+        <td align="center">{{price2}}</td>
+      </tr>
+      </tbody>
+      <tfoot>
+        <td class="price_txt" scope="col" align="right" colspan="3">Jami:</td>
+        <td align="center">{{price_month}}</td>
+      </tfoot>
+    </table>
     <br>
-    <p class="requirement-text">
-      Ushbu Dalolatnoma Ijrochi va Buyurtmachi o'rtasidagi o'zaro hisob-kitoblar uchun
-      asos hisoblanadi. Shartnoma narxlari bo'yicha kelishuv Dalolatnomasi ushbu
-      shartnomaning ajralmas qismi hisoblanadi.
-    </p>
-    <div class="justify_evenly">
-      <div>
-        <h4 class="requirement-title">IJROCHI</h4>
-        <span>“UNICON.UZ” DUK</span>
-        <span>M.M. Maxmudov</span> <br>
-        <span><img src="{{qr_code}}"></span>
-      </div>
-      <div>
-        <h4 class="requirement-title">BUYURTMACHI</h4>
-        <span>{{client_fullname}}</span>
-        <span>{{client}}</span> <br>
-        <span><img src="{{qr_code}}"></span>
-      </div>
-    </div>
+    <table class="table_ijro" cellpadding="10" cellspacing="0">
+      <thead>
+        <colgroup>
+          <col width="30%" />
+          <col width="5%" />
+          <col width="30%" span="1" />
+        </colgroup>
+        <tr>
+          <th align="center" class="col-quantity">IJROCHI</th>
+          <th align="center" class="col-price"></th>
+          <th align="center" class="col-price">BUYURTMACHI</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+        </tr>
+        <tr>
+          <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi</td>
+          <td align="center"></td>
+          <td align="center">{{client_fullname}}</td>
+        </tr>
+        <tr>
+        </tr>
+        <tr>
+          <td align="center"></td>
+        </tr>
+        <tr>
+          <td align="center">M.M. Maxmudov</td>
+          <td align="center"></td>
+          <td align="center">{{get_director_short_full_name}}</td>
+        </tr>
+        <tr>
+          <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
+          <td align="center"></td>
+          <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <table border="1" cellpadding="10" cellspacing="0">
+      <tr>
+        <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
+      </tr>
+      <tr>
+        <th>Shartnoma raqami</th>
+        <th>{{contract_number}}</th>
+        <th rowspan="2">
+          <img src="{{qr_code}}"
+            alt="">
+        </th>
+      </tr>
+      <tr>
+        <th>Shartnoma sanasi</th>
+        <th>{{datetime}}</th>
+      </tr>
+    </table>
+    <br>
+    <table border="1" cellpadding="10" cellspacing="0">
+      <tr>
+        <th></th>
+        <th>yil</th>
+        <th rowspan="4">
+          <img src="{{qr_code}}"
+            alt="">
+        </th>
+      </tr>
+      <tr>
+        <th>Shartnoma raqami</th>
+        <th>{{contract_number}}</th>
+      </tr>
+      <tr>
+        <th>Ijrochining STIR raqami</th>
+        <th>200 898 586</th>
+      </tr>
+      <tr>
+        <th>Buyurtmachining STIR/JShShIR raqami</th>
+        <th>{{tin}}</th>
+      </tr>
+    </table>
   </div>
 </body>
 
