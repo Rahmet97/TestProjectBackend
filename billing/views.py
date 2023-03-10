@@ -1,3 +1,4 @@
+import json
 import math
 
 from django.db.models import Q
@@ -96,4 +97,4 @@ class ColocationTariffSummAPIView(APIView):
             ],
             'amount': amount
         }
-        return Response(data)
+        return Response(json.dumps(data))
