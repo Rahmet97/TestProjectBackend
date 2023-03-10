@@ -78,21 +78,21 @@ class ColocationTariffSummAPIView(APIView):
             'elements': [
                 {
                     'element': tariff.name,
-                    'price': tariff.price,
+                    'price': float(tariff.price),
                     'count': count,
-                    'amount': tariff.price * count
+                    'amount': float(tariff.price * count)
                 },
                 {
                     'element': 'electricity',
-                    'price': price_e,
+                    'price': float(price_e),
                     'count': electricity,
-                    'amount': price_electricity
+                    'amount': float(price_electricity)
                 },
                 {
                     'element': 'odf',
-                    'price': price_o,
+                    'price': float(price_o),
                     'count': odf_count,
-                    'amount': price_odf
+                    'amount': float(price_odf)
                 },
             ],
             'amount': amount
