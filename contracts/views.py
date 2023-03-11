@@ -32,7 +32,8 @@ from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, U
     OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer, PkcsSerializer, \
     ContractSerializerForContractList, ContractSerializerForBackoffice, ExpertSummarySerializer, \
     ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail, \
-    ConnectMethodSerializer, AddOldContractSerializers, UserOldContractTarifDeviceSerializer
+    ConnectMethodSerializer, AddOldContractSerializers, UserOldContractTarifDeviceSerializer, \
+    UserOldContractDeviceCountSerializer
 
 from .utils import error_response_404, create_qr, NumbersToWord, convert_docx_to_pdf, delete_file, render_to_pdf, error_response_500
 from .tasks import file_creator, file_downloader, generate_contract_number
@@ -1124,6 +1125,7 @@ class AddOldContractsViews(APIView):
     serializer_class_fiz_user = FizUserForOldContractSerializers
     serializer_class_contract = AddOldContractSerializers
     serializer_class_contract_tarif_device = UserOldContractTarifDeviceSerializer
+    serializer_class_user_device_count = UserOldContractDeviceCountSerializer
 
     permission_classes = [IsAuthenticated]
     userTtype = {
@@ -1206,6 +1208,15 @@ class AddOldContractsViews(APIView):
 
             contract_tarif_device = contract_tarif_device_serializer.save(
                 contract=contract, client=user_obj, price=price_total_old_contract
+            )
+            user_device_count_serializer = self.serializer_class_user_device_count(data=request.data)
+            user_device_count_serializer.is_valid(raise_exception=True)
+            user_device_count_serializer.save(
+                user=contract_tarif_device,
+                device=Device.objects.get(name='Server'),
+                device_count=int(request.data.get("if_tarif_is_unit", 0)),
+                units_count=contract_tarif_device_serializer.validated_data.get("rack_count"),
+                electricity=contract_tarif_device_serializer.validated_data.get("total_electricity")
             )
             
             service_participants = ServiceParticipants.objects.filter(participant__service=contract.service)

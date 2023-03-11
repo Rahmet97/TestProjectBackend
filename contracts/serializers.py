@@ -277,6 +277,12 @@ class UserOldContractTarifDeviceSerializer(serializers.ModelSerializer):
         exclude = ["client", "price"]
 
 
+class UserOldContractDeviceCountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserDeviceCount
+        fields = '__all__'
+
+
 class AddOldContractSerializers(serializers.ModelSerializer):
     file = serializers.SerializerMethodField()
 
