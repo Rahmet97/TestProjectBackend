@@ -6,7 +6,7 @@
   <meta name="viewport"
     content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>Contract</title>
   <style>
     body {
       width: 100%;
@@ -619,11 +619,13 @@
           <td align="center"></td>
           <td align="center">{{get_director_short_full_name}}</td>
         </tr>
-        <tr>
-          <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
-          <td align="center"></td>
-          <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
-        </tr>
+        {% if save %}
+          <tr>
+            <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
+            <td align="center"></td>
+            <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
+          </tr>
+        {% endif %}
       </tbody>
     </table> <br>
     <table border="1" cellpadding="10" cellspacing="0">
@@ -632,7 +634,7 @@
             </tr>
             <tr>
                 <th align="left">Shartnoma raqami</th>
-                <th align="left">{{contract_number}} “/{{user_contract_number}}”</th>
+                <th align="left">{{contract_number}}</th>
                 <th rowspan="5">
                     <img src="{{ qr_code }}"
                         alt="">
@@ -640,15 +642,17 @@
             </tr>
             <tr>
                 <th align="left">Shartnoma sanasi</th>
-                <th align="left">{{day}}.{{month}}.{{year}}</th>
+                <th align="left">{{datetime}}</th>
             </tr>
-            <tr>
-                <th align="left">Shartnoma kodi</th>
-                <th align="left">{{id_code}}</th>
-            </tr>
+            {% if save %}
+              <tr>
+                  <th align="left">Shartnoma kodi</th>
+                  <th align="left">{{id_code}}</th>
+              </tr>
+            {% endif %}
             <tr>
                 <th align="left">Ijrochining STIR raqami</th>
-                <th align="left">{{org_tin}}</th>
+                <th align="left">200 898 586</th>
             </tr>
             <tr>
                 <th align="left">Buyurtmachining STIR/JShShIR raqami</th>
@@ -717,21 +721,23 @@
       <tr>
         <td align="center">1</td>
         <td align="center">{{tarif}}</td>
-        <td align="center">{{tarif_count}}</td>
-        <td align="center">{{price2}}</td>
+        <!-- <td align="center">{{tarif_count}}</td> -->
+        <td align="center">{{count}}</td>
+        <!-- ozgartirib ketish kk -->
+        <td align="center">{{price}}</td> 
       </tr>
-      <tr>
+      <!-- <tr>
         <td align="center">2</td>
         <td align="center">{{internet}}</td>
         <td align="center">{{count}}</td>
         <td align="center">{{price2}}</td>
-      </tr>
-      <tr>
+      </tr> -->
+      <!-- <tr>
         <td align="center">3</td>
         <td align="center">{{electrocity}}</td>
         <td align="center">{{count}}</td>
         <td align="center">{{price2}}</td>
-      </tr>
+      </tr> -->
       </tbody>
       <tfoot>
         <td class="price_txt" scope="col" align="right" colspan="3">Jami:</td>
@@ -770,11 +776,13 @@
           <td align="center"></td>
           <td align="center">{{get_director_short_full_name}}</td>
         </tr>
-        <tr>
-          <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
-          <td align="center"></td>
-          <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
-        </tr>
+        {% if save==1 %}
+          <tr>
+            <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
+            <td align="center"></td>
+            <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
+          </tr>
+        {% endif %}
       </tbody>
     </table>
     <br>
@@ -784,23 +792,24 @@
             </tr>
             <tr>
                 <th align="left">Shartnoma raqami</th>
-                <th align="left">{{contract_number}} “/{{user_contract_number}}”</th>
+                <th align="left">{{contract_number}}</th>
                 <th rowspan="5">
-                    <img src="{{ qr_code }}"
-                        alt="">
+                    <img src="{{ qr_code }}" alt="">
                 </th>
             </tr>
             <tr>
                 <th align="left">Shartnoma sanasi</th>
-                <th align="left">{{day}}.{{month}}.{{year}}</th>
+                <th align="left">{{datetime}}</th>
             </tr>
-            <tr>
-                <th align="left">Shartnoma kodi</th>
-                <th align="left">{{id_code}}</th>
-            </tr>
+            {% if save %}
+              <tr>
+                  <th align="left">Shartnoma kodi</th>
+                  <th align="left">{{id_code}}</th>
+              </tr>
+            {% endif %}
             <tr>
                 <th align="left">Ijrochining STIR raqami</th>
-                <th align="left">{{org_tin}}</th>
+                <th align="left">200 898 586</th>
             </tr>
             <tr>
                 <th align="left">Buyurtmachining STIR/JShShIR raqami</th>

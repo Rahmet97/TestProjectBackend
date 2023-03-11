@@ -511,6 +511,7 @@ class CreateContractFileAPIView(APIView):
             context['host'] = 'http://' + request.META['HTTP_HOST']
         
         context['qr_code'] = ''
+        # context['devices'] = request.data.get("devices", None)
         context['page_break'] = False
         context['datetime'] = datetime.now().strftime('%d.%m.%Y')
 
@@ -535,8 +536,12 @@ class CreateContractFileAPIView(APIView):
             # pdf file
             # contract_file_for_base64_pdf = convert_docx_to_pdf(str(contract_file_for_base64))
             contract_file_for_base64_pdf = None
-            pdf = render_to_pdf(template_src="shablonYuridik.html", context_dict=context)
 
+            template_name="shablonFizik.html"  # fizik
+            if request.user.type == 2:  # yuridik
+                template_name="shablonYuridik.html"
+            
+            pdf = render_to_pdf(template_src=template_name, context_dict=context)
             if pdf:
                 output_dir = '/usr/src/app/media/Contract/pdf'
                 os.makedirs(output_dir, exist_ok=True)
@@ -599,7 +604,11 @@ class CreateContractFileAPIView(APIView):
             serializer = ContractSerializer(contract)
             return Response(serializer.data)
         
-        return render(request=request, template_name="shablonYuridik.html", context=context)
+        template_name="shablonFizik.html"  # fizik
+        if request.user.type == 2:  # yuridik
+            template_name="shablonYuridik.html"
+        
+        return render(request=request, template_name=template_name, context=context)
 
 
 # Test uchun qilingan view keyinroq o'chirib tashlimiz
