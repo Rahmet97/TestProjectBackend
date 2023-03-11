@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body {
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        .publicOffer {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .publicOffer_title {
+            margin-left: 45px;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 36px;
+            line-height: 44px;
+            color: #0E0E4B;
+        }
+
+        .publicOffer_content {
+            margin-top: 35px;
+            width: 100%;
+            min-height: 500px;
+            /* padding: 15px; */
+            background: #FFFFFF;
+            box-shadow: 0px 7.94708px 24px -2px rgba(0, 0, 0, 0.25);
+            border-radius: 30px;
+        }
+
+        .publicOffer_content::-webkit-scrollbar {
+            display: none;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .requirement-wrapper {
+            width: 100%;
+            /* box-shadow: 0px 7.94708px 24px -2px rgba(0, 0, 0, 0.25);
+        border-radius: 31.7883px; */
+            padding: 20px 42px;
+            margin-bottom: 25px;
+            overflow-y: scroll;
+            background-color: #F4F8F2;
+            height: 450px;
+        }
+
+        .requirement-wrapper-scroll {
+            width: 100%;
+            height: 1150px;
+            margin-right: auto;
+            margin-left: auto;
+            background-color: #fff;
+            padding: 60px 80px 60px 120px;
+            box-shadow: 0px 7.94708px 24px -2px #aca6a6;
+            margin-bottom: 10px;
+            /* overflow-y: scroll; */
+        }
+
+        .requirement-wrapper::-webkit-scrollbar {
+            width: 17px;
+            border-radius: 31px;
+        }
+
+        .requirement-wrapper::-webkit-scrollbar-track {
+            background: #0e0e4b;
+            border-radius: 31px;
+        }
+
+        .requirement-wrapper::-webkit-scrollbar-thumb {
+            background: #fff;
+            border: 3.5px solid #0e0e4b;
+            border-radius: 31px;
+        }
+
+        .requirement-title-main {
+            font-family: 'Raleway', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 22px;
+            line-height: 26px;
+            text-align: center;
+            color: #0e0e4b;
+            margin-bottom: 19px;
+            margin-top: 14px;
+        }
+
+        .d-flex {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .justify_evenly {
+            display: flex;
+            justify-content: space-evenly;
+        }
+
+        .justify_evenly div {
+            width: 50%;
+        }
+
+        .justify_evenly span {
+            display: flex;
+            justify-content: center;
+        }
+
+        .requirement-title {
+            font-family: 'Raleway', sans-serif;
+            font-style: normal;
+            font-weight: 700;
+            font-size: 18px;
+            line-height: 26px;
+            text-align: center;
+            color: #0e0e4b;
+            margin-bottom: 19px;
+            margin-top: 14px;
+        }
+
+        .requirement-text {
+            font-family: 'Raleway', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+            font-size: 17px;
+            line-height: 20px;
+            color: #0e0e4b;
+            margin-bottom: 12px;
+            margin-top: 0;
+            text-align: justify;
+        }
+
+        .requirement-title.justify-content .requirement-text.justify-content {
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+        }
+
+        .requirement-text.justify-content span {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border: 1px solid #000 !important;
+        }
+
+        .span {
+            width: 10%;
+            border-right: 1px solid #000;
+        }
+
+        h4 {
+            font-size: 16px;
+        }
+
+
+        .tg {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        .tg td {
+            border-color: black;
+            border-style: solid;
+            border-width: 1px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            overflow: hidden;
+            padding: 10px 5px;
+            word-break: normal;
+        }
+
+        .tg th {
+            border-color: black;
+            border-style: solid;
+            border-width: 1px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            font-weight: normal;
+            overflow: hidden;
+            padding: 10px 5px;
+            word-break: normal;
+        }
+
+        .tg .tg-0pky {
+            border-color: inherit;
+            text-align: left;
+            vertical-align: top
+        }
+
+        .tg .tg-0lax {
+            text-align: left;
+            vertical-align: top
+        }
+
+        .head .d-flex:nth-child(1) {
+            border-bottom: 1px solid #000;
+        }
+
+        .head span {
+            border-right: 1px solid #000;
+            padding: 10px;
+        }
+
+        .head span:last-child {
+            border: none;
+        }
+
+        .contract_number {
+            justify-content: center;
+        }
+
+        .ilova {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            flex-direction: column;
+        }
+
+        .text-align {
+            text-align: center;
+        }
+
+        .between {
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+        }
+
+        table th img {
+            width: 130px;
+        }
+
+        .table_ijro {
+            border: none !important;
+        }
+
+        .d-flex table {
+            border: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h3 class='requirement-title-main'>
+            <strong>“Co-location” xizmatini ko’rsatish to’g’risidagi</strong>
+            <br />
+            <strong>DM-128-sonli</strong>
+            <br />
+            <strong>Shartnoma</strong>
+        </h3>
+        <div class='d-flex' style="justify-content: space-between; margin-bottom: 20px">
+            <table>
+                <thead>
+                    <colgroup>
+                        <col width="5%" />
+                        <col width="5%" />
+                    </colgroup>
+                    <tr>
+                        <th align="left" class="col-quantity">Toshkent sh.</th>
+                        <th align="right" class="col-price">{{day}}.{{month}}.{{year}}</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <p class='requirement-text'>
+            <strong>“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi</strong>, keyingi
+            o’rinlarda “Ijrochi” deb yuritiladi, Nizom asosida ish yurituvchi, direktor <strong>M.M. Maxmudov</strong>
+            bir tomondan, {{per_adr}} yashovchi, {{pport_no}} raqamli fuqarolik pasporti egasi fuqaro
+            <strong>{{client}}</strong> keyingi o’rinlarda “Buyurtmachi” deb yuritiladi, ikkinchi tomondan, keyingi
+            o’rinlarda birgalikda “Tomonlar”deb yuritiladi, ushbu Shartnomani quyidagi mazmunda tuzdilar:
+        </p>
+        <h4 class='requirement-title'>1. Shartnoma predmeti</h4>
+        <p class='requirement-text'>
+              1.1. Ijrochi Buyurtmachiga server va/yoki tarmoq uskunalarini (keyingi o`rinlarda -
+            Uskunalar) Toshkent shahri Mingbuloq ko’chasi 38-uy manzilidagi Ijrochining Data-
+            markaziga joylashtirgan holda ushbu Shartnoma shartlarida belgilangan tartibda
+            “Co-location” (server va/yoki tarmoq uskunalarini Data-markazga joylashtirish)
+            xizmatini taqdim etadi. <br />
+              1.2. Uskunalarni joylashtirish tartibi ushbu shartnomaning ajralmas qismi
+            hisoblangan Data markazga kirish qoidalariga muvofiq amalga oshiriladi. <br />
+              1.3. Buyurtmachi tomonidan Ijrochiga topshirilgan uskunalar ushbu shartnomaning
+            ajralmas qismi hisoblangan Data markazga kirish qoidalarida tavsiflangan. <br />
+              1.4. Buyurtmachiga, zarur hollarda, Uskunada saqlangan axborot resurslari bilan
+            ishlash uchun Uskunaga to’g’ridan-to’g’ri va masofaviy kirish imkoniyati taqdim etiladi.
+            Uskunaga to’g’ridan-to’g’ri kirish Data markazga kirish qoidalariga muvofiq amalga
+            oshiriladi. <br />
+              1.5. Xizmatlarni ko’rsatish muddati Ijrochi tomonidan avans to’lovi olingan kundan
+            boshlab 6 oyni tashkil etadi.
+        </p>
+        <h4 class='requirement-title'>2. Shartnomaning umumiy miqdori va o’zaro hisob-kitoblar tartibi</h4>
+        <p class='requirement-text'>
+            &nbsp;&nbsp;2.1. Ushbu shartnomaning ajralmas qismi hisoblangan 1-ilovada ko’rsatilgan shartnoma narxini
+            kelishish
+            bayonnomasiga muvofiq QQSni o’z ichiga olgan holda uskunalarni joylashtirish xizmatlari uchun qat’iy
+            belgilangan
+            oylik abonent to’lovi uchun {{price_month}} ({{price_month_text}}) so’mni tashkil etadi. <br />
+            Xizmatlar uchun to’lov har oy ushbu Shartnomaga muvofiq oylik abonent to’lovi summasini oldindan 100 foizi
+            miqdorda to’lash asosida amalga oshiriladi.
+            &nbsp;&nbsp;2.2. Buyurtmachi to’lovni quyidagi tartibda amalga oshiradi:
+            Buyurtmachi tomonidan to’lovlarni amalga oshirish majburiyati ushbu shartnoma Tomonlar o’zaro imzolagan
+            kundan
+            boshlab yuzaga keladi va Buyurtmachi {{price_month_avans}} ({{price_month_avans_text}}) so’mni tashkil
+            etadigan
+            oylik abonent to’lovi miqdorining 100% (yuz foiz) miqdorida avans to’lovini ushbu shartnoma imzolangan
+            kundan
+            boshlab 5 (besh) kuni ichida amalga oshiradi. <br>
+             2.3. Buyurtmachi tomonidan ushbu shartnoma bo’yicha Ijrochi tomonidan taqdim etilgan xizmatlardan
+            foydalanmaslik
+            ushbu xizmatlar uchun to’lanmaslik uchun sabab bo’lmaydi. <br>
+             2.4. Agar Buyurtmachi Ijrochi tomonidan ko’rsatilgan xizmatlar bo’yicha o’z da’volarini 10 (o’n) ish kuni
+            ichida
+            yozma yoki elektron shaklda yubormasa, Ijrochi tomonidan taqdim etilgan hisob-faktura va xizmatlar (ishlarni
+            bajarish) to’g’risidagi dalolatnoma asosida qabul qilingan hisoblanadi va ish belgilangan tartibda
+            yakunlanadi.
+        </p>
+        <p class='requirement-text'>
+        <h4 class='requirement-title'>3. Tomonlarning huquq va majburiyatlari</h4>
+        <p class="requirement-text">
+             <strong>3.1. Ijrochi quyidagi huquqlarga ega:</strong> <br>
+             3.1.1. Agar texnik nosozlik tufayli Buyurtmachi uskunasi Ijrochining Data-markazidagi jihozlariga xavf
+            tug’dirsa,
+            Ijrochining texnik xodimlari Buyurtmachi uskunasini o’zgaruvchan tok tarmog’idan uzib qo’yish, so’ngra
+            darhol
+            Buyurtmachini voqea to’g’risida xabardor qilish huquqiga ega. <br>
+             3.1.2. Agar Ijrochining hisob-raqamiga tegishli pul mablag’lari kelib tushmasa, har oyning 10-kuniga qadar
+            Ijrochi
+            xizmat ko’rsatishni to’xtatib turishga haqli. <br>
+             3.1.3. Agar Ijrochining hisob-raqamiga pul mablag’lari uch hisob-kitob oyi davomida tushmasa, Ijrochi
+            shartnomani
+            bir tomonlama bekor qilishga haqli. Bunday holda Uskunalar Buyurtmachiga barcha qarzlar to’langanidan
+            keyingina
+            beriladi. <br>
+             3.1.4. Energiya resurslari va uchinchi tomon provayderlari tomonidan taqdim etilgan Internet xizmatlari
+            uchun
+            tariflar oshgan taqdirda, Ijrochi xizmatlar narxining rejalashtirilgan o’zgarishi to’g’risida Buyurtmachiga
+            bunday
+            o’sishni narxlar oshishi boshlangan sanadan 30 (o’ttiz) kalendar kundan kechiktirmay yozma ravishda
+            asoslagan
+            holda, xizmat narxini bir tomonlama oshirishga haqli. <br>
+             <strong>3.2. Ijrochi quyidagilarga majbur:</strong> <br>
+             3.2.1. Buyurtmachiga ushbu Shartnoma bo’yicha tarmoq uskunalari tariflari va imkoniyatlariga muvofiq,
+            tegishli
+            texnik imkoniyatlar mavjud bo’lgan holda sifatli xizmatlarni taqdim etish. <br>
+             3.2.2. Tarmoq uskunalarining barqaror ishlashini ta’minlash. <br>
+             3.2.3. Ijrochining hisob-raqamiga ushbu Shartnoma bo’yicha to’lov tushgan paytdan e’tiboran 2 (ikki) ish
+            kuni
+            ichida Uskunalarni topshirish va qabul qilish dalolatnomasi bo’yicha qabul qilish. <br>
+             3.2.4. Uskunalarni qabul qilish va topshirish sanasidan boshlab 2 (ikki) ish kunidan kechiktirmay
+            xizmatlarni
+            ko’rsatishga o’tish. <br>
+             3.2.5. Buyurtmachidan buyurtma berishda yoki ushbu Shartnomani bajarish jarayonida olingan ma’lumotlarning
+            maxfiyligiga rioya qilish, O’zbekiston Respublikasi qonun hujjatlarida nazarda tutilgan hollar bundan
+            mustasno.
+            <br>
+             3.2.6. Buyurtmachiga tarmoqning ishlashi va qo’shimcha xizmatlar bilan bog’liq masalalar bo’yicha o’z
+            vaqtida,
+            yuqori sifatli texnik yordam ko’rsatish. <br>
+             3.2.7. Ushbu Shartnoma bo’yicha xizmatlar ko’rsatishda uzilishlar yuzaga kelgan taqdirda, uzilish
+            sabablarini
+            bartaraf etish va xizmatlarni ko’rsatishni qayta tiklash uchun barcha mumkin bo’lgan choralarni ko’rish.
+            <br>
+             3.2.8. Buyurtmachiga ko’rsatilgan xizmatlarning hisobini yuritish va ushbu Shartnoma bo’yicha to’lov uchun
+            hisob-fakturalarni o’z vaqtida rasmiylashtirish. <br>
+             3.2.9. Ushbu Shartnoma bo’yicha Buyurtmachidan olingan Uskunalarning xavfsizligini ta’minlash. <br>
+             3.2.10. Ijrochining veb-saytida xizmat ko’rsatish shartlari va tariflardagi o’zgarishlar bilan bog’liq
+            rasmiy
+            xabarlarni e’lon qilish. <br>
+             3.2.11. Ushbu Shartnomaning amal qilish muddati ushbu Shartnomada nazarda tutilgan asoslar bo’yicha
+            tugatilgan
+            taqdirda, Ijrochining talabiga binoan Buyurtmachining uskunasini ushbu Shartnomaning amal qilish muddati
+            tugatilgan kundan boshlab 3 (uch) ish kunidan kechiktirmay qaytarib berish. <br>
+             3.2.12. Ish boshlanishidan kamida 12 soat oldin Ijrochi tarmog’idagi texnik ishlar haqida Buyurtmachini
+            xabardor
+            qilish. <br>
+             <strong>3.3 Buyurtmachi quyidagi huquqlarga ega:</strong> <br>
+             3.3.1. Agar Uskunada saqlanadigan axborot resurslari bilan ishlash zarurati tug’ilsa, Buyurtmachi Data
+            markazga
+            kirish qoidalariga (ushbu Shartnomaga 2-ilova) muvofiq Data markazga tashrif buyurish huquqiga ega. <br>
+             3.3.2. Ijrochidan ushbu shartnomada nazarda tutilgan majburiyatlarni o’z vaqtida bajarishni talab qilish.
+            <br>
+             <strong>3.4. Buyurtmachi quyidagilarga majbur:</strong> <br>
+             3.4.1. Ushbu Shartnoma bo’yicha Ijrochining xizmatlari uchun o’z vaqtida pul to’lash. <br>
+             3.4.2. O’zbekiston Respublikasining amaldagi qonunchiligiga muvofiq ushbu Shartnoma shartlarini bajarish.
+            <br>
+             3.4.3. Ijrochining hisob-raqamiga ushbu Shartnoma bo’yicha to’lov qabul qilingan kundan boshlab 2 (ikki)
+            ish kuni
+            ichida mazkur shartnomaning 2.2-bandga muvofiq Uskunalarni qabul qilish va topshirish dalolatnomasi bo’yicha
+            Ijrochiga topshirish. <br>
+             3.4.4. Texnik nosozliklar yuzaga kelgan taqdirda, Ijrochining navbatchi muhandisiga zudlik bilan telefon
+            orqali
+            xabar berish +998712080712 va support@unicon.uz elektron pochta manziliga xabarnoma yuborish. <br>
+             3.4.5. Uskunada O’zbekiston Respublikasining amaldagi qonunchiligi bilan taqiqlanmagan ma’lumotlarni
+            joylashtirish. <br>
+             3.4.6. Data markazga kirish qoidalariga to’liq va so’zsiz rioya qilish (ushbu Shartnomaga 2-son ilova).
+            <br>
+             3.4.7. Ijrochining xizmatlaridan faqat O’zbekiston Respublikasi qonunchiligiga muvofiq foydalanish va
+            Buyurtmachining Ijrochining xizmatlaridan foydalanishi jarayonida Buyurtmachi yoki uchinchi shaxs tomonidan
+            yuklangan javobgarlikni Ijrochiga o’tkazmaslik. <br>
+             3.4.8. Ushbu Shartnomaning amal qilish muddati ushbu Shartnomada nazarda tutilgan asoslar bo’yicha
+            tugatilgan
+            taqdirda, Buyurtmachi Ijrochining iltimosiga binoan, ushbu Shartnoma bekor qilingan kundan boshlab 3 (uch)
+            ish
+            kunidan kechiktirmay o’z uskunasini olishi shart. Ushbu talab buzilgan taqdirda, Ijrochi Buyurtmachidan
+            Ijrochi
+            Uskunalarni saqlaganlikning har bir kuni uchun O’zbekiston Respublikasida belgilangan BHMning 2 foizi (ikki
+            foiz)
+            miqdorida penya undirish huquqiga ega.
+            Uskunalarni qaytarish ikki tomonlama imzolangan Uskunalarni qaytarish to’g’risidagi dalolatnoma asosida
+            amalga
+            oshiriladi. Uskunalarni qaytarish to’g’risidagi dalolatnoma Shartnomani bekor qilish to’g’risidagi xat
+            asosida
+            beriladi. <br>
+             3.4.9. Ijrochi ustidan uchinchi shaxslar, shu jumladan O’zbekiston Respublikasi davlat hokimiyati va
+            boshqaruvi
+            organlari, ularning subyektlari va mahalliy davlat hokimiyati organlari, har qanday jamoat tashkilotlari
+            tomonidan
+            yuqoridagilarning shaxsiy huquqlari (shu jumladan mualliflik huquqlari)ga zid ish ko’rilgan, shuningdek,
+            ushbu
+            shartnomada nazarda tutilgan xizmatlardan foydalanish natijasida axloq yoki jamoat tartibi normalariga rioya
+            qilinmagan, shu jumladan, Ijrochining mazmuni uchinchi shaxslarning yuqoridagi harakatlariga olib kelishi
+            mumkin
+            bo’lgan ma’lumotlarni uzatish va/yoki qabul qilishi bilan bog’liq har qanday talablar, shikoyatlar, da’volar
+            kelib
+            tushgan taqdirda to’liq javobgarlikni o’z zimmasiga olish.
+        </p>
+        <h4 class='requirement-title'>4. Shartnomani o’zgartirish va bekor qilish tartibi</h4>
+        <p class="requirement-text">
+             4.1. Ushbu Shartnoma tuziladigan shartlar O’zbekiston Respublikasi qonun
+            hujjatlariga muvofiq Tomonlar kelishuvi bilan o’zgartirilishi mumkin. <br>
+             4.2. Ushbu Shartnoma shartlarini bir tomonlama o’zgartirishga yo’l qo’yilmaydi. <br>
+             4.3. Ushbu Shartnoma Tomonlar kelishuvi bilan o’zgartirilishi yoki bekor qilinishi <br>
+            mumkin, bu qo`shimcha shartnoma bilan rasmiylashtiriladi va faqat yozma shaklda
+            tuzilgan va Tomonlar o’zaro imzolangan taqdirdagina amal qiladi. <br>
+             4.4. Tomonlardan birining iltimosiga binoan shartnoma ushbu shartnomaning 3.1.3-
+            bandiga muvofiq yoki sud qarori bilan faqat shartnomani boshqa taraf jiddiy buzgan
+            taqdirda o’zgartirilishi yoki bekor qilinishi mumkin. <br>
+             4.5. Ushbu Shartnomani o’zgartirish yoki bekor qilish to’g’risidagi talab boshqa
+            tomonning Shartnomani o’zgartirish yoki bekor qilish to’g’risidagi taklifiga rad javobini
+            olgandan keyingina sudga berilishi mumkin.
+        </p>
+        <h4 class='requirement-title'>5. Tomonlarning majburiyatlari</h4>
+        <p class="requirement-text">
+             5.1. Ushbu Shartnoma bo’yicha o’z majburiyatlarini bajarmaganliklari yoki lozim
+            darajada bajarmaganliklari uchun Tomonlar O’zbekiston Respublikasi qonunchiligiga
+            muvofiq javobgar bo’ladilar. <br>
+             5.2. Ushbu Shartnomaning 2.2-bandida nazarda tutilgan shartlarni buzganlik uchun
+            Buyurtmachi Ijrochiga kechiktirilgan har bir kun uchun to’lov uchun hisob-faktura
+            berilgan kundan boshlab 10 (o’n) kalendar kunidan keyin, lekin muddati o’tgan to’lov
+            summasining 50 foizidan ko’p bo’lmagan miqdorda muddati o’tkazib yuborilgan to’lov
+            summasining 0,4% miqdorida penya to’laydi. <br>
+             5.3. Ijrochining aybi bilan sodir bo’lgan xizmatlarni bajarmaganlik yoki
+            ko’rsatmaganlik uchun Buyurtmachiga kechiktirilgan har bir kun uchun 0,4% miqdorida,
+            lekin ko’rsatilmagan xizmatlar miqdorining 50% dan ko’p bo’lmagan miqdorda penya
+            to’lanadi. <br>
+             5.4. Ijrochi o’ziga berilgan Uskunalarning saqlanishi uchun qonun hujjatlariga
+            muvofiq javobgar hisoblanadi. <br>
+             5.5. Ijrochi xizmatlar ko’rsatish uchun zarur bo’lgan uchinchi shaxslar tomonidan
+            tashkil etilgan xizmatlar sifati uchun javobgar hisoblanmaydi. <br>
+             5.6. Ijrochi Buyurtmachi uskunasining axborot tarkibiga kirish huquqiga ega emas
+            va ushbu Shartnomaga muvofiq Ijrochining Data-markazida joylashgan Buyurtmachining
+            uskunasida joylashtirilgan Buyurtmachi ma’lumotlarining to’g’riligi va qonuniyligi
+            uchun javobgar hisoblanmaydi. <br>
+             5.7. Tomonlar o’z majburiyatlarini bajarmagan yoki lozim darajada bajarmagan
+            taqdirda, ushbu Shartnoma, shuningdek 1998-yil 29 avgustdagi 670-I-son “Xo’jalik
+            yurituvchi subyektlar faoliyatining shartnomaviy-huquqiy asoslari to’g’risida”gi
+            O’zbekiston Respublikasi Qonuni talablari va O’zbekiston Respublikasining boshqa
+            amaldagi qonun hujjatlariga muvofiq javobgar bo’ladilar. <br>
+             5.8. Ushbu Shartnomada nazarda tutilmagan boshqa barcha hollarda Tomonlar
+            Shartnoma bo’yicha o’z majburiyatlarini buzganliklari uchun O’zbekiston
+            Respublikasining amaldagi fuqarolik qonunchiligiga muvofiq javobgar bo’ladilar.
+        </p>
+        <h4 class='requirement-title'>6. Korrupsiyaga qarshi kurash qoidalari hamda shartnomani bekor qilish va
+            nizolarni
+            ko’rib chiqish </h4>
+        <p class="requirement-text">
+             6.1. Ushbu Shartnoma bo’yicha o’z majburiyatlarini bajarish doirasida taraflar
+            amaldagi Qonunchilik, shu jumladan, korrupsiyaga qarshi kurashish talablariga rioya
+            etilishini ta’minlaydilar. Bunda ular va ularning xodimlari, filiallari, benefisiarlari va
+            ushbu shartnomani bajarishda ishtirok etadigan agentlar biznes sheriklari, vositachilar,
+            pudratchilar pora berish yoki olish, tijorat pora olish sifatidagi harakatlarni
+            (harakatsizligi) amalga oshirmasliklarini ta’minlash, pora berishda vositachilik, davlat
+            organi, davlat ishtirokidagi tashkilot yoki fuqarolarning o’zini o’zi boshqarish organi
+            xodimining yoki boshqa shaxslarning pora olish va ushbu shartnoma va korrupsiyaga
+            qarshi kurashish va jinoyatchilikdan olingan daromadlarni legallashtirish (yuvish) va
+            terrorizmni moliyalashtirishga qarshi qo’llaniladigan qonun hujjatlarida nazarda tutilgan
+            boshqa huquqbuzarliklarga yo’l qo’ymaslikni kafolatlaydi. <br>
+             6.2. Taraflar bevosita yoki bilvosita, shahsan yoki uchinchi shaxslar orqali takliflar,
+            va’dalar, berish, tovlamachilik, so’rovlar, pul va boshqa qimmatbaho buyumlar, mulk,
+            mulk huquqi va boshqa moddiy yoki moddiy bo’lmagan foydalarni olish va olishga
+            rozilik berish hamda asossiz ustunlikka erishish yoki boshqa noqonuniy maqsadlarga
+            erishish, shu jumladan tomonlar o’rtasidagi munosabatlarning shaffofligi va oshkoraligi
+            tamoyillariga mos kelmaydigan maqsadlarga erishish hamda har qanday shaxslardan
+            ularga ta’sir o’tkazishdan bosh tortadilar. Taraflar qayd etilgan harakatlarning oldini olish
+            choralarini ko’rishni kafolatlaydilar. <br>
+             6.3. Mazkur shartnomaning korrupsiyaga qarshi kurashish qoidalarini bajarish
+            doirasida, ushbu shartnomani taraflar qonun buzilishida gumonlarning paydo bo’lishi
+            yoki taraflar, ularning xodimlari, affillangan shaxslari, benefisiarlari va ular tomonidan
+            jalb qilingan shaxslar tomonidan buzilish ehtimoli borligi to’g’risida bir-birlarini yozma
+            ravishda (shu jumladan korporativ elektron pochtadan foydalangan holda) ochiq va
+            darhol xabardor qilishni o’z zimmalariga oladilar.
+            Shuningdek, agar taraflardan biri amaldagi qonun yoki ushbu shartnomaning xar
+            qanday korrupsiyaga qarshi kurashish qoidalarini boshqa taraf, uning xodimlari,
+            affillangan shaxslari, benefisiarlari yoki ular tomonidan jalb qilingan shaxslar tomonidan
+            buzilganligi to’g’risida asosli shubha tug’dirsa, ushbu shartnomani amalga oshirish
+            doirasida ushbu taraf unga so’rov olingan kundan boshlab 10 (o’n) ish kuni ichida
+            sharhlar va buzilish faktini rad qiluvchi yoki tasdiqlovchi ma’lumotlar, hujjatlar taqdim
+            etish talabi bilan yozma ravishda so’rov yuborishga haqlidir. <br>
+             6.4. Mazkur bobda ko’rsatilgan asoslar bo’yicha ushbu shartnomani bir tomonlama
+            bekor qilishni talab qilgan taraf keyingi tarafga yetkazilgan zararni qoplashi
+            qonunchilikda ko’rsatilgan tartibda amalga oshiriladi, shu bilan birga ushbu bobning
+            majburiyatlarini buzgan taraf ushbu shartnomani bir tomonlama bekor qilish tufayli
+            zararni qoplashni talab qilishga haqli emas. <br>
+             6.5. Ushbu shartnoma shartlarini o’zgartirish, tugatish va bekor qilish O’zbekiston
+            Respublikasi fuqarolik kodeksi asosida amalga oshiriladi. <br>
+             6.6. Shartnoma bo’yicha nizolar taraflar o’rtasida muzokaralar olib borish yo’li
+            bilan hal etiladi, kelishuvga erishishning imkoni bo’lmagan taqdirda nizo Toshkent
+            tumanlararo iqtisodiy sudida ko’rib chiqiladi.
+        </p>
+        <h4 class="requirement-title">7. Fors-major</h4>
+        <p class="requirement-text">
+             7.1. Tomonlar fors-major holatlari, ya’ni yong’in, suv toshqini, zilzila,
+            qonunchilikning o’zgarishi tufayli Shartnoma bo’yicha majburiyatlarni qisman yoki
+            to’liq bajarmaganlik uchun javobgarlikdan ozod qilinadi, bu vaziyatda hech bir tomon
+            boshqasidan mumkin bo’lgan zararni qoplashni talab qila olmaydi. <br>
+             7.2. Ushbu Shartnoma bo’yicha o’z majburiyatlarini bajara olmaydigan tomon
+            boshqa tomonni fors-major holatlari yuzaga kelganligi to’g’risida darhol xabardor qilishi
+            shart, lekin har qanday holatda ham bu fors-major boshlangan kundan boshlab 10 (o’n)
+            ish kunidan kechiktirmasligi kerak. Vakolatli organ tomonidan berilgan ushbu holatlarni
+            tasdiqlovchi hujjat fors-major holatlari yuzaga kelganligini tegishli ravishda tasdiqlaydi. <br>
+             7.3. Agar bu holatlar uch oydan ortiq davom etsa, har qanday tomonlardan biri
+            shartnomani bekor qilishi mumkin. Bunday holda, Shartnoma bajarilmagan qismida
+            bekor qilinadi va tomonlar shartnomaning bajarilgan qismi bo’yicha yakuniy hisobkitoblarni amalga
+            oshiradilar.
+        </p>
+        <h4 class="requirement-title">8. Maxfiylik</h4>
+        <p class="requirement-text">
+             8.1. Oshkor qiluvchi tomon – maxfiy ma’lumotlarni uchinchi tomonga oshkor
+            qiluvchi tomon. <br>
+             8.2. Qabul qiluvchi tomon – maxfiy ma’lumotlarni qo’lga kirituvchi uchinchi
+            tomon. <br>
+             8.3. Tomonlar ushbu Shartnoma shartlari va Shartnomani tuzish, bajarish va bekor
+            qilish jarayonida almashilgan har qanday ma’lumotlar maxfiy ma’lumotlar ekanligiga
+            rozi bo’ladilar. Ushbu Shartnoma amal qilish muddati davomida va u bekor qilingandan
+            keyin 5 (besh) yil mobaynida (agar O’zbekiston Respublikasi qonunchiligida uzoqroq
+            muddat nazarda tutilgan bo’lmasa) haqiqiy hisoblanadi.
+            Qabul qiluvchi tomon Oshkor qiluvchi tomonning oldindan majburiy yozma
+            roziligisiz ishlarni tugatish, bajarish va tugatish vaqtida Oshkor qiluvchi Tomondan
+            olingan har qanday maxfiy ma’lumotlarni oshkor qilmaslik majburiyatini oladi. Har
+            qanday maxfiy ma’lumotlar uchinchi shaxsga bunday rozilik bilan oshkor qilinganda,
+            bunday maxfiy ma’lumotlarni uchinchi shaxsga oshkor qilgan qabul qiluvchi uchinchi
+            tomon ushbu bo’limda ko’rsatilgan shartlarga o’xshash shartlar asosida bunday
+            ma’lumotlarning maxfiyligini saqlash majburiyatini olganligini ta’minlashi kerak. <br>
+             8.4. Har qanday maxfiy ma’lumotlarni olgan Qabul qiluvchi Tomon, agar Oshkor
+            qiluvchi tomondan bunday ma’lumotlarning maxfiyligi to’g’risida yozma yoki og’zaki
+            xabar olingan bo’lsa, uni oshkor qilishi mumkin emas va bunday ma’lumotlarni bir xil
+            darajada muhim ahamiyatga ega bo’lgan ma’lumotlariga nisbatan ehtiyotkorlik bilan
+            qayta ishlash majburiyatini oladi. <br>
+             8.5. Qabul qiluvchi tomon tomonidan olingan ma’lumotlar maxfiy hisoblanmaydi
+            va shunga ko’ra, Qabul qiluvchi tomon, agar u quyidagi xususiyatlardan biriga javob
+            bersa, bunday ma’lumotlarga nisbatan maxfiylikni saqlash majburiyatiga ega emas: <br>
+             8.5.1. Oshkora qilingan paytdagi ma’lumotlar ommaga ma’lum bo’lsa; <br>
+             8.5.2. Axborot maxfiy emasligi to’g’risida yozma ko’rsatma bilan qabul qiluvchi
+            Tomonga taqdim etilganida; <br>
+             8.5.3. Ma’lumotlar qonuniy ravishda istalgan uchinchi shaxslardan olinganida; <br>
+             8.5.4. O’zbekiston Respublikasi qonunchiligiga muvofiq maxfiy hisoblanmaydigan
+            ma’lumotlar bo’lganida. <br>
+             8.6. Qabul qiluvchi Tomon maxfiy ma’lumotlarni oshkor qiluvchi Tomonning
+            roziligisiz oshkor qilishga haqli: <br>
+             8.6.1. Agar ma’lumot qonunga, boshqa normativ-huquqiy hujjatga, sud hujjatiga
+            muvofiq oshkor etilishi kerak bo’lsa, axborotni olgan Tomon boshqa Tomonni yozma
+            ravishda xabardor qiladi va bunday oshkor qilish zarurligini tasdiqlaydi. <br>
+             8.7. Tomonlardan biri maxfiylik shartlarini buzgan taqdirda, bunday Tomon boshqa
+            Tomonga yetkazilgan real zararni Toshkent shahar tumanlararo xo’jalik sudining qonuniy
+            kuchga kirgan hal qiluv qarori asosida qoplashi shart.
+        </p>
+        <h4 class="requirement-title">9. Yakuniy qoidalar</h4>
+        <p class="requirement-text">
+             9.1. Ushbu Shartnoma {{day}}.{{month}}.{{year}} yildan boshlab kuchga kiradi va Tomonlarning barcha
+            majburiyatlari bajarilgunga qadar amal qiladi.
+            Agar, Shartnomaning belgilangan amal qilish muddati tugaganidan so`ng, Tomonlar
+            o’z shartlarini bajarishni davom ettirsa va tomonlarning hech biri uning bekor qilinishini
+            e’lon qilmagan bo`lsa, Shartnoma har bir keyingi yilga avtomatik ravishda uzaytiriladi. <br>
+             9.2. Ushbu Shartnoma Tomonlar o’zaro imzolagan kelishuvi bilan bekor qilinishi
+            mumkin. <br>
+             9.3. Ushbu Shartnoma bekor qilingan taqdirda, topshirish-qabul qilish
+            dalolatnomasi bo’yicha Ijrochiga topshirilgan uskuna Shartnoma bekor qilingan va
+            barcha o’zaro hisob-kitoblarni amalga oshirgan kundan boshlab 3 (uch) ish kuni ichida
+            Buyurtmachiga qaytarilishi kerak.
+            Buyurtmachi ushbu muddat ichida Ijrochi bilan olib chiqish sanasi va vaqtini
+            oldindan kelishib olgan holda, topshirish-qabul qilish dalolatnomasiga muvofiq
+            Uskunalarni qabul qilish va jihozni olib chiqish majburiyatini zimmasiga oladi. <br>
+             9.4. Ushbu Shartnomaga faqat Tomonlar imzolagan o’zaro kelishuv asosida
+            o’zgartirish va qo’shimchalar kiritilishi mumkin. <br>
+             9.5. Tomonlarning har biri ushbu Shartnomani tuzish, bajarish va bekor qilish bilan
+            bog’liq har qanday ma’lumotlarga nisbatan to’liq maxfiylikni saqlashi shart. <br>
+             9.6. Ushbu Shartnoma bilan tartibga solinmagan barcha masalalar O’zbekiston
+            Respublikasi qonun hujjatlariga muvofiq tartibga solinadi <br>
+             9.7. Ushbu Shartnoma har bir Tomon uchun bittadan ikkita nusxada tuziladi. Barcha
+            nusxalar birxil yuridik kuchga ega.
+        </p>
+        <h4 class="requirement-title">10. Yuridik manzillar, bank rekvizitlari va tomonlarning imzolari</h4>
+        <table class="table_ijro" cellpadding="10" cellspacing="0">
+            <thead>
+                <colgroup>
+                    <col width="30%" />
+                    <col width="5%" />
+                    <col width="30%" span="1" />
+                </colgroup>
+                <tr>
+                    <th align="center" class="col-quantity">IJROCHI</th>
+                    <th align="center" class="col-price"></th>
+                    <th align="center" class="col-price">BUYURTMACHI</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                </tr>
+                <tr>
+                    <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi
+                    </td>
+                    <td align="center"></td>
+                    <td align="center">{{client}}</td>
+                </tr>
+                <tr>
+                </tr>
+                <tr>
+                    <td align="left">
+                        Manzil: 100087, Toshkent sh. Mingbuloq ko`chasi, 38-uy. <br>
+                        STIR: 200 898 586 <br>
+                        MFO: 00401 <br>
+                        OKED: 72190 <br>
+                        H/r: 2021 0000 9001 5527 8001 <br>
+                        Bank: Toshkent sh. AT “Aloqabank”
+                    </td>
+                    <td align="center"></td>
+                    <td align="left">
+                        Manzil: {{per_adr}}. <br>
+                        Pasport s/r: {{pport_no}} <br>
+                        JShShIR: {{tin}}
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center">М.М. Maxmudov</td>
+                    <td align="center"></td>
+                    <td align="center">{{director}}</td>
+                </tr>
+                <tr>
+                    <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
+                    <td align="center"></td>
+                    <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
+                </tr>
+            </tbody>
+        </table> <br>
+        <table border="1" cellpadding="10" cellspacing="0">
+            <tr>
+                <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
+            </tr>
+            <tr>
+                <th align="left">Shartnoma raqami</th>
+                <th align="left">{{contract_number}} “/{{user_contract_number}}”</th>
+                <th rowspan="5">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsip6Dsj3eSrw44sOjmaU1eMpLQNb0MfQXgw&usqp=CAU"
+                        alt="">
+                </th>
+            </tr>
+            <tr>
+                <th align="left">Shartnoma sanasi</th>
+                <th align="left">{{day}}.{{month}}.{{year}}</th>
+            </tr>
+            <tr>
+                <th align="left">Shartnoma kodi</th>
+                <th align="left">{{id_code}}</th>
+            </tr>
+            <tr>
+                <th align="left">Ijrochining STIR raqami</th>
+                <th align="left">{{org_tin}}</th>
+            </tr>
+            <tr>
+                <th align="left">Buyurtmachining STIR/JShShIR raqami</th>
+                <th align="left">{{tin}}</th>
+            </tr>
+        </table> <br>
+        <hr style="page-break-before: always;">
+        {{page_break}}
+        <div class="ilova">
+            <span>
+                {{day}}.{{month}}.{{year}}
+            </span>
+            <span class="contract_number">{{contract_number}}-sonli shartnomaga</span>
+            <span class="contract_number">{{ilova_count}}-ilova</span>
+        </div>
+        <h4 class="requirement-title">MUAYYAN NARXGA KELISHISH DALOLATNOMASI</h4>
+        <p class='requirement-text'>
+             <strong>“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi</strong>, keyingi
+            o’rinlarda “Ijrochi” deb yuritiladi, Nizom asosida ish yurituvchi, direktor <strong>M.M. Maxmudov</strong>
+            bir tomondan, {{per_adr}}, {{pport_no}} raqamli fuqarolik pasporti egasi fuqaro <strong>{{client}}</strong>
+            keyingi o’rinlarda “Buyurtmachi” deb yuritiladi, ikkinchi tomondan, keyingi o’rinlarda birgalikda
+            “Tomonlar”deb yuritiladi,
+        </p>
+        <h4 class="requirement-title">Xizmatlar ro`yxati va to`lov miqdori jadvali</h4>
+        <table border="1" cellpadding="10" cellspacing="0">
+            <thead>
+                <colgroup>
+                    <col width="5%" />
+                    <col width="30%" />
+                    <col width="30%" />
+                    <col width="20%" span="1" />
+                </colgroup>
+                <tr>
+                    <th align="center" class="col-item-name">T/r</th>
+                    <th align="center" class="col-quantity">Xizmat nomlanishi</th>
+                    <th align="center" class="col-price">Soni</th>
+                    <th align="center" class="col-price">Miqdori (QQS bilan)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+            <tbody>
+                <td class="price_txt" scope="col" align="left" colspan="4"><strong>I. Bir marttalik to`lovlar</strong>
+                </td>
+            </tbody>
+            </tr>
+            <tr>
+                <td align="center">1</td>
+                <td align="center">Qurilmalarni montaj qilish</td>
+                <td align="center">-</td>
+                <td align="center">0</td>
+            </tr>
+            <tr>
+                <tbody>
+                    <td class="price_txt" scope="col" align="left" colspan="4"><strong>II. Har oylik abonent
+                            to`lovlari</strong>
+                    </td>
+                </tbody>
+            </tr>
+            <tr>
+                <td align="center">1</td>
+                <td align="center">{{tarif}}</td>
+                <td align="center">{{tarif_count}}</td>
+                <td align="center">{{price2}}</td>
+            </tr>
+            <tr>
+                <td align="center">2</td>
+                <td align="center">{{internet}}</td>
+                <td align="center">{{count}}</td>
+                <td align="center">{{price2}}</td>
+            </tr>
+            <tr>
+                <td align="center">3</td>
+                <td align="center">{{electrocity}}</td>
+                <td align="center">{{count}}</td>
+                <td align="center">{{price2}}</td>
+            </tr>
+            </tbody>
+            <tfoot>
+                <td class="price_txt" scope="col" align="right" colspan="3">Jami:</td>
+                <td align="center">{{price_month}}</td>
+            </tfoot>
+        </table>
+        <br>
+        <table class="table_ijro" cellpadding="10" cellspacing="0">
+            <thead>
+                <colgroup>
+                    <col width="30%" />
+                    <col width="5%" />
+                    <col width="30%" span="1" />
+                </colgroup>
+                <tr>
+                    <th align="center" class="col-quantity">IJROCHI</th>
+                    <th align="center" class="col-price"></th>
+                    <th align="center" class="col-price">BUYURTMACHI</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                </tr>
+                <tr>
+                    <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi
+                    </td>
+                    <td align="center"></td>
+                    <td align="center">{{client}}</td>
+                </tr>
+                <tr>
+                </tr>
+                <tr>
+                    <td align="center"></td>
+                </tr>
+                <tr>
+                    <td align="center">М.М. Maxmudov</td>
+                    <td align="center"></td>
+                    <td align="center">{{director}}</td>
+                </tr>
+                <tr>
+                    <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
+                    <td align="center"></td>
+                    <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <table border="1" cellpadding="10" cellspacing="0">
+            <tr>
+                <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
+            </tr>
+            <tr>
+                <th align="left">Shartnoma raqami</th>
+                <th align="left">{{contract_number}} “/{{user_contract_number}}”</th>
+                <th rowspan="5">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsip6Dsj3eSrw44sOjmaU1eMpLQNb0MfQXgw&usqp=CAU"
+                        alt="">
+                </th>
+            </tr>
+            <tr>
+                <th align="left">Shartnoma sanasi</th>
+                <th align="left">{{day}}.{{month}}.{{year}}</th>
+            </tr>
+            <tr>
+                <th align="left">Shartnoma kodi</th>
+                <th align="left">{{id_code}}</th>
+            </tr>
+            <tr>
+                <th align="left">Ijrochining STIR raqami</th>
+                <th align="left">{{org_tin}}</th>
+            </tr>
+            <tr>
+                <th align="left">Buyurtmachining STIR/JShShIR raqami</th>
+                <th align="left">{{tin}}</th>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>
