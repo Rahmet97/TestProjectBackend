@@ -627,45 +627,34 @@
       </tbody>
     </table> <br>
     <table border="1" cellpadding="10" cellspacing="0">
-      <tr>
-        <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
-      </tr>
-      <tr>
-        <th>Shartnoma raqami</th>
-        <th>{{contract_number}}</th>
-        <th rowspan="2">
-          <img src="{{qr_code}}"
-            alt="">
-        </th>
-      </tr>
-      <tr>
-        <th>Shartnoma sanasi</th>
-        <th>{{datetime}}</th>
-      </tr>
-    </table>
-    <br>
-    <table border="1" cellpadding="10" cellspacing="0">
-      <tr>
-        <th></th>
-        <th>yil</th>
-        <th rowspan="4">
-          <img src="{{qr_code}}"
-            alt="">
-        </th>
-      </tr>
-      <tr>
-        <th>Shartnoma raqami</th>
-        <th>{{contract_number}}</th>
-      </tr>
-      <tr>
-        <th>Ijrochining STIR raqami</th>
-        <th>200 898 586</th>
-      </tr>
-      <tr>
-        <th>Buyurtmachining STIR/JShShIR raqami</th>
-        <th>{{tin}}</th>
-      </tr>
-    </table> <br>
+            <tr>
+                <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
+            </tr>
+            <tr>
+                <th align="left">Shartnoma raqami</th>
+                <th align="left">{{contract_number}} “/{{user_contract_number}}”</th>
+                <th rowspan="5">
+                    <img src="{{ qr_code }}"
+                        alt="">
+                </th>
+            </tr>
+            <tr>
+                <th align="left">Shartnoma sanasi</th>
+                <th align="left">{{day}}.{{month}}.{{year}}</th>
+            </tr>
+            <tr>
+                <th align="left">Shartnoma kodi</th>
+                <th align="left">{{id_code}}</th>
+            </tr>
+            <tr>
+                <th align="left">Ijrochining STIR raqami</th>
+                <th align="left">{{org_tin}}</th>
+            </tr>
+            <tr>
+                <th align="left">Buyurtmachining STIR/JShShIR raqami</th>
+                <th align="left">{{tin}}</th>
+            </tr>
+        </table>
     {% if page_break %}
     <hr style="page-break-before: always;">
     {% endif %}
@@ -790,45 +779,34 @@
     </table>
     <br>
     <table border="1" cellpadding="10" cellspacing="0">
-      <tr>
-        <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
-      </tr>
-      <tr>
-        <th>Shartnoma raqami</th>
-        <th>{{contract_number}}</th>
-        <th rowspan="2">
-          <img src="{{qr_code}}"
-            alt="">
-        </th>
-      </tr>
-      <tr>
-        <th>Shartnoma sanasi</th>
-        <th>{{datetime}}</th>
-      </tr>
-    </table>
-    <br>
-    <table border="1" cellpadding="10" cellspacing="0">
-      <tr>
-        <th></th>
-        <th>yil</th>
-        <th rowspan="4">
-          <img src="{{qr_code}}"
-            alt="">
-        </th>
-      </tr>
-      <tr>
-        <th>Shartnoma raqami</th>
-        <th>{{contract_number}}</th>
-      </tr>
-      <tr>
-        <th>Ijrochining STIR raqami</th>
-        <th>200 898 586</th>
-      </tr>
-      <tr>
-        <th>Buyurtmachining STIR/JShShIR raqami</th>
-        <th>{{tin}}</th>
-      </tr>
-    </table>
+            <tr>
+                <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
+            </tr>
+            <tr>
+                <th align="left">Shartnoma raqami</th>
+                <th align="left">{{contract_number}} “/{{user_contract_number}}”</th>
+                <th rowspan="5">
+                    <img src="{{ qr_code }}"
+                        alt="">
+                </th>
+            </tr>
+            <tr>
+                <th align="left">Shartnoma sanasi</th>
+                <th align="left">{{day}}.{{month}}.{{year}}</th>
+            </tr>
+            <tr>
+                <th align="left">Shartnoma kodi</th>
+                <th align="left">{{id_code}}</th>
+            </tr>
+            <tr>
+                <th align="left">Ijrochining STIR raqami</th>
+                <th align="left">{{org_tin}}</th>
+            </tr>
+            <tr>
+                <th align="left">Buyurtmachining STIR/JShShIR raqami</th>
+                <th align="left">{{tin}}</th>
+            </tr>
+        </table>
   </div>
 </body>
 
