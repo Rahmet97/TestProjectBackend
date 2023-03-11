@@ -1302,6 +1302,16 @@ class AddOldContractsViews(APIView):
                 contract=contract, client=user_obj, price=price_total_old_contract
             )
 
+            user_device_count_serializer = self.serializer_class_user_device_count(data=request.data)
+            user_device_count_serializer.is_valid(raise_exception=True)
+            user_device_count_serializer.save(
+                user=contract_tarif_device,
+                device=Device.objects.get(name='Server'),
+                device_count=int(request.data.get("if_tarif_is_unit", 0)),
+                units_count=contract_tarif_device_serializer.validated_data.get("rack_count"),
+                electricity=contract_tarif_device_serializer.validated_data.get("total_electricity")
+            )
+
             service_participants = ServiceParticipants.objects.filter(participant__service=contract.service)
 
             for obj in service_participants:
