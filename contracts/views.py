@@ -13,7 +13,7 @@ from django.http import HttpResponse, Http404
 from datetime import datetime, timedelta
 
 from django.db.models import Q, Sum
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, validators, status
 from rest_framework.permissions import IsAuthenticated
@@ -557,6 +557,20 @@ class CreateContractFileAPIView(APIView):
             # -------
             contract_file = open(contract_file_for_base64_pdf, 'rb').read()
             base64code = base64.b64encode(contract_file)
+            # -------
+            # preview ni bazaga ham saqlab ketishim kk chunki contractni statusiga qarab foydalanish uchun
+            context['save'] = False
+            like_preview_pdf = render_to_pdf(template_src=template_name, context_dict=context)
+            if like_preview_pdf:
+                output_dir = '/usr/src/app/media/Contract/pdf'
+                os.makedirs(output_dir, exist_ok=True)
+                like_preview_pdf_path = f"{output_dir}/{context.get('contract_number')}_{context.get('client_fullname')}.pdf"
+                with open(like_preview_pdf_path, 'wb') as f:
+                    f.write(like_preview_pdf.content)
+            elif like_preview_pdf_path == None:
+                error_response_500()
+            else:
+                error_response_500()
 
             # direktor = YurUser.objects.get(userdata__role__name="direktor")
             # direktor_fullname = f"{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}"
@@ -582,6 +596,7 @@ class CreateContractFileAPIView(APIView):
                 tarif_id=int(request.data['tarif']),
                 base64file=base64code,
                 hashcode=hash_code,
+                like_preview_pdf=like_preview_pdf_path
             )
             contract.save()
 
@@ -708,10 +723,16 @@ class GetContractFile(APIView):
     permission_classes = ()
 
     def get(self, request, hash_code):
-        # hashcode = request.GET.get('hash')
-        contract = Contract.objects.get(hashcode=hash_code)
+        if hash_code is None:
+            return Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
+        contract = get_object_or_404(Contract, hash_code=hash_code)
 
         if contract.contract_status.name == "To'lov kutilmoqda" or contract.contract_status.name == 'Aktiv':
+            # delete like pdf file test mode
+            delete_file(contract.like_preview_pdf)
+            contract.like_preview_pdf=None
+            contract.save()
+
             file_pdf_path, pdf_file_name = file_downloader(
                 bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id
             )
@@ -721,44 +742,52 @@ class GetContractFile(APIView):
                     response['Content-Disposition'] = f'attachment; filename="{pdf_file_name}"'
                     delete_file(file_pdf_path)
                     return response
-        
-        return Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
-        # else:
-        #     # if contract.client.type == 2:
-        #     #     body = {
-        #     #         'service_id': '',
-        #     #         'tarif': '',
-        #     #         'name': '',
-        #     #         'director_fullname': '',
-        #     #         'per_adr': '',
-        #     #         'tin': '',
-        #     #         'mfo': '',
-        #     #         'oked': '',
-        #     #         'hr': '',
-        #     #         'bank': '',
-        #     #         'price': '',
-        #     #         'count': '',
-        #     #         'devices': '',
-        #     #         'save': 1,
-        #     #     }
-        #     # else:
-        #     #     body = {
-        #     #         'service_id': '',
-        #     #         'tarif': '',
-        #     #         'pport_issue_place': '',
-        #     #         'pport_issue_date': '',
-        #     #         'pport_no': '',
-        #     #         'full_name': '',
-        #     #         'price': '',
-        #     #         'per_adr': '',
-        #     #         'pin': '',
-        #     #         'count': '',
-        #     #         'devices': '',
-        #     #         'save': 1,
-        #     #     }
-        #     # file_pdf = None
-        #     return Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
-        
+        else:
+            # if contract.client.type == 2:  # If contract client is Yuridik user
+            #     context = {
+            #         'service_id': '',
+            #         'tarif': '',
+            #         'name': '',
+            #         'director_fullname': '',
+            #         'per_adr': '',
+            #         'tin': '',
+            #         'mfo': '',
+            #         'oked': '',
+            #         'hr': '',
+            #         'bank': '',
+            #         'price': '',
+            #         'count': '',
+            #         'devices': '',
+            #         'save': 1,
+            #     }
+            # else:
+            #     context = {
+            #         'service_id': '',
+            #         'tarif': '',
+            #         'pport_issue_place': '',
+            #         'pport_issue_date': '',
+            #         'pport_no': '',
+            #         'full_name': '',
+            #         'price': '',
+            #         'per_adr': '',
+            #         'pin': '',
+            #         'count': '',
+            #         'devices': '',
+            #         'save': 1,
+            #     }
+
+            like_preview_pdf = contract.like_preview_pdf
+            if like_preview_pdf is None:
+                error_response_500()
+
+            contract_file = open(like_preview_pdf, 'rb').read()
+            if contract_file:
+                response = HttpResponse(fh.read(), content_type="application/pdf")
+                response['Content-Disposition'] = f'attachment; filename="{contract.contract_number}"'
+                # delete_file(file_pdf_path)
+                return response
+            
+            return Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
         # return redirect(u'/media/Contract/' + file_pdf)
 
 
