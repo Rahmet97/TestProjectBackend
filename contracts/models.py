@@ -145,6 +145,7 @@ class Contract(models.Model):
     expiration_date = models.DateTimeField(blank=True, null=True)
     base64file = models.TextField(blank=True, null=True)
     hashcode = models.CharField(max_length=255, blank=True, null=True)
+    like_preview_pdf = models.FileField(blank=True, null=True)  # test mode
 
     def __str__(self):
         return self.contract_number
