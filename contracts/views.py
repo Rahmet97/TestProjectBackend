@@ -729,7 +729,7 @@ class GetContractFile(APIView):
         if contract.contract_status.name == "To'lov kutilmoqda" or contract.contract_status.name == 'Aktiv':
             # delete like pdf file test mode
             if contract.like_preview_pdf:
-                delete_file(contract.like_preview_pdf)
+                delete_file(contract.like_preview_pdf.path)
                 contract.like_preview_pdf=None
                 contract.save()
 
