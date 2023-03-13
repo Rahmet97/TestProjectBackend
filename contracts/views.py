@@ -773,7 +773,7 @@ class GetContractFile(APIView):
             #         'save': 1,
             #     }
 
-            like_preview_pdf = contract.like_preview_pdf
+            like_preview_pdf = contract.like_preview_pdf.path
             if like_preview_pdf is None:
                 error_response_500()
 
