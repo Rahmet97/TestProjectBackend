@@ -513,12 +513,14 @@ class CreateContractFileAPIView(APIView):
 
         
         context['qr_code'] = ''
+        context['save'] = False
         # context['devices'] = request.data.get("devices", None)
         context['page_break'] = False
         context['datetime'] = datetime.now().strftime('%d.%m.%Y')
 
 
         if int(request.data['save']):
+            context['save'] = True
             context['page_break'] = True
             context['contract_number'] = prefix + '-' + str(number)  # --
 
@@ -527,7 +529,7 @@ class CreateContractFileAPIView(APIView):
             )
 
             link = 'http://' + request.META['HTTP_HOST'] + f'/contracts/contract/{hash_code}'
-            qr_code = create_qr(link)
+            qr_code_path = create_qr(link)
             context['hash_code'] = hash_code
             context['qr_code'] = f"http://api.unicon.uz/media/qr/{hash_code}.png"
             
@@ -559,20 +561,6 @@ class CreateContractFileAPIView(APIView):
             # -------
             contract_file = open(contract_file_for_base64_pdf, 'rb').read()
             base64code = base64.b64encode(contract_file)
-            # -------
-            # preview ni bazaga ham saqlab ketishim kk chunki contractni statusiga qarab foydalanish uchun
-            context['save'] = False
-            like_preview_pdf = render_to_pdf(template_src=template_name, context_dict=context)
-            if like_preview_pdf:
-                output_dir = '/usr/src/app/media/Contract/pdf'
-                os.makedirs(output_dir, exist_ok=True)
-                like_preview_pdf_path = f"{output_dir}/{context.get('contract_number')}_{context.get('client_fullname')}.pdf"
-                with open(like_preview_pdf_path, 'wb') as f:
-                    f.write(like_preview_pdf.content)
-            elif like_preview_pdf_path == None:
-                error_response_500()
-            else:
-                error_response_500()
 
             # direktor = YurUser.objects.get(userdata__role__name="direktor")
             # direktor_fullname = f"{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}"
@@ -602,7 +590,22 @@ class CreateContractFileAPIView(APIView):
             # pdf fileni ochirish
             delete_file(contract_file_for_base64_pdf)
             # qr_code fileni ochirish
-            delete_file(qr_code) 
+            delete_file(qr_code_path) 
+
+            # -------
+            # preview ni bazaga ham saqlab ketishim kk chunki contractni statusiga qarab foydalanish uchun
+            context['save'] = False
+            like_preview_pdf = render_to_pdf(template_src=template_name, context_dict=context)
+            if like_preview_pdf:
+                output_dir = '/usr/src/app/media/Contract/pdf'
+                os.makedirs(output_dir, exist_ok=True)
+                like_preview_pdf_path = f"{output_dir}/{context.get('contract_number')}_{context.get('client_fullname')}.pdf"
+                with open(like_preview_pdf_path, 'wb') as f:
+                    f.write(like_preview_pdf.content)
+            elif like_preview_pdf_path == None:
+                error_response_500()
+            else:
+                error_response_500()
 
             # service = contract.service.name
 
