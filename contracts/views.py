@@ -565,7 +565,7 @@ class CreateContractFileAPIView(APIView):
             contract_status = ContractStatus.objects.filter(name='Yangi').first()
             agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
 
-            client = request.user.role
+            client = request.user
 
             contract = Contract.objects.create(
                 service_id=int(request.data['service_id']),
