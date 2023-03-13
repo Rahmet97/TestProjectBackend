@@ -568,24 +568,7 @@ class CreateContractFileAPIView(APIView):
             status = Status.objects.filter(name='Yangi').first()
             contract_status = ContractStatus.objects.filter(name='Yangi').first()
             agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
-
             client = request.user
-
-            contract = Contract.objects.create(
-                service_id=int(request.data['service_id']),
-                contract_number=context['contract_number'],
-                contract_date=datetime.now(),
-                client=client,
-                status=status,
-                contract_status=contract_status,
-                contract_cash=int(context['price_month']),
-                payed_cash=0,
-                tarif_id=int(request.data['tarif']),
-                base64file=base64code,
-                hashcode=hash_code,
-                like_preview_pdf=like_preview_pdf_path
-            )
-            contract.save()
 
             # pdf fileni ochirish
             delete_file(contract_file_for_base64_pdf)
@@ -606,6 +589,22 @@ class CreateContractFileAPIView(APIView):
                 error_response_500()
             else:
                 error_response_500()
+            
+            contract = Contract.objects.create(
+                service_id=int(request.data['service_id']),
+                contract_number=context['contract_number'],
+                contract_date=datetime.now(),
+                client=client,
+                status=status,
+                contract_status=contract_status,
+                contract_cash=int(context['price_month']),
+                payed_cash=0,
+                tarif_id=int(request.data['tarif']),
+                base64file=base64code,
+                hashcode=hash_code,
+                like_preview_pdf=like_preview_pdf_path
+            )
+            contract.save()
 
             # service = contract.service.name
 
