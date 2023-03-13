@@ -722,7 +722,7 @@ class GetContractFile(APIView):
     def get(self, request, hash_code):
         if hash_code is None:
             return Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
-        contract = get_object_or_404(Contract, hash_code=hash_code)
+        contract = get_object_or_404(Contract, hashcode=hash_code)
 
         if contract.contract_status.name == "To'lov kutilmoqda" or contract.contract_status.name == 'Aktiv':
             # delete like pdf file test mode
