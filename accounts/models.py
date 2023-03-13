@@ -135,6 +135,10 @@ class FizUser(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.sur_name}"
+    
+    property
+    def get_short_full_name(self):
+        return f"{str(self.first_name)[0]}.{str(self.mid_name)[0]} {self.sur_name}"
 
 
 class BankMFOName(models.Model):

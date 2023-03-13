@@ -509,6 +509,8 @@ class CreateContractFileAPIView(APIView):
             context['count'] = request.data['count']  # tariff count
             context['price2'] = request.data['price']  # jami summa
             context['host'] = 'http://' + request.META['HTTP_HOST']
+            context["get_short_full_name"] = FizUser.objects.get(userdata=request.user).get_short_full_name
+
         
         context['qr_code'] = ''
         # context['devices'] = request.data.get("devices", None)
@@ -726,9 +728,10 @@ class GetContractFile(APIView):
 
         if contract.contract_status.name == "To'lov kutilmoqda" or contract.contract_status.name == 'Aktiv':
             # delete like pdf file test mode
-            delete_file(contract.like_preview_pdf)
-            contract.like_preview_pdf=None
-            contract.save()
+            if contract.like_preview_pdf:
+                delete_file(contract.like_preview_pdf)
+                contract.like_preview_pdf=None
+                contract.save()
 
             file_pdf_path, pdf_file_name = file_downloader(
                 bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id
@@ -773,18 +776,14 @@ class GetContractFile(APIView):
             #         'save': 1,
             #     }
 
-            like_preview_pdf = contract.like_preview_pdf.path
-            if like_preview_pdf is None:
-                error_response_500()
-
-            contract_file = open(like_preview_pdf, 'rb').read()
-            if contract_file:
-                response = HttpResponse(fh.read(), content_type="application/pdf")
-                response['Content-Disposition'] = f'attachment; filename="{contract.contract_number}"'
-                # delete_file(file_pdf_path)
-                return response
+            if contract.like_preview_pdf:
+                # Open the file and create a response with the PDF data
+                with open(contract.like_preview_pdf.path, 'rb') as f:
+                    response = HttpResponse(f.read(), content_type='application/pdf')
+                    response['Content-Disposition'] = f'inline; filename={contract.like_preview_pdf.name}'
+                    return response
             
-            return Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
         # return redirect(u'/media/Contract/' + file_pdf)
 
 
