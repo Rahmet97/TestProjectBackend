@@ -506,8 +506,8 @@ class CreateContractFileAPIView(APIView):
             context['per_adr'] = request.data['per_adr']
             context['pin'] = request.data['pin']
             context['tarif'] = tarif
-            context['count'] = request.data['count']
-            context['price2'] = request.data['price']
+            context['count'] = request.data['count']  # tariff count
+            context['price2'] = request.data['price']  # jami summa
             context['host'] = 'http://' + request.META['HTTP_HOST']
         
         context['qr_code'] = ''
