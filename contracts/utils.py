@@ -222,7 +222,10 @@ def insert_page_breaks(pdf_content):
 
 def delete_file(file_path: str):
     if os.path.exists(file_path):
-        os.remove(file_path)
-        print("The file has been deleted.")
+        try:
+            os.remove(file_path)
+            print("The file has been deleted.")
+        except Exception as e:
+            print(e)
     else:
         print("The file does not exist.")
