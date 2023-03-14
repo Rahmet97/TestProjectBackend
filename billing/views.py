@@ -42,9 +42,18 @@ class ColocationTariffSummAPIView(APIView):
     permission_classes = ()
 
     def post(self, request):
-        group = Group.objects.get(pk=int(request.data['group']))
-        service = Service.objects.get(pk=int(request.data['service']))
-        tariff = Tarif.objects.get(pk=int(request.data['tariff']))
+        try:
+            group = Group.objects.get(pk=int(request.data.get('group', 0)))
+        except Group.DoesNotExist:
+            group = None
+        try:
+            service = Service.objects.get(pk=int(request.data.get('service', 0)))
+        except Service.DoesNotExist:
+            service = None
+        try:
+            tariff = Tarif.objects.get(pk=int(request.data.get('tariff', 0)))
+        except Tarif.DoesNotExist:
+            tariff = None
         count = int(request.data['count'])
         elements = request.data['elements']
         device_count = elements['device_count']
