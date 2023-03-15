@@ -80,8 +80,10 @@ class UserDetailAPIView(APIView):
             data['u_type'] = 'Yuridik'
         # agar user mijoz bo'lmasa
         if request.user.role.name != 'mijoz':
-            role = request.user.role.name
-            if ServiceParticipants.objects.filter(role=role).exists:
+            role = request.user.role
+            print(role.name)
+            if ServiceParticipants.objects.filter(role=role).exists():
+                print(ServiceParticipants.objects.get(role=role).with_eds)
                 data["with_ads"] = ServiceParticipants.objects.get(role=role).with_eds
         return Response(data)
 
