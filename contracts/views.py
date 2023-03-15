@@ -78,6 +78,11 @@ class UserDetailAPIView(APIView):
             serializer = YurUserSerializerForContractDetail(user)
             data = serializer.data
             data['u_type'] = 'Yuridik'
+        # agar user mijoz bo'lmasa
+        if request.user.role.name != 'mijoz':
+            role = request.user.role.name
+            if ServiceParticipants.objects.filter(role=role).exists:
+                data["with_ads"] = ServiceParticipants.objects.get(role=role).with_eds
         return Response(data)
 
 
