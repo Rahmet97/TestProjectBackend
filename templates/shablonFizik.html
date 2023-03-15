@@ -260,7 +260,7 @@
         <h3 class='requirement-title-main'>
             <strong>“Co-location” xizmatini ko'rsatish to'g'risidagi</strong>
             <br />
-            <strong>DM-128-sonli</strong>
+            <strong>{{contract_number}}-sonli</strong>
             <br />
             <strong>Shartnoma</strong>
         </h3>
@@ -702,7 +702,8 @@
         </table> <br>
         {% endif %}
         {% if page_break %}
-        <hr style="page-break-before: always;">
+        <!-- <hr style="page-break-before: always;"> -->
+        {{page_break}}
         {% endif %}
         <div class="ilova">
             <span>
@@ -761,7 +762,7 @@
                 <!-- <td align="center">{{tarif_count}}</td> -->
                 <td align="center">{{count}}</td>
                 <!-- ozgartirib ketish kk -->
-                <td align="center">{{price}}</td> 
+                <td align="center">{{price2}}</td> 
               </tr>
               <!-- <tr>
                 <td align="center">2</td>
