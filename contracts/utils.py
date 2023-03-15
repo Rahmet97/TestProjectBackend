@@ -162,7 +162,7 @@ def render_to_pdf(template_src: str, context_dict={}):
     return None
 
 def insert_page_breaks(pdf_content):
-    page_break_tag = '<hr style="page-break-before: always;">'
+    page_break_tag = '<div style="page-break-after: always;"></div>'
     pdf_content_with_page_breaks = pdf_content.replace(b'<body>', b'<body>' + page_break_tag.encode('utf-8'))
     return pdf_content_with_page_breaks
 

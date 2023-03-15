@@ -95,7 +95,7 @@
             font-size: 22px;
             line-height: 26px;
             text-align: center;
-            color: #0e0e4b;
+            color: #000;
             margin-bottom: 19px;
             margin-top: 14px;
         }
@@ -126,7 +126,7 @@
             font-size: 18px;
             line-height: 26px;
             text-align: center;
-            color: #0e0e4b;
+            color: #000;
             margin-bottom: 19px;
             margin-top: 14px;
         }
@@ -137,7 +137,7 @@
             font-weight: 400;
             font-size: 17px;
             line-height: 20px;
-            color: #0e0e4b;
+            color: #000;
             margin-bottom: 12px;
             margin-top: 0;
             text-align: justify;
@@ -225,10 +225,7 @@
         }
 
         .ilova {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            flex-direction: column;
+            border: none !important;
         }
 
         .text-align {
@@ -703,15 +700,22 @@
         {% endif %}
         {% if page_break %}
         <!-- <hr style="page-break-before: always;"> -->
+        <div style="page-break-after: always;"></div>
         {{page_break}}
         {% endif %}
-        <div class="ilova">
-            <span>
-                {{datetime}}
-            </span>
-            <span class="contract_number">{{contract_number}}-sonli shartnomaga</span>
-            <span class="contract_number">1-ilova</span>
-        </div>
+        <table class="ilova">
+            <tbody>
+              <tr align="right">
+                <th>{{datetime}}</th>
+              </tr>
+              <tr align="right">
+                <th>{{contract_number}}-sonli shartnomaga</th>
+              </tr>
+              <tr align="right">
+                <th>1-ilova</th>
+              </tr>
+            </tbody>
+          </table>
         <h4 class="requirement-title">MUAYYAN NARXGA KELISHISH DALOLATNOMASI</h4>
         <p class='requirement-text'>
              <strong>“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi</strong>, keyingi
