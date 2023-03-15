@@ -253,6 +253,9 @@
     .d-flex table {
       border: none !important;
     }
+    .ilova tbody tr th {
+      text-align: end;
+    }
   </style>
 </head>
 
@@ -666,7 +669,6 @@
     {% if page_break %}
     <!-- <hr style="page-break-before: always;"> -->
     <div style="page-break-after: always;"></div>
-    {{page_break}}
     {% endif %}
     <table class="ilova">
       <tbody>
