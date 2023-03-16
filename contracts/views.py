@@ -997,18 +997,17 @@ class ConfirmContract(APIView):
         contract = Contract.objects.get(pk=int(request.data['contract']))
 
         if int(request.data['summary']) == 1:  # 1 -> muofiq, 0 -> muofiq emas
-            print("summary 1: ", request.data['summary'], type(request.data['summary']))
             agreement_status = AgreementStatus.objects.get(name='Kelishildi')
         else:
-            print("summary 0: ", request.data['summary'], type(request.data['summary']))
             agreement_status = AgreementStatus.objects.get(name='Rad etildi')
             contract.contract_status = ContractStatus.objects.get(name='Rad etilgan')
-        print("if dantashqarida")
+
         contracts_participants = Contracts_Participants.objects.get(
             Q(role=request.user.role),
             Q(contract=contract),
             Q(contract__service__group=request.user.group)
         )
+        print(">>>>>>>>>>>>>>>>>>>>>>>", contracts_participants)
         contracts_participants.agreement_status = agreement_status
         contracts_participants.save()
         contract.condition += 1
