@@ -995,12 +995,15 @@ class ConfirmContract(APIView):
 
     def post(self, request):
         contract = Contract.objects.get(pk=int(request.data['contract']))
-        if int(request.data['summary']) == 1:
+
+        if int(request.data['summary']) == 1:  # 1 -> muofiq, 0 -> muofiq emas
+            print("summary 1: ", request.data['summary'], type(request.data['summary']))
             agreement_status = AgreementStatus.objects.get(name='Kelishildi')
         else:
+            print("summary 0: ", request.data['summary'], type(request.data['summary']))
             agreement_status = AgreementStatus.objects.get(name='Rad etildi')
-            contract.contract_status = ContractStatus.objects.get(
-                name='Rad etilgan')
+            contract.contract_status = ContractStatus.objects.get(name='Rad etilgan')
+        print("if dantashqarida")
         contracts_participants = Contracts_Participants.objects.get(
             Q(role=request.user.role),
             Q(contract=contract),
@@ -1009,25 +1012,34 @@ class ConfirmContract(APIView):
         contracts_participants.agreement_status = agreement_status
         contracts_participants.save()
         contract.condition += 1
+
         try:
-            cntrct = Contracts_Participants.objects.get(Q(contract=contract), Q(role__name='direktor'),
-                                                        Q(agreement_status__name='Kelishildi'))
+            cntrct = Contracts_Participants.objects.get(
+                Q(contract=contract),
+                Q(role__name='direktor'),
+                Q(agreement_status__name='Kelishildi')
+            )
         except Contracts_Participants.DoesNotExist:
             cntrct = None
+
         if cntrct:
-            contract.contract_status = ContractStatus.objects.get(
-                name="To'lov kutilmoqda")
+            contract.contract_status = ContractStatus.objects.get(name="To'lov kutilmoqda")
         contract.save()
+
         request.data._mutable = True
         request.data['user'] = request.user.id
+
         try:
             documents = request.FILES.getlist('documents', None)
         except:
             documents = None
+
         summary = ExpertSummarySerializerForSave(
-            data=request.data, context={'documents': documents})
+            data=request.data, context={'documents': documents}
+        )
         summary.is_valid(raise_exception=True)
         summary.save()
+
         return Response(status=200)
 
 
