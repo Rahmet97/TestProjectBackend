@@ -789,11 +789,10 @@ class GetContractFile(APIView):
                 # Open the file and create a response with the PDF data
                 with open(contract.like_preview_pdf.path, 'rb') as f:
                     response = HttpResponse(f.read(), content_type='application/pdf')
-                    response['Content-Disposition'] = f'attachment; filename={contract.like_preview_pdf.name}'
+                    response['Content-Disposition'] = f'attachment; filename={contract.contract_number}'
                     return response
             
         return Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
-        # return redirect(u'/media/Contract/' + file_pdf)
 
 
 class GetUserContracts(APIView):
