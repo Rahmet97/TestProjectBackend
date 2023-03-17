@@ -64,27 +64,73 @@ class ServiceDetailAPIView(generics.RetrieveAPIView):
     permission_classes = ()
 
 
+# class UserDetailAPIView(APIView):
+#     permission_classes = (IsAuthenticated,)
+
+#     def get(self, request):
+#         if request.user.type == 1:
+#             user = FizUser.objects.get(userdata=request.user)
+#             serializer = FizUserSerializerForContractDetail(user)
+#             data = serializer.data
+#             data['u_type'] = 'Fizik'
+#         else:
+#             user = YurUser.objects.get(userdata=request.user)
+#             serializer = YurUserSerializerForContractDetail(user)
+#             data = serializer.data
+#             data['u_type'] = 'Yuridik'
+#         # agar user mijoz bo'lmasa
+#         if request.user.role.name != 'mijoz':
+#             role = request.user.role
+#             if ServiceParticipants.objects.filter(role=role).exists():
+#                 print(ServiceParticipants.objects.get(role=role).with_eds)
+#                 data["with_ads"] = ServiceParticipants.objects.get(role=role).with_eds
+#         return Response(data)
+
+
 class UserDetailAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        if request.user.type == 1:
-            user = FizUser.objects.get(userdata=request.user)
-            serializer = FizUserSerializerForContractDetail(user)
-            data = serializer.data
-            data['u_type'] = 'Fizik'
-        else:
-            user = YurUser.objects.get(userdata=request.user)
-            serializer = YurUserSerializerForContractDetail(user)
-            data = serializer.data
-            data['u_type'] = 'Yuridik'
-        # agar user mijoz bo'lmasa
-        if request.user.role.name != 'mijoz':
-            role = request.user.role
-            print(role.name)
-            if ServiceParticipants.objects.filter(role=role).exists():
-                print(ServiceParticipants.objects.get(role=role).with_eds)
-                data["with_ads"] = ServiceParticipants.objects.get(role=role).with_eds
+        # Get values from request query parameters
+        pin_or_tin = request.GET.get('pot')
+        u_type = request.GET.get('ut')
+        user = None
+
+        # Check if pin_or_tin and u_type are present
+        if pin_or_tin and u_type:
+            if int(u_type) == 1:
+                user = get_object_or_404(FizUser, userdata=request.user)
+                serializer = FizUserSerializerForContractDetail(user)
+                data = serializer.data
+                data['u_type'] = 'Fizik'
+            elif int(u_type) == 2:
+                user = get_object_or_404(YurUser, userdata=request.user)
+                serializer = YurUserSerializerForContractDetail(user)
+                data = serializer.data
+                data['u_type'] = 'Yuridik'
+
+        # If pin_or_tin and u_type are not present, check user type and retrieve user object accordingly
+        if user is None:
+            if request.user.type == 1:
+                user = get_object_or_404(FizUser, userdata=request.user)
+                serializer = FizUserSerializerForContractDetail(user)
+                data = serializer.data
+                data['u_type'] = 'Fizik'
+            else:
+                user = get_object_or_404(YurUser, userdata=request.user)
+                serializer = YurUserSerializerForContractDetail(user)
+                data = serializer.data
+                data['u_type'] = 'Yuridik'
+
+            # Check if user role is not 'mijoz' and retrieve with_eds field from ServiceParticipants model
+            if request.user.role.name != 'mijoz':
+                try:
+                    with_ads = ServiceParticipants.objects.get(role=request.user.role).with_eds
+                    data["with_ads"] = with_ads
+                except ServiceParticipants.DoesNotExist:
+                    pass
+
+        # Return data as a response
         return Response(data)
 
 
