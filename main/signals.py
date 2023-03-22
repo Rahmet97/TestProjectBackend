@@ -41,7 +41,7 @@ def send_application_using_telegram_bot(sender, instance, created, **kwargs):
                        f"<b>E-mail: </b>{instance.email}\n" \
                        f"<b>Tel: </b>{instance.phone}\n" \
                        f"<b>Xabbar: </b>{instance.message}\n" \
-                       f"<b>Yuborilgan vaqti: </b>{t.strftime('%d.%M.%Y %H:%M')}" \
+                       f"<b>Yuborilgan vaqti: </b>{t.strftime('%d.%m.%Y %H:%M')}" \
                        f"\n\n{initial_info}"
 
         if instance.file:
