@@ -43,14 +43,21 @@ class ApplicationListRetrieveView(generics.GenericAPIView):
         self.check_object_permissions(self.request, obj)
         return obj
     
+    # def get(self, request, pk=None):
+    #     if pk is not None:
+    #         serializer = self.serializer_class(self.get_object, many=True)
+    #     else:
+    #         serializer = self.serializer_class(self.get_object)
+    #     return response.Response(serializer.data, status=status.HTTP_200_OK)
+
     def get(self, request, pk=None):
         if pk is not None:
-            serializer = self.serializer_class(self.get_object, many=True)
+            queryset = self.get_object()
+            serializer = self.serializer_class(queryset, many=True)
         else:
-            serializer = self.serializer_class(self.get_object)
+            queryset = self.get_object()
+            serializer = self.serializer_class(queryset)
         return response.Response(serializer.data, status=status.HTTP_200_OK)
-     
-
 
 # class ApplicationListView(ListAPIView):
 #     queryset = Application.objects.all()
