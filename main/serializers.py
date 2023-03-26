@@ -14,7 +14,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
         # exclude = ["user"]
     
     def get_user(self, obj):
-        user = obj.pinned_user
+        user = obj.user
         if user.user_type == 1:  # fiz
             serializer = FizUserSerializerForContractDetail(user)
             data = serializer.data
