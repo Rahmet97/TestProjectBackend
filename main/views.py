@@ -41,13 +41,10 @@ class ApplicationListRetrieveView(generics.GenericAPIView):
             object.queryset = self.queryset.filter(service__pk=service_pk)
         return object
     
-    def list(self, request):
+    def get(self, request):
         serializer = self.serializer_class(self.get_object, many=True)
         return response.Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def retrieve(self, request):
-        serializer = self.serializer_class(self.get_object)
-        return response.Response(serializer.data, status=status.HTTP_200_OK)  
+     
 
 
 # class ApplicationListView(ListAPIView):
