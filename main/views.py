@@ -1,3 +1,5 @@
+from django.shortcuts import get_object_or_404
+
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, response, generics
@@ -24,22 +26,22 @@ class ApplicationListRetrieveView(generics.GenericAPIView):
     queryset = Application.objects.all()
     
     permission_classes = [IsAuthenticatedAndPinnedToService]
-
+    
     def get_object(self):
         pinned_user = self.request.user
         if not Service.objects.filter(pinned_user=pinned_user).exists():
-            responseErrorMessage(
-            message="Siz Xizmat turiga biriktirilmagan siz", 
-            status_code=status.HTTP_404_NOT_FOUND
-        )
+            return responseErrorMessage(
+                message="Siz Xizmat turiga biriktirilmagan siz", 
+                status_code=status.HTTP_404_NOT_FOUND
+            )
         
         service_pk = Service.objects.get(pinned_user=pinned_user).pk
-        object = super(ApplicationListRetrieveView, self).get_object(self.queryset)
+        queryset = self.queryset.filter(service__pk=service_pk)
         if self.kwargs.get("pk") is not None:
-            object.queryset = self.queryset.filter(service__pk=service_pk, pk=self.kwargs["pk"]).first()
-        else:
-            object.queryset = self.queryset.filter(service__pk=service_pk)
-        return object
+            queryset = queryset.filter(pk=self.kwargs["pk"])
+        obj = get_object_or_404(queryset)
+        self.check_object_permissions(self.request, obj)
+        return obj
     
     def get(self, request, pk=None):
         if pk is not None:
