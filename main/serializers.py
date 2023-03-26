@@ -14,13 +14,14 @@ class ApplicationSerializer(serializers.ModelSerializer):
         # exclude = ["user"]
     
     def get_user(self, obj):
-        user = obj.user
-        if user.user_type == 1:  # fiz
-            serializer = FizUserSerializerForContractDetail(user)
+        user_obj = obj.user
+        print("user >>>> ", user_obj)
+        if user_obj.user_type == 1:  # fiz
+            serializer = FizUserSerializerForContractDetail(user_obj)
             data = serializer.data
             data['u_type'] = 'Fizik'
         else:
-            serializer = YurUserSerializerForContractDetail(user)
+            serializer = YurUserSerializerForContractDetail(user_obj)
             data = serializer.data
             data['u_type'] = 'Yuridik'
         return data
