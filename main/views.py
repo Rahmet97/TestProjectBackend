@@ -41,7 +41,7 @@ class ApplicationListRetrieveView(generics.GenericAPIView):
             object.queryset = self.queryset.filter(service__pk=service_pk)
         return object
     
-    def get(self, request, pk):
+    def get(self, request, pk=None):
         if pk is not None:
             serializer = self.serializer_class(self.get_object, many=True)
         else:
