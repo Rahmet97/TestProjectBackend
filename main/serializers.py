@@ -8,14 +8,9 @@ class ApplicationSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField(read_only=True)
     service = serializers.SerializerMethodField()
 
-    class Meta:
-        model = Application
-        fields = ["user", "service", "name", "phone", "email", "message", "created_at", "file"]
-        # exclude = ["user"]
-    
     def get_user(self, obj):
         user_obj = obj.user
-        print("user >>>> ", obj)
+        print("user >>>> ", user_obj)
         if user_obj.type == 1:  # fiz
             serializer = FizUserSerializerForContractDetail(user_obj)
             data = serializer.data
@@ -31,3 +26,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
             "pk": obj.service.pk,
             "name": obj.service.name
         }
+
+    class Meta:
+        model = Application
+        fields = ["user", "service", "name", "phone", "email", "message", "created_at", "file"]
