@@ -5,7 +5,7 @@ from main import views
 urlpatterns = [
     path("send-message", views.ApplicationCreateView.as_view(), name="send-message"),
     # List all applications for the pinned user's service
-    path("application", views.ApplicationListRetrieveView.as_view(), name="application-list"),
+    path("application/list/", views.ApplicationListRetrieveView.as_view(), name="application-list"),
     # Retrieve a single application by its pk
-    path("application/<int:pk>", views.ApplicationListRetrieveView.as_view(), name="application-detail")
+    path("application/detail/<int:pk>/", views.ApplicationListRetrieveView.as_view(), name="application-detail")
 ]
