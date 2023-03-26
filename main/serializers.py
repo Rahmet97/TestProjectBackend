@@ -14,19 +14,20 @@ class ApplicationSerializer(serializers.ModelSerializer):
         # exclude = ["user"]
     
     def get_user(self, obj):
+        user_obj = obj.user
         print("user >>>> ", obj)
-        if obj.type == 1:  # fiz
-            serializer = FizUserSerializerForContractDetail(obj)
+        if user_obj.type == 1:  # fiz
+            serializer = FizUserSerializerForContractDetail(user_obj)
             data = serializer.data
             data['u_type'] = 'Fizik'
         else:
-            serializer = YurUserSerializerForContractDetail(obj)
+            serializer = YurUserSerializerForContractDetail(user_obj)
             data = serializer.data
             data['u_type'] = 'Yuridik'
         return data
     
     def get_service(self, obj):
         return {
-            "pk": obj.pk,
-            "name": obj.name
+            "pk": obj.service.pk,
+            "name": obj.service.name
         }
