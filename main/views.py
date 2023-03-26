@@ -35,14 +35,14 @@ class ApplicationListRetrieveView(generics.GenericAPIView):
         
         service_pk = Service.objects.get(pinned_user=pinned_user).pk
         object = super(ApplicationListRetrieveView, self).get_object(self.queryset)
-        if self.kwargs["pk"]:
+        if self.kwargs.get("pk") is not None:
             object.queryset = self.queryset.filter(service__pk=service_pk, pk=self.kwargs["pk"]).first()
         else:
             object.queryset = self.queryset.filter(service__pk=service_pk)
         return object
     
-    def get(self, request):
-        if self.kwargs["pk"]:
+    def get(self, request, pk=None):
+        if pk is not None:
             serializer = self.serializer_class(self.get_object, many=True)
         else:
             serializer = self.serializer_class(self.get_object)
