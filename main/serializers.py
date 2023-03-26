@@ -15,7 +15,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
     
     def get_user(self, obj):
         print("user >>>> ", obj)
-        if obj.user_type == 1:  # fiz
+        if obj.type == 1:  # fiz
             serializer = FizUserSerializerForContractDetail(obj)
             data = serializer.data
             data['u_type'] = 'Fizik'
@@ -27,6 +27,6 @@ class ApplicationSerializer(serializers.ModelSerializer):
     
     def get_service(self, obj):
         return {
-            "pk": obj.service.pk,
-            "name": obj.service.name
+            "pk": obj.pk,
+            "name": obj.name
         }
