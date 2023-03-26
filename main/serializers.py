@@ -14,7 +14,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
         # exclude = ["user"]
     
     def get_user(self, obj):
-        user_obj = obj.user
+        user_obj = obj.user()
         print("user >>>> ", user_obj)
         if user_obj.user_type == 1:  # fiz
             serializer = FizUserSerializerForContractDetail(user_obj)
