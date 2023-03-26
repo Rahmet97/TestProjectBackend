@@ -42,7 +42,10 @@ class ApplicationListRetrieveView(generics.GenericAPIView):
         return object
     
     def get(self, request):
-        serializer = self.serializer_class(self.get_object, many=True)
+        if self.kwargs["pk"]:
+            serializer = self.serializer_class(self.get_object, many=True)
+        else:
+            serializer = self.serializer_class(self.get_object)
         return response.Response(serializer.data, status=status.HTTP_200_OK)
      
 
