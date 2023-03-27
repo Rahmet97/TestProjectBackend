@@ -60,11 +60,26 @@ class ApplicationListRetrieveView(generics.GenericAPIView):
 class ApplicationListView(ListAPIView):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
-    permission_classes = [IsAndPinnedToService]
+    permission_classes = [IsAndPinnedToService, IsAuthenticated]
 
-    def get_object(self):
-        pinned_user = self.request.user
+    # def get_object(self):
+    #     pinned_user = self.request.user
         
+    #     try:
+    #         service_pk = Service.objects.get(pinned_user=pinned_user).pk
+    #     except Service.DoesNotExist:
+    #         # Return an empty queryset if the user is not pinned to any service
+    #         responseErrorMessage(
+    #             message="Siz Xizmat turiga biriktirilmagan siz",
+    #             status_code=status.HTTP_404_NOT_FOUND
+    #         )
+        
+    #     object.queryset = self.queryset.filter(service__pk=service_pk)
+    #     return object
+    
+    def get_queryset(self):
+        pinned_user = self.request.user
+
         try:
             service_pk = Service.objects.get(pinned_user=pinned_user).pk
         except Service.DoesNotExist:
@@ -74,8 +89,8 @@ class ApplicationListView(ListAPIView):
                 status_code=status.HTTP_404_NOT_FOUND
             )
         
-        object.queryset = self.queryset.filter(service__pk=service_pk)
-        return object
+        queryset = self.queryset.filter(service__pk=service_pk)
+        return queryset
     
 
 class ApplicationRetrieveView(RetrieveAPIView):
@@ -83,14 +98,32 @@ class ApplicationRetrieveView(RetrieveAPIView):
     serializer_class = ApplicationSerializer
     permission_classes = [IsAuthenticated, IsAndPinnedToService]
 
-    def get_object(self):
-        pinned_user = self.request.user
-        # if not Service.objects.filter(pinned_user=pinned_user).exists():
-        #     responseErrorMessage(
-        #     message="Siz Xizmat turiga biriktirilmagan siz", 
-        #     status_code=status.HTTP_404_NOT_FOUND
-        # )
+    # def get_object(self):
+    #     pinned_user = self.request.user
+    #     # if not Service.objects.filter(pinned_user=pinned_user).exists():
+    #     #     responseErrorMessage(
+    #     #     message="Siz Xizmat turiga biriktirilmagan siz", 
+    #     #     status_code=status.HTTP_404_NOT_FOUND
+    #     # )
 
+    #     try:
+    #         service_pk = Service.objects.get(pinned_user=pinned_user).pk
+    #     except Service.DoesNotExist:
+    #         # Return an empty queryset if the user is not pinned to any service
+    #         responseErrorMessage(
+    #             message="Siz Xizmat turiga biriktirilmagan siz",
+    #             status_code=status.HTTP_404_NOT_FOUND
+    #         )
+        
+    #     # service_pk = Service.objects.get(pinned_user=pinned_user).pk
+
+    #     object.queryset = self.queryset.get(service__pk=service_pk, pk=self.kwargs.get("pk"))
+    #     return object
+    
+    def get_object(self):
+        obj = super(ApplicationRetrieveView, self).get_object()
+        
+        pinned_user = self.request.user
         try:
             service_pk = Service.objects.get(pinned_user=pinned_user).pk
         except Service.DoesNotExist:
@@ -100,8 +133,11 @@ class ApplicationRetrieveView(RetrieveAPIView):
                 status_code=status.HTTP_404_NOT_FOUND
             )
         
-        # service_pk = Service.objects.get(pinned_user=pinned_user).pk
-
-        object.queryset = self.queryset.get(service__pk=service_pk, pk=self.kwargs.get("pk"))
-        return object
+        obj = self.queryset.filter(service__pk=service_pk, pk=self.kwargs.get("pk")).first()
+        if not obj:
+            responseErrorMessage(
+                message="Application not found",
+                status_code=status.HTTP_404_NOT_FOUND
+            )
+        return obj
         
