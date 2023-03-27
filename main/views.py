@@ -37,8 +37,8 @@ class ApplicationListRetrieveView(generics.GenericAPIView):
         
         service_pk = Service.objects.get(pinned_user=pinned_user).pk
         queryset = self.queryset.filter(service__pk=service_pk)
-        if self.kwargs.get("pk") is not None:
-            queryset = queryset.get(pk=self.kwargs["pk"])
+        # if self.kwargs.get("pk") is not None:
+        #     queryset = queryset.get(pk=self.kwargs["pk"])
         # obj = get_object_or_404(queryset)
         self.check_object_permissions(self.request, queryset)
         return queryset
@@ -51,11 +51,10 @@ class ApplicationListRetrieveView(generics.GenericAPIView):
     #     return response.Response(serializer.data, status=status.HTTP_200_OK)
 
     def get(self, request, pk=None):
+        queryset = self.get_object()
         if pk is not None:
-            queryset = self.get_object()
-            serializer = self.serializer_class(queryset)
+            serializer = self.serializer_class(queryset.get(pk=pk))
         else:
-            queryset = self.get_object()
             serializer = self.serializer_class(queryset, many=True)
         return response.Response(serializer.data, status=status.HTTP_200_OK)
 
