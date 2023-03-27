@@ -6,7 +6,7 @@ from accounts.serializers import FizUserSerializerForContractDetail, YurUserSeri
 
 class ApplicationSerializer(serializers.ModelSerializer):
     # user = serializers.SerializerMethodField(read_only=True)
-    # service = serializers.SerializerMethodField()
+    service = serializers.SerializerMethodField()
 
     class Meta:
         model = Application

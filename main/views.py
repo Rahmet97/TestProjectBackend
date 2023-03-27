@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, response, generics
 
 from main.utils import responseErrorMessage
-from main.permission import IsAuthenticatedAndPinnedToService
+from main.permission import IsAndPinnedToService
 from .models import Application
 from contracts.models import Service
 from .serializers import ApplicationSerializer
@@ -23,7 +23,7 @@ class ApplicationListRetrieveView(generics.GenericAPIView):
     serializer_class = ApplicationSerializer
     queryset = Application.objects.all()
     
-    permission_classes = [IsAuthenticatedAndPinnedToService]
+    permission_classes = [IsAndPinnedToService]
     
     def get_object(self):
         pinned_user = self.request.user
@@ -59,7 +59,7 @@ class ApplicationListRetrieveView(generics.GenericAPIView):
 class ApplicationListView(ListAPIView):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
-    permission_classes = [IsAuthenticatedAndPinnedToService]
+    permission_classes = [IsAndPinnedToService]
 
     def get_object(self):
         pinned_user = self.request.user
@@ -78,7 +78,7 @@ class ApplicationListView(ListAPIView):
 class ApplicationRetrieveView(RetrieveAPIView):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
-    permission_classes = [IsAuthenticatedAndPinnedToService]
+    permission_classes = [IsAuthenticated, IsAndPinnedToService]
 
     def get_object(self):
         pinned_user = self.request.user
@@ -91,5 +91,8 @@ class ApplicationRetrieveView(RetrieveAPIView):
         service_pk = Service.objects.get(pinned_user=pinned_user).pk
         object = super(ApplicationListView, self).get_object(self.queryset)
         object.queryset = self.queryset.filter(service__pk=service_pk)
+
+        if self.kwargs.get("pk") is not None:
+            queryset = queryset.get(pk=self.kwargs["pk"])
         return object
         
