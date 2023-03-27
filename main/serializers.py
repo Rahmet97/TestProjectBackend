@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Application
 
+from accounts.models import FizUser, YurUser
 from accounts.serializers import FizUserForOldContractSerializers, YurUserForOldContractSerializers
 
 
@@ -18,11 +19,11 @@ class ApplicationSerializer(serializers.ModelSerializer):
         user_obj = obj.user
         print("user >>>> ", user_obj)
         if user_obj.type == 1:  # fiz
-            serializer = FizUserForOldContractSerializers(user_obj)
+            serializer = FizUserForOldContractSerializers(FizUser.objects.get(userdata=user_obj))
             data = serializer.data
             data['u_type'] = 'Fizik'
         else:
-            serializer = YurUserForOldContractSerializers(user_obj)
+            serializer = YurUserForOldContractSerializers(YurUser.objects.get(userdata=user_obj))
             data = serializer.data
             data['u_type'] = 'Yuridik'
         return data
