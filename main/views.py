@@ -75,7 +75,7 @@ class ApplicationListView(ListAPIView):
         return object
     
 
-class ApplicationRetrieveView(ListAPIView):
+class ApplicationRetrieveView(RetrieveAPIView):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
     permission_classes = [IsAuthenticatedAndPinnedToService]

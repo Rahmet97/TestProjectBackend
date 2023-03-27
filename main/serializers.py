@@ -11,7 +11,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
         # fields = ["user", "service", "name", "phone", "email", "message", "created_at", "file"]
-        fields = ["service", "name", "phone", "email", "message", "created_at", "file"]
+        fields = ["pk", "service", "name", "phone", "email", "message", "created_at", "file"]
 
 
     # @staticmethod
@@ -28,11 +28,11 @@ class ApplicationSerializer(serializers.ModelSerializer):
     #         data['u_type'] = 'Yuridik'
     #     return data
     
-    # @staticmethod
-    # def get_service(obj):
-    #     return {
-    #         "pk": obj.service.pk,
-    #         "name": obj.service.name
-    #         # "pk": obj.pk,
-    #         # "name": obj.name
-    #     }
+    @staticmethod
+    def get_service(obj):
+        return {
+            "pk": obj.service.pk,
+            "name": obj.service.name
+            # "pk": obj.pk,
+            # "name": obj.name
+        }
