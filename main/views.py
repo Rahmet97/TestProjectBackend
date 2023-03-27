@@ -16,7 +16,7 @@ class ApplicationCreateView(CreateAPIView):
     permission_classes = [IsAuthenticated]
     
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        serializer.save(user=self.request.user, service_id=self.request.data["service"])
 
 
 class ApplicationListView(ListAPIView):
