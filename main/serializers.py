@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Application
 
-from accounts.serializers import FizUserSerializerForContractDetail, YurUserSerializerForContractDetail
+from accounts.serializers import FizUserForOldContractSerializers, YurUserForOldContractSerializers
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
@@ -11,7 +11,6 @@ class ApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
         fields = ["pk", "user", "service", "name", "phone", "email", "message", "created_at", "file"]
-        # fields = ["pk", "service", "name", "phone", "email", "message", "created_at", "file"]
 
 
     @staticmethod
@@ -19,11 +18,11 @@ class ApplicationSerializer(serializers.ModelSerializer):
         user_obj = obj.user
         print("user >>>> ", user_obj)
         if user_obj.type == 1:  # fiz
-            serializer = FizUserSerializerForContractDetail(user_obj)
+            serializer = FizUserForOldContractSerializers(user_obj)
             data = serializer.data
             data['u_type'] = 'Fizik'
         else:
-            serializer = YurUserSerializerForContractDetail(user_obj)
+            serializer = YurUserForOldContractSerializers(user_obj)
             data = serializer.data
             data['u_type'] = 'Yuridik'
         return data
