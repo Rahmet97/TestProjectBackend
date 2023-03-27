@@ -53,10 +53,10 @@ class ApplicationListRetrieveView(generics.GenericAPIView):
     def get(self, request, pk=None):
         if pk is not None:
             queryset = self.get_object()
-            serializer = self.serializer_class(queryset, many=True)
+            serializer = self.serializer_class(queryset)
         else:
             queryset = self.get_object()
-            serializer = self.serializer_class(queryset)
+            serializer = self.serializer_class(queryset, many=True)
         return response.Response(serializer.data, status=status.HTTP_200_OK)
 
 # class ApplicationListView(ListAPIView):
