@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Application
 
 from accounts.models import FizUser, YurUser
-from accounts.serializers import FizUserForOldContractSerializers, YurUserForOldContractSerializers
+from accounts.serializers import FizUserForOldContractSerializers, YurUserForOldContractSerializers, YurUserSerializerForContractDetail
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
@@ -23,7 +23,8 @@ class ApplicationSerializer(serializers.ModelSerializer):
             data = serializer.data
             data['u_type'] = 'Fizik'
         else:
-            serializer = YurUserForOldContractSerializers(YurUser.objects.get(userdata=user_obj))
+            # serializer = YurUserForOldContractSerializers(YurUser.objects.get(userdata=user_obj))
+            serializer = YurUserSerializerForContractDetail(YurUser.objects.get(userdata=user_obj))
             data = serializer.data
             data['u_type'] = 'Yuridik'
         return data
