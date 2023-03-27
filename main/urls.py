@@ -10,6 +10,8 @@ urlpatterns = [
 
     # Retrieve a single application by its pk
     path("application/detail/<int:pk>/", views.ApplicationListRetrieveView.as_view(), name="application-detail"),
+    path("detail/<int:pk>/", views.ApplicationRetrieveView.as_view(), name="detail"),
+
 
 
 ]
