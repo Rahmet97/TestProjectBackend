@@ -17,4 +17,4 @@ class ExpertiseServiceContractSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Contract
-        fields = ["service" , "contract_number", "contract_date", "projects", "stir", "total_price", "price_select_percentage"]
+        fields = ["service", "contract_number", "contract_date", "projects", "stir", "contract_cash", "price_select_percentage"]
