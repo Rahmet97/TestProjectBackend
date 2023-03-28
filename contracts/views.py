@@ -98,12 +98,12 @@ class UserDetailAPIView(APIView):
 
         # Check if pin_or_tin and u_type are present
         if pin_or_tin and u_type:
-            if str(u_type).lower() == "fiz":
+            if int(u_type) == 1:
                 user = get_object_or_404(FizUser, pin=pin_or_tin)
                 serializer = FizUserSerializerForContractDetail(user)
                 data = serializer.data
                 data['u_type'] = 'Fizik'
-            elif str(u_type).lower() == "yur":
+            elif int(u_type) == 2:
                 user = get_object_or_404(YurUser, tin=pin_or_tin)
                 serializer = YurUserSerializerForContractDetail(user)
                 data = serializer.data
