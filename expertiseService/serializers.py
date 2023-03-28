@@ -2,9 +2,7 @@ from rest_framework import serializers
 
 from accounts.models import UserData
 
-from expertiseService.models import (
-    ExpertiseServiceContractTarif, ExpertiseServiceContract, ExpertiseTarifContract
-)
+from contracts.models import Contract, ExpertiseServiceContractTarif
 
 
 class ExpertiseServiceContractProjects(serializers.ModelSerializer):
@@ -18,5 +16,5 @@ class ExpertiseServiceContractSerializers(serializers.ModelSerializer):
     stir = serializers.CharField(max_length=9)
 
     class Meta:
-        model = ExpertiseServiceContract
+        model = Contract
         fields = ["service" , "contract_number", "contract_date", "projects", "stir", "total_price", "price_select_percentage"]
