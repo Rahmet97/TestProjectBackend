@@ -137,7 +137,7 @@ class CreateExpertiseServiceContractView(GenericAPIView):
                     tarif=project
                 )
 
-            participants = Participant.objects.get(service_id=int(request.data['service_id'])).participants.all()
+            participants = Participant.objects.get(service_id=int(request.data['service'])).participants.all()
             for participant in participants:
                 print(participant)
                 Contracts_Participants.objects.create(
