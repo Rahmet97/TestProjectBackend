@@ -82,8 +82,6 @@ class CreateInvoiceAPIView(APIView):
                 "amountVAT": float(invoice.contract.contract_cash) / 1.12 * 0.12
             }]
         }
-        print(data)
-        print(json.dumps(data))
         response = requests.get(url, headers=headers, data=json.dumps(data))
         return Response(response.content)
 
@@ -122,9 +120,16 @@ class UpdateContractPayedCash(APIView):
     def post(self, request):
         try:
             id_code = request.data['contractID']
-            invoice_number = request.data['invoiceNum']
+            contract_code = request.data.get('contractCode', None)
+            invoice_number = request.data.get('invoiceNum', None)
+            customer_tin = request.data['customerTIN']
             payed_cash = float(request.data['payedCash'])
             payed_time = request.data['payedDate']
+            currency = request.data['currency']
+            comment = request.data['comment']
+            customer_payment_account = request.data['customerPaymentAccount']
+            customer_mfo = request.data['customerMFO']
+            company_payment_account = request.data['companyPaymentAccount']
 
             contract = Contract.objects.get(id_code=id_code)
             contract.payed_cash = payed_cash

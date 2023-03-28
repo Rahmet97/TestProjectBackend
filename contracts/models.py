@@ -130,6 +130,12 @@ class AgreementStatus(models.Model):
         return self.name
 
 
+PRICE_SELECT_PERCENTAGE = (
+    (50, 50),
+    (100, 100)
+)
+
+
 class Contract(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     contract_number = models.CharField(max_length=10, unique=True)
@@ -139,20 +145,40 @@ class Contract(models.Model):
     status = models.ForeignKey(Status, on_delete=models.CASCADE)  # ijro statuslari
     contract_status = models.ForeignKey(ContractStatus, on_delete=models.CASCADE)  # hujjat statuslari
     condition = models.IntegerField(default=0)
-    contract_cash = models.DecimalField(max_digits=10, decimal_places=2)
+    contract_cash = models.DecimalField(max_digits=10, decimal_places=2)  # total_price
     payed_cash = models.DecimalField(max_digits=10, decimal_places=2)
-    tarif = models.ForeignKey(Tarif, on_delete=models.CASCADE)
+    tarif = models.ForeignKey(Tarif, on_delete=models.CASCADE, blank=True, null=True)
     expiration_date = models.DateTimeField(blank=True, null=True)
     base64file = models.TextField(blank=True, null=True)
     hashcode = models.CharField(max_length=255, blank=True, null=True)
     like_preview_pdf = models.FileField(blank=True, null=True, upload_to="media/Contract/pdf/")  # test mode
+    price_select_percentage = models.IntegerField(choices=PRICE_SELECT_PERCENTAGE, blank=True, null=True)
 
     def __str__(self):
         return self.contract_number
 
 
+class ExpertiseServiceContractTarif(models.Model):
+    title_of_tarif = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    name_of_tarif = models.CharField(max_length=255)
+    is_discount = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return self.name_of_tarif
+
+
+class ExpertiseTarifContract(models.Model):
+    contract = models.ForeignKey(to=Contract, related_name="ContractExpertise", on_delete=models.CASCADE)
+    tarif = models.ForeignKey(to=ExpertiseServiceContractTarif, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return f"{self.contract} | {self.tarif}"
+
+
 class OldContractFile(models.Model):
-    contract = models.ForeignKey(to=Contract, related_name="old_contract_file", on_delete=models.CASCADE, null=True, blank=True)
+    contract = models.ForeignKey(to=Contract, related_name="old_contract_file", on_delete=models.CASCADE, null=True,
+                                 blank=True)
     file = models.FileField(upload_to=slugify_upload)
 
     def __str__(self):
