@@ -849,7 +849,7 @@ class GetUserContracts(APIView):
         pk=self.request.data.get("service_pk", None)
            
         if pk is None:
-            contracts = Contract.objects.filter(client=request.user, service__name__lower="co-location")
+            contracts = Contract.objects.filter(client=request.user, service__name__icontains="co-location")
         else:
             contracts = Contract.objects.filter(client=request.user, service__pk=pk)
 
