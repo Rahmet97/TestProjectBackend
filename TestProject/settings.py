@@ -58,7 +58,8 @@ INSTALLED_APPS = [
     'one_c',
     'billing',
 
-    'main'
+    'main',
+    'expertiseService',
 ]
 
 MIDDLEWARE = [
