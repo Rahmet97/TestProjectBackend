@@ -24,3 +24,14 @@ admin.site.register((
 
     OldContractFile  # test
 ))
+
+
+@admin.register(ExpertiseTarifContract)
+class ExpertiseTarifContractAdmin(admin.ModelAdmin):
+    pass
+
+
+
+@admin.register(ExpertiseServiceContractTarif)
+class ExpertiseServiceContractTarifAdmin(admin.ModelAdmin):
+    pass

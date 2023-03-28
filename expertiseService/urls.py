@@ -3,6 +3,8 @@ from expertiseService import views
 
 
 urlpatterns = [
-    # path("create/expertise/contract", views.CreateExpertiseServiceContractView.as_view(),
-    # name="create-expertise-contract")
+    path("create/expertise/contract", 
+         views.CreateExpertiseServiceContractView.as_view(),
+         name="create-expertise-contract"
+    ),
 ]
