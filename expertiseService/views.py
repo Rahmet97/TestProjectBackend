@@ -33,7 +33,7 @@ class CreateExpertiseServiceContractView(GenericAPIView):
 
     def post(self, request):
         context = dict()
-        request_objects_serializers = ExpertiseServiceContractSerializers(request.data)
+        request_objects_serializers = ExpertiseServiceContractSerializers(data=request.data)
         request_objects_serializers.is_valid(raise_exception=True)
 
         context['u_type'] = 'yuridik'
