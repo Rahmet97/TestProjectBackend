@@ -846,7 +846,7 @@ class GetUserContracts(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        pk=self.request.data.get("service_pk", None)
+        pk=request.data.get("service_pk", None)
         print(">>>>>>>>>>>>: ", pk)
         if pk is None:
             contracts = Contract.objects.filter(client=request.user, service__name__icontains="co-location")
