@@ -846,7 +846,13 @@ class GetUserContracts(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        contracts = Contract.objects.filter(client=request.user)
+        pk=self.request.data.get("service_pk", None)
+           
+        if pk is None:
+            contracts = Contract.objects.filter(client=request.user, service__name__lower="co-location")
+        else:
+            contracts = Contract.objects.filter(client=request.user, service__pk=pk)
+
         serializer = ContractSerializerForContractList(contracts, many=True)
         return Response(serializer.data)
 

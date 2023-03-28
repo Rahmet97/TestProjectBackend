@@ -145,8 +145,8 @@ class Contract(models.Model):
     status = models.ForeignKey(Status, on_delete=models.CASCADE)  # ijro statuslari
     contract_status = models.ForeignKey(ContractStatus, on_delete=models.CASCADE)  # hujjat statuslari
     condition = models.IntegerField(default=0)
-    contract_cash = models.DecimalField(max_digits=10, decimal_places=2)  # total_price
-    payed_cash = models.DecimalField(max_digits=10, decimal_places=2)
+    contract_cash = models.DecimalField(max_digits=20, decimal_places=2)  # total_price
+    payed_cash = models.DecimalField(max_digits=20, decimal_places=2)
     tarif = models.ForeignKey(Tarif, on_delete=models.CASCADE, blank=True, null=True)
     expiration_date = models.DateTimeField(blank=True, null=True)
     base64file = models.TextField(blank=True, null=True)
