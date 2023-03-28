@@ -14,7 +14,6 @@ class TelegramBotChatIDs(models.Model):
         return self.chat_name
 
 
-
 class Application(models.Model):
     user = models.ForeignKey(to=UserData, related_name="user_application", on_delete=models.CASCADE)
     service = models.ForeignKey(to=Service, related_name="service_application", on_delete=models.CASCADE)
@@ -29,4 +28,3 @@ class Application(models.Model):
     def __str__(self):
         return self.name
     
-

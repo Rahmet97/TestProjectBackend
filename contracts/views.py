@@ -342,7 +342,7 @@ class SelectedTarifDevicesAPIView(APIView):
 #         except AttributeError:
 #             number = 1
 #         prefix = Service.objects.get(pk=int(request.data['service_id'])).group.prefix
-        
+
 #         if request.user.type == 2:
 #             context['u_type'] = 'yuridik'
 #             context['contract_number'] = prefix + '-' + str(number)  # --
@@ -393,7 +393,7 @@ class SelectedTarifDevicesAPIView(APIView):
 #             context['count'] = request.data['count']
 #             context['price2'] = request.data['price']
 #             context['host'] = 'http://' + request.META['HTTP_HOST']
-        
+
 #         context['qr_code'] = ''
 #         # -------
 #         # dxoc file
@@ -413,7 +413,7 @@ class SelectedTarifDevicesAPIView(APIView):
 
 #         # direktor = YurUser.objects.get(userdata__role__name="direktor")
 #         # direktor_fullname = f"{direktor.director_lastname} {direktor.first_name} {direktor.mid_name}"
-        
+
 #         # context['qr_code'] = create_qr(link)
 #         # # -------
 #         # # docx file
@@ -448,7 +448,7 @@ class SelectedTarifDevicesAPIView(APIView):
 #                 client = request.user
 #             else:
 #                 client = request.data['client']
-            
+
 #             contract = Contract.objects.create(
 #                 service_id=int(request.data['service_id']),
 #                 contract_number=context['contract_number'],
@@ -480,7 +480,7 @@ class SelectedTarifDevicesAPIView(APIView):
 
 #             serializer = ContractSerializer(contract)
 #             return Response(serializer.data)
-        
+
 #         # Saqlanmedigan filelarni logikasini qolishim kk
 #         # qr_code fileni ochirish kk
 #         # 
@@ -510,7 +510,7 @@ class CreateContractFileAPIView(APIView):
         except AttributeError:
             number = 1
         prefix = Service.objects.get(pk=int(request.data['service_id'])).group.prefix
-        
+
         if request.user.type == 2:
             context['u_type'] = 'yuridik'
             context['contract_number'] = prefix + '-' + str(number)  # --
@@ -564,7 +564,7 @@ class CreateContractFileAPIView(APIView):
             context['host'] = 'http://' + request.META['HTTP_HOST']
             context["get_short_full_name"] = FizUser.objects.get(userdata=request.user).get_short_full_name
 
-        
+
         context['qr_code'] = ''
         context['save'] = False
         # context['devices'] = request.data.get("devices", None)
@@ -585,7 +585,7 @@ class CreateContractFileAPIView(APIView):
             qr_code_path = create_qr(link)
             context['hash_code'] = hash_code
             context['qr_code'] = f"http://api.unicon.uz/media/qr/{hash_code}.png"
-            
+
 
             # -------
             # rendered html file
@@ -597,7 +597,7 @@ class CreateContractFileAPIView(APIView):
             template_name="shablonFizik.html"  # fizik
             if request.user.type == 2:  # yuridik
                 template_name="shablonYuridik.html"
-            
+
             pdf = render_to_pdf(template_src=template_name, context_dict=context)
             if pdf:
                 output_dir = '/usr/src/app/media/Contract/pdf'
@@ -607,7 +607,7 @@ class CreateContractFileAPIView(APIView):
                     f.write(pdf.content)
             else:
                 error_response_500()
-            
+
             if contract_file_for_base64_pdf == None:
                 error_response_500()
 
@@ -626,23 +626,24 @@ class CreateContractFileAPIView(APIView):
             # pdf fileni ochirish
             delete_file(contract_file_for_base64_pdf)
             # qr_code fileni ochirish
-            delete_file(qr_code_path) 
+            delete_file(qr_code_path)
 
             # -------
             # preview ni bazaga ham saqlab ketishim kk chunki contractni statusiga qarab foydalanish uchun
             context['save'] = False
             like_preview_pdf = render_to_pdf(template_src=template_name, context_dict=context)
+            like_preview_pdf_path = None
             if like_preview_pdf:
                 output_dir = '/usr/src/app/media/Contract/pdf'
                 os.makedirs(output_dir, exist_ok=True)
                 like_preview_pdf_path = f"{output_dir}/{context.get('contract_number')}_{context.get('client_fullname')}.pdf"
                 with open(like_preview_pdf_path, 'wb') as f:
                     f.write(like_preview_pdf.content)
-            elif like_preview_pdf_path == None:
+            elif like_preview_pdf_path is None:
                 error_response_500()
             else:
                 error_response_500()
-            
+
             contract = Contract.objects.create(
                 service_id=int(request.data['service_id']),
                 contract_number=context['contract_number'],
@@ -672,11 +673,11 @@ class CreateContractFileAPIView(APIView):
 
             serializer = ContractSerializer(contract)
             return Response(serializer.data)
-        
+
         template_name="shablonFizik.html"  # fizik
         if request.user.type == 2:  # yuridik
             template_name="shablonYuridik.html"
-        
+
         return render(request=request, template_name=template_name, context=context)
 
 
@@ -690,7 +691,7 @@ class TestHtmlToPdf(APIView):
         }
         if int(request.data['save']):
             pdf = render_to_pdf(template_src="shablon.html", context_dict=context)
-            
+
             if pdf:
                 output_dir = '/usr/src/app/media/Contract/pdf'
                 os.makedirs(output_dir, exist_ok=True)
@@ -837,7 +838,7 @@ class GetContractFile(APIView):
                     response = HttpResponse(f.read(), content_type='application/pdf')
                     response['Content-Disposition'] = f'attachment; filename={contract.contract_number}'
                     return response
-            
+
         return Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -875,7 +876,7 @@ class ContractDetail(APIView):
             )
         except Contracts_Participants.DoesNotExist:
             contract_participants = None
-        
+
         if (request.user.role.name == "bo'lim boshlig'i"
             ) or (request.user.role.name == "direktor o'rinbosari"
             ) or (request.user.role.name == "dasturchi"
@@ -885,7 +886,7 @@ class ContractDetail(APIView):
             agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
             contract_participants.agreement_status = agreement_status
             contract_participants.save()
-            
+
         client = contract.client
 
         if client.type == 2:
@@ -906,7 +907,7 @@ class ContractDetail(APIView):
             ).summary
         except ExpertSummary.DoesNotExist:
             expert_summary_value = 0
-        
+
         if int(expert_summary_value) == 1:
             expert_summary = True
         else:
@@ -931,7 +932,7 @@ class GetGroupContract(APIView):
             ) or (request.user.role.name == "direktor o'rinbosari"
             ) or (request.user.role.name == "dasturchi"
             ) or (request.user.role.name == 'direktor'):
-            
+
             contracts = None
             barcha_data = Contract.objects.filter(
                 service__group=group).order_by('-condition', '-contract_date')
@@ -1314,9 +1315,9 @@ class AddOldContractsViews(APIView):
                 units_count=contract_tarif_device_serializer.validated_data.get("rack_count"),
                 electricity=contract_tarif_device_serializer.validated_data.get("total_electricity")
             )
-            
+
             service_participants = ServiceParticipants.objects.filter(participant__service=contract.service)
-            
+
             kelishildi = AgreementStatus.objects.get(name="Kelishildi")
 
             for obj in service_participants:
@@ -1410,7 +1411,7 @@ class AddOldContractsViews(APIView):
 
             for obj in service_participants:
                 Contracts_Participants.objects.create(
-                    contract=contract, 
+                    contract=contract,
                     role=obj.role,
                     agreement_status=AgreementStatus.objects.get(name="Kelishildi")
                 )
