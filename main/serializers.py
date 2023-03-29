@@ -11,7 +11,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Application
-        fields = ["pk", "user", "service", "name", "phone", "email", "message", "created_at", "file"]
+        fields = ["pk", "user", "service", "name", "phone", "email", "message", "created_at", "file", "is_contracted"]
 
 
     @staticmethod

@@ -23,6 +23,8 @@ class Application(models.Model):
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    is_contracted = models.BooleanField(default=False)
+
     file = models.FileField(upload_to="application/files")
 
     def __str__(self):

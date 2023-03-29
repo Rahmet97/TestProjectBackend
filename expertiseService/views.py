@@ -18,6 +18,7 @@ from accounts.models import YurUser, UserData
 from contracts.utils import NumbersToWord, render_to_pdf, error_response_500, delete_file
 
 from expertiseService.serializers import ExpertiseServiceContractSerializers
+from main.models import Application
 
 num2word = NumbersToWord()
 
@@ -145,6 +146,10 @@ class CreateExpertiseServiceContractView(GenericAPIView):
                     role=participant,
                     agreement_status=agreement_status
                 ).save()
+            
+            # Contract yaratilgandan so'ng application ni is_contracted=True qilib qo'yish kk 
+            application_pk = request.data.get("application_pk")
+            Application.objects.filter(pk=application_pk).update(is_contracted=True)
 
             return response.Response(data={"message": "Created Expertise Service Contract"}, status=201)
 
