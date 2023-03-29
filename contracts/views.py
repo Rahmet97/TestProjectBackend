@@ -882,11 +882,12 @@ class ContractDetail(APIView):
         except Contracts_Participants.DoesNotExist:
             contract_participants = None
 
-        if (request.user.role.name == "bo'lim boshlig'i"
-            ) or (request.user.role.name == "direktor o'rinbosari"
-            ) or (request.user.role.name == "dasturchi"
-            ) or (request.user.role.name == "direktor"
-            ) and (contract_participants.agreement_status.name == "Yuborilgan"):
+        # if (request.user.role.name == "bo'lim boshlig'i"
+        #     ) or (request.user.role.name == "direktor o'rinbosari"
+        #     ) or (request.user.role.name == "dasturchi"
+        #     ) or (request.user.role.name == "direktor"
+        #     ) and (contract_participants.agreement_status.name == "Yuborilgan"):
+        if request.user.role.name != 'mijoz' and contract_participants.agreement_status.name == "Yuborilgan":
 
             agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
             contract_participants.agreement_status = agreement_status
