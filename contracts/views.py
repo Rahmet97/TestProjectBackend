@@ -836,7 +836,7 @@ class GetContractFile(APIView):
                 # Open the file and create a response with the PDF data
                 with open(contract.like_preview_pdf.path, 'rb') as f:
                     response = HttpResponse(f.read(), content_type='application/pdf')
-                    response['Content-Disposition'] = f'attachment; filename={contract.contract_number}'
+                    response['Content-Disposition'] = f'attachment; filename={contract.contract_number}.pdf'
                     return response
 
         return Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
@@ -934,10 +934,7 @@ class GetGroupContract(APIView):
 
     def get(self, request):
         group = request.user.group
-        if (request.user.role.name == "bo'lim boshlig'i"
-            ) or (request.user.role.name == "direktor o'rinbosari"
-            ) or (request.user.role.name == "dasturchi"
-            ) or (request.user.role.name == 'direktor'):
+        if request.user.role.name != "mijoz":
 
             contracts = None
             barcha_data = Contract.objects.filter(
@@ -945,7 +942,7 @@ class GetGroupContract(APIView):
             barcha = ContractSerializerForBackoffice(barcha_data, many=True)
             if request.user.role.name == 'direktor':
                 contract_participants = Contracts_Participants.objects.filter(
-                    Q(contract__service__group=group),
+                    (Q(contract__service__group=group) | Q(contract__service__group=None)),
                     Q(role__name="direktor o'rinbosari"),
                     Q(agreement_status__name='Kelishildi')
                 ).values('contract')
