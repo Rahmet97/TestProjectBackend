@@ -125,7 +125,7 @@ class UserDetailAPIView(APIView):
             # Check if user role is not 'mijoz' and retrieve with_eds field from ServiceParticipants model
             if request.user.role.name != 'mijoz':
                 try:
-                    with_ads = ServiceParticipants.objects.get(role=request.user.role).with_eds
+                    with_ads = ServiceParticipants.objects.get(Q(role=request.user.role), Q(participant__service__group=request.user.group)).with_eds
                     data["with_ads"] = with_ads
                 except ServiceParticipants.DoesNotExist:
                     pass

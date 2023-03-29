@@ -243,6 +243,7 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
 
     def get_userdata(self, obj):
         if obj.role.name != "dasturchi":
+            print('246 Role', obj.contract, obj.role.name, obj.agreement_status.name)
             userdata = UserData.objects.get(Q(role=obj.role), Q(group=obj.contract.service.group))
             if userdata.type == 2:
                 u = YurUser.objects.get(userdata=userdata)
