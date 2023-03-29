@@ -242,9 +242,9 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
     expert_summary = serializers.SerializerMethodField()
 
     def get_userdata(self, obj):
-        if obj.role.name != "dasturchi":
+        if obj.role.name != "dasturchi" and obj.role.name != 'mijoz':
             print('246 Role', obj.contract, obj.role.name, obj.agreement_status.name)
-            userdata = UserData.objects.get(Q(role=obj.role), Q(group=obj.contract.service.group))
+            userdata = UserData.objects.get(Q(role=obj.role), (Q(group=obj.contract.service.group) | Q(group=None)))
             if userdata.type == 2:
                 u = YurUser.objects.get(userdata=userdata)
                 user = YurUserSerializerForContractDetail(u)
