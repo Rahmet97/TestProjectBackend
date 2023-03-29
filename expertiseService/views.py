@@ -103,7 +103,7 @@ class CreateExpertiseServiceContractView(GenericAPIView):
             if like_preview_pdf:
                 output_dir = '/usr/src/app/media/Contract/pdf'
                 os.makedirs(output_dir, exist_ok=True)
-                like_preview_pdf_path = f"{output_dir}/{context.get('contract_number')}_{context.get('client_fullname')}.pdf"
+                like_preview_pdf_path = f"{output_dir}/{context.get('contract_number')}_{context.get('user_obj').get_director_short_full_name}.pdf"
                 with open(like_preview_pdf_path, 'wb') as f:
                     f.write(like_preview_pdf.content)
             elif like_preview_pdf_path == None:
