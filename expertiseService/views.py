@@ -44,6 +44,8 @@ class CreateExpertiseServiceContractView(GenericAPIView):
 
         context['price'] = request_objects_serializers.validated_data.get("contract_cash")
         context['price_text'] = num2word.change_num_to_word(int(context['price']))
+        context['price_select_percentage'] = request_objects_serializers.validated_data.get('price_select_percentage')
+        context['price_select_percentage_text'] = num2word.change_num_to_word(int(context['price_select_percentage']))
 
         context['tarif'] = request_objects_serializers.validated_data.get("projects")
 
