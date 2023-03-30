@@ -897,10 +897,9 @@ class ContractDetail(APIView):
 
 # Agar client sharnomani rejected qilsa
 class ContractRejectedViews(APIView):
-    model = ExpertSummary
     serializer_class = ExpertSummarySerializerForRejected
-    permission_classes = [IsAuthenticated, IsOwnContractPermission]
-        
+    permission_classes = [IsOwnContractPermission]
+
     @swagger_auto_schema(operation_summary="Front Office uchun. clientga yaratilgan shartnomani bekor qilish uchun")
     def post(self, request, contract_id):
         
