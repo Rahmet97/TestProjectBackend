@@ -1,10 +1,11 @@
 from rest_framework import permissions
 
 
-class IsOwnContractPermission(permissions.BasePermission):
-    message = 'User bu contractni yaratmagan'
+class IsAuthenticatedAndOwner(permissions.BasePermission):
+    message = 'You must be the owner of this object.'
 
-    def has_object_permission(self, request, view, obj):
-        print(obj.client, request.user)
-        return obj.client == request.user
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated
     
+    def has_object_permission(self, request, view, obj):
+        return obj.client == request.user
