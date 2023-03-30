@@ -504,6 +504,7 @@ class CreateContractFileAPIView(APIView):
 
     def post(self, request):
         context = dict()
+        print('Tariff >>>>>>>> ', request.data['tarif'])
         tarif = Tarif.objects.get(pk=int(request.data['tarif'])).name
 
         try:
@@ -844,9 +845,9 @@ class ContractDetail(APIView):
             contract_participants = Contracts_Participants.objects.filter(contract=contract).get(
                 (Q(role=request.user.role) &
                  Q(contract__service__group=request.user.group)) |
-                Q(role='direktor') |
-                Q(role='iqtisodchi') |
-                Q(role='yurist')
+                Q(role__name='direktor') |
+                Q(role__name='iqtisodchi') |
+                Q(role__name='yurist')
             )
         except Contracts_Participants.DoesNotExist:
             contract_participants = None
