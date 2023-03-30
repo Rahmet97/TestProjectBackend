@@ -244,6 +244,9 @@ class ExpertSummary(models.Model):
     user_role = models.ForeignKey(to=Role, blank=True, null=True, on_delete=models.SET_NULL)
     date = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self) -> str:
+        return f"{self.contract.contract_number}|{self.user.username}|{self.user_role}"
+
 
 class ExpertSummaryDocument(models.Model):
     expertsummary = models.ForeignKey(ExpertSummary, on_delete=models.CASCADE)
