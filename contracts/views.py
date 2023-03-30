@@ -30,7 +30,7 @@ from accounts.serializers import (
 
 from services.models import Rack, Unit, DeviceUnit
 
-from .permission import IsOwnContractPermission
+from .permission import IsAuthenticatedAndOwner
 from main.utils import responseErrorMessage
 
 from .models import (
@@ -898,12 +898,13 @@ class ContractDetail(APIView):
 # Agar client sharnomani rejected qilsa
 class ContractRejectedViews(APIView):
     serializer_class = ExpertSummarySerializerForRejected
-    permission_classes = [IsOwnContractPermission]
+    permission_classes = [IsAuthenticatedAndOwner]
 
     @swagger_auto_schema(operation_summary="Front Office uchun. clientga yaratilgan shartnomani bekor qilish uchun")
     def post(self, request, contract_id):
         
         contract = get_object_or_404(Contract, pk=contract_id)
+        # self.check_object_permissions(self.request, contract)
         if contract.contract_status != ContractStatus.objects.get(name="Bekor qilingan"):
             serializer = self.serializer_class(data=request.data)
             
