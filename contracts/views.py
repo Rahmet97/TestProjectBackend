@@ -842,7 +842,7 @@ class ContractDetail(APIView):
         contract_serializer = ContractSerializerForDetail(contract)
         try:
             contract_participants = Contracts_Participants.objects.filter(contract=contract).get(
-                (Q(role=request.user.role),
+                (Q(role=request.user.role) &
                  Q(contract__service__group=request.user.group)) |
                 Q(role='direktor') |
                 Q(role='iqtisodchi') |
