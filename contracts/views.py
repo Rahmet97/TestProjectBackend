@@ -22,20 +22,36 @@ from rest_framework.views import APIView
 
 from accounts.models import FizUser, UserData, Role, YurUser
 from accounts.permissions import AdminPermission, SuperAdminPermission, DeputyDirectorPermission, WorkerPermission
-from accounts.serializers import FizUserSerializer, YurUserSerializer, FizUserSerializerForContractDetail, \
-    YurUserSerializerForContractDetail, FizUserForOldContractSerializers, YurUserForOldContractSerializers
-from services.models import Rack, Unit, DeviceUnit
-from .models import Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice, \
-    UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus, Pkcs, ExpertSummary, Contracts_Participants, \
-    ConnetMethod, Participant, OldContractFile, ServiceParticipants
-from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer, \
-    OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer, PkcsSerializer, \
-    ContractSerializerForContractList, ContractSerializerForBackoffice, ExpertSummarySerializer, \
-    ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail, \
-    ConnectMethodSerializer, AddOldContractSerializers, UserOldContractTarifDeviceSerializer
 
-from .utils import error_response_404, create_qr, NumbersToWord, convert_docx_to_pdf, delete_file, render_to_pdf, \
-    error_response_500
+from accounts.serializers import (
+    FizUserSerializer, YurUserSerializer, FizUserSerializerForContractDetail,
+    YurUserSerializerForContractDetail, FizUserForOldContractSerializers, YurUserForOldContractSerializers
+)
+
+from services.models import Rack, Unit, DeviceUnit
+
+from .permission import IsOwnContractPermission
+
+from .models import (
+    Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice,
+    UserDeviceCount, Contract, Status, ContractStatus, AgreementStatus, Pkcs, ExpertSummary, Contracts_Participants,
+    ConnetMethod, Participant, OldContractFile, ServiceParticipants
+)
+
+from .serializers import (
+    ServiceSerializer, TarifSerializer, DeviceSerializer, UserContractTarifDeviceSerializer,
+    OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer, PkcsSerializer,
+    ContractSerializerForContractList, ContractSerializerForBackoffice, ExpertSummarySerializer,
+    ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail,
+    ConnectMethodSerializer, AddOldContractSerializers, UserOldContractTarifDeviceSerializer,
+    ExpertSummarySerializerForRejected
+)
+
+from .utils import (
+    error_response_404, create_qr, NumbersToWord, convert_docx_to_pdf, 
+    delete_file, render_to_pdf, error_response_500
+)
+
 from .tasks import file_creator, file_downloader, generate_contract_number
 
 num2word = NumbersToWord()
@@ -63,29 +79,6 @@ class ServiceDetailAPIView(generics.RetrieveAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
     permission_classes = ()
-
-
-# class UserDetailAPIView(APIView):
-#     permission_classes = (IsAuthenticated,)
-
-#     def get(self, request):
-#         if request.user.type == 1:
-#             user = FizUser.objects.get(userdata=request.user)
-#             serializer = FizUserSerializerForContractDetail(user)
-#             data = serializer.data
-#             data['u_type'] = 'Fizik'
-#         else:
-#             user = YurUser.objects.get(userdata=request.user)
-#             serializer = YurUserSerializerForContractDetail(user)
-#             data = serializer.data
-#             data['u_type'] = 'Yuridik'
-#         # agar user mijoz bo'lmasa
-#         if request.user.role.name != 'mijoz':
-#             role = request.user.role
-#             if ServiceParticipants.objects.filter(role=role).exists():
-#                 print(ServiceParticipants.objects.get(role=role).with_eds)
-#                 data["with_ads"] = ServiceParticipants.objects.get(role=role).with_eds
-#         return Response(data)
 
 
 class UserDetailAPIView(APIView):
@@ -901,6 +894,30 @@ class ContractDetail(APIView):
         )
 
 
+# Agar client sharnomani rejected qilsa
+class ContractRejectedViews(APIView):
+    model = ExpertSummary
+    serializer_class = ExpertSummarySerializerForRejected
+
+    permission_classes = [IsAuthenticated, IsOwnContractPermission]    
+
+    @swagger_auto_schema(operation_summary="Front Office uchun. clientga yaratilgan shartnomani bekor qilish uchun")
+    def post(self, request, contract_id):
+        
+        contract = get_object_or_404(Contract, pk=contract_id)
+        serializer = self.serializer_class(data=request.data)
+        
+        serializer.is_valid(raise_exception=True)
+        contract.contract_status = ContractStatus.objects.get(name="Bekor qilingan")
+        contract.save()
+
+        serializer.save(
+            contract=contract, summary=0, 
+            user=request.user, user_role=request.user.role
+        )
+        return Response({"message": "Contract rejected"}, status=201)
+
+
 class GetGroupContract(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -1029,7 +1046,6 @@ class ConfirmContract(APIView):
             Q(contract=contract),
             Q(contract__service__group=request.user.group)
         )
-        print(">>>>>>>>>>>>>>>>>>>>>>>", contracts_participants)
         contracts_participants.agreement_status = agreement_status
         contracts_participants.save()
         contract.condition += 1

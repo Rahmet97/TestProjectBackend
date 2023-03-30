@@ -241,6 +241,7 @@ class ExpertSummary(models.Model):
     comment = models.TextField(blank=True, null=True)
     summary = models.IntegerField(choices=summary_choice)
     user = models.ForeignKey(UserData, on_delete=models.CASCADE)
+    user_role = models.ForeignKey(to=Role, blank=True, null=True, on_delete=models.SET_NULL)
     date = models.DateTimeField(auto_now_add=True)
 
 
