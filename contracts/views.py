@@ -21,7 +21,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.models import FizUser, UserData, Role, YurUser
-from accounts.permissions import AdminPermission, SuperAdminPermission, DeputyDirectorPermission
+from accounts.permissions import AdminPermission, SuperAdminPermission, DeputyDirectorPermission, WorkerPermission
 from accounts.serializers import FizUserSerializer, YurUserSerializer, FizUserSerializerForContractDetail, \
     YurUserSerializerForContractDetail, FizUserForOldContractSerializers, YurUserForOldContractSerializers
 from services.models import Rack, Unit, DeviceUnit
@@ -799,39 +799,6 @@ class GetContractFile(APIView):
                     delete_file(file_pdf_path)
                     return response
         else:
-            # if contract.client.type == 2:  # If contract client is Yuridik user
-            #     context = {
-            #         'service_id': '',
-            #         'tarif': '',
-            #         'name': '',
-            #         'director_fullname': '',
-            #         'per_adr': '',
-            #         'tin': '',
-            #         'mfo': '',
-            #         'oked': '',
-            #         'hr': '',
-            #         'bank': '',
-            #         'price': '',
-            #         'count': '',
-            #         'devices': '',
-            #         'save': 1,
-            #     }
-            # else:
-            #     context = {
-            #         'service_id': '',
-            #         'tarif': '',
-            #         'pport_issue_place': '',
-            #         'pport_issue_date': '',
-            #         'pport_no': '',
-            #         'full_name': '',
-            #         'price': '',
-            #         'per_adr': '',
-            #         'pin': '',
-            #         'count': '',
-            #         'devices': '',
-            #         'save': 1,
-            #     }
-
             if contract.like_preview_pdf:
                 # Open the file and create a response with the PDF data
                 with open(contract.like_preview_pdf.path, 'rb') as f:
@@ -1041,7 +1008,7 @@ class GetGroupContract(APIView):
 
 
 class ConfirmContract(APIView):
-    permission_classes = (DeputyDirectorPermission,)
+    permission_classes = (WorkerPermission,)
 
     def post(self, request):
         contract = Contract.objects.get(pk=int(request.data['contract']))

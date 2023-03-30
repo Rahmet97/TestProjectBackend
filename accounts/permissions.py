@@ -45,3 +45,12 @@ class DeputyDirectorPermission(permissions.BasePermission):
             return request.user.role.name == "bo'lim boshlig'i" or request.user.role.name == "direktor o'rinbosari" or request.user.role.name == "direktor"
         except:
             return False
+
+
+class WorkerPermission(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        try:
+            return request.user.role != '' and request.user.role.name != 'mijoz'
+        except:
+            return False
