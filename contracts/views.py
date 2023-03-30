@@ -34,7 +34,8 @@ from .serializers import ServiceSerializer, TarifSerializer, DeviceSerializer, U
     ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail, \
     ConnectMethodSerializer, AddOldContractSerializers, UserOldContractTarifDeviceSerializer
 
-from .utils import error_response_404, create_qr, NumbersToWord, convert_docx_to_pdf, delete_file, render_to_pdf, error_response_500
+from .utils import error_response_404, create_qr, NumbersToWord, convert_docx_to_pdf, delete_file, render_to_pdf, \
+    error_response_500
 from .tasks import file_creator, file_downloader, generate_contract_number
 
 num2word = NumbersToWord()
@@ -125,7 +126,8 @@ class UserDetailAPIView(APIView):
             # Check if user role is not 'mijoz' and retrieve with_eds field from ServiceParticipants model
             if request.user.role.name != 'mijoz':
                 try:
-                    with_ads = ServiceParticipants.objects.get(Q(role=request.user.role), Q(participant__service__group=request.user.group)).with_eds
+                    with_ads = ServiceParticipants.objects.get(Q(role=request.user.role),
+                                                               Q(participant__service__group=request.user.group)).with_eds
                     data["with_ads"] = with_ads
                 except ServiceParticipants.DoesNotExist:
                     pass
@@ -492,7 +494,6 @@ class SelectedTarifDevicesAPIView(APIView):
 #         return 
 
 
-
 class CreateContractFileAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -537,7 +538,8 @@ class CreateContractFileAPIView(APIView):
             context['count'] = request.data['count']
             context['price2'] = request.data['price']
             context['host'] = 'http://' + request.META['HTTP_HOST']
-            context["get_director_short_full_name"] = YurUser.objects.get(userdata=request.user).get_director_short_full_name
+            context["get_director_short_full_name"] = YurUser.objects.get(
+                userdata=request.user).get_director_short_full_name
         else:
             context['u_type'] = 'fizik'
             context['contract_number'] = prefix + '-' + str(number)
@@ -564,13 +566,11 @@ class CreateContractFileAPIView(APIView):
             context['host'] = 'http://' + request.META['HTTP_HOST']
             context["get_short_full_name"] = FizUser.objects.get(userdata=request.user).get_short_full_name
 
-
         context['qr_code'] = ''
         context['save'] = False
         # context['devices'] = request.data.get("devices", None)
         context['page_break'] = False
         context['datetime'] = datetime.now().strftime('%d.%m.%Y')
-
 
         if int(request.data['save']):
             context['save'] = True
@@ -586,7 +586,6 @@ class CreateContractFileAPIView(APIView):
             context['hash_code'] = hash_code
             context['qr_code'] = f"http://api.unicon.uz/media/qr/{hash_code}.png"
 
-
             # -------
             # rendered html file
             # contract_file_for_base64 = file_creator(context, 0)
@@ -594,9 +593,9 @@ class CreateContractFileAPIView(APIView):
             # contract_file_for_base64_pdf = convert_docx_to_pdf(str(contract_file_for_base64))
             contract_file_for_base64_pdf = None
 
-            template_name="shablonFizik.html"  # fizik
+            template_name = "shablonFizik.html"  # fizik
             if request.user.type == 2:  # yuridik
-                template_name="shablonYuridik.html"
+                template_name = "shablonYuridik.html"
 
             pdf = render_to_pdf(template_src=template_name, context_dict=context)
             if pdf:
@@ -674,9 +673,9 @@ class CreateContractFileAPIView(APIView):
             serializer = ContractSerializer(contract)
             return Response(serializer.data)
 
-        template_name="shablonFizik.html"  # fizik
+        template_name = "shablonFizik.html"  # fizik
         if request.user.type == 2:  # yuridik
-            template_name="shablonYuridik.html"
+            template_name = "shablonYuridik.html"
 
         return render(request=request, template_name=template_name, context=context)
 
@@ -701,7 +700,7 @@ class TestHtmlToPdf(APIView):
 
             return Response(data={
                 "pdf": f"media/Contract/pdf/{context.get('name')}.pdf"
-                }, status=200)
+            }, status=200)
 
         return render(request=request, template_name="shablon.html", context=context)
 
@@ -786,7 +785,7 @@ class GetContractFile(APIView):
             # delete like pdf file test mode
             if contract.like_preview_pdf:
                 delete_file(contract.like_preview_pdf.path)
-                contract.like_preview_pdf=None
+                contract.like_preview_pdf = None
                 contract.save()
 
             file_pdf_path, pdf_file_name = file_downloader(
@@ -843,8 +842,11 @@ class ContractDetail(APIView):
         contract_serializer = ContractSerializerForDetail(contract)
         try:
             contract_participants = Contracts_Participants.objects.filter(contract=contract).get(
-                Q(role=request.user.role),
-                Q(contract__service__group=request.user.group)
+                (Q(role=request.user.role),
+                 Q(contract__service__group=request.user.group)) |
+                Q(role='direktor') |
+                Q(role='iqtisodchi') |
+                Q(role='yurist')
             )
         except Contracts_Participants.DoesNotExist:
             contract_participants = None
@@ -854,12 +856,14 @@ class ContractDetail(APIView):
         #     ) or (request.user.role.name == "dasturchi"
         #     ) or (request.user.role.name == "direktor"
         #     ) and (contract_participants.agreement_status.name == "Yuborilgan"):
-        if request.user.role.name != 'mijoz' and contract_participants.agreement_status.name == "Yuborilgan":
-
-            agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
-            contract_participants.agreement_status = agreement_status
-            contract_participants.save()
-
+        print(request.user, request.user.role.name)
+        try:
+            if request.user.role.name != 'mijoz' and contract_participants.agreement_status.name == "Yuborilgan":
+                agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
+                contract_participants.agreement_status = agreement_status
+                contract_participants.save()
+        except AttributeError:
+            pass
         client = contract.client
 
         if client.type == 2:
