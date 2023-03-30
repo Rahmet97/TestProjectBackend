@@ -259,12 +259,12 @@
         </h3>
         <div class='d-flex' style="justify-content: space-between; margin-bottom: 20px">
             <strong>Toshkent sh.</strong>
-            <strong>{{day}}.{{month}}.{{year}}</strong>
+            <strong>{{datetime}}</strong>
         </div>
         <p class='requirement-text'>
-            {{org_nameuz}} ({{org_nameuz_short}}) nomidan {{org_doc}} asosida faoliyat yurituvchi {{pozition}}
-            {{direktor_nameuz}} (bundan buyon matnda “Bajaruvchi”) bir tomondan, {{client}} nomidan {{client_doc}}
-            asosida faoliyat yurituvchi {{client_pozition}} {{director}} (bundan buyon matnda “Buyurtmachi”) ikkinchi
+            "UNICON.UZ" - Fan-texnika va marketing tadqiqotlari markazi davlat unitar korxonasi ("UNICON.UZ" DUK) nomidan Ustav asosida faoliyat yurituvchi Direktor
+            M. Maxmudov (bundan buyon matnda “Bajaruvchi”) bir tomondan, {{user_obj.name}} nomidan Ustav
+            asosida faoliyat yurituvchi Direktor {{user_obj.get_director_short_full_name}} (bundan buyon matnda “Buyurtmachi”) ikkinchi
             tomondan, mazkur Shartnomani quyidagilar to'g'risida tuzdilar:
         </p>
         <h4 class='requirement-title'>I. SHARTNOMA MAVZUSI</h4>
@@ -279,14 +279,14 @@
              2.2. Shartnoma bo'yicha to'lov Buyurtmachi tomonidan Bajaruvchining hisob raqamiga quyidagi tarzda
             o'tkaziladi: <br>
             {% if price_select_percentage == 50 %}
-             2.2.1. Mazkur Shartnoma imzolangandan keyin 5 ish kuni ichida mazkur Shartnomaning 1-ilovasida ko'rsatilgan
-            ishlar umumiy shartnomaviy narxining 50 foizi ellik foizi) miqdoridagi summani, qolgan {{price_select_percentage}} foizini esa
-            bajarilgan ishlar dalolatnomasi va hisob-faktura imzolangandan keyin 10 kun ichida Bajaruvchining hisob
-            raqamiga o'tkazishi kerak. <br>
+                2.2.1. Mazkur Shartnoma imzolangandan keyin 5 ish kuni ichida mazkur Shartnomaning 1-ilovasida ko'rsatilgan
+                ishlar umumiy shartnomaviy narxining 50 foizi ellik foizi) miqdoridagi summani, qolgan 50 foizini esa
+                bajarilgan ishlar dalolatnomasi va hisob-faktura imzolangandan keyin 10 kun ichida Bajaruvchining hisob
+                raqamiga o'tkazishi kerak. <br>
             {% elif price_select_percentage == 100 %}
-             2.2.1. Mazkur Shartnoma imzolangandan keyin 5 ish kuni ichida mazkur Shartnomaning 1-ilovasida ko'rsatilgan
-            ishlar umumiy shartnomaviy narxining 100 foizi (yuz foizi) miqdoridagi summani Bajaruvchining hisob raqamiga
-            o'tkazishi kerak. <br>
+                2.2.1. Mazkur Shartnoma imzolangandan keyin 5 ish kuni ichida mazkur Shartnomaning 1-ilovasida ko'rsatilgan
+                ishlar umumiy shartnomaviy narxining 100 foizi (yuz foizi) miqdoridagi summani Bajaruvchining hisob raqamiga
+                o'tkazishi kerak. <br>
             {{% endif %}}
              2.3. Buyurtmachidan Bajaruvchining hisob raqamiga pul o'tkazmalarini amalga oshirishda ushlab qolinadigan
             komissiya yig'imlari va bojlari Buyurtmachi tomonidan to'lanadi. <br>
@@ -426,20 +426,20 @@
                 <tr>
                 </tr>
                 <tr>
-                    <td align="center">{{org_nameuz}}</td>
+                    <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi</td>
                     <td align="center"></td>
-                    <td align="center">{{client}}</td>
+                    <td align="center">{{user_obj.name}}</td>
                 </tr>
                 <tr>
                 </tr>
                 <tr>
                     <td align="left">
-                        Manzil: {{org_per_adr}} <br>
-                        STIR: {{org_tin}} <br>
-                        MFO: {{org_mfo}} <br>
-                        OKED: {{org_oked}} <br>
-                        H/r: {{org_hr}} <br>
-                        Bank: {{org_bank}} <br>
+                        Manzil: 100087, Toshkent sh. Mingbuloq ko`chasi, 38-uy. <br>
+                        STIR: 200 898 586 <br>
+                        MFO: 00401 <br>
+                        OKED: 72190 <br>
+                        H/r: 2021 0000 9001 5527 8001 <br>
+                        Bank: Toshkent sh. AT “Aloqabank”
                         Elekton pochta manzili: {{org_mail}}
                     </td>
                     <td align="center"></td>
@@ -454,9 +454,9 @@
                     </td>
                 </tr>
                 <tr>
-                    <td align="center">{{org_director}}</td>
+                    <td align="center">M.M. Maxmudov</td>
                     <td align="center"></td>
-                    <td align="center">{{director}}</td>
+                    <td align="center">{{user_obj.get_director_short_full_name}}</td>
                 </tr>
                 <tr>
                     <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
@@ -473,13 +473,12 @@
                 <th>Shartnoma raqami</th>
                 <th>{{contract_number}}</th>
                 <th rowspan="5">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsip6Dsj3eSrw44sOjmaU1eMpLQNb0MfQXgw&usqp=CAU"
-                        alt="">
+                    <img src="{{ qr_code }}" alt="">
                 </th>
             </tr>
             <tr>
                 <th>Shartnoma sanasi</th>
-                <th>{{day}}.{{month}}.{{year}}</th>
+                <th>{{datetime}}</th>
             </tr>
             <tr>
                 <th>Shartnoma kodi</th>
@@ -487,27 +486,27 @@
             </tr>
             <tr>
                 <th>Ijrochining STIR raqami</th>
-                <th>{{org_tin}}</th>
+                <th>200 898 586</th>
             </tr>
             <tr>
                 <th>Buyurtmachining STIR/JShShIR raqami</th>
-                <th>{{tin}}</th>
+                <th>{{user_obj.tin}}</th>
             </tr>
         </table>
         {{page_break}}
         <br>
         <div class="ilova">
             <span>
-                {{day}}.{{month}}.{{year}}
+                {{datetime}}
             </span>
             <span class="contract_number">{{contract_number}}-sonli shartnomaga</span>
             <span class="contract_number">1-ilova</span>
         </div>
         <h4 class="requirement-title">Ishlarning shartnoma narxi to'g'risidagi kelishuv <br> BAYONNOMASI</h4>
         <p class='requirement-text'>
-             Biz, quyida imzo qo'yuvchilar, Buyurtmachi - {{client}} nomidan {{director}} va ikkinchi tomondan
+             Biz, quyida imzo qo'yuvchilar, Buyurtmachi - {{client}} nomidan Director va ikkinchi tomondan
             Bajaruvchi
-            - ({{org_nameuz_short}}) nomidan {{pozition}} {{org_director}}, Tomonlar tarafidan QQSni hisobga olgan holda
+            - ("UNICON.UZ" DUK) nomidan Direktor Maxmudov M, Tomonlar tarafidan QQSni hisobga olgan holda
             {{price}} ({{price_text}}) so'm miqdoridagi ishlarning shartnoma narxi miqdori to'g'risida kelishib
             olinganini tasdiqlaymiz. <br>
              Keltirilgan narx 2-ilovaga muvofiq aniqlandi va loyiha ekspertizasining natijalaridan qat'iy nazar
@@ -533,9 +532,9 @@
                 <tr>
                 </tr>
                 <tr>
-                    <td align="center">{{org_nameuz}}</td>
+                    <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi</td>
                     <td align="center"></td>
-                    <td align="center">{{client}}</td>
+                    <td align="center">{{user_obj.name}}</td>
                 </tr>
                 <tr>
                 </tr>
@@ -543,9 +542,9 @@
                     <td align="center"></td>
                 </tr>
                 <tr>
-                    <td align="center">{{org_director}}</td>
+                    <td align="center">M.M. Maxmudov</td>
                     <td align="center"></td>
-                    <td align="center">{{director}}</td>
+                    <td align="center">{{user_obj.get_director_short_full_name}}</td>
                 </tr>
                 <tr>
                     <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
@@ -560,15 +559,14 @@
             </tr>
             <tr>
                 <th>Shartnoma raqami</th>
-                <th>{{contract_number}} “/{{user_contract_number}}”</th>
+                <th>{{contract_number}}</th>
                 <th rowspan="5">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsip6Dsj3eSrw44sOjmaU1eMpLQNb0MfQXgw&usqp=CAU"
-                        alt="">
+                    <img src="{{ qr_code }}" alt="">
                 </th>
             </tr>
             <tr>
                 <th>Shartnoma sanasi</th>
-                <th>{{day}}.{{month}}.{{year}}</th>
+                <th>{{datetime}}</th>
             </tr>
             <tr>
                 <th>Shartnoma kodi</th>
@@ -576,18 +574,18 @@
             </tr>
             <tr>
                 <th>Ijrochining STIR raqami</th>
-                <th>{{org_tin}}</th>
+                <th>200 898 586</th>
             </tr>
             <tr>
                 <th>Buyurtmachining STIR/JShShIR raqami</th>
-                <th>{{tin}}</th>
+                <th>{{user_obj.tin}}</th>
             </tr>
         </table>
         {{page_break}}
         <br>
         <div class="ilova">
             <span>
-                {{day}}.{{month}}.{{year}}
+                {{datetime}}
             </span>
             <span class="contract_number">{{contract_number}}-sonli shartnomaga</span>
             <span class="contract_number">2-ilova</span>
@@ -644,9 +642,9 @@
                 <tr>
                 </tr>
                 <tr>
-                    <td align="center">{{org_nameuz}}</td>
+                    <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi</td>
                     <td align="center"></td>
-                    <td align="center">{{client}}</td>
+                    <td align="center">{{user_obj.name}}</td>
                 </tr>
                 <tr>
                 </tr>
@@ -654,9 +652,9 @@
                     <td align="center"></td>
                 </tr>
                 <tr>
-                    <td align="center">{{org_director}}</td>
+                    <td align="center">M.M. Maxmudov</td>
                     <td align="center"></td>
-                    <td align="center">{{director}}</td>
+                    <td align="center">{{user_obj.get_director_short_full_name}}</td>
                 </tr>
                 <tr>
                     <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
@@ -672,15 +670,14 @@
             </tr>
             <tr>
                 <th>Shartnoma raqami</th>
-                <th>{{contract_number}} “/{{user_contract_number}}”</th>
+                <th>{{contract_number}}</th>
                 <th rowspan="5">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsip6Dsj3eSrw44sOjmaU1eMpLQNb0MfQXgw&usqp=CAU"
-                        alt="">
+                    <img src="{{ qr_code }}" alt="">
                 </th>
             </tr>
             <tr>
                 <th>Shartnoma sanasi</th>
-                <th>{{day}}.{{month}}.{{year}}</th>
+                <th>{{datetime}}</th>
             </tr>
             <tr>
                 <th>Shartnoma kodi</th>
@@ -688,11 +685,11 @@
             </tr>
             <tr>
                 <th>Ijrochining STIR raqami</th>
-                <th>{{org_tin}}</th>
+                <th>200 898 586</th>
             </tr>
             <tr>
                 <th>Buyurtmachining STIR/JShShIR raqami</th>
-                <th>{{tin}}</th>
+                <th>{{user_obj.tin}}</th>
             </tr>
         </table>
     </div>

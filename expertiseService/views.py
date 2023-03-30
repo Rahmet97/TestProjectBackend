@@ -40,7 +40,9 @@ class CreateExpertiseServiceContractView(GenericAPIView):
         context['u_type'] = 'yuridik'
         context["user_obj"] = YurUser.objects.get(tin=request_objects_serializers.validated_data.get("stir"))
         context['contract_number'] = request_objects_serializers.validated_data.get("contract_number")
-        context['datetime'] = request_objects_serializers.validated_data.get("contract_date")
+
+        date = request_objects_serializers.validated_data.get("contract_date")
+        context['datetime'] = datetime.fromisoformat(date).time().strftime('%d.%m.%Y')
 
         context['price'] = request_objects_serializers.validated_data.get("contract_cash")
         context['price_text'] = num2word.change_num_to_word(int(context['price']))
