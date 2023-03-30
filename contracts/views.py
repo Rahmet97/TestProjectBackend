@@ -31,6 +31,7 @@ from accounts.serializers import (
 from services.models import Rack, Unit, DeviceUnit
 
 from .permission import IsOwnContractPermission
+from main.utils import responseErrorMessage
 
 from .models import (
     Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice,
@@ -898,24 +899,28 @@ class ContractDetail(APIView):
 class ContractRejectedViews(APIView):
     model = ExpertSummary
     serializer_class = ExpertSummarySerializerForRejected
-
-    permission_classes = [IsAuthenticated, IsOwnContractPermission]    
-
+    permission_classes = [IsAuthenticated, IsOwnContractPermission]
+        
     @swagger_auto_schema(operation_summary="Front Office uchun. clientga yaratilgan shartnomani bekor qilish uchun")
     def post(self, request, contract_id):
         
         contract = get_object_or_404(Contract, pk=contract_id)
-        serializer = self.serializer_class(data=request.data)
-        
-        serializer.is_valid(raise_exception=True)
-        contract.contract_status = ContractStatus.objects.get(name="Bekor qilingan")
-        contract.save()
+        if contract.contract_status != ContractStatus.objects.get(name="Bekor qilingan"):
+            serializer = self.serializer_class(data=request.data)
+            
+            serializer.is_valid(raise_exception=True)
+            contract.contract_status = ContractStatus.objects.get(name="Bekor qilingan")
+            contract.save()
 
-        serializer.save(
-            contract=contract, summary=0, 
-            user=request.user, user_role=request.user.role
+            serializer.save(
+                contract=contract, summary=0, 
+                user=request.user, user_role=request.user.role
+            )
+            return Response({"message": "Contract rejected"}, status=201)
+        responseErrorMessage(
+            message="you are already rejected contract",
+            status_code=200
         )
-        return Response({"message": "Contract rejected"}, status=201)
 
 
 class GetGroupContract(APIView):
