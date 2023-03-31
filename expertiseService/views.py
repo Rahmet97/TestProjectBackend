@@ -222,7 +222,7 @@ class CreateExpertiseServiceContractView(GenericAPIView):
 
 
 class ExpertiseContractDetail(APIView):
-    permission_classes = (IsAuthenticated)
+    permission_classes = (IsAuthenticated,)
     permitted_roles = ["direktor o'rinbosari", "direktor", "iqtisodchi", "yurist", "dasturchi"]
 
 
