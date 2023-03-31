@@ -8,6 +8,7 @@ from decimal import Decimal
 
 import requests
 from django.conf import settings
+from django.db.models.functions import Lower
 from django.http import HttpResponse, Http404
 
 from datetime import datetime, timedelta
@@ -596,13 +597,13 @@ class CreateContractFileAPIView(APIView):
             if pdf:
                 output_dir = '/usr/src/app/media/Contract/pdf'
                 os.makedirs(output_dir, exist_ok=True)
-                contract_file_for_base64_pdf = f"{output_dir}/{context.get('contract_number')}_{context.get('client_fullname')}.pdf"
+                contract_file_for_base64_pdf = f"{output_dir}/{context.get('contract_number')}_{context.get('client_fullname').replace(' ', '_')}.pdf"
                 with open(contract_file_for_base64_pdf, 'wb') as f:
                     f.write(pdf.content)
             else:
                 error_response_500()
 
-            if contract_file_for_base64_pdf == None:
+            if contract_file_for_base64_pdf is None:
                 error_response_500()
 
             # -------
@@ -807,12 +808,7 @@ class GetUserContracts(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        pk = request.query_params.get('service_pk')
-        if pk is None:
-            contracts = Contract.objects.filter(client=request.user, service__name__icontains="co-location")
-        else:
-            contracts = Contract.objects.filter(client=request.user, service__pk=pk)
-
+        contracts = Contract.objects.filter(client=request.user)
         serializer = ContractSerializerForContractList(contracts, many=True)
         return Response(serializer.data)
 
@@ -836,29 +832,28 @@ class ContractDetail(APIView):
         print(contract)
         contract_serializer = ContractSerializerForDetail(contract)
         try:
-            contract_participants = Contracts_Participants.objects.filter(contract=contract).get(
-                (Q(role=request.user.role) &
-                 Q(contract__service__group=request.user.group)) |
-                Q(role__name='direktor') |
-                Q(role__name='iqtisodchi') |
-                Q(role__name='yurist')
-            )
+            if request.user.role.name != 'direktor':
+                contract_participants = Contracts_Participants.objects.filter(contract=contract).get(
+                    Q(role=request.user.role),
+                    Q(contract__service__group=request.user.group)
+                )
+            else:
+                contract_participants = Contracts_Participants.objects.filter(contract=contract).get(role=request.user.role)
         except Contracts_Participants.DoesNotExist:
             contract_participants = None
 
-        # if (request.user.role.name == "bo'lim boshlig'i"
-        #     ) or (request.user.role.name == "direktor o'rinbosari"
-        #     ) or (request.user.role.name == "dasturchi"
-        #     ) or (request.user.role.name == "direktor"
-        #     ) and (contract_participants.agreement_status.name == "Yuborilgan"):
-        print(request.user, request.user.role.name)
-        try:
-            if request.user.role.name != 'mijoz' and contract_participants.agreement_status.name == "Yuborilgan":
-                agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
-                contract_participants.agreement_status = agreement_status
-                contract_participants.save()
-        except AttributeError:
-            pass
+        # if request.user.role in Participant.objects.annotate(service__name_lower=Lower('service__name')).get(
+        # service__name_lower='co-location'): pass
+
+        if (request.user.role.name == "bo'lim boshlig'i") or \
+           (request.user.role.name == "direktor o'rinbosari") or \
+           (request.user.role.name == "dasturchi") or \
+           (request.user.role.name == "direktor") and \
+           (contract_participants.agreement_status.name == "Yuborilgan"):
+            agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
+            contract_participants.agreement_status = agreement_status
+            contract_participants.save()
+
         client = contract.client
 
         if client.type == 2:
@@ -872,11 +867,17 @@ class ContractDetail(APIView):
         participant_serializer = ContractParticipantsSerializers(participants, many=True)
 
         try:
-            expert_summary_value = ExpertSummary.objects.get(
-                Q(contract=contract),
-                Q(user=request.user),
-                Q(user__group=request.user.group)
-            ).summary
+            if request.user.role.name == 'direktor':
+                expert_summary_value = ExpertSummary.objects.get(
+                    Q(contract=contract),
+                    Q(user=request.user),
+                    Q(user__group=request.user.group)
+                ).summary
+            else:
+                expert_summary_value = ExpertSummary.objects.get(
+                    Q(contract=contract),
+                    Q(user=request.user)
+                ).summary
         except ExpertSummary.DoesNotExist:
             expert_summary_value = 0
 
