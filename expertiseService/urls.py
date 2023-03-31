@@ -9,5 +9,4 @@ urlpatterns = [
     ),
 
     path('contract-detail/<int:pk>', views.ExpertiseContractDetail.as_view(), name='ExpertiseContractDetail'),
-
 ]
