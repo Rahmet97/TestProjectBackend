@@ -23,6 +23,7 @@ from accounts.models import YurUser, UserData
 from accounts.serializers import YurUserSerializerForContractDetail
 
 from main.models import Application
+from main.utils import responseErrorMessage
 
 from expertiseService.serializers import ExpertiseServiceContractSerializers
 
@@ -167,46 +168,96 @@ class CreateExpertiseServiceContractView(GenericAPIView):
         return render(request=request, template_name=template_name, context=context)
 
 
+# class ExpertiseContractDetail(APIView):
+#     permission_classes = (IsAuthenticated, )
+
+#     def get(self, request, pk):
+#         contract = Contract.objects.select_related('client').get(pk=pk)
+#         contract_serializer = ContractSerializerForDetail(contract)
+
+#         try:
+#             contract_participants = Contracts_Participants.objects.filter(
+#                 contract=contract
+#             ).get(
+#                 (Q(role=request.user.role) & Q(contract__service__group=request.user.group)) |
+#                 Q(role__name='direktor') | Q(role__name='iqtisodchi') | Q(role__name='yurist')
+#             )
+#         except Contracts_Participants.DoesNotExist:
+#             contract_participants = None
+
+#         if (request.user.role.name == "dasturchi") \
+#             or (request.user.role.name == "direktor o'rinbosari") \
+#             or (request.user.role.name == "direktor") \
+#             or (request.user.role.name == "iqtisodchi") \
+#             or (request.user.role.name == "yurist") \
+#             and (contract_participants.agreement_status.name == "Yuborilgan"):
+
+#             agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
+#             contract_participants.agreement_status = agreement_status
+#             contract_participants.save()
+
+#         user = YurUser.objects.get(userdata=contract.client)
+#         client_serializer = YurUserSerializerForContractDetail(user)
+
+#         participants = Contracts_Participants.objects.filter(contract=contract).order_by('role_id')
+#         participant_serializer = ContractParticipantsSerializers(participants, many=True)
+
+#         try:
+#             expert_summary_value = ExpertSummary.objects.get(
+#                 Q(contract=contract),
+#                 Q(user=request.user),
+#                 (Q(user__group=request.user.group)|Q(user__group=None))
+#             ).summary
+#         except ExpertSummary.DoesNotExist:
+#             expert_summary_value = 0
+
+#         return response.Response(data={
+#                 'contract': contract_serializer.data,
+#                 'client': client_serializer.data,
+#                 'participants': participant_serializer.data,
+#                 'is_confirmed': True if int(expert_summary_value) == 1 else False
+#             },
+#             status=200
+#         )
+
+
 class ExpertiseContractDetail(APIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated)
+    permitted_roles = ["direktor o'rinbosari", "direktor", "iqtisodchi", "yurist", "dasturchi"]
+
 
     def get(self, request, pk):
         contract = Contract.objects.select_related('client').get(pk=pk)
         contract_serializer = ContractSerializerForDetail(contract)
 
-        try:
-            contract_participants = Contracts_Participants.objects.filter(
-                contract=contract
-            ).get(
-                (Q(role=request.user.role) & Q(contract__service__group=request.user.group)) |
-                Q(role__name='direktor') | Q(role__name='iqtisodchi') | Q(role__name='yurist')
+        # agar request user mijoz bo'lsa
+        # expertise model yaratilganidan keyin statusi ozgarishi kk front ofise uchun
+        # yani iqtisodchi va yurist dan otganidan keyin
+        if request.user.role.name == "mijoz" and contract.client == request.user: # and contract.contract_status=="yangi":
+            client = request.user
+
+        # agar reuqest user direktor, direktor o'rin bosari bo'lsa
+        # agar reuqest user iqtisodchi, yurist yoki dasturchi bo'lsa
+        elif request.user.role.name in self.permitted_roles:
+            client = contract.client
+
+        else:
+            responseErrorMessage(
+                message="You are not permitted to view this contact detail", 
+                status_code=200
             )
-        except Contracts_Participants.DoesNotExist:
-            contract_participants = None
-
-        if (request.user.role.name == "dasturchi") \
-            or (request.user.role.name == "direktor o'rinbosari") \
-            or (request.user.role.name == "direktor") \
-            or (request.user.role.name == "iqtisodchi") \
-            or (request.user.role.name == "yurist") \
-            and (contract_participants.agreement_status.name == "Yuborilgan"):
-
-            agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
-            contract_participants.agreement_status = agreement_status
-            contract_participants.save()
-
-        user = YurUser.objects.get(userdata=contract.client)
+        
+        user = YurUser.objects.get(userdata=client)
         client_serializer = YurUserSerializerForContractDetail(user)
-
         participants = Contracts_Participants.objects.filter(contract=contract).order_by('role_id')
         participant_serializer = ContractParticipantsSerializers(participants, many=True)
 
         try:
             expert_summary_value = ExpertSummary.objects.get(
-                Q(contract=contract),
-                Q(user=request.user),
+                Q(contract=contract), Q(user=request.user),
                 (Q(user__group=request.user.group)|Q(user__group=None))
             ).summary
+
         except ExpertSummary.DoesNotExist:
             expert_summary_value = 0
 

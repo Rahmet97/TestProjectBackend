@@ -222,6 +222,9 @@ class ServiceParticipants(models.Model):
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     with_eds = models.BooleanField(default=False)
 
+    def __str__(self) -> str:
+        return f"{self.role}|{self.participant.service.name}|with_eds={self.with_eds}"
+
 
 class Contracts_Participants(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
