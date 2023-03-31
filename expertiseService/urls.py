@@ -7,4 +7,7 @@ urlpatterns = [
          views.CreateExpertiseServiceContractView.as_view(),
          name="create-expertise-contract"
     ),
+
+    path('contract-detail/<int:pk>', views.ExpertiseContractDetail.as_view(), name='ExpertiseContractDetail'),
+
 ]
