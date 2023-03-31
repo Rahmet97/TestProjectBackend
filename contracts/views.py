@@ -865,7 +865,7 @@ class ContractDetail(APIView):
 
         participants = Contracts_Participants.objects.filter(contract=contract).order_by('role_id')
         participant_serializer = ContractParticipantsSerializers(participants, many=True)
-
+        print(participants)
         try:
             if request.user.role.name == 'direktor':
                 expert_summary_value = ExpertSummary.objects.get(
