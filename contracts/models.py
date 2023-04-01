@@ -177,8 +177,10 @@ class ExpertiseTarifContract(models.Model):
 
 
 class OldContractFile(models.Model):
-    contract = models.ForeignKey(to=Contract, related_name="old_contract_file", on_delete=models.CASCADE, null=True,
-                                 blank=True)
+    contract = models.ForeignKey(
+        to=Contract, related_name="old_contract_file", 
+        on_delete=models.CASCADE, null=True, blank=True
+    )
     file = models.FileField(upload_to=slugify_upload)
 
     def __str__(self):
