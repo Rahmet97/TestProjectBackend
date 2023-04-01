@@ -1,7 +1,7 @@
 import os
 import base64
 import hashlib
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.shortcuts import render
 from django.db.models import Q
@@ -347,8 +347,7 @@ class ExpertiseGetGroupContract(APIView):
             ).values('contract')
             expired_data = Contract.objects.filter(
                 Q(id__in=contract_participants),
-                Q(contract_date__lt=datetime.now() - timedelta(days=1))).select_related() \
-                .order_by('-condition', '-contract_date')
+                Q(contract_date__lt=datetime.now() - timedelta(days=1))).select_related().order_by('-condition', '-contract_date')
             expired = ContractSerializerForBackoffice(expired_data, many=True)
             contract_participants = Contracts_Participants.objects.filter(
                 Q(contract__service__group=group),
