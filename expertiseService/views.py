@@ -17,7 +17,12 @@ from contracts.models import (
     Participant, Contract, ExpertiseTarifContract, ExpertiseServiceContractTarif, ExpertSummary
 )
 from contracts.utils import NumbersToWord, render_to_pdf, error_response_500, delete_file
-from contracts.serializers import ContractSerializerForDetail, ContractParticipantsSerializers
+from contracts.serializers import (
+    ContractSerializerForDetail, 
+    ContractParticipantsSerializers, 
+    ContractSerializerForContractList,
+    ContractSerializerForBackoffice
+)
 
 from accounts.models import YurUser, UserData
 from accounts.serializers import YurUserSerializerForContractDetail
@@ -26,6 +31,7 @@ from main.models import Application
 from main.utils import responseErrorMessage
 
 from expertiseService.serializers import ExpertiseServiceContractSerializers
+from expertiseService.permission import IsRelatedToExpertiseBackOffice
 
 num2word = NumbersToWord()
 
@@ -269,3 +275,125 @@ class ExpertiseContractDetail(APIView):
             },
             status=200
         )
+
+
+# client request user
+class ExpertiseGetUserContracts(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        contracts = Contract.objects.filter(
+            client=request.user
+        ).exclude()
+        serializer = ContractSerializerForContractList(contracts, many=True)
+        return response.Response(serializer.data)
+
+class ExpertiseGetGroupContract(APIView):
+    permission_classes = [IsRelatedToExpertiseBackOffice]
+
+    def get(self, request):
+        group = request.user.group
+        if request.user.role.name != "mijoz":
+
+            contracts = None
+            barcha_data = Contract.objects.filter(
+                service__group=group).order_by('-condition', '-contract_date')
+            barcha = ContractSerializerForBackoffice(barcha_data, many=True)
+            if request.user.role.name == 'direktor':
+                contract_participants = Contracts_Participants.objects.filter(
+                    (Q(contract__service__group=group) | Q(contract__service__group=None)),
+                    Q(role__name="direktor o'rinbosari"),
+                    Q(agreement_status__name='Kelishildi')
+                ).values('contract')
+                director_accepted_contracts = Contracts_Participants.objects.filter(
+                    Q(role__name='direktor'), Q(
+                        agreement_status__name='Kelishildi')
+                ).values('contract')
+                yangi_data = Contract.objects.filter(id__in=contract_participants).exclude(
+                    Q(id__in=director_accepted_contracts),
+                    Q(contract_status__name="Bekor qilingan"),
+                    Q(contract_status__name="Rad etilgan")).select_related().order_by('-condition', '-contract_date')
+            else:
+                contract_participants = Contracts_Participants.objects.filter(
+                    Q(contract__service__group=group),
+                    Q(role=request.user.role),
+                    (Q(agreement_status__name='Yuborilgan') |
+                     Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                ).values('contract')
+                yangi_data = Contract.objects.filter(id__in=contract_participants).exclude(
+                    Q(contract_status__name="Bekor qilingan") | Q(contract_status__name="Rad etilgan")).select_related() \
+                    .order_by('-condition', '-contract_date')
+            yangi = ContractSerializerForBackoffice(yangi_data, many=True)
+            contract_participants = Contracts_Participants.objects.filter(
+                Q(contract__service__group=group),
+                Q(role=request.user.role),
+                Q(agreement_status__name='Kelishildi')
+            ).values('contract')
+            kelishilgan_data = Contract.objects.filter(id__in=contract_participants).select_related() \
+                .order_by('-condition', '-contract_date')
+            kelishilgan = ContractSerializerForBackoffice(
+                kelishilgan_data, many=True)
+            rad_etildi_data = Contract.objects.filter(Q(service__group=group),
+                                                      (Q(contract_status__name='Bekor qilingan') | Q(
+                                                          contract_status__name="Rad etilgan"))) \
+                .order_by('-condition', '-contract_date')
+            rad_etildi = ContractSerializerForBackoffice(
+                rad_etildi_data, many=True)
+            contract_participants = Contracts_Participants.objects.filter(
+                Q(contract__service__group=group),
+                Q(role=request.user.role),
+                (Q(agreement_status__name='Yuborilgan') |
+                 Q(agreement_status__name="Ko'rib chiqilmoqda"))
+            ).values('contract')
+            expired_data = Contract.objects.filter(
+                Q(id__in=contract_participants),
+                Q(contract_date__lt=datetime.now() - timedelta(days=1))).select_related() \
+                .order_by('-condition', '-contract_date')
+            expired = ContractSerializerForBackoffice(expired_data, many=True)
+            contract_participants = Contracts_Participants.objects.filter(
+                Q(contract__service__group=group),
+                Q(role=request.user.role),
+                (Q(agreement_status__name='Yuborilgan') |
+                 Q(agreement_status__name="Ko'rib chiqilmoqda"))
+            ).values('contract')
+            lastday_data = Contract.objects.filter(
+                Q(id__in=contract_participants),
+                Q(contract_date__day=datetime.now().day),
+                Q(contract_date__month=datetime.now().month),
+                Q(contract_date__year=datetime.now().year)).exclude(
+                Q(contract_status__name='Bekor qilingan') | Q(contract_status__name='Rad etilgan')).select_related() \
+                .order_by('-condition', '-contract_date')
+            lastday = ContractSerializerForBackoffice(lastday_data, many=True)
+            contract_participants = Contracts_Participants.objects.filter(
+                Q(contract__service__group=group),
+                Q(role=request.user.role),
+                Q(agreement_status__name='Kelishildi')
+            ).values('contract')
+            expired_accepted_data = Contract.objects.filter(
+                Q(id__in=contract_participants),
+                Q(contract_date__lt=datetime.now() - timedelta(days=1))
+            ).select_related().order_by('-condition', '-contract_date')
+            expired_accepted = ContractSerializerForBackoffice(
+                expired_accepted_data, many=True)
+            contracts_selected = ExpertSummary.objects.select_related('contract').filter(
+                Q(user=request.user)).order_by('-contract__condition', '-contract__contract_date')
+            in_time_data = [element.contract for element in contracts_selected if
+                            element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(
+                                days=1)]
+            in_time = ContractSerializerForBackoffice(in_time_data, many=True)
+            contracts = {
+                'barcha': barcha.data,
+                'yangi': yangi.data,
+                'kelishildi': kelishilgan.data,
+                'rad_etildi': rad_etildi.data,
+                'expired': expired.data,
+                'lastday': lastday.data,
+                'expired_accepted': expired_accepted.data,
+                'in_time': in_time.data
+            }
+            return response.Response(contracts)
+        else:
+            contracts = Contract.objects.filter(
+                Q(service__group=group), Q(condition=3))
+            serializer = ContractSerializerForBackoffice(contracts, many=True)
+            return response.Response(serializer.data)
