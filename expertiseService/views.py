@@ -12,14 +12,15 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
 from contracts.utils import create_qr
-from contracts.models import (
-    Service, Status, AgreementStatus, Contracts_Participants, ContractStatus,
-    Participant, Contract, ExpertiseTarifContract, ExpertiseServiceContractTarif, ExpertSummary
+from contracts.models import Participant
+from expertiseService.models import (
+    Status, AgreementStatus, ExpertiseContracts_Participants, ContractStatus,
+    ExpertiseServiceContract, ExpertiseTarifContract, ExpertiseServiceContractTarif, ExpertiseExpertSummary
 )
 from contracts.utils import NumbersToWord, render_to_pdf, error_response_500, delete_file
 from contracts.serializers import (
-    ContractSerializerForDetail, 
-    ContractParticipantsSerializers, 
+    ContractSerializerForDetail,
+    ContractParticipantsSerializers,
     ContractSerializerForContractList,
     ContractSerializerForBackoffice
 )
@@ -37,7 +38,7 @@ num2word = NumbersToWord()
 
 
 class CreateExpertiseServiceContractView(GenericAPIView):
-    queryset = Contract.objects.all()
+    queryset = ExpertiseServiceContract.objects.all()
     permission_classes = [IsAuthenticated]
 
     def generate_hash_code(self, text: str):
@@ -97,7 +98,7 @@ class CreateExpertiseServiceContractView(GenericAPIView):
             else:
                 error_response_500()
 
-            if contract_file_for_base64_pdf == None:
+            if contract_file_for_base64_pdf is None:
                 error_response_500()
 
             # -------
@@ -117,13 +118,14 @@ class CreateExpertiseServiceContractView(GenericAPIView):
             # preview ni bazaga ham saqlab ketishim kk chunki contractni statusiga qarab foydalanish uchun
             context['save'] = False
             like_preview_pdf = render_to_pdf(template_src=template_name, context_dict=context)
+            like_preview_pdf_path = None
             if like_preview_pdf:
                 output_dir = '/usr/src/app/media/Contract/pdf'
                 os.makedirs(output_dir, exist_ok=True)
                 like_preview_pdf_path = f"{output_dir}/{context.get('contract_number')}_{context.get('user_obj').get_director_short_full_name}.pdf"
                 with open(like_preview_pdf_path, 'wb') as f:
                     f.write(like_preview_pdf.content)
-            elif like_preview_pdf_path == None:
+            elif like_preview_pdf_path is None:
                 error_response_500()
             else:
                 error_response_500()
@@ -134,7 +136,7 @@ class CreateExpertiseServiceContractView(GenericAPIView):
             client = UserData.objects.get(username=user_stir)
 
             # Script code ni togirlash kk
-            expertise_service_contract = Contract.objects.create(
+            expertise_service_contract = ExpertiseServiceContract.objects.create(
                 **request_objects_serializers.validated_data,
 
                 client=client,
@@ -158,19 +160,19 @@ class CreateExpertiseServiceContractView(GenericAPIView):
             participants = Participant.objects.get(service_id=int(request.data['service'])).participants.all()
             for participant in participants:
                 print(participant)
-                Contracts_Participants.objects.create(
+                ExpertiseContracts_Participants.objects.create(
                     contract=expertise_service_contract,
                     role=participant,
                     agreement_status=agreement_status
                 ).save()
-            
+
             # Contract yaratilgandan so'ng application ni is_contracted=True qilib qo'yish kk 
             application_pk = request.data.get("application_pk")
             Application.objects.filter(pk=application_pk).update(is_contracted=True)
 
             return response.Response(data={"message": "Created Expertise Service Contract"}, status=201)
 
-        template_name="shablonEkspertiza.html"
+        template_name = "shablonEkspertiza.html"
         return render(request=request, template_name=template_name, context=context)
 
 
@@ -178,15 +180,14 @@ class ExpertiseContractDetail(APIView):
     permission_classes = (IsAuthenticated,)
     permitted_roles = ["direktor o'rinbosari", "direktor", "iqtisodchi", "yurist", "dasturchi"]
 
-
     def get(self, request, pk):
-        contract = Contract.objects.select_related('client').get(pk=pk)
+        contract = ExpertiseServiceContract.objects.select_related('client').get(pk=pk)
         contract_serializer = ContractSerializerForDetail(contract)
 
         # agar request user mijoz bo'lsa
         # expertise model yaratilganidan keyin statusi ozgarishi kk front ofise uchun
         # yani iqtisodchi va yurist dan otganidan keyin
-        if request.user.role.name == "mijoz" and contract.client == request.user: # and contract.contract_status=="yangi":
+        if request.user.role.name == "mijoz" and contract.client == request.user:  # and contract.contract_status=="yangi":
             client = request.user
 
         # agar reuqest user direktor, direktor o'rin bosari bo'lsa
@@ -196,30 +197,30 @@ class ExpertiseContractDetail(APIView):
 
         else:
             responseErrorMessage(
-                message="You are not permitted to view this contact detail", 
+                message="You are not permitted to view this contact detail",
                 status_code=200
             )
-        
+
         user = YurUser.objects.get(userdata=client)
         client_serializer = YurUserSerializerForContractDetail(user)
-        participants = Contracts_Participants.objects.filter(contract=contract).order_by('role_id')
+        participants = ExpertiseContracts_Participants.objects.filter(contract=contract).order_by('role_id')
         participant_serializer = ContractParticipantsSerializers(participants, many=True)
 
         try:
-            expert_summary_value = ExpertSummary.objects.get(
+            expert_summary_value = ExpertiseExpertSummary.objects.get(
                 Q(contract=contract), Q(user=request.user),
-                (Q(user__group=request.user.group)|Q(user__group=None))
+                (Q(user__group=request.user.group) | Q(user__group=None))
             ).summary
 
-        except ExpertSummary.DoesNotExist:
+        except ExpertiseExpertSummary.DoesNotExist:
             expert_summary_value = 0
 
         return response.Response(data={
-                'contract': contract_serializer.data,
-                'client': client_serializer.data,
-                'participants': participant_serializer.data,
-                'is_confirmed': True if int(expert_summary_value) == 1 else False
-            },
+            'contract': contract_serializer.data,
+            'client': client_serializer.data,
+            'participants': participant_serializer.data,
+            'is_confirmed': True if int(expert_summary_value) == 1 else False
+        },
             status=200
         )
 
@@ -229,7 +230,7 @@ class ExpertiseGetUserContracts(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        contracts = Contract.objects.filter(
+        contracts = ExpertiseServiceContract.objects.filter(
             client=request.user
         ).exclude()
         serializer = ContractSerializerForContractList(contracts, many=True)
@@ -255,74 +256,69 @@ class ExpertiseGetGroupContract(APIView):
         # yangi contractlar
         if filter_tag == "new":
             if request.user.role.name == 'direktor':
-                contract_participants = Contracts_Participants.objects.filter(
-                    Q(contract__service__group=group),
+                contract_participants = ExpertiseContracts_Participants.objects.filter(
                     Q(role__name="direktor o'rinbosari"),
                     Q(agreement_status__name='Kelishildi')
                 ).values('contract')
 
-                director_accepted_contracts = Contracts_Participants.objects.filter(
-                    Q(contract__service__group=group),
+                director_accepted_contracts = ExpertiseContracts_Participants.objects.filter(
                     Q(role__name='direktor'), Q(agreement_status__name='Kelishildi')
                 ).values('contract')
-                
-                yangi_data = Contract.objects.filter(id__in=contract_participants).exclude(
+
+                yangi_data = ExpertiseServiceContract.objects.filter(id__in=contract_participants).exclude(
                     Q(id__in=director_accepted_contracts),
                     Q(contract_status__name="Bekor qilingan"),
                     Q(contract_status__name="Rad etilgan")).select_related().order_by('-condition', '-contract_date')
             else:
-                contract_participants = Contracts_Participants.objects.filter(
-                    Q(contract__service__group=group),
+                contract_participants = ExpertiseContracts_Participants.objects.filter(
                     Q(role=request.user.role),
                     (Q(agreement_status__name='Yuborilgan') |
-                    Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                     Q(agreement_status__name="Ko'rib chiqilmoqda"))
                 ).values('contract')
-                yangi_data = Contract.objects.filter(id__in=contract_participants).exclude(
-                        Q(contract_status__name="Bekor qilingan") | Q(contract_status__name="Rad etilgan")).select_related() \
-                        .order_by('-condition', '-contract_date')
+                yangi_data = ExpertiseServiceContract.objects.filter(id__in=contract_participants).exclude(
+                    Q(contract_status__name="Bekor qilingan") | Q(contract_status__name="Rad etilgan")).select_related() \
+                    .order_by('-condition', '-contract_date')
             contracts = ContractSerializerForBackoffice(yangi_data, many=True)
 
         # kelishilgan contractlar
         elif filter_tag == "agreed":
-            contract_participants = Contracts_Participants.objects.filter(
-                Q(contract__service__group=group),
+            contract_participants = ExpertiseContracts_Participants.objects.filter(
                 Q(role=request.user.role),
                 Q(agreement_status__name='Kelishildi')
             ).values('contract')
-            kelishilgan_data = Contract.objects.filter(
+            kelishilgan_data = ExpertiseServiceContract.objects.filter(
                 id__in=contract_participants
             ).select_related().order_by('-condition', '-contract_date')
             contracts = ContractSerializerForBackoffice(kelishilgan_data, many=True)
 
         # rad etilgan contractlar
         elif filter_tag == "rejected":
-            rad_etildi_data = Contract.objects.filter(
+            rad_etildi_data = ExpertiseServiceContract.objects.filter(
                 (Q(contract_status__name='Bekor qilingan') | Q(contract_status__name="Rad etilgan"))
             ).order_by('-condition', '-contract_date')
             contracts = ContractSerializerForBackoffice(rad_etildi_data, many=True)
 
         # expired contracts
         elif filter_tag == "expired":
-            contract_participants = Contracts_Participants.objects.filter(
-                Q(contract__service__group=group),
+            contract_participants = ExpertiseContracts_Participants.objects.filter(
                 Q(role=request.user.role),
                 (Q(agreement_status__name='Yuborilgan') |
-                Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                 Q(agreement_status__name="Ko'rib chiqilmoqda"))
             ).values('contract')
-            expired_data = Contract.objects.filter(
+            expired_data = ExpertiseServiceContract.objects.filter(
                 Q(id__in=contract_participants),
-                Q(contract_date__lt=datetime.now() - timedelta(days=1))).select_related().order_by('-condition', '-contract_date')
+                Q(contract_date__lt=datetime.now() - timedelta(days=1))).select_related().order_by('-condition',
+                                                                                                   '-contract_date')
             contracts = ContractSerializerForBackoffice(expired_data, many=True)
-        
+
         # last day contractlar
         elif filter_tag == "last_day":
-            contract_participants = Contracts_Participants.objects.filter(
-                Q(contract__service__group=group),
+            contract_participants = ExpertiseContracts_Participants.objects.filter(
                 Q(role=request.user.role),
                 (Q(agreement_status__name='Yuborilgan') |
-                Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                 Q(agreement_status__name="Ko'rib chiqilmoqda"))
             ).values('contract')
-            lastday_data = Contract.objects.filter(
+            lastday_data = ExpertiseServiceContract.objects.filter(
                 Q(id__in=contract_participants),
                 Q(contract_date__day=datetime.now().day),
                 Q(contract_date__month=datetime.now().month),
@@ -333,28 +329,29 @@ class ExpertiseGetGroupContract(APIView):
 
         # expired accepted contracts
         elif filter_tag == "expired_accepted":
-            contract_participants = Contracts_Participants.objects.filter(
-                Q(contract__service__group=group),
+            contract_participants = ExpertiseContracts_Participants.objects.filter(
                 Q(role=request.user.role),
                 Q(agreement_status__name='Kelishildi')
             ).values('contract')
-            expired_accepted_data = Contract.objects.filter(
+            expired_accepted_data = ExpertiseServiceContract.objects.filter(
                 Q(id__in=contract_participants),
                 Q(contract_date__lt=datetime.now() - timedelta(days=1))
             ).select_related().order_by('-condition', '-contract_date')
             contracts = ContractSerializerForBackoffice(expired_accepted_data, many=True)
-        
+
         # in_time contracts
         elif filter_tag == "in_time":
-            contracts_selected = ExpertSummary.objects.select_related('contract').filter(
+            contracts_selected = ExpertiseExpertSummary.objects.select_related('contract').filter(
                 Q(user=request.user)
             ).order_by('-contract__condition', '-contract__contract_date')
-            in_time_data = [element.contract for element in contracts_selected if element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(days=1)]
+            in_time_data = [element.contract for element in contracts_selected if
+                            element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(
+                                days=1)]
             contracts = ContractSerializerForBackoffice(in_time_data, many=True)
 
         # barcha contractlar
         else:
-            barcha_data = Contract.objects.all().order_by('-condition', '-contract_date')
+            barcha_data = ExpertiseServiceContract.objects.all().order_by('-condition', '-contract_date')
             contracts = ContractSerializerForBackoffice(barcha_data, many=True)
-        
+
         return response.Response(data=contracts.data, status=200)

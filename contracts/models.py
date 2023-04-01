@@ -130,12 +130,6 @@ class AgreementStatus(models.Model):
         return self.name
 
 
-PRICE_SELECT_PERCENTAGE = (
-    (50, 50),
-    (100, 100)
-)
-
-
 class Contract(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     contract_number = models.CharField(max_length=10, unique=True)
@@ -152,33 +146,14 @@ class Contract(models.Model):
     base64file = models.TextField(blank=True, null=True)
     hashcode = models.CharField(max_length=255, blank=True, null=True)
     like_preview_pdf = models.FileField(blank=True, null=True, upload_to="media/Contract/pdf/")  # test mode
-    price_select_percentage = models.IntegerField(choices=PRICE_SELECT_PERCENTAGE, blank=True, null=True)
 
     def __str__(self):
         return self.contract_number
 
 
-class ExpertiseServiceContractTarif(models.Model):
-    title_of_tarif = models.CharField(max_length=255)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    name_of_tarif = models.CharField(max_length=255)
-    is_discount = models.BooleanField(default=False)
-
-    def __str__(self) -> str:
-        return self.name_of_tarif
-
-
-class ExpertiseTarifContract(models.Model):
-    contract = models.ForeignKey(to=Contract, related_name="ContractExpertise", on_delete=models.CASCADE)
-    tarif = models.ForeignKey(to=ExpertiseServiceContractTarif, on_delete=models.CASCADE)
-
-    def __str__(self) -> str:
-        return f"{self.contract} | {self.tarif}"
-
-
 class OldContractFile(models.Model):
     contract = models.ForeignKey(
-        to=Contract, related_name="old_contract_file", 
+        to=Contract, related_name="old_contract_file",
         on_delete=models.CASCADE, null=True, blank=True
     )
     file = models.FileField(upload_to=slugify_upload)
@@ -211,7 +186,7 @@ class UserDeviceCount(models.Model):
     electricity = models.IntegerField()
 
 
-class Participant(models.Model):
+class Participant(models.Model):  # umumiy model
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     participants = models.ManyToManyField(Role, through='ServiceParticipants')
 
@@ -219,7 +194,7 @@ class Participant(models.Model):
         return self.service.name
 
 
-class ServiceParticipants(models.Model):
+class ServiceParticipants(models.Model):  # umumiy model
     participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     with_eds = models.BooleanField(default=False)
@@ -232,7 +207,11 @@ class Contracts_Participants(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     agreement_status = models.ForeignKey(AgreementStatus, on_delete=models.CASCADE, blank=True, null=True)
+
     # kelishuv statuslari
+
+    def __str__(self):
+        return f"{self.contract.contract_number}|{self.role.name}|{self.agreement_status.name}"
 
 
 class ExpertSummary(models.Model):
@@ -270,7 +249,7 @@ class Pkcs(models.Model):
         return self.contract.contract_number
 
 
-class SavedService(models.Model):
+class SavedService(models.Model):  # umumiy model
     user = models.ForeignKey(UserData, on_delete=models.CASCADE)
     services = models.ManyToManyField(Service)
 
