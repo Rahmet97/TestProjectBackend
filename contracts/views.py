@@ -808,12 +808,7 @@ class GetUserContracts(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        pk = request.query_params.get('service_pk')
-        if pk is None:
-            contracts = Contract.objects.filter(client=request.user, service__name__icontains="co-location")
-        else:
-            contracts = Contract.objects.filter(client=request.user, service__pk=pk)
-
+        contracts = Contract.objects.filter(client=request.user)
         serializer = ContractSerializerForContractList(contracts, many=True)
         return Response(serializer.data)
 
@@ -870,7 +865,6 @@ class ContractDetail(APIView):
 
         participants = Contracts_Participants.objects.filter(contract=contract).order_by('role_id')
         participant_serializer = ContractParticipantsSerializers(participants, many=True)
-        print(participants)
         try:
             if request.user.role.name == 'direktor':
                 expert_summary_value = ExpertSummary.objects.get(
