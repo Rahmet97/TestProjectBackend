@@ -10,4 +10,6 @@ urlpatterns = [
 
     path('contract-detail/<int:pk>', views.ExpertiseContractDetail.as_view(), name='ExpertiseContractDetail'),
 
+    path('user-contracts', views.ExpertiseGetUserContracts.as_view(), name='GetUserContracts'),
+    path('group-contracts', views.ExpertiseGetGroupContract.as_view(), name='GetGroupContract'),
 ]
