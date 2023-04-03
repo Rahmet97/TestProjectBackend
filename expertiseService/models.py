@@ -1,5 +1,10 @@
 from django.db import models
-from contracts.models import Service, UserData, ContractStatus, Status, Role, AgreementStatus, slugify_upload
+from django.core.validators import MaxValueValidator, MinValueValidator
+
+from contracts.models import (
+    Service, UserData, ContractStatus, Status, Role, AgreementStatus, 
+    slugify_upload
+)
 
 
 PRICE_SELECT_PERCENTAGE = (
@@ -9,21 +14,47 @@ PRICE_SELECT_PERCENTAGE = (
 
 
 class ExpertiseServiceContract(models.Model):
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+
+    class Status(models.IntegerChoices):
+        DONE = 1,  "Bajarildi"
+        IN_PROGRESS = 2, "Jarayonda"
+        UNDER_REVIEW = 3, "Ko'rib chiqilmoqda"
+        NEW = 4, "Yangi"
+    
+    class ContractStatus(models.IntegerChoices):
+        REJECTED = 1, "Rad etilgan"
+        FINISHED = 2, "Yakunlangan"
+        ACTIVE = 3, "Aktiv"
+        PEYMENT_IS_PENDING = 4, "To'lov kutilmoqda"
+        CANCELLED = 5, "Bekor qilingan"
+        NEW = 6, "Yangi"
+    
+    status = models.IntegerField(choices=Status.choices, validators=[
+        MaxValueValidator(4),
+        MinValueValidator(1)
+    ])  # ijro statuslari
+    contract_status = models.IntegerField(choices=ContractStatus.choices, validators=[
+        MaxValueValidator(6),
+        MinValueValidator(1)
+    ])  # hujjat statuslari
+    
+    price_select_percentage = models.IntegerField(
+        choices=PRICE_SELECT_PERCENTAGE, blank=True, null=True
+    )
+    
     contract_number = models.CharField(max_length=10, unique=True)
     id_code = models.CharField(max_length=11, blank=True, null=True)
-    contract_date = models.DateTimeField(blank=True)
-    client = models.ForeignKey(UserData, on_delete=models.CASCADE)
-    # status = models.ForeignKey(Status, on_delete=models.CASCADE)  # ijro statuslari
-    # contract_status = models.ForeignKey(ContractStatus, on_delete=models.CASCADE)  # hujjat statuslari
     # condition = models.IntegerField(default=0)
+    
     contract_cash = models.DecimalField(max_digits=20, decimal_places=2)  # total_price
     payed_cash = models.DecimalField(max_digits=20, decimal_places=2)
+    
+    contract_date = models.DateTimeField(blank=True)
     expiration_date = models.DateTimeField(blank=True, null=True)
+    
     base64file = models.TextField(blank=True, null=True)
     hashcode = models.CharField(max_length=255, blank=True, null=True)
     like_preview_pdf = models.FileField(blank=True, null=True, upload_to="media/Contract/pdf/")  # test mode
-    price_select_percentage = models.IntegerField(choices=PRICE_SELECT_PERCENTAGE, blank=True, null=True)
 
     def __str__(self):
         return self.contract_number
