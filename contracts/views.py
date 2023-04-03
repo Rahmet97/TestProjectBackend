@@ -50,7 +50,7 @@ from .serializers import (
 )
 
 from .utils import (
-    error_response_404, create_qr, NumbersToWord, convert_docx_to_pdf, 
+    error_response_404, create_qr, NumbersToWord, convert_docx_to_pdf,
     delete_file, render_to_pdf, error_response_500
 )
 
@@ -838,7 +838,8 @@ class ContractDetail(APIView):
                     Q(contract__service__group=request.user.group)
                 )
             else:
-                contract_participants = Contracts_Participants.objects.filter(contract=contract).get(role=request.user.role)
+                contract_participants = Contracts_Participants.objects.filter(contract=contract).get(
+                    role=request.user.role)
         except Contracts_Participants.DoesNotExist:
             contract_participants = None
 
@@ -846,10 +847,10 @@ class ContractDetail(APIView):
         # service__name_lower='co-location'): pass
 
         if (request.user.role.name == "bo'lim boshlig'i") or \
-           (request.user.role.name == "direktor o'rinbosari") or \
-           (request.user.role.name == "dasturchi") or \
-           (request.user.role.name == "direktor") and \
-           (contract_participants.agreement_status.name == "Yuborilgan"):
+                (request.user.role.name == "direktor o'rinbosari") or \
+                (request.user.role.name == "dasturchi") or \
+                (request.user.role.name == "direktor") and \
+                (contract_participants.agreement_status.name == "Yuborilgan"):
             agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
             contract_participants.agreement_status = agreement_status
             contract_participants.save()
@@ -902,18 +903,17 @@ class ContractRejectedViews(APIView):
 
     @swagger_auto_schema(operation_summary="Front Office uchun. clientga yaratilgan shartnomani bekor qilish uchun")
     def post(self, request, contract_id):
-        
         contract = get_object_or_404(Contract, pk=contract_id)
         self.check_object_permissions(self.request, contract)
         if contract.contract_status != ContractStatus.objects.get(name="Bekor qilingan"):
             serializer = self.serializer_class(data=request.data)
-            
+
             serializer.is_valid(raise_exception=True)
             contract.contract_status = ContractStatus.objects.get(name="Bekor qilingan")
             contract.save()
 
             serializer.save(
-                contract=contract, summary=0, 
+                contract=contract, summary=0,
                 user=request.user, user_role=request.user.role
             )
             return Response({"message": "Contract rejected"}, status=201)
@@ -931,62 +931,54 @@ class GetGroupContract(APIView):
         if request.user.role.name != "mijoz":
 
             contracts = None
-            barcha_data = Contract.objects.filter(
-                service__group=group).order_by('-condition', '-contract_date')
+            barcha_data = Contract.objects.all().order_by('-condition', '-contract_date')
             barcha = ContractSerializerForBackoffice(barcha_data, many=True)
             if request.user.role.name == 'direktor':
                 contract_participants = Contracts_Participants.objects.filter(
-                    (Q(contract__service__group=group) | Q(contract__service__group=None)),
                     Q(role__name="direktor o'rinbosari"),
                     Q(agreement_status__name='Kelishildi')
                 ).values('contract')
                 director_accepted_contracts = Contracts_Participants.objects.filter(
-                    Q(role__name='direktor'), Q(
-                        agreement_status__name='Kelishildi')
+                    Q(role__name='direktor'), Q(agreement_status__name='Kelishildi')
                 ).values('contract')
-                yangi_data = Contract.objects.filter(id__in=contract_participants).exclude(
-                    Q(id__in=director_accepted_contracts),
-                    Q(contract_status__name="Bekor qilingan"),
-                    Q(contract_status__name="Rad etilgan")).select_related().order_by('-condition', '-contract_date')
+                yangi_data = Contract.objects.filter(Q(id__in=contract_participants), Q(contract_status__name="Yangi")) \
+                    .exclude(Q(id__in=director_accepted_contracts)).select_related().order_by('-condition',
+                                                                                              '-contract_date')
             else:
                 contract_participants = Contracts_Participants.objects.filter(
-                    Q(contract__service__group=group),
                     Q(role=request.user.role),
                     (Q(agreement_status__name='Yuborilgan') |
                      Q(agreement_status__name="Ko'rib chiqilmoqda"))
                 ).values('contract')
-                yangi_data = Contract.objects.filter(id__in=contract_participants).exclude(
+                yangi_data = Contract.objects.filter(Q(id__in=contract_participants),
+                                                     Q(contract_status__name="Yangi")).exclude(
                     Q(contract_status__name="Bekor qilingan") | Q(contract_status__name="Rad etilgan")).select_related() \
                     .order_by('-condition', '-contract_date')
             yangi = ContractSerializerForBackoffice(yangi_data, many=True)
             contract_participants = Contracts_Participants.objects.filter(
-                Q(contract__service__group=group),
                 Q(role=request.user.role),
                 Q(agreement_status__name='Kelishildi')
             ).values('contract')
             kelishilgan_data = Contract.objects.filter(id__in=contract_participants).select_related() \
                 .order_by('-condition', '-contract_date')
-            kelishilgan = ContractSerializerForBackoffice(
-                kelishilgan_data, many=True)
-            rad_etildi_data = Contract.objects.filter(Q(service__group=group),
-                                                      (Q(contract_status__name='Bekor qilingan') | Q(
-                                                          contract_status__name="Rad etilgan"))) \
+            kelishilgan = ContractSerializerForBackoffice(kelishilgan_data, many=True)
+            rad_etildi_data = Contract.objects.filter(Q(contract_status__name='Bekor qilingan') | \
+                                                      Q(contract_status__name="Rad etilgan")) \
                 .order_by('-condition', '-contract_date')
             rad_etildi = ContractSerializerForBackoffice(
                 rad_etildi_data, many=True)
             contract_participants = Contracts_Participants.objects.filter(
-                Q(contract__service__group=group),
                 Q(role=request.user.role),
                 (Q(agreement_status__name='Yuborilgan') |
                  Q(agreement_status__name="Ko'rib chiqilmoqda"))
             ).values('contract')
             expired_data = Contract.objects.filter(
                 Q(id__in=contract_participants),
-                Q(contract_date__lt=datetime.now() - timedelta(days=1))).select_related() \
+                Q(contract_date__lt=datetime.now() - timedelta(days=1))).select_related().exclude(
+                Q(contract_status__name='Bekor qilingan') | Q(contract_status__name="Rad etilgan")) \
                 .order_by('-condition', '-contract_date')
             expired = ContractSerializerForBackoffice(expired_data, many=True)
             contract_participants = Contracts_Participants.objects.filter(
-                Q(contract__service__group=group),
                 Q(role=request.user.role),
                 (Q(agreement_status__name='Yuborilgan') |
                  Q(agreement_status__name="Ko'rib chiqilmoqda"))
@@ -1000,7 +992,6 @@ class GetGroupContract(APIView):
                 .order_by('-condition', '-contract_date')
             lastday = ContractSerializerForBackoffice(lastday_data, many=True)
             contract_participants = Contracts_Participants.objects.filter(
-                Q(contract__service__group=group),
                 Q(role=request.user.role),
                 Q(agreement_status__name='Kelishildi')
             ).values('contract')
