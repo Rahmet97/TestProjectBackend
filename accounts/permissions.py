@@ -51,6 +51,6 @@ class WorkerPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            return request.user.role != '' and request.user.role.name != 'mijoz'
+            return request.user.role is not None and request.user.role.name != 'mijoz'
         except:
             return False
