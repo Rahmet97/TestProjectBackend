@@ -96,6 +96,11 @@ class Service(models.Model):
     period = models.IntegerField()
     need_documents = models.ManyToManyField(Document)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['name'])
+        ]
+
     def __str__(self):
         return self.name
 
@@ -118,6 +123,11 @@ class Device(models.Model):
 class ConnetMethod(models.Model):
     name = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['name'])
+        ]
 
     def __str__(self):
         return self.name
@@ -146,6 +156,12 @@ class Contract(models.Model):
     base64file = models.TextField(blank=True, null=True)
     hashcode = models.CharField(max_length=255, blank=True, null=True)
     like_preview_pdf = models.FileField(blank=True, null=True, upload_to="media/Contract/pdf/")  # test mode
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['service', 'contract_number', 'id_code', 'client', 'contract_status', 'tarif']),
+            models.Index(fields=['contract_date', 'condition', 'hashcode'])
+        ]
 
     def __str__(self):
         return self.contract_number
@@ -206,9 +222,12 @@ class ServiceParticipants(models.Model):  # umumiy model
 class Contracts_Participants(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
-    agreement_status = models.ForeignKey(AgreementStatus, on_delete=models.CASCADE, blank=True, null=True)
+    agreement_status = models.ForeignKey(AgreementStatus, on_delete=models.CASCADE, blank=True, null=True)  # kelishuv statuslari
 
-    # kelishuv statuslari
+    class Meta:
+        indexes = [
+            models.Index(fields=['contract', 'role', 'agreement_status'])
+        ]
 
     def __str__(self):
         return f"{self.contract.contract_number}|{self.role.name}|{self.agreement_status.name}"
@@ -228,6 +247,11 @@ class ExpertSummary(models.Model):
     user_role = models.ForeignKey(to=Role, blank=True, null=True, on_delete=models.SET_NULL)
     date = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['contract', 'user', 'date'])
+        ]
+
     def __str__(self) -> str:
         return f"{self.contract.contract_number}|{self.user.username}|{self.user_role}"
 
@@ -244,6 +268,11 @@ class ExpertSummaryDocument(models.Model):
 class Pkcs(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
     pkcs7 = models.TextField()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['contract', 'pkcs7'])
+        ]
 
     def __str__(self):
         return self.contract.contract_number
