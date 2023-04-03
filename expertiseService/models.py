@@ -22,6 +22,7 @@ class ExpertiseServiceContract(models.Model):
         NEW = 4, "Yangi"
     
     class ContractStatus(models.IntegerChoices):
+        CREATED = 0, "Yaratilgan"
         REJECTED = 1, "Rad etilgan"
         FINISHED = 2, "Yakunlangan"
         ACTIVE = 3, "Aktiv"
@@ -33,10 +34,9 @@ class ExpertiseServiceContract(models.Model):
         MaxValueValidator(4),
         MinValueValidator(1)
     ])  # ijro statuslari
-    contract_status = models.IntegerField(choices=ContractStatus.choices, validators=[
-        MaxValueValidator(6),
-        MinValueValidator(1)
-    ])  # hujjat statuslari
+    contract_status = models.IntegerField(choices=ContractStatus.choices, default=0, 
+        validators=[ MaxValueValidator(6), MinValueValidator(0)]
+    )  # hujjat statuslari
     
     price_select_percentage = models.IntegerField(
         choices=PRICE_SELECT_PERCENTAGE, blank=True, null=True
