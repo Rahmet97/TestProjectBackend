@@ -23,12 +23,10 @@ class Migration(migrations.Migration):
             model_name='expertiseservicecontract',
             name='contract_status',
             field=models.IntegerField(choices=[(1, 'Rad etilgan'), (2, 'Yakunlangan'), (3, 'Aktiv'), (4, "To'lov kutilmoqda"), (5, 'Bekor qilingan'), (6, 'Yangi')], default='', validators=[django.core.validators.MaxValueValidator(6), django.core.validators.MinValueValidator(1)]),
-            preserve_default=False,
         ),
         migrations.AddField(
             model_name='expertiseservicecontract',
             name='status',
             field=models.IntegerField(choices=[(1, 'Bajarildi'), (2, 'Jarayonda'), (3, "Ko'rib chiqilmoqda"), (4, 'Yangi')], default=1, validators=[django.core.validators.MaxValueValidator(4), django.core.validators.MinValueValidator(1)]),
-            preserve_default=False,
         ),
     ]
