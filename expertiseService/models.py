@@ -25,11 +25,11 @@ class ExpertiseServiceContract(models.Model):
         REJECTED = 1, "Rad etilgan"
         FINISHED = 2, "Yakunlangan"
         ACTIVE = 3, "Aktiv"
-        PEYMENT_IS_PENDING = 4, "To'lov kutilmoqda"
+        PAYMENT_IS_PENDING = 4, "To'lov kutilmoqda"
         CANCELLED = 5, "Bekor qilingan"
         NEW = 6, "Yangi"
     
-    status = models.IntegerField(choices=StatusChoices.choices)  # ijro statuslari
+    status = models.IntegerField(choices=StatusChoices.choices, default=4)  # ijro statuslari
     contract_status = models.IntegerField(choices=ContractStatusChoices.choices, default=0)  # hujjat statuslari
     
     price_select_percentage = models.IntegerField(
