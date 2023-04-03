@@ -931,18 +931,15 @@ class GetGroupContract(APIView):
         if request.user.role.name != "mijoz":
 
             contracts = None
-            barcha_data = Contract.objects.filter(
-                service__group=group).order_by('-condition', '-contract_date')
+            barcha_data = Contract.objects.all().order_by('-condition', '-contract_date')
             barcha = ContractSerializerForBackoffice(barcha_data, many=True)
             if request.user.role.name == 'direktor':
                 contract_participants = Contracts_Participants.objects.filter(
-                    (Q(contract__service__group=group) | Q(contract__service__group=None)),
                     Q(role__name="direktor o'rinbosari"),
                     Q(agreement_status__name='Kelishildi')
                 ).values('contract')
                 director_accepted_contracts = Contracts_Participants.objects.filter(
-                    Q(role__name='direktor'), Q(
-                        agreement_status__name='Kelishildi')
+                    Q(role__name='direktor'), Q(agreement_status__name='Kelishildi')
                 ).values('contract')
                 yangi_data = Contract.objects.filter(id__in=contract_participants).exclude(
                     Q(id__in=director_accepted_contracts),

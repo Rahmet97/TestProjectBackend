@@ -132,7 +132,8 @@ class CreateExpertiseServiceContractView(GenericAPIView):
 
             projects_data = request_objects_serializers.validated_data.pop('projects')
             user_stir = request_objects_serializers.validated_data.pop('stir')
-
+            print(type(projects_data))
+            print(projects_data)
             client = UserData.objects.get(username=user_stir)
 
             # Script code ni togirlash kk
