@@ -188,7 +188,9 @@ class ExpertiseContractDetail(APIView):
         # agar request user mijoz bo'lsa
         # expertise model yaratilganidan keyin statusi ozgarishi kk front ofise uchun
         # yani iqtisodchi va yurist dan otganidan keyin
-        if request.user.role.name == "mijoz" and contract.client == request.user:  # and contract.contract_status=="yangi":
+        if (request.user.role.name == "mijoz" and \
+            contract.client == request.user and \
+            contract.contract_status==6):
             client = request.user
 
         # agar reuqest user direktor, direktor o'rin bosari bo'lsa
@@ -232,7 +234,7 @@ class ExpertiseGetUserContracts(APIView):
 
     def get(self, request):
         contracts = ExpertiseServiceContract.objects.filter(
-            client=request.user
+            client=request.user, contract_status=6
         ).exclude()
         serializer = ContractSerializerForContractList(contracts, many=True)
         return response.Response(serializer.data)
