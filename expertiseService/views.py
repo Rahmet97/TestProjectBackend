@@ -234,7 +234,7 @@ class ExpertiseGetUserContracts(APIView):
     def get(self, request):
         contracts = ExpertiseServiceContract.objects.filter(
             client=request.user, contract_status=6
-        ).exclude()
+        )
         serializer = ExpertiseContractSerializerForContractList(contracts, many=True)
         return response.Response(serializer.data)
 
