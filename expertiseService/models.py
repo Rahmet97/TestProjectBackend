@@ -56,7 +56,7 @@ class ExpertiseServiceContract(models.Model):
         return self.contract_number
 
     def get_new_id_code(self):
-        count = self.objects.all().count()
+        count = ExpertiseServiceContract.objects.all().count()
         return f"E{count + 1}"
 
     def save(self, *args, **kwargs):
