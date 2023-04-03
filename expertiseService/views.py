@@ -37,7 +37,7 @@ from expertiseService.serializers import (
 num2word = NumbersToWord()
 
 
-class CreateExpertiseServiceContractView(GenericAPIView):
+class CreateExpertiseServiceContractView(APIView):
     queryset = ExpertiseServiceContract.objects.all()
     permission_classes = [IsAuthenticated]
 
