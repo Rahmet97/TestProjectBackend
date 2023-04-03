@@ -1,5 +1,4 @@
 from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
 
 from contracts.models import (
     Service, UserData, Role, AgreementStatus, 
@@ -30,13 +29,8 @@ class ExpertiseServiceContract(models.Model):
         CANCELLED = 5, "Bekor qilingan"
         NEW = 6, "Yangi"
     
-    status = models.IntegerField(choices=StatusChoices.choices, validators=[
-        MaxValueValidator(4),
-        MinValueValidator(1)
-    ])  # ijro statuslari
-    contract_status = models.IntegerField(choices=ContractStatusChoices.choices, default=0, 
-        validators=[ MaxValueValidator(6), MinValueValidator(0)]
-    )  # hujjat statuslari
+    status = models.IntegerField(choices=StatusChoices.choices)  # ijro statuslari
+    contract_status = models.IntegerField(choices=ContractStatusChoices.choices, default=0)  # hujjat statuslari
     
     price_select_percentage = models.IntegerField(
         choices=PRICE_SELECT_PERCENTAGE, blank=True, null=True
