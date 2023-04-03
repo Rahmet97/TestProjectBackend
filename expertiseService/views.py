@@ -14,7 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from contracts.utils import create_qr
 from contracts.models import Participant
 from expertiseService.models import (
-    Status, AgreementStatus, ExpertiseContracts_Participants, ContractStatus,
+    AgreementStatus, ExpertiseContracts_Participants,
     ExpertiseServiceContract, ExpertiseTarifContract, ExpertiseServiceContractTarif, ExpertiseExpertSummary
 )
 from contracts.utils import NumbersToWord, render_to_pdf, error_response_500, delete_file
@@ -105,8 +105,6 @@ class CreateExpertiseServiceContractView(GenericAPIView):
             contract_file = open(contract_file_for_base64_pdf, 'rb').read()
             base64code = base64.b64encode(contract_file)
 
-            status = Status.objects.filter(name='Yangi').first()
-            contract_status = ContractStatus.objects.filter(name='Yangi').first()
             agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
 
             # pdf fileni ochirish
@@ -141,8 +139,8 @@ class CreateExpertiseServiceContractView(GenericAPIView):
                 **request_objects_serializers.validated_data,
 
                 client=client,
-                status=status,
-                contract_status=contract_status,
+                status=4,
+                contract_status=0,
 
                 payed_cash=0,
                 base64file=base64code,

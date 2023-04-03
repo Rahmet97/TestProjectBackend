@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 from contracts.models import (
-    Service, UserData, ContractStatus, Status, Role, AgreementStatus, 
+    Service, UserData, Role, AgreementStatus, 
     slugify_upload
 )
 
@@ -15,13 +15,13 @@ PRICE_SELECT_PERCENTAGE = (
 
 class ExpertiseServiceContract(models.Model):
 
-    class Status(models.IntegerChoices):
+    class StatusChoices(models.IntegerChoices):
         DONE = 1,  "Bajarildi"
         IN_PROGRESS = 2, "Jarayonda"
         UNDER_REVIEW = 3, "Ko'rib chiqilmoqda"
         NEW = 4, "Yangi"
     
-    class ContractStatus(models.IntegerChoices):
+    class ContractStatusChoices(models.IntegerChoices):
         CREATED = 0, "Yaratilgan"
         REJECTED = 1, "Rad etilgan"
         FINISHED = 2, "Yakunlangan"
@@ -30,11 +30,11 @@ class ExpertiseServiceContract(models.Model):
         CANCELLED = 5, "Bekor qilingan"
         NEW = 6, "Yangi"
     
-    status = models.IntegerField(choices=Status.choices, validators=[
+    status = models.IntegerField(choices=StatusChoices.choices, validators=[
         MaxValueValidator(4),
         MinValueValidator(1)
     ])  # ijro statuslari
-    contract_status = models.IntegerField(choices=ContractStatus.choices, default=0, 
+    contract_status = models.IntegerField(choices=ContractStatusChoices.choices, default=0, 
         validators=[ MaxValueValidator(6), MinValueValidator(0)]
     )  # hujjat statuslari
     
