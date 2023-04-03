@@ -36,6 +36,7 @@ class ExpertiseServiceContract(models.Model):
         choices=PRICE_SELECT_PERCENTAGE, blank=True, null=True
     )
     
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
     contract_number = models.CharField(max_length=10, unique=True)
     id_code = models.CharField(max_length=11, blank=True, null=True)
     # condition = models.IntegerField(default=0)
