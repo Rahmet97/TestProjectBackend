@@ -49,13 +49,15 @@ class CreateExpertiseServiceContractView(APIView):
     def post(self, request):
         service_id=int(request.data['service'])
         participants = Participant.objects.get(service_id=service_id).participants.all()
-        user = []
+        users = []
         service_group = Service.objects.get(id=service_id).group
         for role in participants:
-            user.append(
+            users.append(
                 UserData.objects.filter(role=role).get(Q(group=service_group)|Q(group=None))
             )
-        return response.Response(user)
+            print(">>>", UserData.objects.filter(role=role).get(Q(group=service_group)|Q(group=None)))
+        print("list >>> ", users)
+        return response.Response(status=200)
 
     # def post(self, request):
     #     context = dict()
