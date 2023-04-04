@@ -54,10 +54,19 @@ class CreateExpertiseServiceContractView(APIView):
         for role in participants:
             
             query = Q(role=role) & (Q(group=service_group) | Q(group=None))
-            users.append(UserData.objects.get(query))
 
-            u=UserData.objects.filter(query)
-            print(" >>> ", u, u.role.name)
+            try:
+                matching_user = UserData.objects.get(query)
+                print(f"User {matching_user.id}: {matching_user.name}, {matching_user.email}")
+                
+                users.append(matching_user)
+
+                print(" >>> ", matching_user, matching_user.role.name)
+            except UserData.DoesNotExist:
+                print("No matching user found")
+            except UserData.MultipleObjectsReturned:
+                print("Multiple matching users found")
+
         print("list >>> ", users)
         return response.Response(status=200)
 
