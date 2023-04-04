@@ -52,10 +52,12 @@ class CreateExpertiseServiceContractView(APIView):
         users = []
         service_group = Service.objects.get(id=service_id).group
         for role in participants:
-            users.append(
-                UserData.objects.filter(role=role).get(Q(group=service_group)|Q(group=None))
-            )
-            print(">>>", UserData.objects.filter(role=role).get(Q(group=service_group)|Q(group=None)))
+            
+            query = Q(role=role) & (Q(group=service_group) | Q(group=None))
+            users.append(UserData.objects.get(query))
+
+            u=UserData.objects.filter(query)
+            print(" >>> ", u, u.role.name)
         print("list >>> ", users)
         return response.Response(status=200)
 
