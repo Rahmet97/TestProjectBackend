@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, response, generics
 
 from main.utils import responseErrorMessage
-from main.permission import IsAndPinnedToService
+from main.permission import IsAndPinnedToService, PERMITED_ROLES
 from .models import Application
 from contracts.models import Service
 from .serializers import ApplicationSerializer
@@ -25,18 +25,21 @@ class ApplicationListView(ListAPIView):
     permission_classes = [IsAndPinnedToService, IsAuthenticated]
     
     def get_queryset(self):
-        pinned_user = self.request.user
+        if self.request.user.role.name in PERMITED_ROLES:
+            queryset = self.queryset.all()
+        else:
+            pinned_user = self.request.user
 
-        try:
-            service_pk = Service.objects.get(pinned_user=pinned_user).pk
-        except Service.DoesNotExist:
-            # Return an empty queryset if the user is not pinned to any service
-            responseErrorMessage(
-                message="Siz Xizmat turiga biriktirilmagan siz",
-                status_code=status.HTTP_404_NOT_FOUND
-            )
-        
-        queryset = self.queryset.filter(service__pk=service_pk)
+            try:
+                service_pk = Service.objects.get(pinned_user=pinned_user).pk
+            except Service.DoesNotExist:
+                # Return an empty queryset if the user is not pinned to any service
+                responseErrorMessage(
+                    message="Siz Xizmat turiga biriktirilmagan siz",
+                    status_code=status.HTTP_404_NOT_FOUND
+                )
+            
+            queryset = self.queryset.filter(service__pk=service_pk)
         return queryset
     
 
@@ -47,22 +50,24 @@ class ApplicationRetrieveView(RetrieveAPIView):
     
     def get_object(self):
         obj = super(ApplicationRetrieveView, self).get_object()
-        
-        pinned_user = self.request.user
-        try:
-            service_pk = Service.objects.get(pinned_user=pinned_user).pk
-        except Service.DoesNotExist:
-            # Return an empty queryset if the user is not pinned to any service
-            responseErrorMessage(
-                message="Siz Xizmat turiga biriktirilmagan siz",
-                status_code=status.HTTP_404_NOT_FOUND
-            )
-        
-        obj = self.queryset.filter(service__pk=service_pk, pk=self.kwargs.get("pk")).first()
+
+        if self.request.user.role.name in PERMITED_ROLES:
+            obj = self.queryset.filter(pk=self.kwargs.get("pk")).first()
+        else:
+            pinned_user = self.request.user
+            try:
+                service_pk = Service.objects.get(pinned_user=pinned_user).pk
+            except Service.DoesNotExist:
+                # Return an empty queryset if the user is not pinned to any service
+                responseErrorMessage(
+                    message="Siz Xizmat turiga biriktirilmagan siz",
+                    status_code=status.HTTP_404_NOT_FOUND
+                )
+            
+            obj = self.queryset.filter(service__pk=service_pk, pk=self.kwargs.get("pk")).first()
         if not obj:
             responseErrorMessage(
                 message="Application not found",
                 status_code=status.HTTP_404_NOT_FOUND
             )
         return obj
-        
