@@ -60,25 +60,25 @@ class ExpertiseContractParticipantsSerializers(serializers.ModelSerializer):
     expert_summary = serializers.SerializerMethodField()
 
     def get_userdata(self, obj):
-        if obj.role.name != "dasturchi" and obj.role.name != 'mijoz':
-            userdata = UserData.objects.get(Q(role=obj.role), (Q(group=obj.contract.service.group) | Q(group=None)))
-            if userdata.type == 2:
-                u = YurUser.objects.get(userdata=userdata)
-                user = YurUserSerializerForContractDetail(u)
-            else:
-                u = FizUser.objects.get(userdata=userdata)
-                user = FizUserSerializerForContractDetail(u)
-            return user.data
-        return None
+        userdata = UserData.objects.get(
+            Q(role=obj.role),
+            # (Q(group=obj.contract.service.group) | Q(group=None))
+        )
+        if userdata.type == 2:
+            user = YurUser.objects.get(userdata=userdata)
+            return YurUserSerializerForContractDetail(user).data
+        else:
+            user = FizUser.objects.get(userdata=userdata)
+            return FizUserSerializerForContractDetail(user).data
 
     def get_expert_summary(self, obj):
         try:
             userdata = UserData.objects.get(Q(role=obj.role), Q(group=obj.contract.service.group))
-            summary = ExpertiseExpertSummary.objects.filter(contract=obj.contract).get(user=userdata)
+            summary = ExpertiseExpertSummary.objects.get(contract=obj.contract, user=userdata)
             serializer = ExpertiseExpertSummarySerializer(summary)
             return serializer.data
-        except:
-            return dict()
+        except ExpertiseExpertSummary.DoesNotExist:
+            return {}
 
     def get_agreement_status(self, obj):
         return obj.agreement_status.name
@@ -86,6 +86,45 @@ class ExpertiseContractParticipantsSerializers(serializers.ModelSerializer):
     class Meta:
         model = ExpertiseContracts_Participants
         fields = '__all__'
+
+
+# class ExpertiseContractParticipantsSerializers(serializers.ModelSerializer):
+#     agreement_status = serializers.SerializerMethodField()
+#     userdata = serializers.SerializerMethodField()
+#     expert_summary = serializers.SerializerMethodField()
+
+#     def get_userdata(self, obj):
+#         if obj.role.name != "dasturchi" and obj.role.name != 'mijoz':
+#             userdata = UserData.objects.get(
+#                 Q(role=obj.role), 
+#                 (Q(group=obj.contract.service.group) | Q(group=None))
+#             )
+            
+#             if userdata.type == 2:
+#                 u = YurUser.objects.get(userdata=userdata)
+#                 user = YurUserSerializerForContractDetail(u)
+#             else:
+#                 u = FizUser.objects.get(userdata=userdata)
+#                 user = FizUserSerializerForContractDetail(u)
+#             return user.data
+        
+#         return None
+
+#     def get_expert_summary(self, obj):
+#         try:
+#             userdata = UserData.objects.get(Q(role=obj.role), Q(group=obj.contract.service.group))
+#             summary = ExpertiseExpertSummary.objects.filter(contract=obj.contract).get(user=userdata)
+#             serializer = ExpertiseExpertSummarySerializer(summary)
+#             return serializer.data
+#         except:
+#             return dict()
+
+#     def get_agreement_status(self, obj):
+#         return obj.agreement_status.name
+
+#     class Meta:
+#         model = ExpertiseContracts_Participants
+#         fields = '__all__'
 
 
 class ExpertiseContractSerializerForContractList(serializers.ModelSerializer):
