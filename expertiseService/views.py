@@ -269,8 +269,8 @@ class ExpertiseGetGroupContract(APIView):
 
                 yangi_data = ExpertiseServiceContract.objects.filter(id__in=contract_participants).exclude(
                     Q(id__in=director_accepted_contracts),
-                    Q(contract_status__name="Bekor qilingan"),
-                    Q(contract_status__name="Rad etilgan")).select_related().order_by('-contract_date')
+                    Q(contract_status=5),
+                    Q(contract_status=1)).select_related().order_by('-contract_date')
             else:
                 contract_participants = ExpertiseContracts_Participants.objects.filter(
                     Q(role=request.user.role),
@@ -278,7 +278,7 @@ class ExpertiseGetGroupContract(APIView):
                      Q(agreement_status__name="Ko'rib chiqilmoqda"))
                 ).values('contract')
                 yangi_data = ExpertiseServiceContract.objects.filter(id__in=contract_participants).exclude(
-                    Q(contract_status__name="Bekor qilingan") | Q(contract_status__name="Rad etilgan")).select_related() \
+                    Q(contract_status="Bekor qilingan") | Q(contract_status=1)).select_related() \
                     .order_by('-contract_date')
             contract_data_query_set = yangi_data
             # contracts = ExpertiseContractSerializerForBackoffice(yangi_data, many=True)
@@ -298,7 +298,7 @@ class ExpertiseGetGroupContract(APIView):
         # rad etilgan contractlar
         elif filter_tag == "rejected":
             rad_etildi_data = ExpertiseServiceContract.objects.filter(
-                (Q(contract_status__name='Bekor qilingan') | Q(contract_status__name="Rad etilgan"))
+                (Q(contract_status=5) | Q(contract_status=1))
             ).order_by('-contract_date')
             contract_data_query_set = rad_etildi_data
             # contracts = ExpertiseContractSerializerForBackoffice(rad_etildi_data, many=True)
@@ -328,7 +328,7 @@ class ExpertiseGetGroupContract(APIView):
                 Q(contract_date__day=datetime.now().day),
                 Q(contract_date__month=datetime.now().month),
                 Q(contract_date__year=datetime.now().year)).exclude(
-                Q(contract_status__name='Bekor qilingan') | Q(contract_status__name='Rad etilgan')).select_related() \
+                Q(contract_status=5) | Q(contract_status=1)).select_related() \
                 .order_by('-contract_date')
             contract_data_query_set = lastday_data
             # contracts = ExpertiseContractSerializerForBackoffice(lastday_data, many=True)
