@@ -60,10 +60,11 @@ class ExpertiseContractParticipantsSerializers(serializers.ModelSerializer):
     expert_summary = serializers.SerializerMethodField()
 
     def get_userdata(self, obj):
-        userdata = UserData.objects.get(
-            Q(role=obj.role),
-            (Q(group=obj.contract.service.group) | Q(group=None))
-        )
+        # userdata = UserData.objects.get(
+        #     Q(role=obj.role),
+        #     (Q(group=obj.contract.service.group) | Q(group=None))
+        # )
+        userdata = obj.participant_user
         if userdata.type == 2:
             user = YurUser.objects.get(userdata=userdata)
             return YurUserSerializerForContractDetail(user).data
@@ -73,11 +74,12 @@ class ExpertiseContractParticipantsSerializers(serializers.ModelSerializer):
 
     def get_expert_summary(self, obj):
         try:
-            userdata = UserData.objects.get(
-                Q(role=obj.role),
-                (Q(group=obj.contract.service.group) | Q(group=None))
-            )
-
+            # userdata = UserData.objects.get(
+            #     Q(role=obj.role),
+            #     (Q(group=obj.contract.service.group) | Q(group=None))
+            # )
+            
+            userdata = obj.participant_user
             summary = ExpertiseExpertSummary.objects.get(contract=obj.contract, user=userdata)
             serializer = ExpertiseExpertSummarySerializer(summary)
             return serializer.data
