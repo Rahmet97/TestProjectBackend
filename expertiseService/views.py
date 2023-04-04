@@ -206,6 +206,7 @@ class ExpertiseContractDetail(APIView):
         user = YurUser.objects.get(userdata=client)
         client_serializer = YurUserSerializerForContractDetail(user)
         participants = ExpertiseContracts_Participants.objects.filter(contract=contract).order_by('role_id')
+        print("participants >>> ", participants)
         participant_serializer = ExpertiseContractParticipantsSerializers(participants, many=True)
 
         try:
