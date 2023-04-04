@@ -3,7 +3,17 @@ from .models import *
 from import_export.admin import ImportExportModelAdmin
 from import_export import resources
 
-admin.site.register((UserData, FizUser, YurUser, Permission, Role, Group, LogGroup, LogPermission, RolePermission))
+admin.site.register((UserData, Permission, Role, Group, LogGroup, LogPermission, RolePermission))
+
+
+@admin.register(FizUser)
+class FizUserAdmin(admin.ModelAdmin):
+    list_display = ["pin", "get_short_full_name", "get_user_role"]
+
+
+@admin.register(YurUser)
+class YurUserAdmin(admin.ModelAdmin):
+    list_display = ["tin", "get_director_short_full_name", "get_user_role"]
 
 
 class BankMFOResource(resources.ModelResource):

@@ -136,9 +136,13 @@ class FizUser(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.sur_name}"
     
-    property
+    @property
     def get_short_full_name(self):
         return f"{str(self.first_name)[0]}.{str(self.mid_name)[0]} {self.sur_name}"
+    
+    @property
+    def get_user_role(self):
+        return f"{self.userdata.role}"
 
 
 class BankMFOName(models.Model):
@@ -239,4 +243,8 @@ class YurUser(models.Model):
     @property
     def get_director_full_name(self):
         return f"{self.director_firstname} {self.director_middlename} {self.director_lastname}"
+
+    @property
+    def get_user_role(self):
+        return f"{self.userdata.role}"
 
