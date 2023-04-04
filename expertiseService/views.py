@@ -166,7 +166,8 @@ class CreateExpertiseServiceContractView(APIView):
                 payed_cash=0,
                 base64file=base64code,
                 hashcode=hash_code,
-                like_preview_pdf=like_pExpertiseContractParticipantsSerializersreview_pdf_path
+                
+                like_preview_pdf=like_preview_pdf_path
             )
             expertise_service_contract.save()
 
