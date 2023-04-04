@@ -15,16 +15,25 @@ from expertiseService.models import (
 
 class ExpertiseContractSerializerForDetail(serializers.ModelSerializer):
     arrearage = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+    contract_status = serializers.SerializerMethodField()
 
     def get_arrearage(self, obj):
         return obj.contract_cash - obj.payed_cash
+    
+
+    def get_status(self, obj):
+        return obj.get_status_display()
+
+    def get_contract_status(self, obj):
+        return obj.get_contract_status_display()
 
     class Meta:
         model = ExpertiseServiceContract
         fields = (
             'id', 'contract_number', 'contract_date', 'expiration_date', 
             'contract_cash', 'payed_cash', 'arrearage', 'contract_status',
-            'base64file', 'hashcode',
+            'base64file', 'hashcode', 'status'
         )
 
 
@@ -81,15 +90,31 @@ class ExpertiseContractParticipantsSerializers(serializers.ModelSerializer):
 
 class ExpertiseContractSerializerForContractList(serializers.ModelSerializer):
     service = ServiceSerializerForContract()
+    status = serializers.SerializerMethodField()
+    contract_status = serializers.SerializerMethodField()
+
+    def get_status(self, obj):
+        return obj.get_status_display()
+
+    def get_contract_status(self, obj):
+        return obj.get_contract_status_display()
 
     class Meta:
         model = ExpertiseServiceContract
-        fields = ('id', 'service', 'contract_number', 'contract_date', 'contract_status', 'contract_cash', 'hashcode')
+        fields = ('id', 'service', 'contract_number', 'contract_date', 'contract_status', 'status', 'contract_cash', 'hashcode')
 
 
 class ExpertiseContractSerializerForBackoffice(serializers.ModelSerializer):
     arrearage = serializers.SerializerMethodField()
     client = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+    contract_status = serializers.SerializerMethodField()
+
+    def get_status(self, obj):
+        return obj.get_status_display()
+
+    def get_contract_status(self, obj):
+        return obj.get_contract_status_display()
 
     def get_client(self, obj):
         try:
@@ -112,7 +137,7 @@ class ExpertiseContractSerializerForBackoffice(serializers.ModelSerializer):
         model = ExpertiseServiceContract
         fields = (
             'id', 'client', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash',
-            'payed_cash', 'arrearage', 'contract_status'
+            'payed_cash', 'arrearage', 'contract_status', 'status'
         )
 
 

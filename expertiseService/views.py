@@ -336,7 +336,7 @@ class ExpertiseGetGroupContract(APIView):
         in_time_data = [element.contract for element in contracts_selected if
                         element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(days=1)]
         self.check_object_permissions(request=request, obj=in_time_data)
-        in_time = ExpertiseContractSerializerForBackoffice(barcha_data, many=True)
+        in_time = ExpertiseContractSerializerForBackoffice(in_time_data, many=True)
 
         # barcha contractlar
         barcha_data = ExpertiseServiceContract.objects.all().order_by('-contract_date')
