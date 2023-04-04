@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
 from contracts.utils import create_qr
-from contracts.models import Participant
+from contracts.models import Participant, Service
 from contracts.utils import NumbersToWord, render_to_pdf, error_response_500, delete_file
 
 from accounts.models import YurUser, UserData
@@ -45,135 +45,156 @@ class CreateExpertiseServiceContractView(APIView):
         hashcode = hashlib.md5(text.encode())
         hash_code = hashcode.hexdigest()
         return hash_code
-
+    
     def post(self, request):
-        context = dict()
-        request_objects_serializers = ExpertiseServiceContractSerializers(data=request.data)
-        request_objects_serializers.is_valid(raise_exception=True)
-
-        context['u_type'] = 'yuridik'
-        context["user_obj"] = YurUser.objects.get(tin=request_objects_serializers.validated_data.get("stir"))
-        context['contract_number'] = request_objects_serializers.validated_data.get("contract_number")
-
-        date = request_objects_serializers.validated_data.get("contract_date")
-        context['datetime'] = datetime.fromisoformat(str(date)).time().strftime('%d.%m.%Y')
-
-        context['price'] = request_objects_serializers.validated_data.get("contract_cash")
-        context['price_text'] = num2word.change_num_to_word(int(context['price']))
-        context['price_select_percentage'] = request_objects_serializers.validated_data.get('price_select_percentage')
-        context['price_select_percentage_text'] = num2word.change_num_to_word(int(context['price_select_percentage']))
-
-        context['tarif'] = request_objects_serializers.validated_data.get("projects")
-
-        context['host'] = 'http://' + request.META['HTTP_HOST']
-        context['qr_code'] = ''
-        context['save'] = False
-        context['page_break'] = False
-
-        if int(request.data['save']):
-            context['save'] = True
-            context['page_break'] = True
-
-            hash_code = self.generate_hash_code(
-                text=f"{context.get('user_obj').get_director_short_full_name}{context.get('contract_number')}{context.get('u_type')}{datetime.now()}"
+        service_id=int(request.data['service'])
+        participants = Participant.objects.get(service_id=service_id).participants.all()
+        user = []
+        service_group = Service.objects.get(id=service_id).group
+        for role in participants:
+            user.append(
+                UserData.objects.filter(role=role).get(Q(group=service_group)|Q(group=None))
             )
+        return response.Response(user)
 
-            link = 'http://' + request.META['HTTP_HOST'] + f'/contracts/contract/{hash_code}'
-            qr_code_path = create_qr(link)
-            context['hash_code'] = hash_code
-            context['qr_code'] = f"http://api.unicon.uz/media/qr/{hash_code}.png"
+    # def post(self, request):
+    #     context = dict()
+    #     request_objects_serializers = ExpertiseServiceContractSerializers(data=request.data)
+    #     request_objects_serializers.is_valid(raise_exception=True)
 
-            # -------
-            # rendered html file
-            contract_file_for_base64_pdf = None
+    #     context['u_type'] = 'yuridik'
+    #     context["user_obj"] = YurUser.objects.get(tin=request_objects_serializers.validated_data.get("stir"))
+    #     context['contract_number'] = request_objects_serializers.validated_data.get("contract_number")
 
-            template_name = "shablonEkspertiza.html"
-            pdf = render_to_pdf(template_src=template_name, context_dict=context)
-            if pdf:
-                output_dir = '/usr/src/app/media/Contract/pdf'
-                os.makedirs(output_dir, exist_ok=True)
-                contract_file_for_base64_pdf = f"{output_dir}/{context.get('contract_number')}_{context.get('user_obj').get_director_short_full_name}.pdf"
-                with open(contract_file_for_base64_pdf, 'wb') as f:
-                    f.write(pdf.content)
-            else:
-                error_response_500()
+    #     date = request_objects_serializers.validated_data.get("contract_date")
+    #     context['datetime'] = datetime.fromisoformat(str(date)).time().strftime('%d.%m.%Y')
 
-            if contract_file_for_base64_pdf is None:
-                error_response_500()
+    #     context['price'] = request_objects_serializers.validated_data.get("contract_cash")
+    #     context['price_text'] = num2word.change_num_to_word(int(context['price']))
+    #     context['price_select_percentage'] = request_objects_serializers.validated_data.get('price_select_percentage')
+    #     context['price_select_percentage_text'] = num2word.change_num_to_word(int(context['price_select_percentage']))
 
-            # -------
-            contract_file = open(contract_file_for_base64_pdf, 'rb').read()
-            base64code = base64.b64encode(contract_file)
+    #     context['tarif'] = request_objects_serializers.validated_data.get("projects")
 
-            agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
+    #     context['host'] = 'http://' + request.META['HTTP_HOST']
+    #     context['qr_code'] = ''
+    #     context['save'] = False
+    #     context['page_break'] = False
 
-            # pdf fileni ochirish
-            delete_file(contract_file_for_base64_pdf)
-            # qr_code fileni ochirish
-            delete_file(qr_code_path)
+    #     if int(request.data['save']):
+    #         context['save'] = True
+    #         context['page_break'] = True
 
-            # -------
-            # preview ni bazaga ham saqlab ketishim kk chunki contractni statusiga qarab foydalanish uchun
-            context['save'] = False
-            like_preview_pdf = render_to_pdf(template_src=template_name, context_dict=context)
-            like_preview_pdf_path = None
-            if like_preview_pdf:
-                output_dir = '/usr/src/app/media/Contract/pdf'
-                os.makedirs(output_dir, exist_ok=True)
-                like_preview_pdf_path = f"{output_dir}/{context.get('contract_number')}_{context.get('user_obj').get_director_short_full_name}.pdf"
-                with open(like_preview_pdf_path, 'wb') as f:
-                    f.write(like_preview_pdf.content)
-            elif like_preview_pdf_path is None:
-                error_response_500()
-            else:
-                error_response_500()
+    #         hash_code = self.generate_hash_code(
+    #             text=f"{context.get('user_obj').get_director_short_full_name}{context.get('contract_number')}{context.get('u_type')}{datetime.now()}"
+    #         )
 
-            projects_data = request_objects_serializers.validated_data.pop('projects')
-            user_stir = request_objects_serializers.validated_data.pop('stir')
-            print(135, type(projects_data))
-            print(136, projects_data)
-            client = UserData.objects.get(username=user_stir)
+    #         link = 'http://' + request.META['HTTP_HOST'] + f'/contracts/contract/{hash_code}'
+    #         qr_code_path = create_qr(link)
+    #         context['hash_code'] = hash_code
+    #         context['qr_code'] = f"http://api.unicon.uz/media/qr/{hash_code}.png"
 
-            # Script code ni togirlash kk
-            expertise_service_contract = ExpertiseServiceContract.objects.create(
-                **request_objects_serializers.validated_data,
+    #         # -------
+    #         # rendered html file
+    #         contract_file_for_base64_pdf = None
+
+    #         template_name = "shablonEkspertiza.html"
+    #         pdf = render_to_pdf(template_src=template_name, context_dict=context)
+    #         if pdf:
+    #             output_dir = '/usr/src/app/media/Contract/pdf'
+    #             os.makedirs(output_dir, exist_ok=True)
+    #             contract_file_for_base64_pdf = f"{output_dir}/{context.get('contract_number')}_{context.get('user_obj').get_director_short_full_name}.pdf"
+    #             with open(contract_file_for_base64_pdf, 'wb') as f:
+    #                 f.write(pdf.content)
+    #         else:
+    #             error_response_500()
+
+    #         if contract_file_for_base64_pdf is None:
+    #             error_response_500()
+
+    #         # -------
+    #         contract_file = open(contract_file_for_base64_pdf, 'rb').read()
+    #         base64code = base64.b64encode(contract_file)
+
+    #         agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
+
+    #         # pdf fileni ochirish
+    #         delete_file(contract_file_for_base64_pdf)
+    #         # qr_code fileni ochirish
+    #         delete_file(qr_code_path)
+
+    #         # -------
+    #         # preview ni bazaga ham saqlab ketishim kk chunki contractni statusiga qarab foydalanish uchun
+    #         context['save'] = False
+    #         like_preview_pdf = render_to_pdf(template_src=template_name, context_dict=context)
+    #         like_preview_pdf_path = None
+    #         if like_preview_pdf:
+    #             output_dir = '/usr/src/app/media/Contract/pdf'
+    #             os.makedirs(output_dir, exist_ok=True)
+    #             like_preview_pdf_path = f"{output_dir}/{context.get('contract_number')}_{context.get('user_obj').get_director_short_full_name}.pdf"
+    #             with open(like_preview_pdf_path, 'wb') as f:
+    #                 f.write(like_preview_pdf.content)
+    #         elif like_preview_pdf_path is None:
+    #             error_response_500()
+    #         else:
+    #             error_response_500()
+
+    #         projects_data = request_objects_serializers.validated_data.pop('projects')
+    #         user_stir = request_objects_serializers.validated_data.pop('stir')
+    #         print(135, type(projects_data))
+    #         print(136, projects_data)
+    #         client = UserData.objects.get(username=user_stir)
+
+    #         # Script code ni togirlash kk
+    #         expertise_service_contract = ExpertiseServiceContract.objects.create(
+    #             **request_objects_serializers.validated_data,
                 
-                service_id=int(request.data['service_id']),
-                client=client,
-                status=4,
-                contract_status=0,
+    #             service_id=int(request.data['service_id']),
+    #             client=client,
+    #             status=4,
+    #             contract_status=0,
 
-                payed_cash=0,
-                base64file=base64code,
-                hashcode=hash_code,
-                like_preview_pdf=like_preview_pdf_path
-            )
-            expertise_service_contract.save()
+    #             payed_cash=0,
+    #             base64file=base64code,
+    #             hashcode=hash_code,
+    #             like_preview_pdf=like_preview_pdf_path
+    #         )
+    #         expertise_service_contract.save()
 
-            for project_data in projects_data:
-                project = ExpertiseServiceContractTarif.objects.create(**project_data)
-                ExpertiseTarifContract.objects.create(
-                    contract=expertise_service_contract,
-                    tarif=project
-                )
+    #         for project_data in projects_data:
+    #             project = ExpertiseServiceContractTarif.objects.create(**project_data)
+    #             ExpertiseTarifContract.objects.create(
+    #                 contract=expertise_service_contract,
+    #                 tarif=project
+    #             )
 
-            participants = Participant.objects.get(service_id=int(request.data['service'])).participants.all()
-            for participant in participants:
-                print(participant)
-                ExpertiseContracts_Participants.objects.create(
-                    contract=expertise_service_contract,
-                    role=participant,
-                    agreement_status=agreement_status
-                ).save()
+    #         # ExpertiseContracts_Participants
+    #         service_id=int(request.data['service'])
+    #         participants = Participant.objects.get(service_id=service_id).participants.all()
+    #         user = []
+    #         service_group = Service.objects.get(id=service_id).group
+    #         for role in participants:
+    #             UserData.objects.filter(role=role).get(
+    #                 Q(group=service_group)|Q(group=None)
+    #             )
 
-            # Contract yaratilgandan so'ng application ni is_contracted=True qilib qo'yish kk 
-            application_pk = request.data.get("application_pk")
-            Application.objects.filter(pk=application_pk).update(is_contracted=True)
+    #         # test mode
+    #         for participant in participants:
+    #             print(participant)
+    #             ExpertiseContracts_Participants.objects.create(
+    #                 contract=expertise_service_contract,
+    #                 role=participant,
+    #                 agreement_status=agreement_status
+    #             ).save()
 
-            return response.Response(data={"message": "Created Expertise Service Contract"}, status=201)
+    #         # Contract yaratilgandan so'ng application ni is_contracted=True qilib qo'yish kk 
+    #         application_pk = request.data.get("application_pk")
+    #         Application.objects.filter(pk=application_pk).update(is_contracted=True)
 
-        template_name = "shablonEkspertiza.html"
-        return render(request=request, template_name=template_name, context=context)
+    #         return response.Response(data={"message": "Created Expertise Service Contract"}, status=201)
+
+    #     template_name = "shablonEkspertiza.html"
+    #     return render(request=request, template_name=template_name, context=context)
 
 
 class ExpertiseContractDetail(APIView):
@@ -223,7 +244,7 @@ class ExpertiseContractDetail(APIView):
             'client': client_serializer.data,
             'participants': participant_serializer.data,
             'is_confirmed': True if int(expert_summary_value) == 1 else False
-        },
+            },
             status=200
         )
 

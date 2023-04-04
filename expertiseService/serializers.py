@@ -62,7 +62,7 @@ class ExpertiseContractParticipantsSerializers(serializers.ModelSerializer):
     def get_userdata(self, obj):
         userdata = UserData.objects.get(
             Q(role=obj.role),
-            # (Q(group=obj.contract.service.group) | Q(group=None))
+            (Q(group=obj.contract.service.group) | Q(group=None))
         )
         if userdata.type == 2:
             user = YurUser.objects.get(userdata=userdata)
@@ -73,7 +73,11 @@ class ExpertiseContractParticipantsSerializers(serializers.ModelSerializer):
 
     def get_expert_summary(self, obj):
         try:
-            userdata = UserData.objects.get(Q(role=obj.role))  # , Q(group=obj.contract.service.group))
+            userdata = UserData.objects.get(
+                Q(role=obj.role),
+                (Q(group=obj.contract.service.group) | Q(group=None))
+            )
+
             summary = ExpertiseExpertSummary.objects.get(contract=obj.contract, user=userdata)
             serializer = ExpertiseExpertSummarySerializer(summary)
             return serializer.data
