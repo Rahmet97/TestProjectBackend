@@ -312,8 +312,8 @@ class ExpertiseGetGroupContract(APIView):
             ).values('contract')
             expired_data = ExpertiseServiceContract.objects.filter(
                 Q(id__in=contract_participants),
-                Q(contract_date__lt=datetime.now() - timedelta(days=1))).select_related().order_by('-condition',
-            contract_data_query_set = expired_data                                                             '-contract_date')
+                Q(contract_date__lt=datetime.now() - timedelta(days=1))).select_related().order_by('-condition', '-contract_date')
+            contract_data_query_set = expired_data
             # contracts = ExpertiseContractSerializerForBackoffice(expired_data, many=True)
 
         # last day contractlar
