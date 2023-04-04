@@ -2,11 +2,11 @@ from rest_framework import permissions
 
 
 class IsRelatedToExpertiseBackOffice(permissions.BasePermission):
-    message = "You mustn't be the client of this objects."
+    message = "You do not have permission to view this datas"
 
     def has_permission(self, request, view):
         return (
             request.user and \
             request.user.is_authenticated and \
-            request.user.role.name == "mijoz"
+            request.user.role.name != "mijoz"
         )
