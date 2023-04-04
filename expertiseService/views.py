@@ -57,11 +57,9 @@ class CreateExpertiseServiceContractView(APIView):
 
             try:
                 matching_user = UserData.objects.get(query)
-                print(f"User {matching_user.id}: {matching_user.name}, {matching_user.email}")
+                print(f"User {matching_user.id}: {matching_user.role.name}")
                 
                 users.append(matching_user)
-
-                print(" >>> ", matching_user, matching_user.role.name)
             except UserData.DoesNotExist:
                 print("No matching user found")
             except UserData.MultipleObjectsReturned:
