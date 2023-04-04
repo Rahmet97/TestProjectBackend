@@ -73,7 +73,7 @@ class ExpertiseContractParticipantsSerializers(serializers.ModelSerializer):
 
     def get_expert_summary(self, obj):
         try:
-            userdata = UserData.objects.get(Q(role=obj.role), Q(group=obj.contract.service.group))
+            userdata = UserData.objects.get(Q(role=obj.role))  # , Q(group=obj.contract.service.group))
             summary = ExpertiseExpertSummary.objects.get(contract=obj.contract, user=userdata)
             serializer = ExpertiseExpertSummarySerializer(summary)
             return serializer.data
