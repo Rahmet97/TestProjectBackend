@@ -359,8 +359,26 @@ class ExpertiseConfirmContract(APIView):
         except ExpertiseContracts_Participants.DoesNotExist:
             cntrct = None
 
+        try:
+            cntrctIqYu = ExpertiseContracts_Participants.objects.filter(
+                (Q(role__name="iqtisodchi")&Q(role__name="yurist")),
+                contract=contract,
+                agreement_status__name='Kelishildi'
+            )
+            cntrctDiDo = ExpertiseContracts_Participants.objects.filter(
+                (Q(role__name="direktor")&Q(role__name="direktor o'rinbosari")),
+                contract=contract,
+                agreement_status__name='yuborilgan'
+            )
+        except ExpertiseContracts_Participants.DoesNotExist:
+            cntrctIqYu, cntrctDiDo = None, None
+
         if cntrct:
             contract.contract_status = 4  # To'lov kutilmoqda
+        
+        if cntrctIqYu and cntrctDiDo:
+            contract.contract_status = 6  # Yangi
+
         contract.save()
 
         request.data._mutable = True
