@@ -13,5 +13,5 @@ urlpatterns = [
     path('user-contracts', views.ExpertiseGetUserContracts.as_view(), name='ExpertiseGetUserContracts'),
     path('group-contracts', views.ExpertiseGetGroupContract.as_view(), name='ExpertiseGetGroupContract'),
     path('confirm-contract', views.ExpertiseConfirmContract.as_view(), name='ExpertiseConfirmContract'),
-
+    path('contract/<str:hash_code>', views.ExpertiseGetContractFile.as_view(), name='ExpertiseGetContractFile'),
 ]

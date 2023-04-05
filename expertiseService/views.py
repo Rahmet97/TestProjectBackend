@@ -4,6 +4,7 @@ import hashlib
 from datetime import datetime, timedelta
 
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 
 from rest_framework import response, status
@@ -11,6 +12,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
 from contracts.models import Participant, Service
+from contracts.tasks import file_downloader
 from contracts.utils import (
     NumbersToWord, render_to_pdf, error_response_500, 
     delete_file, create_qr
@@ -335,8 +337,8 @@ class ExpertiseConfirmContract(APIView):
             contract.contract_status = 1
 
         contracts_participants = ExpertiseContracts_Participants.objects.get(
-            Q(role=request.user.role),
-            Q(contract=contract),
+            role=request.user.role,
+            contract=contract,
             participant_user=request.user
         )
         if contracts_participants is None:
@@ -461,3 +463,38 @@ class ExpertiseContractDetail(APIView):
             },
             status=200
         )
+
+
+class ExpertiseGetContractFile(APIView):
+    permission_classes = ()
+
+    def get(self, request, hash_code):
+        if hash_code is None:
+            return response.Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
+        contract = get_object_or_404(ExpertiseServiceContract, hashcode=hash_code)
+
+        if contract.contract_status==4 or contract.contract_status==3:  # To'lov kutilmoqda va Aktiv
+            # delete like pdf file test mode
+            if contract.like_preview_pdf:
+                delete_file(contract.like_preview_pdf.path)
+                contract.like_preview_pdf = None
+                contract.save()
+
+            file_pdf_path, pdf_file_name = file_downloader(
+                bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id
+            )
+            if os.path.exists(file_pdf_path):
+                with open(file_pdf_path, 'rb') as fh:
+                    response = HttpResponse(fh.read(), content_type="application/pdf")
+                    response['Content-Disposition'] = f'attachment; filename="{pdf_file_name}"'
+                    delete_file(file_pdf_path)
+                    return response
+        else:
+            if contract.like_preview_pdf:
+                # Open the file and create a response with the PDF data
+                with open(contract.like_preview_pdf.path, 'rb') as f:
+                    response = HttpResponse(f.read(), content_type='application/pdf')
+                    response['Content-Disposition'] = f'attachment; filename={contract.contract_number}.pdf'
+                    return response
+
+        return response.Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
