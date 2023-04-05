@@ -293,7 +293,7 @@ class ExpertiseGetGroupContract(APIView):
                     Q(agreement_status__name="Ko'rib chiqilmoqda"))
             ).values('contract')
             yangi_data = ExpertiseServiceContract.objects.filter(id__in=contract_participants).exclude(
-                Q(contract_status="Bekor qilingan") | Q(contract_status=1)).select_related() \
+                Q(contract_status=5) | Q(contract_status=1)).select_related() \
                 .order_by('-contract_date')
         self.check_object_permissions(request=request, obj=yangi_data)
         yangi = ExpertiseContractSerializerForBackoffice(yangi_data, many=True)
