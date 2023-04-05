@@ -336,17 +336,33 @@ class ExpertiseConfirmContract(APIView):
             agreement_status = AgreementStatus.objects.get(name='Rad etildi')
             contract.contract_status = 1
 
-        contracts_participants = ExpertiseContracts_Participants.objects.get(
-            role=request.user.role,
-            contract=contract,
-            participant_user=request.user
-        )
-        print("contracts_participants: ", contracts_participants)
+        try:
+            contracts_participants = ExpertiseContracts_Participants.objects.get(
+                Q(role=request.user.role),
+                Q(contract=contract),
+                participant_user=request.user
+            )
+        except ExpertiseContracts_Participants.DoesNotExist:
+            contracts_participants = None
+
         if contracts_participants is None:
             responseErrorMessage(
                 message="you are not contract's participant",
                 status_code=status.HTTP_400_BAD_REQUEST
             )
+
+
+        # contracts_participants = ExpertiseContracts_Participants.objects.get(
+        #     Q(role=request.user.role),
+        #     Q(contract=contract),
+        #     participant_user=request.user
+        # )
+        print("contracts_participants: ", contracts_participants)
+        # if contracts_participants is None:
+        #     responseErrorMessage(
+        #         message="you are not contract's participant",
+        #         status_code=status.HTTP_400_BAD_REQUEST
+        #     )
         contracts_participants.agreement_status = agreement_status
         contracts_participants.save()
 
