@@ -3,17 +3,18 @@ import base64
 import hashlib
 from datetime import datetime, timedelta
 
-from django.shortcuts import render
 from django.db.models import Q
+from django.shortcuts import render, get_object_or_404
 
-from rest_framework import response
-from rest_framework.generics import GenericAPIView
+from rest_framework import response, status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
-from contracts.utils import create_qr
 from contracts.models import Participant, Service
-from contracts.utils import NumbersToWord, render_to_pdf, error_response_500, delete_file
+from contracts.utils import (
+    NumbersToWord, render_to_pdf, error_response_500, 
+    delete_file, create_qr
+)
 
 from accounts.models import YurUser, UserData
 from accounts.serializers import YurUserSerializerForContractDetail
@@ -24,19 +25,22 @@ from main.utils import responseErrorMessage
 from expertiseService.permission import IsRelatedToExpertiseBackOffice
 from expertiseService.models import (
     AgreementStatus, ExpertiseContracts_Participants,
-    ExpertiseServiceContract, ExpertiseTarifContract, ExpertiseServiceContractTarif, ExpertiseExpertSummary
+    ExpertiseServiceContract, ExpertiseTarifContract,
+    ExpertiseServiceContractTarif, ExpertiseExpertSummary
 )
 from expertiseService.serializers import (
     ExpertiseServiceContractSerializers,
     ExpertiseContractSerializerForDetail,    
     ExpertiseContractParticipantsSerializers,
     ExpertiseContractSerializerForContractList,
-    ExpertiseContractSerializerForBackoffice
+    ExpertiseContractSerializerForBackoffice,
+    ExpertiseExpertSummarySerializerForSave
 )
 
 num2word = NumbersToWord()
 
 
+# Back office APIs
 class CreateExpertiseServiceContractView(APIView):
     queryset = ExpertiseServiceContract.objects.all()
     permission_classes = [IsAuthenticated]
@@ -150,8 +154,6 @@ class CreateExpertiseServiceContractView(APIView):
 
             projects_data = request_objects_serializers.validated_data.pop('projects')
             user_stir = request_objects_serializers.validated_data.pop('stir')
-            print(135, type(projects_data))
-            print(136, projects_data)
             client = UserData.objects.get(username=user_stir)
 
             # Script code ni togirlash kk
@@ -166,7 +168,6 @@ class CreateExpertiseServiceContractView(APIView):
                 payed_cash=0,
                 base64file=base64code,
                 hashcode=hash_code,
-                
                 like_preview_pdf=like_preview_pdf_path
             )
             expertise_service_contract.save()
@@ -200,70 +201,6 @@ class CreateExpertiseServiceContractView(APIView):
 
         template_name = "shablonEkspertiza.html"
         return render(request=request, template_name=template_name, context=context)
-
-
-class ExpertiseContractDetail(APIView):
-    permission_classes = (IsAuthenticated,)
-    permitted_roles = ["direktor o'rinbosari", "direktor", "iqtisodchi", "yurist", "dasturchi"]
-
-    def get(self, request, pk):
-        contract = ExpertiseServiceContract.objects.select_related('client').get(pk=pk)
-        contract_serializer = ExpertiseContractSerializerForDetail(contract)
-
-        # agar request user mijoz bo'lsa
-        # expertise model yaratilganidan keyin statusi ozgarishi kk front ofise uchun
-        # yani iqtisodchi va yurist dan otganidan keyin
-        if (request.user.role.name == "mijoz" and \
-            contract.client == request.user and \
-            contract.contract_status==6):
-            client = request.user
-
-        # agar reuqest user direktor, direktor o'rin bosari bo'lsa
-        # agar reuqest user iqtisodchi, yurist yoki dasturchi bo'lsa
-        elif request.user.role.name in self.permitted_roles:
-            client = contract.client
-
-        else:
-            responseErrorMessage(
-                message="You are not permitted to view this contact detail",
-                status_code=200
-            )
-
-        user = YurUser.objects.get(userdata=client)
-        client_serializer = YurUserSerializerForContractDetail(user)
-        participants = ExpertiseContracts_Participants.objects.filter(contract=contract).order_by('role_id')
-        print("participants >>> ", participants)
-        participant_serializer = ExpertiseContractParticipantsSerializers(participants, many=True)
-
-        try:
-            expert_summary_value = ExpertiseExpertSummary.objects.get(
-                Q(contract=contract), Q(user=request.user),
-                (Q(user__group=request.user.group) | Q(user__group=None))
-            ).summary
-
-        except ExpertiseExpertSummary.DoesNotExist:
-            expert_summary_value = 0
-
-        return response.Response(data={
-            'contract': contract_serializer.data,
-            'client': client_serializer.data,
-            'participants': participant_serializer.data,
-            'is_confirmed': True if int(expert_summary_value) == 1 else False
-            },
-            status=200
-        )
-
-
-# client request user
-class ExpertiseGetUserContracts(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        contracts = ExpertiseServiceContract.objects.filter(
-            client=request.user, contract_status=6
-        )
-        serializer = ExpertiseContractSerializerForContractList(contracts, many=True)
-        return response.Response(serializer.data)
 
 
 class ExpertiseGetGroupContract(APIView):
@@ -380,6 +317,129 @@ class ExpertiseGetGroupContract(APIView):
                 'lastday': lastday.data,
                 'expired_accepted': expired_accepted.data,
                 'in_time': in_time.data
+            },
+            status=200
+        )
+
+
+class ExpertiseConfirmContract(APIView):
+    permission_classes = (IsRelatedToExpertiseBackOffice,)
+
+    def post(self, request):
+        contract = get_object_or_404(ExpertiseServiceContract, pk=int(request.data['contract']))
+
+        if int(request.data['summary']) == 1:  # 1 -> muofiq, 0 -> muofiq emas
+            agreement_status = AgreementStatus.objects.get(name='Kelishildi')
+        else:
+            agreement_status = AgreementStatus.objects.get(name='Rad etildi')
+            contract.contract_status = 1
+
+        contracts_participants = ExpertiseContracts_Participants.objects.get(
+            Q(role=request.user.role),
+            Q(contract=contract),
+            participant_user=request.user
+        )
+        if contracts_participants is None:
+            responseErrorMessage(
+                message="you are not contract's participant",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+        contracts_participants.agreement_status = agreement_status
+        contracts_participants.save()
+
+        # If the amount of the contract is more than 10 million,
+        # it expects the director to give a conclusion
+        director_role_name = "direktor" if contract.contract_cash >= 10_000_000 else "direktor o'rinbosari"
+        try:
+            cntrct = ExpertiseContracts_Participants.objects.get(
+                contract=contract,
+                role__name=director_role_name,
+                agreement_status__name='Kelishildi'
+            )
+        except ExpertiseContracts_Participants.DoesNotExist:
+            cntrct = None
+
+        if cntrct:
+            contract.contract_status = 4  # To'lov kutilmoqda
+        contract.save()
+
+        request.data._mutable = True
+        request.data['user'] = request.user.id
+
+        try:
+            documents = request.FILES.getlist('documents', None)
+        except:
+            documents = None
+
+        summary = ExpertiseExpertSummarySerializerForSave(
+            data=request.data, context={'documents': documents}
+        )
+        summary.is_valid(raise_exception=True)
+        summary.save()
+
+        return response.Response(status=200)
+
+
+# Front office APIs -> client request user
+class ExpertiseGetUserContracts(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        contracts = ExpertiseServiceContract.objects.filter(
+            client=request.user, contract_status=6
+        )
+        serializer = ExpertiseContractSerializerForContractList(contracts, many=True)
+        return response.Response(serializer.data)
+
+
+# General APIs
+class ExpertiseContractDetail(APIView):
+    permission_classes = (IsAuthenticated,)
+    permitted_roles = ["direktor o'rinbosari", "direktor", "iqtisodchi", "yurist", "dasturchi"]
+
+    def get(self, request, pk):
+        contract = ExpertiseServiceContract.objects.select_related('client').get(pk=pk)
+        contract_serializer = ExpertiseContractSerializerForDetail(contract)
+
+        # agar request user mijoz bo'lsa
+        # expertise model yaratilganidan keyin statusi ozgarishi kk front ofise uchun
+        # yani iqtisodchi va yurist dan otganidan keyin
+        if (request.user.role.name == "mijoz" and \
+            contract.client == request.user and \
+            contract.contract_status==6):
+            client = request.user
+
+        # agar reuqest user direktor, direktor o'rin bosari bo'lsa
+        # agar reuqest user iqtisodchi, yurist yoki dasturchi bo'lsa
+        elif request.user.role.name in self.permitted_roles:
+            client = contract.client
+
+        else:
+            responseErrorMessage(
+                message="You are not permitted to view this contact detail",
+                status_code=200
+            )
+
+        user = YurUser.objects.get(userdata=client)
+        client_serializer = YurUserSerializerForContractDetail(user)
+        participants = ExpertiseContracts_Participants.objects.filter(contract=contract).order_by('role_id')
+        print("participants >>> ", participants)
+        participant_serializer = ExpertiseContractParticipantsSerializers(participants, many=True)
+
+        try:
+            expert_summary_value = ExpertiseExpertSummary.objects.get(
+                Q(contract=contract), Q(user=request.user),
+                (Q(user__group=request.user.group) | Q(user__group=None))
+            ).summary
+
+        except ExpertiseExpertSummary.DoesNotExist:
+            expert_summary_value = 0
+
+        return response.Response(data={
+            'contract': contract_serializer.data,
+            'client': client_serializer.data,
+            'participants': participant_serializer.data,
+            'is_confirmed': True if int(expert_summary_value) == 1 else False
             },
             status=200
         )
