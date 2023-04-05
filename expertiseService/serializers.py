@@ -202,36 +202,36 @@ class ExpertiseServiceContractSerializers(serializers.ModelSerializer):
         fields = ["service", "contract_number", "contract_date", "projects", "stir", "contract_cash", "price_select_percentage"]
 
 
-class ExpertiseExpertSummarySerializerForSave(serializers.ModelSerializer):
-    documents = serializers.ListField(child=serializers.FileField(), write_only=True)
-
-    def create(self, validated_data):
-        documents = validated_data.pop('documents', [])
-        expertsummary = ExpertiseExpertSummary.objects.create(**validated_data)
-
-        document_objs = [ExpertiseExpertSummaryDocument(expertsummary=expertsummary, document=document) for document in documents]
-        ExpertiseExpertSummaryDocument.objects.bulk_create(document_objs)
-
-        return expertsummary
-
-    class Meta:
-        model = ExpertiseExpertSummary
-        fields = "__all__"
-
-
 # class ExpertiseExpertSummarySerializerForSave(serializers.ModelSerializer):
+#     documents = serializers.ListField(child=serializers.FileField(), write_only=True)
 
 #     def create(self, validated_data):
-#         documents = self.context['documents']
+#         documents = validated_data.pop('documents', [])
 #         expertsummary = ExpertiseExpertSummary.objects.create(**validated_data)
 
-#         for document in documents:
-#             ExpertiseExpertSummaryDocument.objects.create(
-#                 expertsummary=expertsummary,
-#                 document=document
-#             )
+#         document_objs = [ExpertiseExpertSummaryDocument(expertsummary=expertsummary, document=document) for document in documents]
+#         ExpertiseExpertSummaryDocument.objects.bulk_create(document_objs)
+
 #         return expertsummary
 
 #     class Meta:
 #         model = ExpertiseExpertSummary
 #         fields = "__all__"
+
+
+class ExpertiseExpertSummarySerializerForSave(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        documents = self.context['documents']
+        expertsummary = ExpertiseExpertSummary.objects.create(**validated_data)
+
+        for document in documents:
+            ExpertiseExpertSummaryDocument.objects.create(
+                expertsummary=expertsummary,
+                document=document
+            )
+        return expertsummary
+
+    class Meta:
+        model = ExpertiseExpertSummary
+        fields = "__all__"
