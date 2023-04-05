@@ -341,6 +341,7 @@ class ExpertiseConfirmContract(APIView):
             contract=contract,
             participant_user=request.user
         )
+        print("contracts_participants: ", contracts_participants)
         if contracts_participants is None:
             responseErrorMessage(
                 message="you are not contract's participant",
