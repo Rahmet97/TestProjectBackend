@@ -1039,6 +1039,7 @@ class ConfirmContract(APIView):
         print('1039', agreement_status.name, contract.contract_status.name)
         contracts_participants = Contracts_Participants.objects.get(
             Q(role=request.user.role),
+            Q(contract__service__group__name='Co-location'),
             Q(contract=contract)
         )
         contracts_participants.agreement_status = agreement_status
