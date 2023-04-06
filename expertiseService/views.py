@@ -336,10 +336,13 @@ class ExpertiseConfirmContract(APIView):
             contract.contract_status = 1
 
         role_name=request.user.role.name
+        print("339 >> ", request.user, request.user.name)
+        print("334 >>>", contract.id)
         contracts_participants = ExpertiseContracts_Participants.objects.get(
-                Q(role__name=role_name),
-                Q(contract=contract),
-                # Q(participant_user=request.user)
+            Q(participant_user=request.user), contract=contract
+        #         Q(role__name=role_name),
+        #         # Q(contract=contract),
+        #         Q(participant_user=request.user)
         )
 
         if contracts_participants is None or contracts_participants.participant_user!=request.user:
