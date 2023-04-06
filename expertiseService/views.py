@@ -418,9 +418,6 @@ class ExpertiseGetUserContracts(APIView):
 
     def get(self, request):
         contracts = ExpertiseServiceContract.objects.filter(client=request.user).exclude(contract_status=0)
-        # contracts = ExpertiseServiceContract.objects.filter(
-        #     client=request.user, contract_status=6
-        # )
         serializer = ExpertiseContractSerializerForContractList(contracts, many=True)
         return response.Response(serializer.data)
 
@@ -462,7 +459,7 @@ class ExpertiseContractDetail(APIView):
         try:
             expert_summary_value = ExpertiseExpertSummary.objects.get(
                 Q(contract=contract), Q(user=request.user),
-                # (Q(user__group=request.user.group) | Q(user__group=None))
+                (Q(user__group=request.user.group) | Q(user__group=None))
             ).summary
 
         except ExpertiseExpertSummary.DoesNotExist:
