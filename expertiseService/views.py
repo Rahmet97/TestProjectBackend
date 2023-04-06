@@ -187,7 +187,6 @@ class CreateExpertiseServiceContractView(APIView):
             # test mode
             participants = self.create_contract_participants(service_id=service_id)
             for participant in participants:
-                print(participant)
                 ExpertiseContracts_Participants.objects.create(
                     contract=expertise_service_contract,
                     role=participant.role,
@@ -336,20 +335,14 @@ class ExpertiseConfirmContract(APIView):
             agreement_status = AgreementStatus.objects.get(name='Rad etildi')
             contract.contract_status = 1
 
-        # if request.user.role.name in ["iqtisodchi", "yurist"]:
+        role_name=request.user.role.name
         contracts_participants = ExpertiseContracts_Participants.objects.get(
-                Q(role=request.user.role),
+                Q(role__name=role_name),
                 Q(contract=contract),
-                Q(participant_user=request.user)
+                # Q(participant_user=request.user)
         )
-        # else:
-        #     contracts_participants = ExpertiseContracts_Participants.objects.get(
-        #             Q(role=request.user.role),
-        #             Q(contract=contract),
-        #             participant_user=request.user
-        #     )
 
-        if contracts_participants is None:
+        if contracts_participants is None or contracts_participants.participant_user!=request.user:
             responseErrorMessage(
                 message="you are not contract's participant",
                 status_code=status.HTTP_400_BAD_REQUEST
@@ -453,7 +446,7 @@ class ExpertiseContractDetail(APIView):
         user = YurUser.objects.get(userdata=client)
         client_serializer = YurUserSerializerForContractDetail(user)
         participants = ExpertiseContracts_Participants.objects.filter(contract=contract).order_by('role_id')
-        print("participants >>> ", participants)
+
         participant_serializer = ExpertiseContractParticipantsSerializers(participants, many=True)
 
         try:
