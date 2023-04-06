@@ -85,7 +85,6 @@ class ExpertiseTarifContract(models.Model):
 class ExpertiseContracts_Participants(models.Model):
     contract = models.ForeignKey(ExpertiseServiceContract, on_delete=models.CASCADE)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
-    # test mode
     participant_user = models.ForeignKey(to=UserData, on_delete=models.CASCADE, related_name="participant_user")
     agreement_status = models.ForeignKey(AgreementStatus, on_delete=models.CASCADE, blank=True, null=True)   # kelishuv statuslari
 
