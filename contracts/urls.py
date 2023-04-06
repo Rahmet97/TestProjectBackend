@@ -7,7 +7,7 @@ from contracts.views import (
     OfferDetailAPIView, GetGroupAdminDataAPIView, ServiceCreateAPIView, DocumentCreateAPIView, SavedServiceAPIView,
     SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService, CreateContractFileAPIView, SavePkcs, GetContractFile,
     GetUserContracts, GetContractFileWithID, ContractDetail, GetGroupContract, ConfirmContract,
-    ConnectMethodListAPIView, GetPinnedUserDataAPIView, AddOldContractsViews, TestHtmlToPdf, ContractRejectedViews
+    ConnectMethodListAPIView, GetPinnedUserDataAPIView, AddOldContractsViews
 )
 
 urlpatterns = [
@@ -49,6 +49,4 @@ urlpatterns = [
     path('rack-contract-with-number', GetRackContractDetailWithNumber.as_view(), name='GetRackContractDetailWithNumber'),
     path('unit-contract-with-number', GetUnitContractDetailWithNumber.as_view(), name='GetUnitContractDetailWithNumber'),
 
-
-    path('test', TestHtmlToPdf.as_view(), name='test')
 ]

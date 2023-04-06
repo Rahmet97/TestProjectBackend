@@ -45,8 +45,7 @@ from .serializers import (
     OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer, PkcsSerializer,
     ContractSerializerForContractList, ContractSerializerForBackoffice, ExpertSummarySerializer,
     ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail,
-    ConnectMethodSerializer, AddOldContractSerializers, UserOldContractTarifDeviceSerializer,
-    ExpertSummarySerializerForRejected
+    ConnectMethodSerializer, AddOldContractSerializers, UserOldContractTarifDeviceSerializer
 )
 
 from .utils import (
@@ -678,31 +677,6 @@ class CreateContractFileAPIView(APIView):
             template_name = "shablonYuridik.html"
 
         return render(request=request, template_name=template_name, context=context)
-
-
-# Test uchun qilingan view keyinroq o'chirib tashlimiz
-class TestHtmlToPdf(APIView):
-
-    def post(self, request):
-        context = {
-            "name": request.data["name"],
-            "name2": request.data["name2"]
-        }
-        if int(request.data['save']):
-            pdf = render_to_pdf(template_src="shablon.html", context_dict=context)
-
-            if pdf:
-                output_dir = '/usr/src/app/media/Contract/pdf'
-                os.makedirs(output_dir, exist_ok=True)
-
-                with open(f"{output_dir}/{context.get('name')}.pdf", 'wb') as f:
-                    f.write(pdf.content)
-
-            return Response(data={
-                "pdf": f"media/Contract/pdf/{context.get('name')}.pdf"
-            }, status=200)
-
-        return render(request=request, template_name="shablon.html", context=context)
 
 
 class SavePkcs(APIView):
