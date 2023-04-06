@@ -1048,7 +1048,7 @@ class ConfirmContract(APIView):
         )
         contracts_participants.agreement_status = agreement_status
         contracts_participants.save()
-        print('1046', contracts_participants.agreement_status.name)
+        print('1046', contracts_participants.role.name, contracts_participants.contract.service.group.name, contracts_participants.agreement_status.name)
         contract.condition += 1
 
         try:
