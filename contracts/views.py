@@ -121,8 +121,12 @@ class UserDetailAPIView(APIView):
             # Check if user role is not 'mijoz' and retrieve with_eds field from ServiceParticipants model
             if request.user.role.name != 'mijoz':
                 try:
-                    with_ads = ServiceParticipants.objects.get(Q(role=request.user.role),
-                                                               Q(participant__service__group=request.user.group)).with_eds
+                    if request.user.role.name != 'direktor':
+                        with_ads = ServiceParticipants.objects.get(Q(role=request.user.role),
+                                                                   Q(participant__service__group=request.user.group)).with_eds
+                    else:
+                        with_ads = ServiceParticipants.objects.get(Q(role=request.user.role),
+                                                                   Q(participant__service__group__name='Data Markaz')).with_eds
                     data["with_ads"] = with_ads
                 except ServiceParticipants.DoesNotExist:
                     pass
@@ -1012,12 +1016,12 @@ class ConfirmContract(APIView):
         print('1039', agreement_status.name, contract.contract_status.name)
         contracts_participants = Contracts_Participants.objects.get(
             Q(role=request.user.role),
-            Q(contract__service__group__name='Co-location'),
+            Q(contract__service__group__name='Data Markaz'),
             Q(contract=contract)
         )
         contracts_participants.agreement_status = agreement_status
         contracts_participants.save()
-        print('1046', contracts_participants.agreement_status.name)
+        print('1046', contracts_participants.role.name, contracts_participants.contract.service.group.name, contracts_participants.agreement_status.name)
         contract.condition += 1
 
         try:
