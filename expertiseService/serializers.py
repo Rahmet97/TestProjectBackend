@@ -179,3 +179,10 @@ class ExpertiseExpertSummarySerializerForSave(serializers.ModelSerializer):
     class Meta:
         model = ExpertiseExpertSummary
         fields = "__all__"
+
+
+# Agar client sharnomani rejected qilsa
+class ExpertSummarySerializerForRejected(serializers.ModelSerializer):
+    class Meta:
+        model = ExpertiseExpertSummary
+        fields = ["comment", "date",]  # "contract", "summary", "user", "user_role"]

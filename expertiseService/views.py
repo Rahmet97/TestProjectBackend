@@ -7,12 +7,15 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 
+from drf_yasg.utils import swagger_auto_schema
+
 from rest_framework import response, status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
 from contracts.models import Participant, Service
 from contracts.tasks import file_downloader
+from contracts.permission import IsAuthenticatedAndOwner
 from contracts.utils import (
     NumbersToWord, render_to_pdf, error_response_500, 
     delete_file, create_qr
@@ -36,7 +39,8 @@ from expertiseService.serializers import (
     ExpertiseContractParticipantsSerializers,
     ExpertiseContractSerializerForContractList,
     ExpertiseContractSerializerForBackoffice,
-    ExpertiseExpertSummarySerializerForSave
+    ExpertiseExpertSummarySerializerForSave,
+    ExpertSummarySerializerForRejected
 )
 
 num2word = NumbersToWord()
@@ -507,3 +511,30 @@ class ExpertiseGetContractFile(APIView):
                     return response
 
         return response.Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
+
+
+# Agar client sharnomani rejected qilsa
+class ExpertiseContractRejectedViews(APIView):
+    serializer_class = ExpertSummarySerializerForRejected
+    permission_classes = [IsAuthenticatedAndOwner]
+
+    @swagger_auto_schema(operation_summary="Front Officeda Expertisada. clientga yaratilgan shartnomani bekor qilish uchun")
+    def post(self, request, contract_id):
+        contract = get_object_or_404(ExpertiseServiceContract, pk=contract_id)
+        self.check_object_permissions(self.request, ExpertiseServiceContract)
+        if contract.contract_status != 5:  # Bekor qilingan
+            serializer = self.serializer_class(data=request.data)
+
+            serializer.is_valid(raise_exception=True)
+            contract.contract_status = 5  # Bekor qilingan
+            contract.save()
+
+            serializer.save(
+                contract=contract, summary=0,
+                user=request.user, user_role=request.user.role
+            )
+            return response.Response({"message": "Contract rejected"}, status=201)
+        responseErrorMessage(
+            message="you are already rejected contract",
+            status_code=200
+        )

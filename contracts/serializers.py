@@ -223,7 +223,6 @@ class ExpertSummarySerializerForSave(serializers.ModelSerializer):
     def create(self, validated_data):
         documents = self.context['documents']
         expertsummary = ExpertSummary.objects.create(**validated_data)
-        # print(documents)
         for document in documents:
             ExpertSummaryDocument.objects.create(
                 expertsummary=expertsummary,
@@ -234,13 +233,6 @@ class ExpertSummarySerializerForSave(serializers.ModelSerializer):
     class Meta:
         model = ExpertSummary
         fields = "__all__"
-
-
-# Agar client sharnomani rejected qilsa
-class ExpertSummarySerializerForRejected(serializers.ModelSerializer):
-    class Meta:
-        model = ExpertSummary
-        fields = ["comment", "date",]  # "contract", "summary", "user", "user_role"]
 
 
 class ContractParticipantsSerializers(serializers.ModelSerializer):

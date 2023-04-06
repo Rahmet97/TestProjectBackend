@@ -38,9 +38,6 @@ urlpatterns = [
     
     path('contract-file-by-id', GetContractFileWithID.as_view(), name='GetContractFileWithID'),
     path('contract-detail/<int:pk>', ContractDetail.as_view(), name='ContractDetail'),
-    
-    # Front Office uchun. clientga yaratilgan shartnomani bekor qilish uchun
-    path('contract-rejected/<int:contract_id>', ContractRejectedViews.as_view(), name="ContractRejectedViews"),
 
     path('add-old-contract/<str:usertype>', AddOldContractsViews.as_view(), name="add-old-contract"),
 
