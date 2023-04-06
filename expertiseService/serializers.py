@@ -95,45 +95,6 @@ class ExpertiseContractParticipantsSerializers(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# class ExpertiseContractParticipantsSerializers(serializers.ModelSerializer):
-#     agreement_status = serializers.SerializerMethodField()
-#     userdata = serializers.SerializerMethodField()
-#     expert_summary = serializers.SerializerMethodField()
-
-#     def get_userdata(self, obj):
-#         if obj.role.name != "dasturchi" and obj.role.name != 'mijoz':
-#             userdata = UserData.objects.get(
-#                 Q(role=obj.role), 
-#                 (Q(group=obj.contract.service.group) | Q(group=None))
-#             )
-            
-#             if userdata.type == 2:
-#                 u = YurUser.objects.get(userdata=userdata)
-#                 user = YurUserSerializerForContractDetail(u)
-#             else:
-#                 u = FizUser.objects.get(userdata=userdata)
-#                 user = FizUserSerializerForContractDetail(u)
-#             return user.data
-        
-#         return None
-
-#     def get_expert_summary(self, obj):
-#         try:
-#             userdata = UserData.objects.get(Q(role=obj.role), Q(group=obj.contract.service.group))
-#             summary = ExpertiseExpertSummary.objects.filter(contract=obj.contract).get(user=userdata)
-#             serializer = ExpertiseExpertSummarySerializer(summary)
-#             return serializer.data
-#         except:
-#             return dict()
-
-#     def get_agreement_status(self, obj):
-#         return obj.agreement_status.name
-
-#     class Meta:
-#         model = ExpertiseContracts_Participants
-#         fields = '__all__'
-
-
 class ExpertiseContractSerializerForContractList(serializers.ModelSerializer):
     service = ServiceSerializerForContract()
     status = serializers.SerializerMethodField()
@@ -200,23 +161,6 @@ class ExpertiseServiceContractSerializers(serializers.ModelSerializer):
     class Meta:
         model = ExpertiseServiceContract
         fields = ["service", "contract_number", "contract_date", "projects", "stir", "contract_cash", "price_select_percentage"]
-
-
-# class ExpertiseExpertSummarySerializerForSave(serializers.ModelSerializer):
-#     documents = serializers.ListField(child=serializers.FileField(), write_only=True)
-
-#     def create(self, validated_data):
-#         documents = validated_data.pop('documents', [])
-#         expertsummary = ExpertiseExpertSummary.objects.create(**validated_data)
-
-#         document_objs = [ExpertiseExpertSummaryDocument(expertsummary=expertsummary, document=document) for document in documents]
-#         ExpertiseExpertSummaryDocument.objects.bulk_create(document_objs)
-
-#         return expertsummary
-
-#     class Meta:
-#         model = ExpertiseExpertSummary
-#         fields = "__all__"
 
 
 class ExpertiseExpertSummarySerializerForSave(serializers.ModelSerializer):

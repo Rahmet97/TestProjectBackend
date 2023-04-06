@@ -186,13 +186,20 @@ class CreateExpertiseServiceContractView(APIView):
 
             # test mode
             participants = self.create_contract_participants(service_id=service_id)
+            
+            if expertise_service_contract.contract_cash >= 10_000_000:
+                exclude_role_name = "direktor o'rinbosari"
+            else:
+                exclude_role_name = "direktor"
+
             for participant in participants:
-                ExpertiseContracts_Participants.objects.create(
-                    contract=expertise_service_contract,
-                    role=participant.role,
-                    participant_user=participant,
-                    agreement_status=agreement_status
-                ).save()
+                if participant.role.name != exclude_role_name:
+                    ExpertiseContracts_Participants.objects.create(
+                        contract=expertise_service_contract,
+                        role=participant.role,
+                        participant_user=participant,
+                        agreement_status=agreement_status
+                    ).save()
 
             # Contract yaratilgandan so'ng application ni is_contracted=True qilib qo'yish kk 
             application_pk = request.data.get("application_pk")
@@ -379,7 +386,7 @@ class ExpertiseConfirmContract(APIView):
         if cntrct:
             contract.contract_status = 4  # To'lov kutilmoqda
         
-        if len(cntrctIqYu)==2 and len(cntrctDiDo)==2:
+        if len(cntrctIqYu)==2 and len(cntrctDiDo)!=0:
             contract.contract_status = 6  # Yangi
 
         contract.save()
@@ -406,9 +413,10 @@ class ExpertiseGetUserContracts(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        contracts = ExpertiseServiceContract.objects.filter(
-            client=request.user, contract_status=6
-        )
+        contracts = ExpertiseServiceContract.objects.filter(client=request.user).exclude(contract_status=0)
+        # contracts = ExpertiseServiceContract.objects.filter(
+        #     client=request.user, contract_status=6
+        # )
         serializer = ExpertiseContractSerializerForContractList(contracts, many=True)
         return response.Response(serializer.data)
 
