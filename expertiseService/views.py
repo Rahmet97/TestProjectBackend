@@ -1,6 +1,7 @@
 import os
 import base64
 import hashlib
+from decimal import Decimal
 from datetime import datetime, timedelta
 
 from django.db.models import Q
@@ -91,10 +92,10 @@ class CreateExpertiseServiceContractView(APIView):
         context['price'] = request_objects_serializers.validated_data.get("contract_cash")
         context['price_text'] = num2word.change_num_to_word(int(context['price']))
 
-        context['withoutnds_price'] = context['price']*(1-0.88)
+        context['withoutnds_price'] = context['price'] * Decimal('0.88')
         context['withoutnds_price_text'] = num2word.change_num_to_word(int(context['withoutnds_price']))        
 
-        context['onlynds_price'] = context['price']*(1-0.12)
+        context['onlynds_price'] = context['price'] * Decimal('0.12')
         context['price_text'] = num2word.change_num_to_word(int(context['onlynds_price']))
 
         context['price_select_percentage'] = request_objects_serializers.validated_data.get('price_select_percentage')
