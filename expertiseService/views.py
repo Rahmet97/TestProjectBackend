@@ -89,7 +89,7 @@ class CreateExpertiseServiceContractView(APIView):
         date = request_objects_serializers.validated_data.get("contract_date")
         print("date >>> ", date)
         context['datetime'] = datetime.fromisoformat(str(date)).time().strftime('%d.%m.%Y')
-        print("datetime >>> ", datetime)
+        print("datetime >>> ", context['datetime'])
 
         context['price'] = request_objects_serializers.validated_data.get("contract_cash")
         context['price_text'] = num2word.change_num_to_word(int(context['price']))
