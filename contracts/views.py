@@ -1011,14 +1011,13 @@ class ConfirmContract(APIView):
             contract.contract_status = ContractStatus.objects.get(name="To'lov kutilmoqda")
         contract.save()
 
+        request.data._mutable = True
+        request.data['user'] = request.user.id
+
         try:
             documents = request.FILES.getlist('documents', None)
         except:
             documents = None
-
-        if documents:
-            request.data._mutable = True
-        request.data['user'] = request.user.id
 
         summary = ExpertSummarySerializerForSave(
             data=request.data, context={'documents': documents}
