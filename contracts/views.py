@@ -840,7 +840,8 @@ class ContractDetail(APIView):
             else:
                 expert_summary_value = ExpertSummary.objects.get(
                     Q(contract=contract),
-                    Q(user=request.user)
+                    Q(user=request.user),
+                    Q(user__group=request.user.group)
                 ).summary
         except ExpertSummary.DoesNotExist:
             expert_summary_value = 0
