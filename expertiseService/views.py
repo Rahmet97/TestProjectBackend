@@ -51,9 +51,6 @@ class CreateExpertiseServiceContractView(APIView):
     queryset = ExpertiseServiceContract.objects.all()
     permission_classes = [IsAuthenticated]
 
-    def get_without_qqs(self, price, qqs_percentage=12):  # default 12%
-        return price * (100-qqs_percentage)/100
-
     def generate_hash_code(self, text: str):
         hashcode = hashlib.md5(text.encode())
         hash_code = hashcode.hexdigest()
