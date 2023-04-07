@@ -980,24 +980,22 @@ class ConfirmContract(APIView):
     permission_classes = (WorkerPermission,)
 
     def post(self, request):
-        print('983', request.data)
-        print('984', type(request.data))
         contract = Contract.objects.get(pk=int(request.data['contract']))
-        print('1033', contract)
+
         if int(request.data['summary']) == 1:  # 1 -> muofiq, 0 -> muofiq emas
             agreement_status = AgreementStatus.objects.get(name='Kelishildi')
         else:
             agreement_status = AgreementStatus.objects.get(name='Rad etildi')
             contract.contract_status = ContractStatus.objects.get(name='Rad etilgan')
-        print('1039', agreement_status.name, contract.contract_status.name)
+
         contracts_participants = Contracts_Participants.objects.get(
+            Q(contract=contract),
             Q(role=request.user.role),
-            Q(contract__service__group__name='Data Markaz'),
-            Q(contract=contract)
+            # Q(contract__service__group__name='Data Markaz'),
         )
+        print("contracts_participants 996 >>>> ", contracts_participants)
         contracts_participants.agreement_status = agreement_status
         contracts_participants.save()
-        print('1046', contracts_participants.role.name, contracts_participants.contract.service.group.name, contracts_participants.agreement_status.name)
         contract.condition += 1
 
         try:
