@@ -70,6 +70,11 @@ class ExpertiseServiceContractTarif(models.Model):
     name_of_tarif = models.CharField(max_length=255)
     is_discount = models.BooleanField(default=False)
 
+    # @property
+    # def get_without_qqs(self):
+    #     qqs_percentage=12  # 12%
+    #     return self.price * (100-qqs_percentage)/100
+
     def __str__(self) -> str:
         return self.name_of_tarif
 

@@ -262,84 +262,86 @@
             <strong>{{datetime}}</strong>
         </div>
         <p class='requirement-text'>
-            "UNICON.UZ" - Fan-texnika va marketing tadqiqotlari markazi davlat unitar korxonasi ("UNICON.UZ" DUK) nomidan Ustav asosida faoliyat yurituvchi Direktor
+            "UNICON.UZ" - Fan-texnika va marketing tadqiqotlari markazi davlat unitar korxonasi ("UNICON.UZ" DUK)
+            nomidan Ustav asosida faoliyat yurituvchi Direktor
             M. Maxmudov (bundan buyon matnda “Bajaruvchi”) bir tomondan, {{user_obj.name}} nomidan Ustav
-            asosida faoliyat yurituvchi Direktor {{user_obj.get_director_short_full_name}} (bundan buyon matnda “Buyurtmachi”) ikkinchi
+            asosida faoliyat yurituvchi Direktor {{user_obj.get_director_short_full_name}} (bundan buyon matnda
+            “Buyurtmachi”) ikkinchi
             tomondan, mazkur Shartnomani quyidagilar to'g'risida tuzdilar:
         </p>
         <h4 class='requirement-title'>I. SHARTNOMA MAVZUSI</h4>
         <p class='requirement-text'>
-             1.1. Buyurtmachi 2-ilovaga muvofiq ishchi loyihalarni ekspertiza qilish ishlarini o'tkazish uchun
+            1.1. Buyurtmachi 2-ilovaga muvofiq ishchi loyihalarni ekspertiza qilish ishlarini o'tkazish uchun
             topshiradi, Bajaruvchi esa ushbu ish bo'yicha majburiyatlarni o'z zimmasiga oladi.
         </p>
         <h4 class='requirement-title'>II. SHARTNOMA NARXI VA HISOB-KITOBLAR TARTIBI</h4>
         <p class='requirement-text'>
-             2.1. Shartnoma narxi to'g'risidagi Kelishuv bayonnomasiga muvofiq (1-ilova) Shartnoma bo'yicha ishlarning
+            2.1. Shartnoma narxi to'g'risidagi Kelishuv bayonnomasiga muvofiq (1-ilova) Shartnoma bo'yicha ishlarning
             narxi QQSni hisobga olgan holda {{price}} ({{price_text}}) so'mni tashkil qiladi. <br>
-             2.2. Shartnoma bo'yicha to'lov Buyurtmachi tomonidan Bajaruvchining hisob raqamiga quyidagi tarzda
+            2.2. Shartnoma bo'yicha to'lov Buyurtmachi tomonidan Bajaruvchining hisob raqamiga quyidagi tarzda
             o'tkaziladi: <br>
             {% if price_select_percentage == 50 %}
-                2.2.1. Mazkur Shartnoma imzolangandan keyin 5 ish kuni ichida mazkur Shartnomaning 1-ilovasida ko'rsatilgan
-                ishlar umumiy shartnomaviy narxining 50 foizi ellik foizi) miqdoridagi summani, qolgan 50 foizini esa
-                bajarilgan ishlar dalolatnomasi va hisob-faktura imzolangandan keyin 10 kun ichida Bajaruvchining hisob
-                raqamiga o'tkazishi kerak. <br>
+            2.2.1. Mazkur Shartnoma imzolangandan keyin 5 ish kuni ichida mazkur Shartnomaning 1-ilovasida ko'rsatilgan
+            ishlar umumiy shartnomaviy narxining 50 foizi ellik foizi) miqdoridagi summani, qolgan 50 foizini esa
+            bajarilgan ishlar dalolatnomasi va hisob-faktura imzolangandan keyin 10 kun ichida Bajaruvchining hisob
+            raqamiga o'tkazishi kerak. <br>
             {% elif price_select_percentage == 100 %}
-                2.2.1. Mazkur Shartnoma imzolangandan keyin 5 ish kuni ichida mazkur Shartnomaning 1-ilovasida ko'rsatilgan
-                ishlar umumiy shartnomaviy narxining 100 foizi (yuz foizi) miqdoridagi summani Bajaruvchining hisob raqamiga
-                o'tkazishi kerak. <br>
+            2.2.1. Mazkur Shartnoma imzolangandan keyin 5 ish kuni ichida mazkur Shartnomaning 1-ilovasida ko'rsatilgan
+            ishlar umumiy shartnomaviy narxining 100 foizi (yuz foizi) miqdoridagi summani Bajaruvchining hisob raqamiga
+            o'tkazishi kerak. <br>
             {% endif %}
-             2.3. Buyurtmachidan Bajaruvchining hisob raqamiga pul o'tkazmalarini amalga oshirishda ushlab qolinadigan
+            2.3. Buyurtmachidan Bajaruvchining hisob raqamiga pul o'tkazmalarini amalga oshirishda ushlab qolinadigan
             komissiya yig'imlari va bojlari Buyurtmachi tomonidan to'lanadi. <br>
-             2.4. Buyurtmachi tomonidan bajarish uchun taklif qilingan, mazkur shartnoma bilan bog'liq bo'lmagan barcha
+            2.4. Buyurtmachi tomonidan bajarish uchun taklif qilingan, mazkur shartnoma bilan bog'liq bo'lmagan barcha
             ishlar boshqa shartnoma va kelishuv mavzusi bo'lib hisoblanadi.
         </p>
         <p class='requirement-text'>
         <h4 class='requirement-title'>III. TOMONLAR HUQUQLARI</h4>
         <p class="requirement-text">
-             3.1. Buyurtmachining huquqlari: <br>
-             3.1.1. Shartnomani tuzish va bajarish bilan bog'liq holda zarur bo'lgan ma'lumotlar va boshqa hujjatlarni
+            3.1. Buyurtmachining huquqlari: <br>
+            3.1.1. Shartnomani tuzish va bajarish bilan bog'liq holda zarur bo'lgan ma'lumotlar va boshqa hujjatlarni
             Bajaruvchidan so'rash va olish. <br>
-             3.1.2. Mazkur shartnoma bo'yicha Bajaruvchi majburiyatlarining bajarilishini va taqdim etilayotgan ishlar
+            3.1.2. Mazkur shartnoma bo'yicha Bajaruvchi majburiyatlarining bajarilishini va taqdim etilayotgan ishlar
             sifatini tekshirish. <br>
-             3.2. Bajaruvchining huquqlari: <br>
-             3.2.1. Ishlar o'z vaqtida bajarilganda Buyurtmachidan belgilangan vaqtda navbatdagi to'lovlar kelib
+            3.2. Bajaruvchining huquqlari: <br>
+            3.2.1. Ishlar o'z vaqtida bajarilganda Buyurtmachidan belgilangan vaqtda navbatdagi to'lovlar kelib
             tushmagan holda ishlar o'tkazilishini to'xtatib qo'yish. <br>
-             3.2.2. Buyurtmachi tomonidan belgilangan vaqtda Shartnomani tuzish va bajarish bilan bog'liq holda zarur
+            3.2.2. Buyurtmachi tomonidan belgilangan vaqtda Shartnomani tuzish va bajarish bilan bog'liq holda zarur
             bo'lgan ma'lumotlar va boshqa hujjatlar taqdim etilmagan holda ishlar o'tkazilishini to'xtatib qo'yish.
         </p>
         <h4 class='requirement-title'>IV. TOMONLAR MAJBURIYATLARI</h4>
         <p class="requirement-text">
-             4.1. Buyurtmachining majburiyatlari: <br>
-             4.1.1. Bajaruvchi tomonidan taqdim etilgan, mazkur Shartnomada ko'zda tutilgan hisobot hujjatlarini o'z
+            4.1. Buyurtmachining majburiyatlari: <br>
+            4.1.1. Bajaruvchi tomonidan taqdim etilgan, mazkur Shartnomada ko'zda tutilgan hisobot hujjatlarini o'z
             vaqtida ko'rib chiqish. <br>
-             4.1.2.Shartnoma mavzusi bo'yicha qonun hujjatlarining barcha zarur talablariga rioya qilish. <br>
-             4.1.3. «Bajaruvchi»ga ko'rib chiqilayotgan loyiha bo'yicha zarur dastlabki ma'lumotlarni va qo'shimcha
+            4.1.2.Shartnoma mavzusi bo'yicha qonun hujjatlarining barcha zarur talablariga rioya qilish. <br>
+            4.1.3. «Bajaruvchi»ga ko'rib chiqilayotgan loyiha bo'yicha zarur dastlabki ma'lumotlarni va qo'shimcha
             axborotni taqdim etish. <br>
-             4.2. Bajaruvchining majburiyatlari: <br>
-             4.2.1. Taqdim etilayotgan xizmatlarning lozim darajadagi sifatini kafolatlash. <br>
-             4.2.2. Ishlar kompleksini to'liq hajmda va belgilangan muddatlarda bajarish. <br>
-             4.2.3. Ishlar kompleksi quyidagilarni o'z ichiga oladi: <br>
-             - loyihalash topshirig'i loyihasining muvofiqligini tekshirish; <br>
-             - taqdim etilgan materiallar tarkibi va butligini baholash; <br>
-             - loyiha hujjatlari barcha bo'limlarining sifatini baholash; <br>
-             - qabul qilingan qarorlarning belgilangan normalar, talablar, Texnik shartlarga muvofiqligi; <br>
-             - ekspert xulosalarini tayyorlash; <br>
-             4.2.4. Loyihani hujjatlari to'liq hajmda taqdim etish sharti bilan, «Bajaruvchi»ning hisob raqamiga pullar
+            4.2. Bajaruvchining majburiyatlari: <br>
+            4.2.1. Taqdim etilayotgan xizmatlarning lozim darajadagi sifatini kafolatlash. <br>
+            4.2.2. Ishlar kompleksini to'liq hajmda va belgilangan muddatlarda bajarish. <br>
+            4.2.3. Ishlar kompleksi quyidagilarni o'z ichiga oladi: <br>
+            - loyihalash topshirig'i loyihasining muvofiqligini tekshirish; <br>
+            - taqdim etilgan materiallar tarkibi va butligini baholash; <br>
+            - loyiha hujjatlari barcha bo'limlarining sifatini baholash; <br>
+            - qabul qilingan qarorlarning belgilangan normalar, talablar, Texnik shartlarga muvofiqligi; <br>
+            - ekspert xulosalarini tayyorlash; <br>
+            4.2.4. Loyihani hujjatlari to'liq hajmda taqdim etish sharti bilan, «Bajaruvchi»ning hisob raqamiga pullar
             tushgandan keyin 30 kun ichida loyihaning ekspertizasi bo'yicha xulosani tayyorlash.
         </p>
         <h4 class='requirement-title'>V. ISHLARNI QABUL QILISH VA TOPSHIRISH TARTIBI</h4>
         <p class="requirement-text">
-             5.1. Ishlar tugatilgan keyin Bajaruvchi mazkur Shartnomaning shartlarida ko'zda tutilgan hujjatlar
+            5.1. Ishlar tugatilgan keyin Bajaruvchi mazkur Shartnomaning shartlarida ko'zda tutilgan hujjatlar
             komplektini ilova qilgan holda Buyurtmachiga 2 nusxada Bajarilgan ishlarni qabul qilish-topshirish
             dalolatnomasini beradi. <br>
-             5.2. Buyurtmachi hisobot hujjatlarini olgan kundan boshlab 10 kun ichida Bajaruvchiga bajarilgan ishlarni
+            5.2. Buyurtmachi hisobot hujjatlarini olgan kundan boshlab 10 kun ichida Bajaruvchiga bajarilgan ishlarni
             qabul qilganligini tasdiqlashi yoki ishlarni qabul qilishni asoslangan ravishda rad javobini yuborishga
             majbur. <br>
-             5.3. Buyurtmachi asoslangan rad javobini bergan holda 5 kun muddat ichida tomonlar tarafidan zarur
+            5.3. Buyurtmachi asoslangan rad javobini bergan holda 5 kun muddat ichida tomonlar tarafidan zarur
             to'ldirishlar ro'yxati, ularni bajarish muddatlari ko'rsatilgan ikki tomonlama bayonnoma tuziladi. <br>
-             5.4. Ikki tomonning imzolari bilan tasdiqlangan Bajarilgan ishlarni qabul qilish-topshirish dalolatnomasi
+            5.4. Ikki tomonning imzolari bilan tasdiqlangan Bajarilgan ishlarni qabul qilish-topshirish dalolatnomasi
             ishlar tugatilganligi fakti hisoblanadi. <br>
-             5.5. Bajaruvchi ko'rsatilgan xizmatlar uchun elektron ko'rinishda hisob-fakturani tuzadi va Buyurtmachining
+            5.5. Bajaruvchi ko'rsatilgan xizmatlar uchun elektron ko'rinishda hisob-fakturani tuzadi va Buyurtmachining
             maxsus tizimi orqali uni taqdim etadi. Taqdim etilgan hisob-fakturalar ikki tomon tarafidan
             hisob-fakturaning sanasi ko'rsatilgan hisobot oyida hisobga olinadi. Buyurtmachi ikki ish kuni ichida
             hisob-fakturani imzolashi yoki maxsus tizim orqali elektron ko'rinishda sababini ko'rsatgan holda rad
@@ -348,25 +350,25 @@
         </p>
         <h4 class='requirement-title'>VI. SHARTNOMANI BAJARISH</h4>
         <p class="requirement-text">
-             6.1. Shartnoma tomonlar tarafidan Shartnomaning hamda O'zbekiston Respublikasi amaldagi qonun
+            6.1. Shartnoma tomonlar tarafidan Shartnomaning hamda O'zbekiston Respublikasi amaldagi qonun
             hujjatlarining shartlari va talablariga muvofiq imzolanishi kerak. <br>
-             6.2. Agar tomonlar o'z zimmalariga qabul qilingan barcha majburiyatlari bajarilishini ta'minlagan
+            6.2. Agar tomonlar o'z zimmalariga qabul qilingan barcha majburiyatlari bajarilishini ta'minlagan
             bo'lsalar,
             shartnoma bajarilgan hisoblanadi.
         </p>
         <h4 class="requirement-title">VII. KONFIDENSIALLIK</h4>
         <p class="requirement-text">
-             7.1. Mazkur Shartnomani bajarish uchun bir tomon yoki ikkala Tomonlar tarafidan taqdim etilgan yoki ishlab
+            7.1. Mazkur Shartnomani bajarish uchun bir tomon yoki ikkala Tomonlar tarafidan taqdim etilgan yoki ishlab
             chiqilgan butun axborot va hujjatlar konfidensial bo'lib qolishi kerak va Tomonlarning roziligisiz uchinchi
             Tomonga berilishi mumkin emas.
         </p>
         <h4 class="requirement-title">VIII. FORS-MAJOR</h4>
         <p class="requirement-text">
-             8.1. Tomonlar tabiiy ofatlar, urush va mazkur Shartnomani imzolagan Tomonlarning nazorat sohasidan
+            8.1. Tomonlar tabiiy ofatlar, urush va mazkur Shartnomani imzolagan Tomonlarning nazorat sohasidan
             tashqariga chiqadigan boshqa hodisalar kabi fors-major holatlarida mazkur Shartnomada ko'rsatib o'tilgan
             majburiyatlarni bajarmaslik yoki bajarishdagi tanaffusga nisbatan har qanday javobgarlikdan ozod
             qilinadilar. <br>
-             8.2. Fors-major holatlari yuzaga kelganligini qayd qilgan Tomon ular paydo bo'lgandan keyin 10 (o'n) kundan
+            8.2. Fors-major holatlari yuzaga kelganligini qayd qilgan Tomon ular paydo bo'lgandan keyin 10 (o'n) kundan
             kechiktirmay fors-major holatlari yuzaga kelganligi to'g'risida har qanday yozma shaklda boshqa Tomonga
             xabar qilishi kerak. Fors-major holatlarini e'lon qiluvchi Tomon ushbu holatlar amal qilishining tugaganligi
             to'g'risida yuqorida tavsiflanganidek, xuddi shu tariqa va xuddi shu muddatlarda boshqa Tomonga xabar
@@ -374,38 +376,38 @@
         </p>
         <h4 class="requirement-title">IX. TOMONLAR JAVOBGARLIGI</h4>
         <p class="requirement-text">
-             9.1. Tomonlar O'zbekiston Respublikasining 1998 yil 29 avgustdagi «Xo'jalik yurituvchi subyektlar
+            9.1. Tomonlar O'zbekiston Respublikasining 1998 yil 29 avgustdagi «Xo'jalik yurituvchi subyektlar
             faoliyatining shartnomaviy-huquqiy bazasi to'g'risida»gi qonuning talablariga qat'iy rioya qilish,
             shuningdek shartnomaning barcha talablarini bajarish to'g'risida kelishib oldilar hamda uning buzilishi va
             mazkur shartnoma shartlarining buzilishi uchun bir-birlari oldida javobgar bo'ladilar. <br>
-             9.2. Ikkala Tomonlar tarafidan mazkur Shartnoma imzolangan kundan boshlab hisoblaganda Buyurtmachi
+            9.2. Ikkala Tomonlar tarafidan mazkur Shartnoma imzolangan kundan boshlab hisoblaganda Buyurtmachi
             tomonidan
             to'lov 10 kalendar kunidan ko'pga kechikkanda, har bir keyingi kun uchun Buyurtmachiga bajarilgan ishlar
             narxining 0,4 foiz hisobidan kelib chiqib, ammo kechiktirilgan to'lov summasining 50 foizidan ko'p bo'lmagan
             miqdorda penya hisoblanadi. <br>
-             9.3. Bajaruvchi tomonidan ishlarni bajarish muddatlari 10 kalendar kunidan ko'pga kechikkan holda, ikkala
+            9.3. Bajaruvchi tomonidan ishlarni bajarish muddatlari 10 kalendar kunidan ko'pga kechikkan holda, ikkala
             tomon tarafidan mazkun Shartnoma imzolangan kundan hisoblab, har bir keyingi kun uchun Bajaruvchiga
             bajarilgan ishlar narxining 0,4 foiz hisobidan kelib chiqib, ammo kechiktirilgan to'lov summasining 50
             foizidan ko'p bo'lmagan miqdorda penya hisoblanadi. <br>
-             9.4. Jarima (penya)ni to'lash Tomonlarni mazkur Shartnomani tuzish natijasida o'z zimmasiga qabul qilgan
+            9.4. Jarima (penya)ni to'lash Tomonlarni mazkur Shartnomani tuzish natijasida o'z zimmasiga qabul qilgan
             majburiyatlardan ozod etmaydi.
         </p>
         <h4 class="requirement-title">X. NIZOLARNI HAL QILISH TARTIBI</h4>
         <p class="requirement-text">
-             10.1. Mazkur Shartnomadan kelib chiqadigan barcha nomuvofiqliklar va kelishmovchiliklar Tomonlar tarafidan
+            10.1. Mazkur Shartnomadan kelib chiqadigan barcha nomuvofiqliklar va kelishmovchiliklar Tomonlar tarafidan
             o'zaro kelishilgan asosda tartibga solinishi kerak. Kelishmovchiliklarni bir tomonlama tartibga solishga
             urinish haqiqiy hisoblanmaydi. <br>
-             10.2. Agar o'zaro kelishilgan asosda tartibga solishga urinish ish bermasa, u holda mazkur Shartnoma
+            10.2. Agar o'zaro kelishilgan asosda tartibga solishga urinish ish bermasa, u holda mazkur Shartnoma
             bo'yicha barcha nizoli masalalar va kelishmovchiliklar Toshkent tumanlararo Iqtisodiy sudida ko'rib
             chiqilishi kerak.
         </p>
         <h4 class="requirement-title">XI. BOSHQA SHARTLAR</h4>
         <p class="requirement-text">
-             11.1. Mazkur shartnomaga har qanday o'zgartirish va qo'shimchalar ular yozma shaklda sodir etilishi hamda
+            11.1. Mazkur shartnomaga har qanday o'zgartirish va qo'shimchalar ular yozma shaklda sodir etilishi hamda
             Bajaruvchi va Buyurtmachining bunga zarur darajada vakil qilingan vakillari tomonidan imzolanishi sharti
             bilan haqiqiy hisoblanadi. <br>
-             11.2. Mazkur Shartnoma teng yuridik kuchga ega bo'lgan ikki nusxada tuzilgan. <br>
-             11.3. Shartnoma ikki Tomonlar tarafidan imzolangandan keyin kuchga kiradi va Tomonlar o'rtasidagi barcha
+            11.2. Mazkur Shartnoma teng yuridik kuchga ega bo'lgan ikki nusxada tuzilgan. <br>
+            11.3. Shartnoma ikki Tomonlar tarafidan imzolangandan keyin kuchga kiradi va Tomonlar o'rtasidagi barcha
             ishlar va o'zaro hisob-kitoblar tugagunicha haqiqiy hisoblanadi.6
         </p>
         <h4 class="requirement-title">XII. YURIDIK MANZILLAR VA BANK REKVIZITLARI</h4>
@@ -426,7 +428,8 @@
                 <tr>
                 </tr>
                 <tr>
-                    <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi</td>
+                    <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi
+                    </td>
                     <td align="center"></td>
                     <td align="center">{{user_obj.name}}</td>
                 </tr>
@@ -458,13 +461,16 @@
                     <td align="center"></td>
                     <td align="center">{{user_obj.get_director_short_full_name}}</td>
                 </tr>
+                {% if save %}
                 <tr>
                     <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
                     <td align="center"></td>
                     <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
                 </tr>
+                {% endif %}
             </tbody>
         </table> <br>
+        {% if save %}
         <table border="1" cellpadding="10" cellspacing="0">
             <tr>
                 <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
@@ -494,6 +500,7 @@
             </tr>
         </table>
         {{page_break}}
+        {% endif %}
         <br>
         <div class="ilova">
             <span>
@@ -504,15 +511,15 @@
         </div>
         <h4 class="requirement-title">Ishlarning shartnoma narxi to'g'risidagi kelishuv <br> BAYONNOMASI</h4>
         <p class='requirement-text'>
-             Biz, quyida imzo qo'yuvchilar, Buyurtmachi - {{client}} nomidan Director va ikkinchi tomondan
+            Biz, quyida imzo qo'yuvchilar, Buyurtmachi - {{client}} nomidan Director va ikkinchi tomondan
             Bajaruvchi
             - ("UNICON.UZ" DUK) nomidan Direktor Maxmudov M, Tomonlar tarafidan QQSni hisobga olgan holda
             {{price}} ({{price_text}}) so'm miqdoridagi ishlarning shartnoma narxi miqdori to'g'risida kelishib
             olinganini tasdiqlaymiz. <br>
-             Keltirilgan narx 2-ilovaga muvofiq aniqlandi va loyiha ekspertizasining natijalaridan qat'iy nazar
+            Keltirilgan narx 2-ilovaga muvofiq aniqlandi va loyiha ekspertizasining natijalaridan qat'iy nazar
             «Buyurtmachi» tomonidan to'lanadi.
             <br>
-             Mazkur bayonnoma Buyurtmachi va Bajaruvchi o'rtasidagi o'zaro hisob-kitoblar va to'lovlarni o'tkazish uchun
+            Mazkur bayonnoma Buyurtmachi va Bajaruvchi o'rtasidagi o'zaro hisob-kitoblar va to'lovlarni o'tkazish uchun
             asos bo'lib hisoblanadi.
         </p>
         <table class="table_ijro" cellpadding="10" cellspacing="0">
@@ -532,7 +539,8 @@
                 <tr>
                 </tr>
                 <tr>
-                    <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi</td>
+                    <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi
+                    </td>
                     <td align="center"></td>
                     <td align="center">{{user_obj.name}}</td>
                 </tr>
@@ -546,13 +554,16 @@
                     <td align="center"></td>
                     <td align="center">{{user_obj.get_director_short_full_name}}</td>
                 </tr>
+                {% if save %}
                 <tr>
                     <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
                     <td align="center"></td>
                     <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
                 </tr>
+                {% endif %}
             </tbody>
         </table>
+        {% if save %}
         <table border="1" cellpadding="10" cellspacing="0">
             <tr>
                 <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
@@ -582,6 +593,7 @@
             </tr>
         </table>
         {{page_break}}
+        {% endif %}
         <br>
         <div class="ilova">
             <span>
@@ -605,16 +617,13 @@
                 </tr>
             </thead>
             <tbody>
+                {% for project in tarif %}
                 <tr>
-                    <td align="center">1</td>
-                    <td align="left">{{text_box}}</td>
-                    <td align="center">{{withoutnds_price1}}</td>
+                    <td align="center">{{ forloop.counter }}</td>
+                    <td align="left">{{ project.name_of_tarif }}</td>
+                    <td align="center">{{ project.price * (1-0.88) }}</td>
                 </tr>
-                <tr>
-                    <td align="center">2</td>
-                    <td align="left">{{text_box}}</td>
-                    <td align="center">{{withoutnds_price1}}</td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
         <br>
@@ -642,7 +651,8 @@
                 <tr>
                 </tr>
                 <tr>
-                    <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi</td>
+                    <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi
+                    </td>
                     <td align="center"></td>
                     <td align="center">{{user_obj.name}}</td>
                 </tr>
@@ -656,14 +666,17 @@
                     <td align="center"></td>
                     <td align="center">{{user_obj.get_director_short_full_name}}</td>
                 </tr>
+                {% if save %}
                 <tr>
                     <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
                     <td align="center"></td>
                     <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
                 </tr>
+                {% endif %}
             </tbody>
         </table>
         <br>
+        {% if save %}
         <table border="1" cellpadding="10" cellspacing="0">
             <tr>
                 <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
@@ -692,6 +705,7 @@
                 <th>{{user_obj.tin}}</th>
             </tr>
         </table>
+        {% endif %}
     </div>
 </body>
 

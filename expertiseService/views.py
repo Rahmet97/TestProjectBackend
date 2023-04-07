@@ -51,6 +51,9 @@ class CreateExpertiseServiceContractView(APIView):
     queryset = ExpertiseServiceContract.objects.all()
     permission_classes = [IsAuthenticated]
 
+    def get_without_qqs(self, price, qqs_percentage=12):  # default 12%
+        return price * (100-qqs_percentage)/100
+
     def generate_hash_code(self, text: str):
         hashcode = hashlib.md5(text.encode())
         hash_code = hashcode.hexdigest()
@@ -90,6 +93,13 @@ class CreateExpertiseServiceContractView(APIView):
 
         context['price'] = request_objects_serializers.validated_data.get("contract_cash")
         context['price_text'] = num2word.change_num_to_word(int(context['price']))
+
+        context['withoutnds_price'] = context['price']*(1-0.88)
+        context['withoutnds_price_text'] = num2word.change_num_to_word(int(context['withoutnds_price']))        
+
+        context['onlynds_price'] = context['price']*(1-0.12)
+        context['price_text'] = num2word.change_num_to_word(int(context['onlynds_price']))
+
         context['price_select_percentage'] = request_objects_serializers.validated_data.get('price_select_percentage')
         context['price_select_percentage_text'] = num2word.change_num_to_word(int(context['price_select_percentage']))
 
