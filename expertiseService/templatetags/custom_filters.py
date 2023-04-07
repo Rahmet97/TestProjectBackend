@@ -4,4 +4,4 @@ register = template.Library()
 
 @register.filter(name='multiply')
 def multiply(value, arg):
-    return float(value) * float(arg)
+    return float(value) * arg
