@@ -980,6 +980,8 @@ class ConfirmContract(APIView):
     permission_classes = (WorkerPermission,)
 
     def post(self, request):
+        print('983', request.data)
+        print('984', type(request.data))
         contract = Contract.objects.get(pk=int(request.data['contract']))
         print('1033', contract)
         if int(request.data['summary']) == 1:  # 1 -> muofiq, 0 -> muofiq emas
