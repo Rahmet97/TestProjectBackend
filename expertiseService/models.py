@@ -107,7 +107,7 @@ class ExpertiseExpertSummary(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return f"{self.contract.contract_number}|{self.user.username}|{self.user_role}"
+        return f"{self.contract.contract_number}|{self.user.username}|{self.user.role.name}"
 
 
 class ExpertiseExpertSummaryDocument(models.Model):

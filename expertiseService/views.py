@@ -418,9 +418,6 @@ class ExpertiseGetUserContracts(APIView):
 
     def get(self, request):
         contracts = ExpertiseServiceContract.objects.filter(client=request.user).exclude(contract_status=0)
-        # contracts = ExpertiseServiceContract.objects.filter(
-        #     client=request.user, contract_status=6
-        # )
         serializer = ExpertiseContractSerializerForContractList(contracts, many=True)
         return response.Response(serializer.data)
 
@@ -521,7 +518,7 @@ class ExpertiseContractRejectedViews(APIView):
     @swagger_auto_schema(operation_summary="Front Officeda Expertisada. clientga yaratilgan shartnomani bekor qilish uchun")
     def post(self, request, contract_id):
         contract = get_object_or_404(ExpertiseServiceContract, pk=contract_id)
-        self.check_object_permissions(self.request, ExpertiseServiceContract)
+        self.check_object_permissions(self.request, contract)
         if contract.contract_status != 5:  # Bekor qilingan
             serializer = self.serializer_class(data=request.data)
 
@@ -530,10 +527,15 @@ class ExpertiseContractRejectedViews(APIView):
             contract.save()
 
             serializer.save(
-                contract=contract, summary=0,
-                user=request.user, user_role=request.user.role
+                summary=0,
+                user=request.user,
+                contract=contract,
+                user_role=request.user.role
             )
-            return response.Response({"message": "Contract rejected"}, status=201)
+            return response.Response({
+                "message": f"Rejected Contract id: {contract_id}"
+                },status=201
+            )
         responseErrorMessage(
             message="you are already rejected contract",
             status_code=200
