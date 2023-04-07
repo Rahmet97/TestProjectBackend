@@ -45,10 +45,17 @@ class Nomenclature(models.Model):
 
 
 class PayedInformation(models.Model):
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, blank=True, null=True)
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
     payed_cash = models.FloatField()
     payed_time = models.DateTimeField()
+    contract_code = models.CharField(max_length=10, blank=True, null=True)
+    customer_tin = models.IntegerField(blank=True, null=True)
+    currency = models.CharField(max_length=10, blank=True, null=True)
+    comment = models.CharField(max_length=255, blank=True, null=True)
+    customer_payment_account = models.CharField(max_length=30, blank=True, null=True)
+    customer_mfo = models.IntegerField(blank=True, null=True)
+    company_payment_account = models.CharField(max_length=30, blank=True, null=True)
 
     def __str__(self):
         return self.contract.contract_number

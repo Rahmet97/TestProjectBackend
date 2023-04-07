@@ -140,7 +140,14 @@ class UpdateContractPayedCash(APIView):
                 invoice=Invoice.objects.get(number=invoice_number),
                 contract=contract,
                 payed_cash=payed_cash,
-                payed_time=payed_time
+                payed_time=payed_time,
+                contract_code=contract_code,
+                customer_tin=customer_tin,
+                currency=currency,
+                comment=comment,
+                customer_payment_account=customer_payment_account,
+                customer_mfo=customer_mfo,
+                company_payment_account=company_payment_account
             )
             payed_inform.save()
             data = {
