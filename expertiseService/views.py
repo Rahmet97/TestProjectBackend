@@ -563,7 +563,6 @@ class ExpertiseSavePkcs(APIView):
     serializer_class = ExpertisePkcsSerializer
 
     def join2pkcs(self, pkcs7_1, pkcs7_2):
-        print(449, pkcs7_1, pkcs7_2)
         xml = f"""
             <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
                 <Body>
@@ -578,7 +577,6 @@ class ExpertiseSavePkcs(APIView):
         res = requests.post('http://dsv-server-vpn-client:9090/dsvs/pkcs7/v1',
                             data=xml, headers=headers)
         dict_data = xmltodict.parse(res.content)
-        print(464, dict_data)
         pkcs7_12 = dict_data['S:Envelope']['S:Body']['ns2:join2Pkcs7AttachedResponse']['return']
         d = json.loads(pkcs7_12)
         return d
@@ -597,7 +595,6 @@ class ExpertiseSavePkcs(APIView):
         res = requests.post('http://dsv-server-vpn-client:9090/dsvs/pkcs7/v1',
                             data=xml, headers=headers)
         dict_data = xmltodict.parse(res.content)
-        print(483, dict_data)
         response = dict_data['S:Envelope']['S:Body']['ns2:verifyPkcs7Response']['return']
         d = json.loads(response)
         return d
@@ -605,7 +602,6 @@ class ExpertiseSavePkcs(APIView):
     def post(self, request):
         contract_id = int(request.data['contract_id'])
         pkcs7 = request.data['pkcs7']
-        print(491, self.verifyPkcs(pkcs7))
         try:
             contract = ExpertiseServiceContract.objects.get(pk=contract_id)
             if request.user.role in ExpertiseContracts_Participants.objects.filter(contract=contract).values('role'):

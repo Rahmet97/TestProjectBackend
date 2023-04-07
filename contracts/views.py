@@ -69,7 +69,6 @@ class ListGroupServicesAPIView(APIView):
 
     def get(self, request):
         group_id = request.GET.get('group_id')
-        print(group_id)
         services = Service.objects.filter(group_id=group_id)
         serializers = ServiceSerializer(
             services, many=True, context={'request': request})
@@ -210,7 +209,7 @@ class SavedServiceAPIView(APIView):
             saved_services = SavedService.objects.get(user=request.user)
         except SavedService.DoesNotExist:
             saved_services = None
-        print(saved_services)
+
         if saved_services:
             services = saved_services.services.all()
         else:
@@ -399,9 +398,7 @@ class SelectedTarifDevicesAPIView(APIView):
 #         # dxoc file
 #         # contract_file_for_preview = file_creator(context, 1)
 #         # pdf file
-#         # print("contract_file_for_preview: ", contract_file_for_preview)
 #         # contract_file_for_preview_pdf = convert_docx_to_pdf(str(contract_file_for_preview))
-#         # print("contract_file_for_preview_pdf: ", contract_file_for_preview_pdf)
 #         # docx file ni ochirish
 #         # delete_file(contract_file_for_preview)
 #         # -------
@@ -471,7 +468,6 @@ class SelectedTarifDevicesAPIView(APIView):
 
 #             participants = Participant.objects.get(service_id=int(request.data['service_id'])).participants.all()
 #             for participant in participants:
-#                 print(participant)
 #                 Contracts_Participants.objects.create(
 #                     contract=contract,
 #                     role=participant,
@@ -502,7 +498,6 @@ class CreateContractFileAPIView(APIView):
 
     def post(self, request):
         context = dict()
-        print('Tariff >>>>>>>> ', request.data['tarif'])
         tarif = Tarif.objects.get(pk=int(request.data['tarif'])).name
 
         try:
@@ -662,7 +657,6 @@ class CreateContractFileAPIView(APIView):
 
             participants = Participant.objects.get(service_id=int(request.data['service_id'])).participants.all()
             for participant in participants:
-                print(participant)
                 Contracts_Participants.objects.create(
                     contract=contract,
                     role=participant,
@@ -684,7 +678,6 @@ class SavePkcs(APIView):
     serializer_class = PkcsSerializer
 
     def join2pkcs(self, pkcs7_1, pkcs7_2):
-        print(449, pkcs7_1, pkcs7_2)
         xml = f"""
             <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
                 <Body>
@@ -699,7 +692,6 @@ class SavePkcs(APIView):
         res = requests.post('http://dsv-server-vpn-client:9090/dsvs/pkcs7/v1',
                             data=xml, headers=headers)
         dict_data = xmltodict.parse(res.content)
-        print(464, dict_data)
         pkcs7_12 = dict_data['S:Envelope']['S:Body']['ns2:join2Pkcs7AttachedResponse']['return']
         d = json.loads(pkcs7_12)
         return d
@@ -718,7 +710,6 @@ class SavePkcs(APIView):
         res = requests.post('http://dsv-server-vpn-client:9090/dsvs/pkcs7/v1',
                             data=xml, headers=headers)
         dict_data = xmltodict.parse(res.content)
-        print(483, dict_data)
         response = dict_data['S:Envelope']['S:Body']['ns2:verifyPkcs7Response']['return']
         d = json.loads(response)
         return d
@@ -726,7 +717,6 @@ class SavePkcs(APIView):
     def post(self, request):
         contract_id = int(request.data['contract_id'])
         pkcs7 = request.data['pkcs7']
-        print(491, self.verifyPkcs(pkcs7))
         try:
             contract = Contract.objects.get(pk=contract_id)
             if request.user.role in Contracts_Participants.objects.filter(contract=contract).values('role'):
@@ -734,12 +724,9 @@ class SavePkcs(APIView):
                     pkcs = Pkcs.objects.create(contract=contract, pkcs7=pkcs7)
                     pkcs.save()
                 else:
-                    print('id', contract.id)
                     pkcs_exist_object = Pkcs.objects.get(contract=contract)
-                    print(501, pkcs_exist_object)
                     client_pkcs = pkcs_exist_object.pkcs7
                     new_pkcs7 = self.join2pkcs(pkcs7, client_pkcs)
-                    print(504, new_pkcs7)
                     pkcs_exist_object.pkcs7 = new_pkcs7
                     pkcs_exist_object.save()
         except Contract.DoesNotExist:
@@ -807,7 +794,6 @@ class ContractDetail(APIView):
 
     def get(self, request, pk):
         contract = Contract.objects.select_related('client').get(pk=pk)
-        print(contract)
         contract_serializer = ContractSerializerForDetail(contract)
         try:
             if request.user.role.name != 'direktor':
@@ -995,6 +981,7 @@ class ConfirmContract(APIView):
         )
         print("contracts_participants 996 >>>> ", contracts_participants)
         contracts_participants.agreement_status = agreement_status
+        print("agreement_status >>> ", agreement_status)
         contracts_participants.save()
         contract.condition += 1
 
