@@ -621,7 +621,7 @@
                 <tr>
                     <td align="center">{{ forloop.counter }}</td>
                     <td align="left">{{ project.name_of_tarif }}</td>
-                    <td align="center">{{ project.price|floatformat:2|mul:0.88 }}</td>
+                    <td align="center">{{ project.price|multiply:0.88|floatformat:2 }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
