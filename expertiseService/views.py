@@ -1,7 +1,9 @@
 import os
+import json
 import base64
 import hashlib
-from decimal import Decimal
+import requests
+import xmltodict
 from datetime import datetime, timedelta
 
 from django.db.models import Q
@@ -32,7 +34,8 @@ from expertiseService.permission import IsRelatedToExpertiseBackOffice
 from expertiseService.models import (
     AgreementStatus, ExpertiseContracts_Participants,
     ExpertiseServiceContract, ExpertiseTarifContract,
-    ExpertiseServiceContractTarif, ExpertiseExpertSummary
+    ExpertiseServiceContractTarif, ExpertiseExpertSummary,
+    ExpertisePkcs
 )
 from expertiseService.serializers import (
     ExpertiseServiceContractSerializers,
@@ -41,7 +44,8 @@ from expertiseService.serializers import (
     ExpertiseContractSerializerForContractList,
     ExpertiseContractSerializerForBackoffice,
     ExpertiseExpertSummarySerializerForSave,
-    ExpertSummarySerializerForRejected
+    ExpertiseSummarySerializerForRejected,
+    ExpertisePkcsSerializer
 )
 
 num2word = NumbersToWord()
@@ -89,7 +93,9 @@ class CreateExpertiseServiceContractView(APIView):
         date = request_objects_serializers.validated_data.get("contract_date")
         print("date >>> ", date)
         context['datetime'] = datetime.fromisoformat(str(date)).time().strftime('%d.%m.%Y')
-        print("datetime >>> ", context['datetime'])
+        print("datetime1 >>> ", datetime.fromisoformat(str(date)).time().strftime('%d.%m.%Y'))
+        print("datetime2 >>> ", str(datetime.fromisoformat(str(date)).time().strftime('%d.%m.%Y')))
+        print("datetime3 >>> ", context['datetime'])
 
         context['price'] = request_objects_serializers.validated_data.get("contract_cash")
         context['price_text'] = num2word.change_num_to_word(int(context['price']))
@@ -522,7 +528,7 @@ class ExpertiseGetContractFile(APIView):
 
 # Agar client sharnomani rejected qilsa
 class ExpertiseContractRejectedViews(APIView):
-    serializer_class = ExpertSummarySerializerForRejected
+    serializer_class = ExpertiseSummarySerializerForRejected
     permission_classes = [IsAuthenticatedAndOwner]
 
     @swagger_auto_schema(operation_summary="Front Officeda Expertisada. clientga yaratilgan shartnomani bekor qilish uchun")
@@ -550,3 +556,68 @@ class ExpertiseContractRejectedViews(APIView):
             message="you are already rejected contract",
             status_code=200
         )
+
+
+class ExpertiseSavePkcs(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ExpertisePkcsSerializer
+
+    def join2pkcs(self, pkcs7_1, pkcs7_2):
+        print(449, pkcs7_1, pkcs7_2)
+        xml = f"""
+            <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+                <Body>
+                    <join2Pkcs7Attached xmlns="http://v1.pkcs7.plugin.server.dsv.eimzo.yt.uz/">
+                        <pkcs7AttachedB64A xmlns="">{pkcs7_1}</pkcs7AttachedB64A>
+                        <pkcs7AttachedB64B xmlns="">{pkcs7_2}</pkcs7AttachedB64B>
+                    </join2Pkcs7Attached>
+                </Body>
+            </Envelope>
+            """
+        headers = {'Content-Type': 'text/xml'}  # set what your server accepts
+        res = requests.post('http://dsv-server-vpn-client:9090/dsvs/pkcs7/v1',
+                            data=xml, headers=headers)
+        dict_data = xmltodict.parse(res.content)
+        print(464, dict_data)
+        pkcs7_12 = dict_data['S:Envelope']['S:Body']['ns2:join2Pkcs7AttachedResponse']['return']
+        d = json.loads(pkcs7_12)
+        return d
+
+    def verifyPkcs(self, pkcs):
+        xml = f"""
+            <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+                <Body>
+                    <verifyPkcs7 xmlns="http://v1.pkcs7.plugin.server.dsv.eimzo.yt.uz/">
+                        <pkcs7B64 xmlns="">{pkcs}</pkcs7B64>
+                    </verifyPkcs7>
+                </Body>
+            </Envelope>
+        """
+        headers = {'Content-Type': 'text/xml'}  # set what your server accepts
+        res = requests.post('http://dsv-server-vpn-client:9090/dsvs/pkcs7/v1',
+                            data=xml, headers=headers)
+        dict_data = xmltodict.parse(res.content)
+        print(483, dict_data)
+        response = dict_data['S:Envelope']['S:Body']['ns2:verifyPkcs7Response']['return']
+        d = json.loads(response)
+        return d
+
+    def post(self, request):
+        contract_id = int(request.data['contract_id'])
+        pkcs7 = request.data['pkcs7']
+        print(491, self.verifyPkcs(pkcs7))
+        try:
+            contract = ExpertiseServiceContract.objects.get(pk=contract_id)
+            if request.user.role in ExpertiseContracts_Participants.objects.filter(contract=contract).values('role'):
+                if not ExpertisePkcs.objects.filter(contract=contract).exists():
+                    pkcs = ExpertisePkcs.objects.create(contract=contract, pkcs7=pkcs7)
+                    pkcs.save()
+                else:
+                    pkcs_exist_object = ExpertisePkcs.objects.get(contract=contract)
+                    client_pkcs = pkcs_exist_object.pkcs7
+                    new_pkcs7 = self.join2pkcs(pkcs7, client_pkcs)
+                    pkcs_exist_object.pkcs7 = new_pkcs7
+                    pkcs_exist_object.save()
+        except ExpertiseServiceContract.DoesNotExist:
+            return response.Response({'message': 'Bunday shartnoma mavjud emas'})
+        return response.Response({'message': 'Success'})

@@ -31,4 +31,7 @@ urlpatterns = [
     # For Front Office. to cancel the contract created with the client
     path('contract-rejected/<int:contract_id>', views.ExpertiseContractRejectedViews.as_view(),
          name="ExpertiseContractRejectedViews"),
+
+    path('save-pkcs', views.ExpertiseSavePkcs.as_view(), name='ExpertiseSavePkcs'),
+
 ]

@@ -10,7 +10,7 @@ from contracts.serializers import ServiceSerializerForContract
 from expertiseService.models import (
     ExpertiseExpertSummary, ExpertiseContracts_Participants,
     ExpertiseServiceContract, ExpertiseServiceContractTarif,
-    ExpertiseExpertSummaryDocument
+    ExpertiseExpertSummaryDocument, ExpertisePkcs
 )
 
 
@@ -21,7 +21,6 @@ class ExpertiseContractSerializerForDetail(serializers.ModelSerializer):
 
     def get_arrearage(self, obj):
         return obj.contract_cash - obj.payed_cash
-    
 
     def get_status(self, obj):
         return obj.get_status_display()
@@ -32,7 +31,7 @@ class ExpertiseContractSerializerForDetail(serializers.ModelSerializer):
     class Meta:
         model = ExpertiseServiceContract
         fields = (
-            'id', 'contract_number', 'contract_date', 'expiration_date', 
+            'id', 'contract_number', 'contract_date', 'expiration_date',
             'contract_cash', 'payed_cash', 'arrearage', 'contract_status',
             'base64file', 'hashcode', 'status'
         )
@@ -79,9 +78,10 @@ class ExpertiseContractParticipantsSerializers(serializers.ModelSerializer):
             #     Q(role=obj.role),
             #     (Q(group=obj.contract.service.group) | Q(group=None))
             # )
-            
+
             userdata = obj.participant_user
-            summary = ExpertiseExpertSummary.objects.get(contract=obj.contract, user=userdata)
+            summary = ExpertiseExpertSummary.objects.get(
+                contract=obj.contract, user=userdata)
             serializer = ExpertiseExpertSummarySerializer(summary)
             return serializer.data
         except ExpertiseExpertSummary.DoesNotExist:
@@ -108,7 +108,8 @@ class ExpertiseContractSerializerForContractList(serializers.ModelSerializer):
 
     class Meta:
         model = ExpertiseServiceContract
-        fields = ('id', 'service', 'contract_number', 'contract_date', 'contract_status', 'status', 'contract_cash', 'hashcode')
+        fields = ('id', 'service', 'contract_number', 'contract_date',
+                  'contract_status', 'status', 'contract_cash', 'hashcode')
 
 
 class ExpertiseContractSerializerForBackoffice(serializers.ModelSerializer):
@@ -125,7 +126,8 @@ class ExpertiseContractSerializerForBackoffice(serializers.ModelSerializer):
 
     def get_client(self, obj):
         try:
-            client_id = ExpertiseServiceContract.objects.select_related('client').get(id=obj.id).client
+            client_id = ExpertiseServiceContract.objects.select_related(
+                'client').get(id=obj.id).client
             if client_id.type == 2:
                 clientt = YurUser.objects.get(userdata=client_id)
                 serializer = YurUserSerializerForContractDetail(clientt)
@@ -160,7 +162,8 @@ class ExpertiseServiceContractSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = ExpertiseServiceContract
-        fields = ["service", "contract_number", "contract_date", "projects", "stir", "contract_cash", "price_select_percentage"]
+        fields = ["service", "contract_number", "contract_date",
+                  "projects", "stir", "contract_cash", "price_select_percentage"]
 
 
 class ExpertiseExpertSummarySerializerForSave(serializers.ModelSerializer):
@@ -182,7 +185,15 @@ class ExpertiseExpertSummarySerializerForSave(serializers.ModelSerializer):
 
 
 # Agar client sharnomani rejected qilsa
-class ExpertSummarySerializerForRejected(serializers.ModelSerializer):
+class ExpertiseSummarySerializerForRejected(serializers.ModelSerializer):
+
     class Meta:
         model = ExpertiseExpertSummary
-        fields = ["comment", "date",]  # "contract", "summary", "user", "user_role"]
+        # "contract", "summary", "user", "user_role"]
+        fields = ["comment", "date",]
+
+
+class ExpertisePkcsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExpertisePkcs
+        fields = '__all__'
