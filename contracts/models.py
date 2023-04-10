@@ -253,7 +253,7 @@ class ExpertSummary(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f"{self.contract.contract_number}|{self.user.username}|{self.role.name}"
+        return f"{self.contract.contract_number}|{self.user.username}|{self.user.role.name}"
 
 
 class ExpertSummaryDocument(models.Model):

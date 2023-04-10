@@ -1,12 +1,19 @@
 from django.db.models import Q
-from rest_framework import serializers
+from rest_framework import serializers, status
+
+from main.utils import responseErrorMessage
 
 from accounts.models import YurUser, FizUser, UserData
-from accounts.serializers import GroupSerializer, FizUserSerializer, YurUserSerializer, \
+from accounts.serializers import (
+    GroupSerializer, FizUserSerializer, YurUserSerializer,
     YurUserSerializerForContractDetail, FizUserSerializerForContractDetail
-from .models import Service, Tarif, Device, Contract, UserContractTarifDevice, UserDeviceCount, Offer, Document, \
-    Element, SavedService, Pkcs, ExpertSummary, Contracts_Participants, ContractStatus, ConnetMethod, \
+)
+
+from .models import (
+    Service, Tarif, Device, Contract, UserContractTarifDevice, UserDeviceCount, Offer, Document,
+    Element, SavedService, Pkcs, ExpertSummary, Contracts_Participants, ContractStatus, ConnetMethod,
     ExpertSummaryDocument, OldContractFile
+)
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -222,6 +229,13 @@ class ExpertSummarySerializerForSave(serializers.ModelSerializer):
 
     def create(self, validated_data):
         documents = self.context['documents']
+        if ExpertSummary.objects.filter(
+            contract=validated_data.get("contract"), user=validated_data.get("user")).exists():
+            responseErrorMessage(
+                message="Already exists in ExpertSummary", 
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+
         expertsummary = ExpertSummary.objects.create(**validated_data)
         for document in documents:
             ExpertSummaryDocument.objects.create(
