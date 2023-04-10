@@ -968,6 +968,7 @@ class ConfirmContract(APIView):
 
     def post(self, request):
         contract = Contract.objects.get(pk=int(request.data['contract']))
+        self.check_object_permissions(request=request, obj=contract)
 
         if int(request.data['summary']) == 1:  # 1 -> muofiq, 0 -> muofiq emas
             agreement_status = AgreementStatus.objects.get(name='Kelishildi')
