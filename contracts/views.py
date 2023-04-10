@@ -810,11 +810,12 @@ class ContractDetail(APIView):
         # if request.user.role in Participant.objects.annotate(service__name_lower=Lower('service__name')).get(
         # service__name_lower='co-location'): pass
 
-        if (request.user.role.name == "bo'lim boshlig'i") or \
-                (request.user.role.name == "direktor o'rinbosari") or \
-                (request.user.role.name == "dasturchi") or \
-                (request.user.role.name == "direktor") and \
-                (contract_participants.agreement_status.name == "Yuborilgan"):
+        if (request.user.role.name == "bo'lim boshlig'i" or \
+            request.user.role.name == "direktor o'rinbosari" or \
+            request.user.role.name == "dasturchi" or \
+            request.user.role.name == "direktor") and \
+            (contract_participants.agreement_status.name == "Yuborilgan"):
+            
             agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
             contract_participants.agreement_status = agreement_status
             contract_participants.save()
