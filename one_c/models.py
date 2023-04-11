@@ -24,7 +24,7 @@ class Invoice(models.Model):
     number = models.CharField(max_length=20)
     date = models.DateTimeField(auto_now=True)
     # contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
-    contract_code = models.CharField(max_length=20)  # id_code which is of the contract
+    contract_code = models.CharField(max_length=20, blank=True, null=True)  # id_code which is of the contract
     status = models.ForeignKey(Status, on_delete=models.CASCADE)
     document_type = models.CharField(max_length=10, blank=True, null=True)
 
@@ -50,7 +50,7 @@ class PayedInformation(models.Model):
     # contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
     payed_cash = models.FloatField()
     payed_time = models.DateTimeField()
-    contract_code = models.CharField(max_length=20)  # id_code which is of the contract
+    contract_code = models.CharField(max_length=20, blank=True, null=True)  # id_code which is of the contract
     customer_tin = models.IntegerField(blank=True, null=True)
     currency = models.CharField(max_length=10, blank=True, null=True)
     comment = models.CharField(max_length=255, blank=True, null=True)
