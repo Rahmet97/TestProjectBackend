@@ -39,7 +39,7 @@ class ExpertiseServiceContract(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     client = models.ForeignKey(UserData, on_delete=models.CASCADE)
     contract_number = models.CharField(max_length=10, unique=True)
-    id_code = models.CharField(max_length=11, blank=True, null=True)
+    id_code = models.CharField(max_length=20, blank=True, null=True, unique=True)
     # condition = models.IntegerField(default=0)
     
     contract_cash = models.DecimalField(max_digits=20, decimal_places=2)  # total_price
@@ -69,11 +69,6 @@ class ExpertiseServiceContractTarif(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     name_of_tarif = models.CharField(max_length=255)
     is_discount = models.BooleanField(default=False)
-
-    # @property
-    # def get_without_qqs(self):
-    #     qqs_percentage=12  # 12%
-    #     return self.price * (100-qqs_percentage)/100
 
     def __str__(self) -> str:
         return self.name_of_tarif

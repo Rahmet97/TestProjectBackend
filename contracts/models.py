@@ -143,7 +143,7 @@ class AgreementStatus(models.Model):
 class Contract(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     contract_number = models.CharField(max_length=10, unique=True)
-    id_code = models.CharField(max_length=11, blank=True, null=True)
+    id_code = models.CharField(max_length=20, blank=True, null=True, unique=True)
     contract_date = models.DateTimeField(blank=True)
     client = models.ForeignKey(UserData, on_delete=models.CASCADE)
     status = models.ForeignKey(Status, on_delete=models.CASCADE)  # ijro statuslari

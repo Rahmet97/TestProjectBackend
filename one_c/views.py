@@ -4,39 +4,48 @@ import requests
 import base64
 from datetime import datetime
 
-from django.shortcuts import render
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import BasicAuthentication
+from rest_framework import response, views, permissions, authentication, status
 from dotenv import load_dotenv
 
 from accounts.models import FizUser, YurUser
+from main.utils import responseErrorMessage
 from contracts.models import Contract, UserContractTarifDevice, UserDeviceCount, ContractStatus
+from expertiseService.models import ExpertiseServiceContract
 from one_c.models import Invoice, Status, Nomenclature, PayedInformation
 
 load_dotenv()
 
 
-class CreateInvoiceAPIView(APIView):
+class CreateInvoiceAPIView(views.APIView):
     permission_classes = ()
 
     def post(self, request):
         url = os.getenv('ONE_C_HOST') + 'hs/invoices/add'
         username = os.getenv('ONE_C_LOGIN')
         password = os.getenv('ONE_C_PASSWORD')
-        contract_id = int(request.data['contract_id'])
-        contract = Contract.objects.get(pk=contract_id)
+        # contract_id = int(request.data['contract_id'])
+        contract_id_code = request.data['contract_id_code']
+
+        if str(contract_id_code).lower().startswith("c", 0, 2):
+            contract = Contract.objects.get(id_code=contract_id_code)
+        elif str(contract_id_code).lower().startswith("e", 0, 2):
+            contract = ExpertiseServiceContract.objects.get(id_code=contract_id_code)
+        else:
+            responseErrorMessage(message="Contract does not exist", status_code=status.HTTP_404_NOT_FOUND)
+        
         invoice = Invoice.objects.create(
             customer=contract.client,
             number=f'{contract.id_code}/{str(datetime.now().month).zfill(2)}{datetime.now().year % 100}',
-            contract=contract,
+            # contract=contract,
+            contract_id_code=contract_id_code,
             status=Status.objects.get(name='Yangi')
         )
         invoice.save()
+        
         headers = {
             "Authorization": f"Basic {base64.b64encode(f'{username}:{password}'.encode()).decode()}"
         }
+
         if invoice.customer.type == 1:
             user = FizUser.objects.get(userdata=invoice.customer)
             customer_name = user.full_name
@@ -53,13 +62,35 @@ class CreateInvoiceAPIView(APIView):
             customer_address = user.per_adr
             customer_account = user.paymentAccount
             customer_mfo = user.bank_mfo.mfo
-        user_contract_tarif_device = UserContractTarifDevice.objects.get(contract=contract)
-        if invoice.contract.tarif.name == 'Rack-1':
-            quantity = user_contract_tarif_device.rack_count
-        else:
-            quantity = 0
-            for element in UserDeviceCount.objects.filter(user=user_contract_tarif_device):
-                quantity += element.device_count * element.units_count
+        
+        products = None
+        if str(contract_id_code).upper().startswith("c", 0, 2):  # co-lication
+
+            user_contract_tarif_device = UserContractTarifDevice.objects.get(contract=contract)
+            if invoice.contract.tarif.name == 'Rack-1':
+                quantity = user_contract_tarif_device.rack_count
+            else:
+                quantity = 0
+                for element in UserDeviceCount.objects.filter(user=user_contract_tarif_device):
+                    quantity += element.device_count * element.units_count
+            
+            products = [{
+                "nomenclatureID": Nomenclature.objects.get(service=contract.service).nomenclature,
+                "quantity": quantity,
+                "Price": float(contract.tarif.price),
+                "amount": float(contract.contract_cash) / 1.12,
+                "amountVAT": float(contract.contract_cash) / 1.12 * 0.12
+            }]
+
+        elif str(contract_id_code).upper().startswith("e", 0, 2):  # expertise
+            products = [{
+                "nomenclatureID": Nomenclature.objects.get(service=contract.service).nomenclature,
+                "quantity": contract.expertisetarifcontract_set.count(),
+                "Price": float(contract.contract_cash),
+                "amount": float(contract.contract_cash) / 1.12,
+                "amountVAT": float(contract.contract_cash) / 1.12 * 0.12
+            }]
+
         data = {
             "ID": str(invoice.id),
             "customerID": str(invoice.customer.id),
@@ -70,25 +101,19 @@ class CreateInvoiceAPIView(APIView):
             "customerAccount": customer_account,
             "customerMFO": customer_mfo,
             "invoiceDate": str(invoice.date).replace(' ', 'T').split('.')[0],
-            "invoiceNum": f'{invoice.contract.id_code}/{invoice.number}',
-            "сontractID": invoice.contract.contract_number,
-            "agreementdate": str(invoice.contract.contract_date).replace(' ', 'T').split('+')[0],
-            "fullnumber": invoice.contract.id_code,
-            "products": [{
-                "nomenclatureID": Nomenclature.objects.get(service=invoice.contract.service).nomenclature,
-                "quantity": quantity,
-                "Price": float(invoice.contract.tarif.price),
-                "amount": float(invoice.contract.contract_cash) / 1.12,
-                "amountVAT": float(invoice.contract.contract_cash) / 1.12 * 0.12
-            }]
+            "invoiceNum": f'{contract.id_code}/{invoice.number}',
+            "сontractID": contract.contract_number,
+            "agreementdate": str(contract.contract_date).replace(' ', 'T').split('+')[0],
+            "fullnumber": contract.id_code,
+            "products": products
         }
         response = requests.get(url, headers=headers, data=json.dumps(data))
-        return Response(response.content)
+        return response.Response(response.content)
 
 
-class UpdateInvoiceStatus(APIView):
-    authentication_classes = [BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+class UpdateInvoiceStatus(views.APIView):
+    authentication_classes = [authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         try:
@@ -109,13 +134,13 @@ class UpdateInvoiceStatus(APIView):
                 "result": 1,
                 "errorMessage": f"{e}"
             }
-            return Response({"OperationResult": data}, status=405)
-        return Response({"OperationResult": data}, status=200)
+            return response.Response({"OperationResult": data}, status=405)
+        return response.Response({"OperationResult": data}, status=200)
 
 
-class UpdateContractPayedCash(APIView):
-    authentication_classes = [BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+class UpdateContractPayedCash(views.APIView):
+    authentication_classes = [authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         try:
@@ -127,9 +152,9 @@ class UpdateContractPayedCash(APIView):
             payed_time = request.data['payedDate']
             currency = request.data['currency']
             comment = request.data['comment']
-            customer_payment_account = request.data['customerPaymentAccount']
-            customer_mfo = request.data['customerMFO']
-            company_payment_account = request.data['companyPaymentAccount']
+            customer_payment_account = request.data.get('customerPaymentAccount', None)
+            customer_mfo = request.data.get('customerMFO', None)
+            company_payment_account = request.data.get('companyPaymentAccount', None)
 
             contract = Contract.objects.get(id_code=id_code)
             contract.payed_cash = payed_cash
@@ -138,7 +163,7 @@ class UpdateContractPayedCash(APIView):
 
             payed_inform = PayedInformation.objects.create(
                 invoice=Invoice.objects.get(number=invoice_number),
-                contract=contract,
+                # contract=contract,
                 payed_cash=payed_cash,
                 payed_time=payed_time,
                 contract_code=contract_code,
@@ -159,5 +184,5 @@ class UpdateContractPayedCash(APIView):
                 "result": 1,
                 "errorMessage": f"{e}"
             }
-            return Response({"OperationResult": data}, status=405)
-        return Response({"OperationResult": data}, status=200)
+            return response.Response({"OperationResult": data}, status=405)
+        return response.Response({"OperationResult": data}, status=200)
