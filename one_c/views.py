@@ -156,7 +156,11 @@ class UpdateContractPayedCash(views.APIView):
             customer_mfo = request.data.get('customerMFO', None)
             company_payment_account = request.data.get('companyPaymentAccount', None)
 
-            contract = Contract.objects.get(id_code=id_code)
+            if str(id_code).lower().startswith("c", 0, 2):
+                contract = Contract.objects.get(id_code=id_code)
+            if str(id_code).lower().startswith("e", 0, 2):
+                contract = ExpertiseServiceContract.objects.get(id_code=id_code)
+
             contract.payed_cash = payed_cash
             contract.contract_status = ContractStatus.objects.get(name='Aktiv')
             contract.save()
