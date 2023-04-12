@@ -13,7 +13,7 @@ chat_ids = TelegramBotChatIDs.objects.all()
 # chat_ids = [-666909530, 826582690]
 
 
-# @receiver(post_save, sender=Application)
+@receiver(post_save, sender=Application)
 def send_application_using_telegram_bot(sender, instance, created, **kwargs):
     if created:
         t = instance.created_at + datetime.timedelta(hours=5)
