@@ -1,15 +1,15 @@
 from datetime import datetime
+from django_redis.cache import RedisCache
 
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from .models import Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName
-from rest_framework import generics, status
+from rest_framework import generics, status, mixins, response, views, permissions
 
-from .permissions import SuperAdminPermission, EmployeePermission, AdminPermission
-from .serializers import GroupSerializer, RoleSerializer, PermissionSerializer, PinUserToGroupRoleSerializer, \
+from .models import Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName
+from .permissions import SuperAdminPermission
+from .serializers import (
+    GroupSerializer, RoleSerializer, PermissionSerializer, PinUserToGroupRoleSerializer,
     YurUserSerializer, FizUserSerializer, BankMFONameSerializer
+)
 
 
 class GroupCreateAPIView(generics.CreateAPIView):
@@ -33,7 +33,7 @@ class GroupUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
 class GroupDetailAPIView(generics.RetrieveAPIView):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
 
 class RoleCreateAPIView(generics.ListCreateAPIView):
@@ -54,10 +54,11 @@ class PermissionCreateAPIView(generics.CreateAPIView):
     permission_classes = (SuperAdminPermission,)
 
 
-class PermissionListAPIView(generics.ListAPIView):
+class PermissionListAPIView(mixins.CacheResponseMixin, generics.ListAPIView):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
+    cache_backend = RedisCache
 
 
 class PermissionUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -66,7 +67,7 @@ class PermissionUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (SuperAdminPermission,)
 
 
-class PinUserToGroupRole(APIView):
+class PinUserToGroupRole(views.APIView):
     permission_classes = (SuperAdminPermission,)
 
     @swagger_auto_schema(operation_summary="Userni Gruppaga va Role ga biriktirish", query_serializer=PinUserToGroupRoleSerializer)
@@ -76,43 +77,42 @@ class PinUserToGroupRole(APIView):
         user.role = Role.objects.get(pk=request.data['role'])
         user.save()
 
-        return Response(status=200)
+        return response.Response(status=200)
 
 
 class UpdateYurUserAPIView(generics.UpdateAPIView):
     queryset = YurUser.objects.all()
     serializer_class = YurUserSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
 
 class UpdateFizUserAPIView(generics.UpdateAPIView):
     queryset = FizUser.objects.all()
     serializer_class = FizUserSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
 
-class GetBankNameAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
+class GetBankNameAPIView(views.APIView):
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
         mfo = request.GET.get('mfo')
         bank = BankMFOName.objects.get(mfo=mfo)
         serializer = BankMFONameSerializer(bank)
-        return Response(serializer.data)
+        return response.Response(serializer.data)
 
 
-class GetCurrentTimeAPIView(APIView):
+class GetCurrentTimeAPIView(views.APIView):
     permission_classes = ()
 
     def get(self, request):
         current_time = datetime.now()
-        return Response({'current_time': current_time})    
+        return response.Response({'current_time': current_time})    
 
 
-class UniconDataAPIView(APIView):
+class UniconDataAPIView(views.APIView):
     serializer_class=YurUserSerializer
     permission_classes = []
-
 
     def get_obj(self):
         return YurUser.objects.get(userdata__role__name="direktor", tin="123456789")
@@ -120,11 +120,11 @@ class UniconDataAPIView(APIView):
     # Unicon data larini olish ya'ni unicon directorini
     def get(self, request):
         serializer = self.serializer_class(self.get_obj())
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return response.Response(data=serializer.data, status=status.HTTP_200_OK)
     
     # Unicon data larini ozgartirish ya'ni unicon directorini
     def patch(self, request):
         serializer = self.serializer_class(self.get_obj(), request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return response.Response(data=serializer.data, status=status.HTTP_200_OK)

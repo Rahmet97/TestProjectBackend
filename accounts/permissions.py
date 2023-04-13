@@ -16,9 +16,7 @@ class EmployeePermission(permissions.BasePermission):
     def has_permission(self, request, view):
 
         try:
-            return bool(
-                request.user
-            )
+            return bool(request.user)
         except:
             return False
 

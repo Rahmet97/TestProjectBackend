@@ -7,12 +7,13 @@ import xmltodict
 from datetime import datetime, timedelta
 
 from django.db.models import Q
+from django_redis.cache import RedisCache
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 
 from drf_yasg.utils import swagger_auto_schema
 
-from rest_framework import response, status
+from rest_framework import response, status, decorators
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -49,6 +50,7 @@ from expertiseService.serializers import (
 )
 
 num2word = NumbersToWord()
+cache = RedisCache()
 
 
 # Back office APIs
@@ -234,6 +236,7 @@ class CreateExpertiseServiceContractView(APIView):
 class ExpertiseGetGroupContract(APIView):
     permission_classes = [IsRelatedToExpertiseBackOffice]
 
+    @decorators.cache_page(60 * 15, cache=cache)
     def get(self, request):
 
         # yangi contractlar
@@ -432,6 +435,7 @@ class ExpertiseConfirmContract(APIView):
 class ExpertiseGetUserContracts(APIView):
     permission_classes = [IsAuthenticated]
 
+    @decorators.cache_page(60 * 15, cache=cache)
     def get(self, request):
         contracts = ExpertiseServiceContract.objects.filter(client=request.user).exclude(contract_status=0)
         serializer = ExpertiseContractSerializerForContractList(contracts, many=True)
