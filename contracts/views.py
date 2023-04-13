@@ -14,7 +14,6 @@ from django.http import HttpResponse, Http404
 from datetime import datetime, timedelta
 
 from django.db.models import Q, Sum
-from django_redis.cache import RedisCache
 from django.shortcuts import redirect, render, get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, validators, status, decorators
@@ -57,7 +56,6 @@ from .utils import (
 from .tasks import file_creator, file_downloader, generate_contract_number
 
 num2word = NumbersToWord()
-cache = RedisCache()
 
 
 class ListAllServicesAPIView(generics.ListAPIView):
@@ -86,7 +84,7 @@ class ServiceDetailAPIView(generics.RetrieveAPIView):
 class UserDetailAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    @decorators.cache_page(60 * 15, cache=cache)
+    @decorators.cache_page(60 * 15, cache='default')
     def get(self, request):
         # Get values from request query parameters
         pin_or_tin = request.GET.get('pot')
@@ -775,7 +773,7 @@ class GetContractFile(APIView):
 class GetUserContracts(APIView):
     permission_classes = (IsAuthenticated,)
 
-    @decorators.cache_page(60 * 15, cache=cache)
+    @decorators.cache_page(60 * 15, cache='default')
     def get(self, request):
         contracts = Contract.objects.filter(client=request.user)
         serializer = ContractSerializerForContractList(contracts, many=True)
@@ -869,7 +867,7 @@ class ContractDetail(APIView):
 class GetGroupContract(APIView):
     permission_classes = (IsAuthenticated,)
 
-    @decorators.cache_page(60 * 15, cache=cache)
+    @decorators.cache_page(60 * 15, cache='default')
     def get(self, request):
         group = request.user.group
         if request.user.role.name != "mijoz":
