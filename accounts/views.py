@@ -2,6 +2,7 @@ from datetime import datetime
 from django_redis.cache import RedisCache
 
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.mixins import CacheResponseMixin
 from rest_framework import generics, status, mixins, response, views, permissions
 
 from .models import Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName
@@ -54,7 +55,7 @@ class PermissionCreateAPIView(generics.CreateAPIView):
     permission_classes = (SuperAdminPermission,)
 
 
-class PermissionListAPIView(mixins.CacheResponseMixin, generics.ListAPIView):
+class PermissionListAPIView(CacheResponseMixin, generics.ListAPIView):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
     permission_classes = (permissions.IsAuthenticated,)
