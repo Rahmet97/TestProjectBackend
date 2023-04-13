@@ -9,7 +9,7 @@ from decimal import Decimal
 import requests
 from django.conf import settings
 from django.db.models.functions import Lower
-from django.views.decorators.cache import cache_page
+# from django.views.decorators.cache import cache_page
 from django.http import HttpResponse, Http404
 
 from datetime import datetime, timedelta
@@ -85,7 +85,7 @@ class ServiceDetailAPIView(generics.RetrieveAPIView):
 class UserDetailAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    @cache_page(60 * 15, cache='default')
+    # @cache_page(60 * 15, cache='default')
     def get(self, request):
         # Get values from request query parameters
         pin_or_tin = request.GET.get('pot')
@@ -774,7 +774,7 @@ class GetContractFile(APIView):
 class GetUserContracts(APIView):
     permission_classes = (IsAuthenticated,)
 
-    @cache_page(60 * 15, cache='default')
+    # @cache_page(60 * 15, cache='default')
     def get(self, request):
         contracts = Contract.objects.filter(client=request.user)
         serializer = ContractSerializerForContractList(contracts, many=True)
@@ -868,7 +868,7 @@ class ContractDetail(APIView):
 class GetGroupContract(APIView):
     permission_classes = (IsAuthenticated,)
 
-    @cache_page(60 * 15, cache='default')
+    # @cache_page(60 * 15, cache='default')
     def get(self, request):
         group = request.user.group
         if request.user.role.name != "mijoz":
