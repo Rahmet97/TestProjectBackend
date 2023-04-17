@@ -1,12 +1,12 @@
 from datetime import datetime
-from django_redis.cache import RedisCache
+# from django_redis.cache import RedisCache
 
 from drf_yasg.utils import swagger_auto_schema
 # from rest_framework.mixins import CacheResponseMixin
 from rest_framework import generics, status, response, views, permissions
 
 from .models import Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName
-from .permissions import SuperAdminPermission
+from .permissions import SuperAdminPermission, WorkerPermission
 from .serializers import (
     GroupSerializer, RoleSerializer, PermissionSerializer, PinUserToGroupRoleSerializer,
     YurUserSerializer, FizUserSerializer, BankMFONameSerializer
@@ -71,7 +71,10 @@ class PermissionUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
 class PinUserToGroupRole(views.APIView):
     permission_classes = (SuperAdminPermission,)
 
-    @swagger_auto_schema(operation_summary="Userni Gruppaga va Role ga biriktirish", query_serializer=PinUserToGroupRoleSerializer)
+    @swagger_auto_schema(
+        operation_summary="Userni Gruppaga va Role ga biriktirish",
+        query_serializer=PinUserToGroupRoleSerializer
+    )
     def post(self, request):
         user = UserData.objects.get(pk=request.data['user'])
         user.group = Group.objects.get(pk=request.data['group'])
@@ -108,21 +111,21 @@ class GetCurrentTimeAPIView(views.APIView):
 
     def get(self, request):
         current_time = datetime.now()
-        return response.Response({'current_time': current_time})    
+        return response.Response({'current_time': current_time})
 
 
 class UniconDataAPIView(views.APIView):
-    serializer_class=YurUserSerializer
-    permission_classes = []
+    serializer_class = YurUserSerializer
+    permission_classes = [WorkerPermission]
 
     def get_obj(self):
-        return YurUser.objects.get(userdata__role__name="direktor", tin="123456789")
-    
+        return YurUser.objects.get(userdata__role__name="direktor")  # , tin="123456789")
+
     # Unicon data larini olish ya'ni unicon directorini
     def get(self, request):
         serializer = self.serializer_class(self.get_obj())
         return response.Response(data=serializer.data, status=status.HTTP_200_OK)
-    
+
     # Unicon data larini ozgartirish ya'ni unicon directorini
     def patch(self, request):
         serializer = self.serializer_class(self.get_obj(), request.data, partial=True)

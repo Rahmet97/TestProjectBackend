@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from .models import RolePermission
+# from .models import RolePermission
 
 
 class SuperAdminPermission(permissions.BasePermission):
