@@ -1,3 +1,4 @@
+Asliddin Tukhtasinov, [4/18/23 2:00 PM]
 # Created by https://www.toptal.com/developers/gitignore/api/python,pycharm+all,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,pycharm+all,visualstudiocode
 
@@ -193,6 +194,9 @@ ipython_config.py
 #   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
 #poetry.lock
 
+Asliddin Tukhtasinov, [4/18/23 2:00 PM]
+
+
 # pdm
 #   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
 #pdm.lock
@@ -284,3 +288,7 @@ test/
 db.sqlite3
 .idea
 .env
+
+docker-compose.yml
+dsv-service-launcher
+nginx
