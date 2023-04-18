@@ -32,9 +32,7 @@ class ExpertiseServiceContract(models.Model):
     status = models.IntegerField(choices=StatusChoices.choices, default=4)  # ijro statuslari
     contract_status = models.IntegerField(choices=ContractStatusChoices.choices, default=0)  # hujjat statuslari
     
-    price_select_percentage = models.IntegerField(
-        choices=PRICE_SELECT_PERCENTAGE, blank=True, null=True
-    )
+    price_select_percentage = models.IntegerField(choices=PRICE_SELECT_PERCENTAGE, blank=True, null=True)
     
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     client = models.ForeignKey(UserData, on_delete=models.CASCADE)
@@ -75,12 +73,20 @@ class ExpertiseServiceTarif(models.Model):
 class ExpertiseServiceContractTarif(models.Model):
     expertise_service_tarif = models.ForeignKey(to=ExpertiseServiceTarif, on_delete=models.CASCADE)
 
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=20, decimal_places=2)
+    discount_price = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+
     name_of_tarif = models.CharField(max_length=255)
     is_discount = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return f"{self.name_of_tarif}|is_discount:{self.is_discount}"
+
+    # def save(self, *args, **kwargs):
+    #     # Perform some additional processing before the save operation
+    #     self.price = self.expertise_service_tarif.price
+    #     super().save(*args, **kwargs)  # Call the original save method
+    #     # Perform some additional processing after the save operation
 
 
 class ExpertiseTarifContract(models.Model):

@@ -21,7 +21,7 @@ from contracts.models import Participant, Service
 from contracts.tasks import file_downloader
 from contracts.permission import IsAuthenticatedAndOwner
 from contracts.utils import (
-    NumbersToWord, render_to_pdf, error_response_500, 
+    NumbersToWord, render_to_pdf, error_response_500,
     delete_file, create_qr
 )
 
@@ -40,7 +40,7 @@ from expertiseService.models import (
 )
 from expertiseService.serializers import (
     ExpertiseServiceContractSerializers,
-    ExpertiseContractSerializerForDetail,    
+    ExpertiseContractSerializerForDetail,
     ExpertiseContractParticipantsSerializers,
     ExpertiseContractSerializerForContractList,
     ExpertiseContractSerializerForBackoffice,
@@ -61,7 +61,7 @@ class CreateExpertiseServiceContractView(APIView):
         hashcode = hashlib.md5(text.encode())
         hash_code = hashcode.hexdigest()
         return hash_code
-    
+
     def create_contract_participants(self, service_id: int):
         participants = Participant.objects.get(service_id=service_id).participants.all()
         users = []
@@ -69,11 +69,11 @@ class CreateExpertiseServiceContractView(APIView):
         for role in participants:
 
             query = Q(role=role) & (Q(group=service_group) | Q(group=None))
-            
+
             try:
                 matching_user = UserData.objects.get(query)
                 print(f"User {matching_user.id}: {matching_user.role.name}")
-                
+
                 users.append(matching_user)
             except UserData.DoesNotExist:
                 print("No matching user found")
@@ -98,7 +98,7 @@ class CreateExpertiseServiceContractView(APIView):
         context['price_text'] = num2word.change_num_to_word(int(context['price']))
 
         context['withoutnds_price'] = float(context['price']) * 0.88
-        context['withoutnds_price_text'] = num2word.change_num_to_word(int(context['withoutnds_price']))        
+        context['withoutnds_price_text'] = num2word.change_num_to_word(int(context['withoutnds_price']))
 
         context['onlynds_price'] = float(context['price']) * 0.12
         context['onlynds_price_text'] = num2word.change_num_to_word(int(context['onlynds_price']))
@@ -178,7 +178,7 @@ class CreateExpertiseServiceContractView(APIView):
             # Script code ni togirlash kk
             expertise_service_contract = ExpertiseServiceContract.objects.create(
                 **request_objects_serializers.validated_data,
-                
+
                 service_id=int(request.data['service_id']),
                 client=client,
                 status=4,
@@ -199,11 +199,11 @@ class CreateExpertiseServiceContractView(APIView):
                 )
 
             # ExpertiseContracts_Participants
-            service_id=int(request.data['service'])
+            service_id = int(request.data['service'])
 
             # test mode
             participants = self.create_contract_participants(service_id=service_id)
-            
+
             if expertise_service_contract.contract_cash >= 10_000_000:
                 exclude_role_name = "direktor o'rinbosari"
             else:
@@ -253,7 +253,7 @@ class ExpertiseGetGroupContract(APIView):
             contract_participants = ExpertiseContracts_Participants.objects.filter(
                 Q(role=request.user.role),
                 (Q(agreement_status__name='Yuborilgan') |
-                    Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                 Q(agreement_status__name="Ko'rib chiqilmoqda"))
             ).values('contract')
             yangi_data = ExpertiseServiceContract.objects.filter(id__in=contract_participants).exclude(
                 Q(contract_status=5) | Q(contract_status=1)).select_related() \
@@ -283,7 +283,7 @@ class ExpertiseGetGroupContract(APIView):
         contract_participants = ExpertiseContracts_Participants.objects.filter(
             Q(role=request.user.role),
             (Q(agreement_status__name='Yuborilgan') |
-                Q(agreement_status__name="Ko'rib chiqilmoqda"))
+             Q(agreement_status__name="Ko'rib chiqilmoqda"))
         ).values('contract')
         expired_data = ExpertiseServiceContract.objects.filter(
             Q(id__in=contract_participants),
@@ -295,7 +295,7 @@ class ExpertiseGetGroupContract(APIView):
         contract_participants = ExpertiseContracts_Participants.objects.filter(
             Q(role=request.user.role),
             (Q(agreement_status__name='Yuborilgan') |
-                Q(agreement_status__name="Ko'rib chiqilmoqda"))
+             Q(agreement_status__name="Ko'rib chiqilmoqda"))
         ).values('contract')
         lastday_data = ExpertiseServiceContract.objects.filter(
             Q(id__in=contract_participants),
@@ -324,7 +324,8 @@ class ExpertiseGetGroupContract(APIView):
             Q(user=request.user)
         ).order_by('-contract', '-contract__contract_date')
         in_time_data = [element.contract for element in contracts_selected if
-                        element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(days=1)]
+                        element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(
+                            days=1)]
         self.check_object_permissions(request=request, obj=in_time_data)
         in_time = ExpertiseContractSerializerForBackoffice(in_time_data, many=True)
 
@@ -334,7 +335,7 @@ class ExpertiseGetGroupContract(APIView):
         barcha = ExpertiseContractSerializerForBackoffice(barcha_data, many=True)
 
         return response.Response(
-            data = {
+            data={
                 'barcha': barcha.data,
                 'yangi': yangi.data,
                 'kelishildi': kelishilgan.data,
@@ -361,12 +362,12 @@ class ExpertiseConfirmContract(APIView):
             contract.contract_status = 1
 
         contracts_participants = ExpertiseContracts_Participants.objects.get(
-                Q(role=request.user.role),
-                Q(contract=contract),
-                Q(participant_user=request.user)
+            Q(role=request.user.role),
+            Q(contract=contract),
+            Q(participant_user=request.user)
         )
 
-        if contracts_participants is None or contracts_participants.participant_user!=request.user:
+        if contracts_participants is None or contracts_participants.participant_user != request.user:
             responseErrorMessage(
                 message="you are not contract's participant",
                 status_code=status.HTTP_400_BAD_REQUEST
@@ -403,8 +404,8 @@ class ExpertiseConfirmContract(APIView):
 
         if cntrct:
             contract.contract_status = 4  # To'lov kutilmoqda
-        
-        if len(cntrctIqYu)==2 and len(cntrctDiDo)!=0:
+
+        if len(cntrctIqYu) == 2 and len(cntrctDiDo) != 0:
             contract.contract_status = 6  # Yangi
 
         contract.save()
@@ -449,9 +450,9 @@ class ExpertiseContractDetail(APIView):
         # agar request user mijoz bo'lsa
         # expertise model yaratilganidan keyin statusi ozgarishi kk front ofise uchun
         # yani iqtisodchi va yurist dan otganidan keyin
-        if (request.user.role.name == "mijoz" and \
-            contract.client == request.user and \
-            contract.contract_status==6):
+        if (request.user.role.name == "mijoz" and
+                contract.client == request.user and
+                contract.contract_status == 6):
             client = request.user
 
         # agar reuqest user direktor, direktor o'rin bosari bo'lsa
@@ -485,7 +486,7 @@ class ExpertiseContractDetail(APIView):
             'client': client_serializer.data,
             'participants': participant_serializer.data,
             'is_confirmed': True if int(expert_summary_value) == 1 else False
-            },
+        },
             status=200
         )
 
@@ -498,7 +499,7 @@ class ExpertiseGetContractFile(APIView):
             return response.Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
         contract = get_object_or_404(ExpertiseServiceContract, hashcode=hash_code)
 
-        if contract.contract_status==4 or contract.contract_status==3:  # To'lov kutilmoqda va Aktiv
+        if contract.contract_status == 4 or contract.contract_status == 3:  # To'lov kutilmoqda va Aktiv
             # delete like pdf file test mode
             if contract.like_preview_pdf:
                 delete_file(contract.like_preview_pdf.path)
@@ -530,7 +531,8 @@ class ExpertiseContractRejectedViews(APIView):
     serializer_class = ExpertiseSummarySerializerForRejected
     permission_classes = [IsAuthenticatedAndOwner]
 
-    @swagger_auto_schema(operation_summary="Front Officeda Expertisada. clientga yaratilgan shartnomani bekor qilish uchun")
+    @swagger_auto_schema(
+        operation_summary="Front Officeda Expertisada. clientga yaratilgan shartnomani bekor qilish uchun")
     def post(self, request, contract_id):
         contract = get_object_or_404(ExpertiseServiceContract, pk=contract_id)
         self.check_object_permissions(self.request, contract)
@@ -549,7 +551,7 @@ class ExpertiseContractRejectedViews(APIView):
             )
             return response.Response({
                 "message": f"Rejected Contract id: {contract_id}"
-                },status=201
+            }, status=201
             )
         responseErrorMessage(
             message="you are already rejected contract",

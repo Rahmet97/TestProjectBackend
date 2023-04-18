@@ -284,3 +284,7 @@ test/
 db.sqlite3
 .idea
 .env
+
+docker-compose.yml
+dsv-service-launcher
+nginx
