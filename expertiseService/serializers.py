@@ -190,7 +190,7 @@ class ExpertiseSummarySerializerForRejected(serializers.ModelSerializer):
     class Meta:
         model = ExpertiseExpertSummary
         # "contract", "summary", "user", "user_role"]
-        fields = ["comment", "date",]
+        fields = ["comment", "date"]
 
 
 class ExpertisePkcsSerializer(serializers.ModelSerializer):
