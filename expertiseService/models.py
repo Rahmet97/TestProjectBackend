@@ -71,7 +71,8 @@ class ExpertiseTarif(models.Model):
 
 
 class ExpertiseServiceContractTarif(models.Model):
-    expertise_service_tarif = models.ForeignKey(to=ExpertiseTarif, on_delete=models.CASCADE)
+    expertise_service_tarif = models.ForeignKey(
+        ExpertiseTarif, on_delete=models.CASCADE, related_name='expertise_service_tarif')
 
     price = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
     discount_price = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
