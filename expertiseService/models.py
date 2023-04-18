@@ -62,7 +62,7 @@ class ExpertiseServiceContract(models.Model):
         super(ExpertiseServiceContract, self).save(*args, **kwargs)
 
 
-class ExpertiseServiceTarif(models.Model):
+class ExpertiseTarif(models.Model):
     title_of_tarif = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
@@ -71,9 +71,9 @@ class ExpertiseServiceTarif(models.Model):
 
 
 class ExpertiseServiceContractTarif(models.Model):
-    expertise_service_tarif = models.ForeignKey(to=ExpertiseServiceTarif, on_delete=models.CASCADE)
+    expertise_service_tarif = models.ForeignKey(to=ExpertiseTarif, on_delete=models.CASCADE)
 
-    price = models.DecimalField(max_digits=20, decimal_places=2)
+    price = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
     discount_price = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
 
     name_of_tarif = models.CharField(max_length=255)
