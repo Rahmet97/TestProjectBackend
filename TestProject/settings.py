@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-rw(nbefjyjm*lyw1s2ejqiq66tzny4!kky5vr$jh=0rx26t52+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['api.unicon.uz', 'localhost']
+ALLOWED_HOSTS = ['api2.unicon.uz', 'localhost']
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
@@ -54,11 +54,10 @@ INSTALLED_APPS = [
     'django_celery_results',
     'rest_framework_simplejwt.token_blacklist',
     'import_export',
-    'django_redis',
-
     'services',
     'one_c',
     'billing',
+
     'main',
     'expertiseService',
 ]
@@ -212,21 +211,11 @@ SWAGGER_SETTINGS = {
     }
 }
 
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-#         'LOCATION': '127.0.0.1:11211',  # 'default-cache'
-#     }
-# }
-
 CACHES = {
     'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': os.getenv("CELERY_BROKER_REDIS_URL", "redis://localhost:6379/0"),
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        },
-    },
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': '127.0.0.1:11211',  # 'default-cache'
+    }
 }
 
 # Password validation
@@ -277,8 +266,8 @@ CSRF_COOKIE_HTTPONLY = True
 
 STATIC_URL = 'static/'
 
-MEDIA_URL = 'media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = 'http://185.74.5.202/'
+MEDIA_ROOT = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
