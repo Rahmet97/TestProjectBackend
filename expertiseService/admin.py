@@ -3,9 +3,9 @@ from django.contrib import admin
 from expertiseService.models import (
     ExpertiseServiceContract, ExpertiseTarifContract, ExpertiseServiceContractTarif,
     ExpertiseExpertSummary, ExpertiseContracts_Participants, ExpertiseExpertSummaryDocument,
+    ExpertiseServiceTarif
 
 )
-
 
 admin.site.register((
     ExpertiseExpertSummary,
@@ -26,4 +26,9 @@ class ExpertiseServiceContractAdmin(admin.ModelAdmin):
 
 @admin.register(ExpertiseTarifContract)
 class ExpertiseTarifContractAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ExpertiseServiceTarif)
+class ExpertiseServiceTarifAdmin(admin.ModelAdmin):
     pass
