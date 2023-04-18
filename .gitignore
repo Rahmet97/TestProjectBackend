@@ -287,8 +287,8 @@ venv/
 test/
 db.sqlite3
 .idea
-.env
+.env§
 
 docker-compose.yml
-dsv-service-launcher
+#dsv-service-launcher
 nginx

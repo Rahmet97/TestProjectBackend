@@ -15,6 +15,7 @@ admin.site.register((
     OldContractFile  # test
 ))
 
+
 class ServiceResource(resources.ModelResource):
     class Meta:
         model = Service
