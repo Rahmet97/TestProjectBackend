@@ -4,7 +4,7 @@ from import_export import resources
 from .models import DevicePublisher, DeviceUnit, Rack, Unit, DeviceStatus, InternetProvider, ProviderContract
 
 
-admin.site.register((Rack, Unit, DevicePublisher, DeviceUnit, DeviceStatus, InternetProvider, ProviderContract))
+admin.site.register(ProviderContract)
 
 
 class RackResource(resources.ModelResource):
