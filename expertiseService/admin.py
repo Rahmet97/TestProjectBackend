@@ -3,7 +3,7 @@ from django.contrib import admin
 from expertiseService.models import (
     ExpertiseServiceContract, ExpertiseTarifContract, ExpertiseServiceContractTarif,
     ExpertiseExpertSummary, ExpertiseContracts_Participants, ExpertiseExpertSummaryDocument,
-    ExpertiseServiceTarif
+    ExpertiseTarif
 
 )
 
@@ -29,6 +29,6 @@ class ExpertiseTarifContractAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(ExpertiseServiceTarif)
-class ExpertiseServiceTarifAdmin(admin.ModelAdmin):
+@admin.register(ExpertiseTarif)
+class ExpertiseTarifAdmin(admin.ModelAdmin):
     pass
