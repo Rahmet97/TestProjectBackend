@@ -290,5 +290,5 @@ db.sqlite3
 .env§
 
 docker-compose.yml
-#dsv-service-launcher
+dsv-service-launcher/
 nginx
