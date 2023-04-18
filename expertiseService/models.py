@@ -64,14 +64,23 @@ class ExpertiseServiceContract(models.Model):
         super(ExpertiseServiceContract, self).save(*args, **kwargs)
 
 
-class ExpertiseServiceContractTarif(models.Model):
+class ExpertiseServiceTarif(models.Model):
     title_of_tarif = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self) -> str:
+        return f"{self.title_of_tarif}|{self.price}"
+
+
+class ExpertiseServiceContractTarif(models.Model):
+    expertise_service_tarif = models.ForeignKey(to=ExpertiseServiceTarif, on_delete=models.CASCADE)
+
     price = models.DecimalField(max_digits=10, decimal_places=2)
     name_of_tarif = models.CharField(max_length=255)
     is_discount = models.BooleanField(default=False)
 
     def __str__(self) -> str:
-        return self.name_of_tarif
+        return f"{self.name_of_tarif}|is_discount:{self.is_discount}"
 
 
 class ExpertiseTarifContract(models.Model):
