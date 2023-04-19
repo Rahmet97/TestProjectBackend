@@ -13,10 +13,11 @@ import os
 from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
+from corsheaders.defaults import default_methods, default_headers
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-from corsheaders.defaults import default_methods, default_headers
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -108,6 +109,7 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
     "access-control-allow-origin"
 ]
+
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "x-auth",
     "x-authentication",
@@ -128,8 +130,7 @@ ROOT_URLCONF = 'TestProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"]
-        ,
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -268,6 +269,9 @@ STATIC_URL = 'static/'
 
 MEDIA_URL = 'http://185.74.5.202/'
 MEDIA_ROOT = '/media/'
+
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
