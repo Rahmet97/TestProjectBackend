@@ -22,6 +22,7 @@ def error_response_404():
     raise validators.ValidationError(
         detail={"message": "Object is not found 404"}, code=status.HTTP_404_NOT_FOUND)
 
+
 def error_response_500():
     raise validators.ValidationError(
         detail={"message": "Internal server error 500"}, code=500)
@@ -68,10 +69,10 @@ class NumbersToWord:
                 s = yuz + s
 
         return s.rstrip()
-    
+
     # change number to word
     def change_num_to_word(self, n: int) -> str:
-        return self._number2word(n=n) 
+        return self._number2word(n=n)
 
 
 # create qr code
@@ -89,11 +90,10 @@ def create_qr(link):
     img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
     # img.save(file_path + file_name.split('.')[0] + '.png')
     img.save(file_path + file_name.split('/')[-1] + '.png')
-    
+
     print("qr_file_name: ", file_name.split('/')[-1] + '.png')
     print("qr_file_path1: ", file_path + file_name.split('/')[-1] + '.png')
     print("qr_file_path2: ", file_path + file_name.split('.')[0] + '.png')
-
 
     return file_path + file_name.split('.')[0] + '.png'
 
@@ -134,8 +134,8 @@ def convert_docx_to_pdf(docx_file_path: str):
     # command = ['libreoffice', '--headless', '--convert-to', 'pdf', docx_file_path, '--outdir', path]
     # command = ['libreoffice', '--headless', '--convert-to', 'pdf:writer_pdf_Export', docx_file_path, '--outdir', path, '--nofirststartwizard', '--nolockcheck', '--nologo', '--nodisplay', '--norestore', '--convert-images-to-jpg', '--writer-pdf-embedfonts', '--writer-pdf-use-cff', '--writer-pdf-subset-fonts']    
     # command = ['libreoffice', '--headless', '--convert-to', 'pdf', '--convert-to', 'pdf:writer_pdf_Export', '--outdir', path, '--nofirststartwizard', '--nolockcheck', '--nologo', '--nodisplay', '--norestore', '--convert-images-to-jpg', '--writer-pdf-embedfonts', '--writer-pdf-use-cff', '--writer-pdf-subset-fonts', docx_file_path]    
-    command = ['libreoffice', '--headless', '--convert-to', 'pdf:writer_pdf_Export', docx_file_path, '--outdir', path, '--nofirststartwizard', '--nolockcheck', '--nologo', '--norestore']    
-
+    command = ['libreoffice', '--headless', '--convert-to', 'pdf:writer_pdf_Export', docx_file_path, '--outdir', path,
+               '--nofirststartwizard', '--nolockcheck', '--nologo', '--norestore']
 
     # Run the command in the terminal using subprocess with utf-8 encoding and capture the output
     result = subprocess.run(command, encoding='utf-8', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -151,7 +151,7 @@ def convert_docx_to_pdf(docx_file_path: str):
 def render_to_pdf(template_src: str, context_dict={}):
     template = get_template(template_name=template_src)
     html = template.render(context_dict)
-    
+
     result = BytesIO()
     # pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
     pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result)
@@ -160,6 +160,7 @@ def render_to_pdf(template_src: str, context_dict={}):
         pdf_content_with_page_breaks = insert_page_breaks(result.getvalue())
         return HttpResponse(pdf_content_with_page_breaks, content_type='application/pdf')
     return None
+
 
 def insert_page_breaks(pdf_content):
     page_break_tag = '<div style="page-break-after: always;"></div>'
@@ -173,7 +174,6 @@ def insert_page_breaks(pdf_content):
 #     # Read the CSS file into a string
 #     with open("/usr/src/app/static/shablon/shablon.css", "r") as css_file:
 #         css = css_file.read()
-    
 #     # Generate a PDF file from the HTML and CSS using xhtml2pdf
 #     response = HttpResponse(content_type="application/pdf")
 #     response["Content-Disposition"] = 'attachment; filename="my_pdf.pdf"'

@@ -13,7 +13,7 @@ from django.shortcuts import render, get_object_or_404
 
 from drf_yasg.utils import swagger_auto_schema
 
-from rest_framework import response, status
+from rest_framework import response, status, generics
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -36,7 +36,7 @@ from expertiseService.models import (
     AgreementStatus, ExpertiseContracts_Participants,
     ExpertiseServiceContract, ExpertiseTarifContract,
     ExpertiseServiceContractTarif, ExpertiseExpertSummary,
-    ExpertisePkcs
+    ExpertisePkcs, ExpertiseTarif
 )
 from expertiseService.serializers import (
     ExpertiseServiceContractSerializers,
@@ -46,7 +46,7 @@ from expertiseService.serializers import (
     ExpertiseContractSerializerForBackoffice,
     ExpertiseExpertSummarySerializerForSave,
     ExpertiseSummarySerializerForRejected,
-    ExpertisePkcsSerializer
+    ExpertisePkcsSerializer, ExpertiseTarifSerializer
 )
 
 num2word = NumbersToWord()
@@ -485,10 +485,9 @@ class ExpertiseContractDetail(APIView):
             'contract': contract_serializer.data,
             'client': client_serializer.data,
             'participants': participant_serializer.data,
+            'projects': None,
             'is_confirmed': True if int(expert_summary_value) == 1 else False
-        },
-            status=200
-        )
+        }, status=200)
 
 
 class ExpertiseGetContractFile(APIView):
@@ -524,6 +523,12 @@ class ExpertiseGetContractFile(APIView):
                     return response
 
         return response.Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class ExpertiseTarifListAPIView(generics.ListAPIView):
+    queryset = ExpertiseTarif.objects.all()
+    serializer_class = ExpertiseTarifSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 # Agar client sharnomani rejected qilsa

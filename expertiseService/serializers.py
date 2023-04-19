@@ -10,8 +10,14 @@ from contracts.serializers import ServiceSerializerForContract
 from expertiseService.models import (
     ExpertiseExpertSummary, ExpertiseContracts_Participants,
     ExpertiseServiceContract, ExpertiseServiceContractTarif,
-    ExpertiseExpertSummaryDocument, ExpertisePkcs
+    ExpertiseExpertSummaryDocument, ExpertisePkcs, ExpertiseTarif
 )
+
+
+class ExpertiseTarifSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExpertiseTarif
+        fields = '__all__'
 
 
 class ExpertiseContractSerializerForDetail(serializers.ModelSerializer):
