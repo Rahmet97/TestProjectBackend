@@ -14,8 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ./static .
 RUN rm -r /media
 COPY ./media .
-COPY ./entrypoint.sh .
-RUN sed -i 's/\r$//g' /usr/src/app/entrypoint.sh
-RUN chmod +x /usr/src/app/entrypoint.sh
+#COPY ./entrypoint.sh .
+#RUN sed -i 's/\r$//g' /usr/src/app/entrypoint.sh
+#RUN chmod +x /usr/src/app/entrypoint.sh
 COPY . .
-ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
+#ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
