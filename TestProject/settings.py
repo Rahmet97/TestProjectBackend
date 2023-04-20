@@ -267,7 +267,7 @@ CSRF_COOKIE_HTTPONLY = True
 
 STATIC_URL = 'static/'
 
-MEDIA_URL = 'http://185.74.5.202/'
+MEDIA_URL = 'ftp://user:R8E8^2CkGYe@185.74.5.202:22' #'http://185.74.5.202/'
 MEDIA_ROOT = 'media/'
 
 # MEDIA_URL = '/media/'
