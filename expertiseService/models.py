@@ -83,6 +83,12 @@ class ExpertiseServiceContractTarif(models.Model):
     def __str__(self) -> str:
         return f"{self.name_of_tarif}|is_discount:{self.is_discount}"
 
+    def save(self, *args, **kwargs):
+        self.price = self.expertise_service_tarif.price
+        if self.is_discount is False:
+            self.discount_price = None
+        super(ExpertiseServiceContractTarif, self).save(*args, **kwargs)
+
 
 class ExpertiseTarifContract(models.Model):
     contract = models.ForeignKey(to=ExpertiseServiceContract, on_delete=models.CASCADE)
