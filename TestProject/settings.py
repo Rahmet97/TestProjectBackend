@@ -270,15 +270,15 @@ STATIC_URL = 'static/'
 # MEDIA_URL = '/media/'
 # MEDIA_ROOT = 'media/'
 
-DEFAULT_FILE_STORAGE = 'storages.backends.ftp.FTPStorage'
-FTP_STORAGE_LOCATION = 'ftp://user:R8E8^2CkGYe@185.74.5.202:21/var/www/media/'
-FTP_STORAGE_USERNAME = 'user'
-FTP_STORAGE_PASSWORD = 'R8E8^2CkGYe'
-FTP_STORAGE_HOST = '185.74.5.202'
-FTP_STORAGE_PORT = 21
-FTP_STORAGE_PASSIVE_MODE = True
+# DEFAULT_FILE_STORAGE = 'storages.backends.ftp.FTPStorage'
+# FTP_STORAGE_LOCATION = 'ftp://user:R8E8^2CkGYe@185.74.5.202:21/var/www/media/'
+# FTP_STORAGE_USERNAME = 'user'
+# FTP_STORAGE_PASSWORD = 'R8E8^2CkGYe'
+# FTP_STORAGE_HOST = '185.74.5.202'
+# FTP_STORAGE_PORT = 21
+# FTP_STORAGE_PASSIVE_MODE = True
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
