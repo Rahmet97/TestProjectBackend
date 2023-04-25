@@ -46,7 +46,7 @@ from expertiseService.serializers import (
     ExpertiseContractSerializerForBackoffice,
     ExpertiseExpertSummarySerializerForSave,
     ExpertiseSummarySerializerForRejected,
-    ExpertisePkcsSerializer, ExpertiseTarifSerializer
+    ExpertisePkcsSerializer, ExpertiseTarifSerializer, ExpertiseServiceContractProjects
 )
 
 num2word = NumbersToWord()
@@ -126,10 +126,8 @@ class CreateExpertiseServiceContractView(APIView):
             context['hash_code'] = hash_code
             context['qr_code'] = f"http://api.unicon.uz/media/qr/{hash_code}.png"
 
-            # -------
             # rendered html file
             contract_file_for_base64_pdf = None
-
             template_name = "shablonEkspertiza.html"
             pdf = render_to_pdf(template_src=template_name, context_dict=context)
             if pdf:
@@ -144,7 +142,6 @@ class CreateExpertiseServiceContractView(APIView):
             if contract_file_for_base64_pdf is None:
                 error_response_500()
 
-            # -------
             contract_file = open(contract_file_for_base64_pdf, 'rb').read()
             base64code = base64.b64encode(contract_file)
 
@@ -155,10 +152,10 @@ class CreateExpertiseServiceContractView(APIView):
             # qr_code fileni ochirish
             delete_file(qr_code_path)
 
-            # -------
             # preview ni bazaga ham saqlab ketishim kk chunki contractni statusiga qarab foydalanish uchun
             context['save'] = False
             like_preview_pdf = render_to_pdf(template_src=template_name, context_dict=context)
+
             like_preview_pdf_path = None
             if like_preview_pdf:
                 output_dir = '/usr/src/app/media/Contract/pdf'
@@ -166,9 +163,7 @@ class CreateExpertiseServiceContractView(APIView):
                 like_preview_pdf_path = f"{output_dir}/{context.get('contract_number')}_{context.get('user_obj').get_director_short_full_name}.pdf"
                 with open(like_preview_pdf_path, 'wb') as f:
                     f.write(like_preview_pdf.content)
-            elif like_preview_pdf_path is None:
-                error_response_500()
-            else:
+            if like_preview_pdf_path is None:
                 error_response_500()
 
             projects_data = request_objects_serializers.validated_data.pop('projects')
@@ -412,11 +407,7 @@ class ExpertiseConfirmContract(APIView):
 
         request.data._mutable = True
         request.data['user'] = request.user.id
-
-        try:
-            documents = request.FILES.getlist('documents', None)
-        except:
-            documents = None
+        documents = request.FILES.getlist('documents', None)
 
         summary = ExpertiseExpertSummarySerializerForSave(
             data=request.data, context={'documents': documents}
@@ -450,9 +441,7 @@ class ExpertiseContractDetail(APIView):
         # agar request user mijoz bo'lsa
         # expertise model yaratilganidan keyin statusi ozgarishi kk front ofise uchun
         # yani iqtisodchi va yurist dan otganidan keyin
-        if (request.user.role.name == "mijoz" and
-                contract.client == request.user and
-                contract.contract_status == 6):
+        if request.user.role.name == "mijoz" and contract.client == request.user and contract.contract_status == 6:
             client = request.user
 
         # agar reuqest user direktor, direktor o'rin bosari bo'lsa
@@ -461,10 +450,7 @@ class ExpertiseContractDetail(APIView):
             client = contract.client
 
         else:
-            responseErrorMessage(
-                message="You are not permitted to view this contact detail",
-                status_code=200
-            )
+            responseErrorMessage(message="You are not permitted to view this contact detail", status_code=200)
 
         user = YurUser.objects.get(userdata=client)
         client_serializer = YurUserSerializerForContractDetail(user)
@@ -481,11 +467,13 @@ class ExpertiseContractDetail(APIView):
         except ExpertiseExpertSummary.DoesNotExist:
             expert_summary_value = 0
 
+        projects_obj = ExpertiseServiceContractTarif.objects.filter(expertisetarifcontract__contract=contract)
+        projects_obj_serializer = ExpertiseServiceContractProjects(projects_obj, many=True)
         return response.Response(data={
             'contract': contract_serializer.data,
             'client': client_serializer.data,
             'participants': participant_serializer.data,
-            'projects': None,
+            'projects': projects_obj_serializer.data,
             'is_confirmed': True if int(expert_summary_value) == 1 else False
         }, status=200)
 
@@ -496,8 +484,8 @@ class ExpertiseGetContractFile(APIView):
     def get(self, request, hash_code):
         if hash_code is None:
             return response.Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
-        contract = get_object_or_404(ExpertiseServiceContract, hashcode=hash_code)
 
+        contract = get_object_or_404(ExpertiseServiceContract, hashcode=hash_code)
         if contract.contract_status == 4 or contract.contract_status == 3:  # To'lov kutilmoqda va Aktiv
             # delete like pdf file test mode
             if contract.like_preview_pdf:
@@ -506,8 +494,7 @@ class ExpertiseGetContractFile(APIView):
                 contract.save()
 
             file_pdf_path, pdf_file_name = file_downloader(
-                bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id
-            )
+                bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id)
             if os.path.exists(file_pdf_path):
                 with open(file_pdf_path, 'rb') as fh:
                     response = HttpResponse(fh.read(), content_type="application/pdf")
@@ -525,7 +512,7 @@ class ExpertiseGetContractFile(APIView):
         return response.Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
 
 
-class ExpertiseTarifListAPIView(generics.ListAPIView):
+class ExpertiseTarifListAPIView(generics.ListCreateAPIView):
     queryset = ExpertiseTarif.objects.all()
     serializer_class = ExpertiseTarifSerializer
     permission_classes = (IsAuthenticated,)
@@ -554,14 +541,8 @@ class ExpertiseContractRejectedViews(APIView):
                 contract=contract,
                 user_role=request.user.role
             )
-            return response.Response({
-                "message": f"Rejected Contract id: {contract_id}"
-            }, status=201
-            )
-        responseErrorMessage(
-            message="you are already rejected contract",
-            status_code=200
-        )
+            return response.Response({"message": f"Rejected Contract id: {contract_id}"}, status=201)
+        responseErrorMessage(message="you are already rejected contract", status_code=200)
 
 
 class ExpertiseSavePkcs(APIView):
@@ -598,12 +579,10 @@ class ExpertiseSavePkcs(APIView):
             </Envelope>
         """
         headers = {'Content-Type': 'text/xml'}  # set what your server accepts
-        res = requests.post('http://dsv-server-vpn-client:9090/dsvs/pkcs7/v1',
-                            data=xml, headers=headers)
+        res = requests.post('http://dsv-server-vpn-client:9090/dsvs/pkcs7/v1', data=xml, headers=headers)
         dict_data = xmltodict.parse(res.content)
-        response = dict_data['S:Envelope']['S:Body']['ns2:verifyPkcs7Response']['return']
-        d = json.loads(response)
-        return d
+        res = dict_data['S:Envelope']['S:Body']['ns2:verifyPkcs7Response']['return']
+        return json.loads(res)
 
     def post(self, request):
         contract_id = int(request.data['contract_id'])

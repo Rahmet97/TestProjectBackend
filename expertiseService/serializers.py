@@ -1,7 +1,6 @@
-from django.db.models import Q
 from rest_framework import serializers
 
-from accounts.models import UserData, FizUser, YurUser
+from accounts.models import FizUser, YurUser
 
 from accounts.serializers import FizUserSerializerForContractDetail, YurUserSerializerForContractDetail
 

@@ -83,12 +83,6 @@ class ExpertiseServiceContractTarif(models.Model):
     def __str__(self) -> str:
         return f"{self.name_of_tarif}|is_discount:{self.is_discount}"
 
-    # def save(self, *args, **kwargs):
-    #     # Perform some additional processing before the save operation
-    #     self.price = self.expertise_service_tarif.price
-    #     super().save(*args, **kwargs)  # Call the original save method
-    #     # Perform some additional processing after the save operation
-
 
 class ExpertiseTarifContract(models.Model):
     contract = models.ForeignKey(to=ExpertiseServiceContract, on_delete=models.CASCADE)
@@ -102,7 +96,8 @@ class ExpertiseContracts_Participants(models.Model):
     contract = models.ForeignKey(ExpertiseServiceContract, on_delete=models.CASCADE)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     participant_user = models.ForeignKey(to=UserData, on_delete=models.CASCADE, related_name="participant_user")
-    agreement_status = models.ForeignKey(AgreementStatus, on_delete=models.CASCADE, blank=True, null=True)   # kelishuv statuslari
+    # kelishuv statuslari
+    agreement_status = models.ForeignKey(AgreementStatus, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return f"{self.contract.contract_number}|{self.role.name}|{self.agreement_status.name}"
