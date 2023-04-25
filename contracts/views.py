@@ -60,7 +60,7 @@ num2word = NumbersToWord()
 
 
 class ListAllServicesAPIView(generics.ListAPIView):
-    queryset = Service.objects.all()
+    queryset = Service.objects.all().order_by('id')
     permission_classes = ()
     serializer_class = ServiceSerializer
 
