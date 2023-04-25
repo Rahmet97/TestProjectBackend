@@ -187,7 +187,7 @@ class CreateExpertiseServiceContractView(APIView):
             expertise_service_contract.save()
 
             for project_data in projects_data:
-                project_data.expertise_service_tarif = int(project_data.expertise_service_tarif)
+                # project_data.expertise_service_tarif = int(project_data.expertise_service_tarif)
                 project = ExpertiseServiceContractTarif.objects.create(**project_data)
                 ExpertiseTarifContract.objects.create(
                     contract=expertise_service_contract,

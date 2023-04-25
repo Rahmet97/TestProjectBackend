@@ -622,7 +622,11 @@
                 <tr>
                     <td align="center">{{ forloop.counter }}</td>
                     <td align="left">{{ project.name_of_tarif }}</td>
-                    <td align="center">{{ project.price|multiply:0.88 }}</td>
+                    {% if project.is_discount %}
+                        <td align="center">{{ project.discount_price|multiply:0.88 }}</td>
+                    {% else %}
+                        <td align="center">{{ project.price|multiply:0.88 }}</td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>
