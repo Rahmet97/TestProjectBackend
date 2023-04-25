@@ -271,7 +271,7 @@ STATIC_URL = 'static/'
 # MEDIA_ROOT = 'media/'
 
 DEFAULT_FILE_STORAGE = 'storages.backends.ftp.FTPStorage'
-FTP_STORAGE_LOCATION = 'ftp://user:R8E8^2CkGYe@185.74.5.202/var/www/media/'
+FTP_STORAGE_LOCATION = 'ftp://user:R8E8^2CkGYe@185.74.5.202:21/var/www/media/'
 FTP_STORAGE_USERNAME = 'user'
 FTP_STORAGE_PASSWORD = 'R8E8^2CkGYe'
 FTP_STORAGE_HOST = '185.74.5.202'
