@@ -1,7 +1,12 @@
+from datetime import datetime
+from decimal import Decimal
+
 from django.db.models import Q
 from rest_framework import serializers, status
 
 from main.utils import responseErrorMessage
+
+from one_c.models import PayedInformation
 
 from accounts.models import YurUser, FizUser, UserData
 from accounts.serializers import (
@@ -145,7 +150,7 @@ class ContractSerializerForDetail(serializers.ModelSerializer):
 
     def get_arrearage(self, obj):
         return obj.contract_cash - obj.payed_cash
-    
+
     def get_old_contract(self, obj):
         old_contract = obj.old_contract_file.all()
 
@@ -231,9 +236,9 @@ class ExpertSummarySerializerForSave(serializers.ModelSerializer):
     def create(self, validated_data):
         documents = self.context['documents']
         if ExpertSummary.objects.filter(
-            contract=validated_data.get("contract"), user=validated_data.get("user")).exists():
+                contract=validated_data.get("contract"), user=validated_data.get("user")).exists():
             responseErrorMessage(
-                message="Already exists in ExpertSummary", 
+                message="Already exists in ExpertSummary",
                 status_code=status.HTTP_400_BAD_REQUEST
             )
 
@@ -301,3 +306,42 @@ class AddOldContractSerializers(serializers.ModelSerializer):
     @staticmethod
     def get_file(obj):
         return AddOldContractFilesSerializers(obj.old_contract_file.all(), many=True).data
+
+
+# Serializer for monitoring contract
+class PayedInformationSerializer(serializers.ModelSerializer):
+    payed_percentage = serializers.SerializerMethodField()
+    month_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PayedInformation
+        # fields = "__all__"
+        exclude = ["invoice"]
+
+    def get_payed_percentage(self, obj):
+        contract_cash = self.context.get("contract_cash")
+        if contract_cash is None:
+            responseErrorMessage(message=None, status_code=status.HTTP_400_BAD_REQUEST)
+        return (float(obj.payed_cash) * float(100)) / float(contract_cash)
+
+    @staticmethod
+    def get_month_name(obj):
+        date_object = datetime.fromisoformat(str(obj.payed_time))
+        return date_object.strftime("%B")
+
+
+class MonitoringContractSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contract
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Customize the representation of your data here
+        payed_information_objects = PayedInformation.objects.filter(contract_code=instance.id_code)
+        representation['payed_information'] = PayedInformationSerializer(
+            payed_information_objects, many=True, context={'contract_cash': instance.contract_cash}
+        ).data,
+
+        representation["total_payed_percentage"] = (float(instance.payed_cash) * float(100))/float(instance.contract_cash)
+        return representation

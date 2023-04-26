@@ -59,4 +59,5 @@ class PayedInformation(models.Model):
     company_payment_account = models.CharField(max_length=30, blank=True, null=True)
 
     def __str__(self):
-        return self.contract.contract_number
+        # return self.contract.contract_number
+        return self.contract_code

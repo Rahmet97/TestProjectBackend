@@ -46,7 +46,8 @@ from .serializers import (
     OfferSerializer, DocumentSerializer, ElementSerializer, ContractSerializer, PkcsSerializer,
     ContractSerializerForContractList, ContractSerializerForBackoffice, ExpertSummarySerializer,
     ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail,
-    ConnectMethodSerializer, AddOldContractSerializers, UserOldContractTarifDeviceSerializer
+    ConnectMethodSerializer, AddOldContractSerializers, UserOldContractTarifDeviceSerializer,
+    MonitoringContractSerializer
 )
 
 from .utils import (
@@ -1354,3 +1355,20 @@ class AddOldContractsViews(APIView):
                 'contract-data': self.serializer_class_contract(contract).data,
                 'tarif': self.serializer_class_contract_tarif_device(contract_tarif_device).data
             }, status=status.HTTP_201_CREATED)
+
+
+class MonitoringContractViews(APIView):
+
+    @staticmethod
+    def get_objects(query_year):
+        if query_year:
+            contracts = Contract.objects.filter(contract_date__year=query_year)
+        else:
+            contracts = Contract.objects.all()
+        return contracts
+
+    def get(self, request):
+        year_q = request.GET.get("year")
+        contracts = self.get_objects(year_q)
+        serializer = MonitoringContractSerializer(contracts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
