@@ -7,10 +7,7 @@ import xmltodict
 from decimal import Decimal
 
 import requests
-from django.conf import settings
-from django.db.models.functions import Lower
-# from django.views.decorators.cache import cache_page
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse
 
 from datetime import datetime, timedelta
 
@@ -23,11 +20,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.models import FizUser, UserData, Role, YurUser
-from accounts.permissions import AdminPermission, SuperAdminPermission, DeputyDirectorPermission, WorkerPermission
+from accounts.permissions import AdminPermission, SuperAdminPermission, WorkerPermission
 
 from accounts.serializers import (
-    FizUserSerializer, YurUserSerializer, FizUserSerializerForContractDetail,
-    YurUserSerializerForContractDetail, FizUserForOldContractSerializers, YurUserForOldContractSerializers
+    FizUserSerializer, FizUserSerializerForContractDetail, YurUserSerializerForContractDetail,
+    FizUserForOldContractSerializers, YurUserForOldContractSerializers
 )
 
 from services.models import Rack, Unit, DeviceUnit
@@ -73,7 +70,8 @@ class ListGroupServicesAPIView(APIView):
         group_id = request.GET.get('group_id')
         services = Service.objects.filter(group_id=group_id)
         serializers = ServiceSerializer(
-            services, many=True, context={'request': request})
+            services, many=True, context={'request': request}
+        )
         return Response(serializers.data)
 
 
@@ -86,12 +84,11 @@ class ServiceDetailAPIView(generics.RetrieveAPIView):
 class UserDetailAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    # @cache_page(60 * 15, cache='default')
     def get(self, request):
         # Get values from request query parameters
         pin_or_tin = request.GET.get('pot')
         u_type = request.GET.get('ut')
-        user = None
+        user, data = None, None
 
         # Check if pin_or_tin and u_type are present
         if pin_or_tin and u_type:
@@ -123,11 +120,15 @@ class UserDetailAPIView(APIView):
             if request.user.role.name != 'mijoz':
                 try:
                     if request.user.role.name != 'direktor':
-                        with_ads = ServiceParticipants.objects.get(Q(role=request.user.role),
-                                                                   Q(participant__service__group=request.user.group)).with_eds
+                        with_ads = ServiceParticipants.objects.get(
+                            Q(role=request.user.role),
+                            Q(participant__service__group=request.user.group)
+                        ).with_eds
                     else:
-                        with_ads = ServiceParticipants.objects.get(Q(role=request.user.role),
-                                                                   Q(participant__service__group__name='Data Markaz')).with_eds
+                        with_ads = ServiceParticipants.objects.get(
+                            Q(role=request.user.role),
+                            Q(participant__service__group__name='Data Markaz')
+                        ).with_eds
                     data["with_ads"] = with_ads
                 except ServiceParticipants.DoesNotExist:
                     pass
@@ -164,8 +165,8 @@ class OfferDetailAPIView(APIView):
             offer = Offer.objects.get(service_id=service_id)
             serializer = OfferSerializer(offer, context={'request': request})
         except Offer.DoesNotExist:
-            return Response({'message': 'Bunday xizmat mavjud emas'})
-        return Response(serializer.data)
+            return Response({'message': 'Bunday xizmat mavjud emas'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GetGroupAdminDataAPIView(APIView):
@@ -175,10 +176,11 @@ class GetGroupAdminDataAPIView(APIView):
         service_id = request.GET.get('service_id')
         service = Service.objects.get(pk=service_id)
         user = UserData.objects.get(
-            Q(group__service=service), Q(role__name="bo'lim boshlig'i"))
+            Q(group__service=service), Q(role__name="bo'lim boshlig'i")
+        )
         dt = FizUser.objects.get(userdata=user)
         serializer = FizUserSerializer(dt)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GetPinnedUserDataAPIView(APIView):
@@ -189,7 +191,7 @@ class GetPinnedUserDataAPIView(APIView):
         user = Service.objects.get(pk=service_id).pinned_user
         dt = FizUser.objects.get(userdata=user)
         serializer = FizUserSerializer(dt)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ServiceCreateAPIView(generics.CreateAPIView):
@@ -208,6 +210,7 @@ class SavedServiceAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
+        services = []
         try:
             saved_services = SavedService.objects.get(user=request.user)
         except SavedService.DoesNotExist:
@@ -215,14 +218,13 @@ class SavedServiceAPIView(APIView):
 
         if saved_services:
             services = saved_services.services.all()
-        else:
-            services = []
-        serializer = ServiceSerializer(
-            services, many=True, context={'request': request})
-        return Response(serializer.data)
 
-    @swagger_auto_schema(operation_summary="Service ni saqlangan servicega qo'shish. Bu yerda service_id ni "
-                                           "jo'natishiz kere bo'ladi")
+        serializer = ServiceSerializer(services, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_summary="Service ni saqlangan servicega qo'shish. Bu yerda service_id ni " "jo'natishiz kere bo'ladi"
+    )
     def post(self, request):
         service_id = request.data['service_id']
         user = request.user
@@ -235,8 +237,8 @@ class SavedServiceAPIView(APIView):
             saved_service.services.add(service)
             saved_service.save()
         else:
-            return Response({'message': 'Bu service oldindan mavjud'})
-        return Response(status=200)
+            return Response({'message': 'Bu service oldindan mavjud'}, status=status.HTTP_302_FOUND)
+        return Response(status=status.HTTP_200_OK)
 
 
 class DeleteSavedService(APIView):
@@ -246,8 +248,8 @@ class DeleteSavedService(APIView):
             service = Service.objects.get(pk=pk)
             saved_service.services.remove(service)
         except Exception as e:
-            return Response({'message': f"{e}"})
-        return Response(status=204)
+            return Response({'message': f"{e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TarifAPIView(APIView):
@@ -269,7 +271,7 @@ class TarifAPIView(APIView):
             'tarifs': tarif_serializer.data,
             'elements': element_serializer.data,
             'devices': device_serializer.data
-        })
+        }, status=status.HTTP_200_OK)
 
 
 class ConnectMethodListAPIView(generics.ListAPIView):
@@ -494,7 +496,8 @@ class SelectedTarifDevicesAPIView(APIView):
 class CreateContractFileAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def generate_hash_code(self, text: str):
+    @staticmethod
+    def generate_hash_code(text: str):
         hashcode = hashlib.md5(text.encode())
         hash_code = hashcode.hexdigest()
         return hash_code
@@ -775,11 +778,10 @@ class GetContractFile(APIView):
 class GetUserContracts(APIView):
     permission_classes = (IsAuthenticated,)
 
-    # @cache_page(60 * 15, cache='default')
     def get(self, request):
         contracts = Contract.objects.filter(client=request.user)
         serializer = ContractSerializerForContractList(contracts, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GetContractFileWithID(APIView):
@@ -803,23 +805,18 @@ class ContractDetail(APIView):
             if request.user.role.name != 'direktor':
                 contract_participants = Contracts_Participants.objects.filter(contract=contract).get(
                     Q(role=request.user.role),
-                    Q(contract__service__group=request.user.group)
-                )
+                    Q(contract__service__group=request.user.group))
             else:
-                contract_participants = Contracts_Participants.objects.filter(contract=contract).get(
-                    role=request.user.role)
+                contract_participants = Contracts_Participants.objects.filter(
+                    contract=contract).get(role=request.user.role)
         except Contracts_Participants.DoesNotExist:
             contract_participants = None
 
-        # if request.user.role in Participant.objects.annotate(service__name_lower=Lower('service__name')).get(
-        # service__name_lower='co-location'): pass
-
-        if (request.user.role.name == "bo'lim boshlig'i" or \
-            request.user.role.name == "direktor o'rinbosari" or \
-            request.user.role.name == "dasturchi" or \
+        if (request.user.role.name == "bo'lim boshlig'i" or
+            request.user.role.name == "direktor o'rinbosari" or
+            request.user.role.name == "dasturchi" or
             request.user.role.name == "direktor") and \
-            (contract_participants.agreement_status.name == "Yuborilgan"):
-            
+                (contract_participants.agreement_status.name == "Yuborilgan"):
             agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
             contract_participants.agreement_status = agreement_status
             contract_participants.save()
@@ -862,7 +859,7 @@ class ContractDetail(APIView):
                 'client': client_serializer.data,
                 'participants': participant_serializer.data,
                 'is_confirmed': expert_summary
-            }
+            }, status=status.HTTP_200_OK
         )
 
 
@@ -987,9 +984,7 @@ class ConfirmContract(APIView):
             Q(role=request.user.role),
             # Q(contract__service__group__name='Data Markaz'),
         )
-        print("contracts_participants 996 >>>> ", contracts_participants)
         contracts_participants.agreement_status = agreement_status
-        print("agreement_status >>> ", agreement_status)
         contracts_participants.save()
         contract.condition += 1
 
@@ -1027,13 +1022,12 @@ class DeleteUserContract(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        id = request.data['contract']
-        contract = Contract.objects.get(pk=id)
-        contract.contract_status = ContractStatus.objects.get(
-            name="Bekor qilingan")
+        contract_id = request.data['contract']
+        contract = Contract.objects.get(pk=contract_id)
+        contract.contract_status = ContractStatus.objects.get(name="Bekor qilingan")
         contract.save()
 
-        return Response({'message': 'Deleted'})
+        return Response({'message': 'Deleted'}, status=status.HTTP_200_OK)
 
 
 class GetRackContractDetailWithNumber(APIView):
@@ -1045,8 +1039,10 @@ class GetRackContractDetailWithNumber(APIView):
         contract = Contract.objects.get(contract_number=contract_number)
         serializer = ContractSerializerForBackoffice(contract)
         try:
-            user_contract_tariff_device = UserContractTarifDevice.objects.get(Q(contract=contract),
-                                                                              Q(tarif__name='Rack-1'))
+            user_contract_tariff_device = UserContractTarifDevice.objects.get(
+                Q(contract=contract),
+                Q(tarif__name='Rack-1')
+            )
         except UserContractTarifDevice.DoesNotExist:
             data = {
                 'success': False,
@@ -1054,12 +1050,10 @@ class GetRackContractDetailWithNumber(APIView):
             }
             return Response(data, status=405)
         rack_count = user_contract_tariff_device.rack_count
-        filled = Rack.objects.filter(
-            Q(is_sold=True), Q(contract=contract)).count()
+        filled = Rack.objects.filter(Q(is_sold=True), Q(contract=contract)).count()
         empty = rack_count - filled
         odf_count = user_contract_tariff_device.odf_count
-        provider = ConnetMethod.objects.get(
-            pk=user_contract_tariff_device.connect_method.id)
+        provider = ConnetMethod.objects.get(pk=user_contract_tariff_device.connect_method.id)
         provider_serializer = ConnectMethodSerializer(provider)
         electricity = 7500
         devices = DeviceUnit.objects.filter(rack_id=rack_id).order_by('id')
@@ -1360,11 +1354,11 @@ class AddOldContractsViews(APIView):
 class MonitoringContractViews(APIView):
 
     @staticmethod
-    def get_objects(query_year):
+    def get_objects(query_year=None):
+        contracts = Contract.objects.all()
+
         if query_year:
             contracts = Contract.objects.filter(contract_date__year=query_year)
-        else:
-            contracts = Contract.objects.all()
         return contracts
 
     def get(self, request):
