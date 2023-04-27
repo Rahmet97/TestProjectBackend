@@ -2,7 +2,7 @@ from django.db import models
 
 from accounts.models import UserData
 
-from TestProjectBackend.contracts.models import Service
+from contracts.models import Service
 
 
 class BillingLog(models.Model):
@@ -24,7 +24,7 @@ class BillingLog(models.Model):
 
 class InvoiceElements(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
-    is_automate = models.BooleanField(defaul=False)
+    is_automate = models.BooleanField(default=False)
     date = models.DateField()
 
     def __str__(self):

@@ -7,10 +7,10 @@ from contracts.views import (
     OfferDetailAPIView, GetGroupAdminDataAPIView, ServiceCreateAPIView, DocumentCreateAPIView, SavedServiceAPIView,
     SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService, CreateContractFileAPIView, SavePkcs, GetContractFile,
     GetUserContracts, GetContractFileWithID, ContractDetail, GetGroupContract, ConfirmContract,
-    ConnectMethodListAPIView, GetPinnedUserDataAPIView, AddOldContractsViews, MonitoringContractViews
+    ConnectMethodListAPIView, GetPinnedUserDataAPIView, AddOldContractsViews, MonitoringContractViews, TariffUpdateAPIView,
+    TariffCreateAPIView
 )
 
-from TestProjectBackend.contracts.views import TariffUpdateAPIView
 
 urlpatterns = [
     path('services', ListAllServicesAPIView.as_view(), name='ListAllServicesAPIView'),
