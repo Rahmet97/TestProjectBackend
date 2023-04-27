@@ -70,7 +70,7 @@ class PinUserToGroupRole(views.APIView):
 
     @swagger_auto_schema(
         operation_summary="Userni Gruppaga va Role ga biriktirish",
-        query_serializer=PinUserToGroupRoleSerializer
+        query_serializer=PinUserToGroupRoleSerializer()
     )
     def post(self, request):
         user = UserData.objects.get(pk=request.data['user'])
