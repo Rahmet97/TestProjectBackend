@@ -128,5 +128,10 @@ class UniconDataAPIView(views.APIView):
     def patch(self, request):
         serializer = self.serializer_class(self.get_obj(), request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+
+        if request.data.get("bank_mfo") is not None:
+            bank_mfo = BankMFOName.objects.get(mfo=request.data.get("bank_mfo"))
+            serializer.save(bank_mfo=bank_mfo)
+        else:
+            serializer.save()
         return response.Response(data=serializer.data, status=status.HTTP_200_OK)
