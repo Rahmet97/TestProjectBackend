@@ -1,8 +1,5 @@
 from datetime import datetime
-# from django_redis.cache import RedisCache
-
 from drf_yasg.utils import swagger_auto_schema
-# from rest_framework.mixins import CacheResponseMixin
 from rest_framework import generics, status, response, views, permissions
 
 from .models import Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName
@@ -118,7 +115,8 @@ class UniconDataAPIView(views.APIView):
     serializer_class = YurUserSerializer
     permission_classes = [WorkerPermission]
 
-    def get_obj(self):
+    @staticmethod
+    def get_obj():
         return YurUser.objects.get(userdata__role__name="direktor")  # , tin="123456789")
 
     # Unicon data larini olish ya'ni unicon directorini
