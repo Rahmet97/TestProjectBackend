@@ -143,6 +143,18 @@ class TarifListAPIView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
 
 
+class TariffCreateAPIView(generics.CreateAPIView):
+    queryset = Tarif.objects.all()
+    serializer_class = TarifSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class TariffUpdateAPIView(generics.RetrieveUpdateAPIView):
+    queryset = Tarif.objects.all()
+    serializer_class = TarifSerializer
+    permission_classes = (IsAuthenticated,)
+
+
 class DeviceListAPIView(generics.ListAPIView):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer

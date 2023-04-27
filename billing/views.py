@@ -14,18 +14,6 @@ from contracts.models import Tarif, Element, TarifLog, Service
 from contracts.serializers import TarifSerializer, ElementSerializer
 
 
-class TariffCreateAPIView(CreateAPIView):
-    queryset = Tarif.objects.all()
-    serializer_class = TarifSerializer
-    permission_classes = (IsAuthenticated,)
-
-
-class TariffUpdateAPIView(RetrieveUpdateAPIView):
-    queryset = Tarif.objects.all()
-    serializer_class = TarifSerializer
-    permission_classes = (IsAuthenticated,)
-
-
 class ElementAPIView(ListCreateAPIView):
     queryset = Element.objects.all()
     serializer_class = ElementSerializer

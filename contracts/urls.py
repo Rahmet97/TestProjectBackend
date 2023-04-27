@@ -10,6 +10,8 @@ from contracts.views import (
     ConnectMethodListAPIView, GetPinnedUserDataAPIView, AddOldContractsViews, MonitoringContractViews
 )
 
+from TestProjectBackend.contracts.views import TariffUpdateAPIView
+
 urlpatterns = [
     path('services', ListAllServicesAPIView.as_view(), name='ListAllServicesAPIView'),
     path('group-services', ListGroupServicesAPIView.as_view(), name='ListGroupServicesAPIView'),
@@ -51,5 +53,8 @@ urlpatterns = [
     path('delete-contract', DeleteUserContract.as_view(), name='DeleteUserContract'),
     path('rack-contract-with-number', GetRackContractDetailWithNumber.as_view(), name='GetRackContractDetailWithNumber'),
     path('unit-contract-with-number', GetUnitContractDetailWithNumber.as_view(), name='GetUnitContractDetailWithNumber'),
+
+    path('tarif-create', TariffCreateAPIView.as_view(), name='TariffCreateAPIView'),
+    path('tarif-update/<int:pk>', TariffUpdateAPIView.as_view(), name='TariffUpdateAPIView'),
 
 ]

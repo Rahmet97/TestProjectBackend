@@ -2,6 +2,8 @@ from django.db import models
 
 from accounts.models import UserData
 
+from TestProjectBackend.contracts.models import Service
+
 
 class BillingLog(models.Model):
     FRONTOFFICE = 1
@@ -18,3 +20,12 @@ class BillingLog(models.Model):
 
     def __str__(self):
         return str(self.date)
+
+
+class InvoiceElements(models.Model):
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    is_automate = models.BooleanField(defaul=False)
+    date = models.DateField()
+
+    def __str__(self):
+        return f'{self.service.name}|{self.is_automate}|{self.date}'
