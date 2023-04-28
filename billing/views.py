@@ -8,8 +8,8 @@ from rest_framework.generics import CreateAPIView, ListCreateAPIView, RetrieveUp
 from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import Group
-from billing.models import BillingLog
-from billing.serializers import RequestSerializer
+from billing.models import BillingLog, InvoiceElements
+from billing.serializers import RequestSerializer, InvoiceElementsSerializer
 from contracts.models import Tarif, Element, TarifLog, Service
 from contracts.serializers import TarifSerializer, ElementSerializer
 
@@ -23,6 +23,18 @@ class ElementAPIView(ListCreateAPIView):
 class ElementUpdateAPIView(RetrieveUpdateAPIView):
     queryset = Element.objects.all()
     serializer_class = ElementSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class InvoiceElementsAPIView(ListCreateAPIView):
+    queryset = InvoiceElements.objects.all()
+    serializer_class = InvoiceElementsSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class InvoiceElementsUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = InvoiceElements.objects.all()
+    serializer_class = InvoiceElementsSerializer
     permission_classes = (IsAuthenticated,)
 
 
