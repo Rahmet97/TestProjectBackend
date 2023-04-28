@@ -2,13 +2,12 @@ from django.urls import path
 
 from contracts.views import (
     DeleteUserContract, GetRackContractDetailWithNumber, GetUnitContractDetailWithNumber,
-    ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDetailAPIView,
-    UserDetailAPIView, TarifListAPIView, DeviceListAPIView, OfferCreateAPIView,
-    OfferDetailAPIView, GetGroupAdminDataAPIView, ServiceCreateAPIView, DocumentCreateAPIView, SavedServiceAPIView,
-    SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService, CreateContractFileAPIView, SavePkcs, GetContractFile,
-    GetUserContracts, GetContractFileWithID, ContractDetail, GetGroupContract, ConfirmContract,
-    ConnectMethodListAPIView, GetPinnedUserDataAPIView, AddOldContractsViews, MonitoringContractViews, TariffUpdateAPIView,
-    TariffCreateAPIView
+    ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDetailAPIView, UserDetailAPIView, TarifListAPIView,
+    DeviceListAPIView, OfferCreateAPIView, OfferDetailAPIView, GetGroupAdminDataAPIView, ServiceCreateAPIView,
+    DocumentCreateAPIView, SavedServiceAPIView, SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService,
+    CreateContractFileAPIView, SavePkcs, GetContractFile, GetUserContracts, GetContractFileWithID, ContractDetail,
+    GetGroupContract, ConfirmContract, ConnectMethodListAPIView, GetPinnedUserDataAPIView, AddOldContractsViews,
+    MonitoringContractViews, TariffUpdateAPIView, TariffCreateAPIView
 )
 
 
@@ -35,9 +34,7 @@ urlpatterns = [
 
     path('save-pkcs', SavePkcs.as_view(), name='SavePkcs'),
 
-    # path('contract', GetContractFile.as_view(), name='GetContractFile'),
     path('contract/<str:hash_code>', GetContractFile.as_view(), name='GetContractFile'),
-
     
     path('contract-file-by-id', GetContractFileWithID.as_view(), name='GetContractFileWithID'),
     path('contract-detail/<int:pk>', ContractDetail.as_view(), name='ContractDetail'),
@@ -56,5 +53,4 @@ urlpatterns = [
 
     path('tarif-create', TariffCreateAPIView.as_view(), name='TariffCreateAPIView'),
     path('tarif-update/<int:pk>', TariffUpdateAPIView.as_view(), name='TariffUpdateAPIView'),
-
 ]

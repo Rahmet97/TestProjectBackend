@@ -1127,13 +1127,7 @@ class GetUnitContractDetailWithNumber(APIView):
 
 
 # BackOffice da admin eski qog'ozdegi shartnomalarni scaner qilib tizimga qo'shadi
-def total_old_contract_price(
-        electricity,
-        tarif_pk,
-        tarif_count,
-        connect_method_pk,
-        connect_method_count=None,
-        if_tarif_is_unit=None):
+def total_old_contract_price(electricity, tarif_pk, tarif_count, connect_method_pk, connect_method_count=None, if_tarif_is_unit=None):
     tarif = Tarif.objects.get(id=tarif_pk.id)
     connect_method = ConnetMethod.objects.get(id=connect_method_pk.id)
 
