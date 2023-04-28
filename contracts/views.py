@@ -1127,7 +1127,8 @@ class GetUnitContractDetailWithNumber(APIView):
 
 
 # BackOffice da admin eski qog'ozdegi shartnomalarni scaner qilib tizimga qo'shadi
-def total_old_contract_price(electricity, tarif_pk, tarif_count, connect_method_pk, connect_method_count=None, if_tarif_is_unit=None):
+def total_old_contract_price(electricity, tarif_pk, tarif_count, connect_method_pk, connect_method_count=None,
+                             if_tarif_is_unit=None):
     tarif = Tarif.objects.get(id=tarif_pk.id)
     connect_method = ConnetMethod.objects.get(id=connect_method_pk.id)
 
@@ -1359,15 +1360,53 @@ class AddOldContractsViews(APIView):
 class MonitoringContractViews(APIView):
 
     @staticmethod
-    def get_objects(query_year=None):
-        contracts = Contract.objects.all()
+    def get_objects(
+            query_year=None, contract_number=None,
+            id_code=None, contract_date=None,
+            client_type=None, pin=None, tin=None,
+            payed_percentage=None
+    ):
+        # create an empty query object
+        query = Q()
+        # add more filter criteria to the query object using the | (OR) operator
+        if contract_number:
+            query |= Q(contract_number=contract_number)
+
+        if id_code:
+            query |= Q(id_code=id_code)
+
+        if contract_date:
+            query |= Q(contract_date=contract_date)
+
+        if client_type:  # FIZ = 1 YUR = 2
+            query |= Q(client__type=client_type)
+
+        if pin:
+            query |= Q(client__username=pin)
+
+        if tin:
+            query |= Q(client__username=tin)
+
+        # if payed_percentage:  # this condition does not work
+        #     query |= Q(payed_information__payed_percentage=payed_percentage)
 
         if query_year:
-            contracts = Contract.objects.filter(contract_date__year=query_year)
+            query |= Q(contract_date__year=query_year)
+
+        # execute the query and retrieve the matching books
+        contracts = Contract.objects.filter(query)
         return contracts
 
     def get(self, request):
-        year_q = request.GET.get("year")
-        contracts = self.get_objects(year_q)
+        contracts = self.get_objects(
+            query_year=request.GET.get("year"),
+            contract_number=request.GET.get("contract_number"),
+            id_code=request.GET.get("id_code"),
+            contract_date=request.GET.get("contract_date"),
+            client_type=request.GET.get("client_type"),
+            payed_percentage=request.GET.get("payed_percentage"),
+            pin=request.GET.get("pin"),
+            tin=request.GET.get("tin"),
+        )
         serializer = MonitoringContractSerializer(contracts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

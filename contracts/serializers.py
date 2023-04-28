@@ -343,5 +343,5 @@ class MonitoringContractSerializer(serializers.ModelSerializer):
             payed_information_objects, many=True, context={'contract_cash': instance.contract_cash}
         ).data,
 
-        representation["total_payed_percentage"] = (float(instance.payed_cash) * float(100))/float(instance.contract_cash)
+        # representation["total_payed_percentage"] = (float(instance.payed_cash) * float(100))/float(instance.contract_cash)
         return representation
