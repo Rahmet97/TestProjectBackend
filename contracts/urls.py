@@ -51,6 +51,8 @@ urlpatterns = [
     path('rack-contract-with-number', GetRackContractDetailWithNumber.as_view(), name='GetRackContractDetailWithNumber'),
     path('unit-contract-with-number', GetUnitContractDetailWithNumber.as_view(), name='GetUnitContractDetailWithNumber'),
 
-    path('tarif-create', TariffCreateAPIView.as_view(), name='TariffCreateAPIView'),
-    path('tarif-update/<int:pk>', TariffUpdateAPIView.as_view(), name='TariffUpdateAPIView'),
+    # path('tarif-create', TariffCreateAPIView.as_view(), name='TariffCreateAPIView'),
+    # path('tarif-update/<int:pk>', TariffUpdateAPIView.as_view(), name='TariffUpdateAPIView'),
+    path('tarifs', TariffCreateAPIView.as_view(), name='TariffCreateAPIView'),
+    path('tarifs/<int:pk>', TariffUpdateAPIView.as_view(), name='TariffUpdateAPIView'),
 ]

@@ -9,6 +9,7 @@ urlpatterns = [
          name="create-expertise-contract"),
 
     path('tarifs', views.ExpertiseTarifListAPIView.as_view(), name='TarifListAPIView'),
+    path('tarifs/<int:tarif_id>', views.ExpertiseTarifUpdateAPIView.as_view(), name='ExpertiseTarifUpdateAPIView'),
 
     # Endpoint to get details of an expertise service contract by its primary key
     path('contract-detail/<int:pk>', views.ExpertiseContractDetail.as_view(),

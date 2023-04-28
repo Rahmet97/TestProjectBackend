@@ -519,6 +519,18 @@ class ExpertiseTarifListAPIView(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
 
 
+class ExpertiseTarifUpdateAPIView(APIView):
+    serializer_class = ExpertiseTarifSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def patch(self, request, tarif_id):
+        queryset = ExpertiseTarif.objects.get(pk=tarif_id)
+        serializer = self.serializer_class(queryset, request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return response.Response(data={"message": "Object successfully update"}, status=status.HTTP_200_OK)
+
+
 # Agar client sharnomani rejected qilsa
 class ExpertiseContractRejectedViews(APIView):
     serializer_class = ExpertiseSummarySerializerForRejected
