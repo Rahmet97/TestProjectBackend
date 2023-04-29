@@ -1,10 +1,11 @@
+from decimal import Decimal
 from django.db import models
 
 from contracts.models import (
     Service, UserData, Role, AgreementStatus, 
     slugify_upload
 )
-
+from one_c.models import PayedInformation
 
 PRICE_SELECT_PERCENTAGE = (
     (50, 50),
@@ -53,9 +54,25 @@ class ExpertiseServiceContract(models.Model):
     def __str__(self):
         return self.contract_number
 
-    def get_new_id_code(self):
+    @staticmethod
+    def get_new_id_code():
         count = ExpertiseServiceContract.objects.all().count()
         return f"E{count + 1}"
+
+    @property
+    def total_payed_percentage(self):
+        payed_cash = float(0)
+        for obj in PayedInformation.objects.filter(contract_code=self.id_code):
+            payed_cash += float(obj.payed_cash)
+        return (payed_cash * float(100))/float(self.contract_cash)
+
+    # @property
+    # def total_payed_percentage(self):
+    #     payed_cash = Decimal(0)
+    #     for obj in PayedInformation.objects.filter(contract_code=self.id_code):
+    #         payed_cash += obj.payed_cash
+    #     payed_percentage = (payed_cash * Decimal(100)) / Decimal(self.contract_cash)
+    #     return float(payed_percentage)
 
     def save(self, *args, **kwargs):
         self.id_code = self.get_new_id_code()

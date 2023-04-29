@@ -1364,7 +1364,7 @@ class MonitoringContractViews(APIView):
             query_year=None, contract_number=None,
             id_code=None, contract_date=None,
             client_type=None, pin=None, tin=None,
-            payed_percentage=None
+            contract_cash=None
     ):
         # create an empty query object
         query = Q()
@@ -1390,6 +1390,9 @@ class MonitoringContractViews(APIView):
         # if payed_percentage:  # this condition does not work
         #     query |= Q(payed_information__payed_percentage=payed_percentage)
 
+        if contract_cash:
+            query |= Q(contract_cash=contract_cash)
+
         if query_year:
             query |= Q(contract_date__year=query_year)
 
@@ -1404,9 +1407,10 @@ class MonitoringContractViews(APIView):
             id_code=request.GET.get("id_code"),
             contract_date=request.GET.get("contract_date"),
             client_type=request.GET.get("client_type"),
-            payed_percentage=request.GET.get("payed_percentage"),
             pin=request.GET.get("pin"),
             tin=request.GET.get("tin"),
+            contract_cash=request.GET.get("contract_cash"),
+            # payed_percentage=request.GET.get("payed_percentage"),
         )
         serializer = MonitoringContractSerializer(contracts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

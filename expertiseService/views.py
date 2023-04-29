@@ -13,7 +13,7 @@ from django.shortcuts import render, get_object_or_404
 
 from drf_yasg.utils import swagger_auto_schema
 
-from rest_framework import response, status, generics
+from rest_framework import response, status, generics, permissions
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -46,7 +46,8 @@ from expertiseService.serializers import (
     ExpertiseContractSerializerForBackoffice,
     ExpertiseExpertSummarySerializerForSave,
     ExpertiseSummarySerializerForRejected,
-    ExpertisePkcsSerializer, ExpertiseTarifSerializer, ExpertiseServiceContractProjects
+    ExpertisePkcsSerializer, ExpertiseTarifSerializer, ExpertiseServiceContractProjects,
+    ExpertiseMonitoringContractSerializer
 )
 
 num2word = NumbersToWord()
@@ -615,3 +616,63 @@ class ExpertiseSavePkcs(APIView):
         except ExpertiseServiceContract.DoesNotExist:
             return response.Response({'message': 'Bunday shartnoma mavjud emas'})
         return response.Response({'message': 'Success'})
+
+
+class ExpertiseMonitoringContractViews(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    @staticmethod
+    def get_objects(
+            query_year=None, contract_number=None,
+            id_code=None, contract_date=None,
+            client_type=None, pin=None, tin=None,
+            contract_cash=None
+    ):
+        # create an empty query object
+        query = Q()
+        # add more filter criteria to the query object using the | (OR) operator
+        if contract_number:
+            query |= Q(contract_number=contract_number)
+
+        if id_code:
+            query |= Q(id_code=id_code)
+
+        if contract_date:
+            query |= Q(contract_date=contract_date)
+
+        if client_type:  # FIZ = 1 YUR = 2
+            query |= Q(client__type=client_type)
+
+        if pin:
+            query |= Q(client__username=pin)
+
+        if tin:
+            query |= Q(client__username=tin)
+
+        # if payed_percentage:  # this condition does not work
+        #     query |= Q(payed_information__payed_percentage=payed_percentage)
+
+        if contract_cash:
+            query |= Q(contract_cash=contract_cash)
+
+        if query_year:
+            query |= Q(contract_date__year=query_year)
+
+        # execute the query and retrieve the matching books
+        contracts = ExpertiseServiceContract.objects.filter(query)
+        return contracts
+
+    def get(self, request):
+        contracts = self.get_objects(
+            query_year=request.GET.get("year"),
+            contract_number=request.GET.get("contract_number"),
+            id_code=request.GET.get("id_code"),
+            contract_date=request.GET.get("contract_date"),
+            client_type=request.GET.get("client_type"),
+            pin=request.GET.get("pin"),
+            tin=request.GET.get("tin"),
+            contract_cash=request.GET.get("contract_cash"),
+            # payed_percentage=request.GET.get("payed_percentage"),
+        )
+        serializer = ExpertiseMonitoringContractSerializer(contracts, many=True)
+        return response.Response(serializer.data, status=status.HTTP_200_OK)

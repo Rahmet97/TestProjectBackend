@@ -1,4 +1,6 @@
-from rest_framework import serializers
+from datetime import datetime
+
+from rest_framework import serializers, status
 
 from accounts.models import FizUser, YurUser
 
@@ -11,6 +13,8 @@ from expertiseService.models import (
     ExpertiseServiceContract, ExpertiseServiceContractTarif,
     ExpertiseExpertSummaryDocument, ExpertisePkcs, ExpertiseTarif
 )
+from main.utils import responseErrorMessage
+from one_c.models import PayedInformation
 
 
 class ExpertiseTarifSerializer(serializers.ModelSerializer):
@@ -202,3 +206,42 @@ class ExpertisePkcsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExpertisePkcs
         fields = '__all__'
+
+
+# Serializer for monitoring contract
+# class PayedInformationSerializer(serializers.ModelSerializer):
+#     payed_percentage = serializers.SerializerMethodField()
+#     month_name = serializers.SerializerMethodField()
+#
+#     class Meta:
+#         model = PayedInformation
+#         # fields = "__all__"
+#         exclude = ["invoice"]
+#
+#     def get_payed_percentage(self, obj):
+#         contract_cash = self.context.get("contract_cash")
+#         if contract_cash is None:
+#             responseErrorMessage(message=None, status_code=status.HTTP_400_BAD_REQUEST)
+#         return (float(obj.payed_cash) * float(100)) / float(contract_cash)
+#
+#     @staticmethod
+#     def get_month_name(obj):
+#         date_object = datetime.fromisoformat(str(obj.payed_time))
+#         return date_object.strftime("%B")
+
+
+class ExpertiseMonitoringContractSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExpertiseServiceContract
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Customize the representation of your data here
+        # payed_information_objects = PayedInformation.objects.filter(contract_code=instance.id_code)
+        # representation['payed_information'] = PayedInformationSerializer(
+        #     payed_information_objects, many=True, context={'contract_cash': instance.contract_cash}
+        # ).data,
+
+        representation["total_payed_percentage"] = instance.total_payed_percentage
+        return representation
