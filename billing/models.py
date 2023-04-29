@@ -25,7 +25,7 @@ class BillingLog(models.Model):
 class InvoiceElements(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     is_automate = models.BooleanField(default=False)
-    date = models.DateField()
+    date = models.DateTimeField()
 
     def __str__(self):
         return f'{self.service.name}|{self.is_automate}|{self.date}'
