@@ -5,7 +5,7 @@ from .views import (
     GroupCreateAPIView, GroupUpdateDeleteAPIView, PinUserToGroupRole, RoleCreateAPIView,
     PermissionCreateAPIView, GroupListAPIView, PermissionListAPIView, RoleUpdateDeleteAPIView,
     PermissionUpdateDeleteAPIView, GroupDetailAPIView, UpdateYurUserAPIView, UpdateFizUserAPIView, 
-    GetBankNameAPIView, GetCurrentTimeAPIView, UniconDataAPIView
+    GetBankNameAPIView, GetCurrentTimeAPIView, UniconDataAPIView, RoleListAPIView
 )
 
 
