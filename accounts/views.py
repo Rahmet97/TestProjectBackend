@@ -1,6 +1,7 @@
 from datetime import datetime
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status, response, views, permissions
+from django.db.models import Q
 
 from .models import Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName, RolePermission
 from .permissions import SuperAdminPermission, WorkerPermission
@@ -44,9 +45,34 @@ class RoleCreateAPIView(views.APIView):
     permission_classes = (SuperAdminPermission,)
 
     def post(self, request):
-        group = request.POST.get('group', None)
+        group_id = request.POST.get('group', None)
         role_name = request.POST.get('role_name')
         permission_list = request.POST.get('permissions')
+
+        if Role.objects.filter(name=role_name).exists():
+            role = Role.objects.get(name=role_name)
+        else:
+            role = Role.objects.create(name=role_name)
+            role.save()
+
+        if group_id is not None:
+            group = Group.objects.get(pk=group_id)
+        else:
+            group = None
+
+        for permission in permission_list:
+            permission_detail = Permission.objects.get(pk=permission['permission_id'])
+            if not RolePermission.objects.filter(Q(group=group), Q(role=role), Q(permissions=permission_detail)).exists():
+                role_permission = RolePermission.objects.create(
+                    group=group,
+                    role=role,
+                    permissions=permission_detail,
+                    create=bool(int(permission['create'])),
+                    read=bool(int(permission['read'])),
+                    update=bool(int(permission['update'])),
+                    delete=bool(int(permission['delete']))
+                )
+                role_permission.save()
 
         return response.Response(status=200)
 
@@ -70,8 +96,12 @@ class PermissionListAPIView(generics.ListAPIView):
     # cache_backend = RedisCache
 
     def get_queryset(self, request):
-        # role_permissions = RolePermission.objects.filter()
-        queryset = Permission.objects.filter()
+        role_permissions = RolePermission.objects.filter(
+            Q(group=request.user.group),
+            Q(role=request.user.role),
+            (Q(create=True) | Q(read=True) | Q(update=True) | Q(delete=True))
+        ).values('permissions')
+        queryset = Permission.objects.filter(pk__in=role_permissions)
         return queryset
 
 
