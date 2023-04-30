@@ -95,10 +95,10 @@ class PermissionListAPIView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     # cache_backend = RedisCache
 
-    def get_queryset(self, request):
+    def get_queryset(self):
         role_permissions = RolePermission.objects.filter(
-            Q(group=request.user.group),
-            Q(role=request.user.role),
+            Q(group=self.request.user.group),
+            Q(role=self.request.user.role),
             (Q(create=True) | Q(read=True) | Q(update=True) | Q(delete=True))
         ).values('permissions')
         queryset = Permission.objects.filter(pk__in=role_permissions)
