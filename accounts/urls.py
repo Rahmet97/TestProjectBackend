@@ -11,6 +11,7 @@ from .views import (
 
 urlpatterns = [
     path('role-create', RoleCreateAPIView.as_view(), name='RoleCreate'),
+    path('roles', RoleListAPIView.as_view(), name='RoleList'),
     path('permission-create', PermissionCreateAPIView.as_view(), name='PermissionCreate'),
     path('group-create', GroupCreateAPIView.as_view(), name='CustomGroupCreate'),
     path('group-list', GroupListAPIView.as_view(), name='CustomGroupList'),

@@ -2,7 +2,7 @@ from datetime import datetime
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status, response, views, permissions
 
-from .models import Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName
+from .models import Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName, RolePermission
 from .permissions import SuperAdminPermission, WorkerPermission
 from .serializers import (
     GroupSerializer, RoleSerializer, PermissionSerializer, PinUserToGroupRoleSerializer,
@@ -34,10 +34,21 @@ class GroupDetailAPIView(generics.RetrieveAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
 
-class RoleCreateAPIView(generics.ListCreateAPIView):
+class RoleListAPIView(generics.ListAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
     permission_classes = (SuperAdminPermission,)
+
+
+class RoleCreateAPIView(views.APIView):
+    permission_classes = (SuperAdminPermission,)
+
+    def post(self, request):
+        group = request.POST.get('group', None)
+        role_name = request.POST.get('role_name')
+        permission_list = request.POST.get('permissions')
+
+        return response.Response(status=200)
 
 
 class RoleUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -53,10 +64,15 @@ class PermissionCreateAPIView(generics.CreateAPIView):
 
 
 class PermissionListAPIView(generics.ListAPIView):
-    queryset = Permission.objects.all()
+    # queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
     permission_classes = (permissions.IsAuthenticated,)
     # cache_backend = RedisCache
+
+    def get_queryset(self, request):
+        # role_permissions = RolePermission.objects.filter()
+        queryset = Permission.objects.filter()
+        return queryset
 
 
 class PermissionUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
