@@ -338,10 +338,12 @@ class MonitoringContractSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         # Customize the representation of your data here
+        representation['payed_information'] = None
         payed_information_objects = PayedInformation.objects.filter(contract_code=instance.id_code)
-        representation['payed_information'] = PayedInformationSerializer(
-            payed_information_objects, many=True, context={'contract_cash': instance.contract_cash}
-        ).data,
+        if payed_information_objects:
+            representation['payed_information'] = PayedInformationSerializer(
+                payed_information_objects, many=True, context={'contract_cash': instance.contract_cash}
+            ).data[0],
 
         # representation["total_payed_percentage"] = (float(instance.payed_cash) * float(100))/float(instance.contract_cash)
         return representation
