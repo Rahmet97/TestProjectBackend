@@ -179,11 +179,17 @@ class DeviceUnitDetail(generics.RetrieveAPIView):
         contract = Contract.objects.get(contract_number=unit.contract.contract_number)
         contract_serializer = ContractSerializerForBackoffice(contract)
         odf_count = UserContractTarifDevice.objects.get(contract=unit.contract).odf_count
+        if device.provider_contract:
+            device_contract_number = device.provider_contract.contract_number
+            device_contract_date= device.provider_contract.contract_date
+        else:
+            device_contract_number = None
+            device_contract_date = None
         data = {
             'device': serializer.data,
             'contract': contract_serializer.data,
-            'provider_contract_number': device.provider_contract.contract_number,
-            'provider_contract_date': device.provider_contract.contract_date,
+            'provider_contract_number': device_contract_number,
+            'provider_contract_date': device_contract_date,
             'odf_count': odf_count
         }
         return Response(data)
