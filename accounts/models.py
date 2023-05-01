@@ -30,6 +30,7 @@ class Group(models.Model):
     prefix = models.CharField(max_length=5)
     active_icon = models.ImageField(upload_to=slugify_upload, blank=True, null=True)
     inactive_icon = models.ImageField(upload_to=slugify_upload, blank=True, null=True)
+    is_one_time_payment = models.BooleanField(default=False, verbose_name="bir martalik to'lovmi?")
 
     def save(self, *args, **kwargs):
         if not self.slug:
