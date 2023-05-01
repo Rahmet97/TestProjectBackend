@@ -588,7 +588,7 @@ class CreateContractFileAPIView(APIView):
             context['save'] = True
             context['page_break'] = True
             context['contract_number'] = prefix + '-' + str(number)  # --
-
+            context['id_code'] = f'C{number}'
             hash_code = self.generate_hash_code(
                 text=f"{context.get('client_fullname')}{context.get('contract_number')}{context.get('u_type')}{datetime.now()}"
             )
