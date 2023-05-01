@@ -65,8 +65,8 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
         return Response(serializer.data)
 
     def put(self, request, *args, **kwargs):
-        provider_contract_number = request.data['provider_contract_number']
-        provider_contract_date = request.data['provider_contract_date']
+        provider_contract_number = request.data.get('provider_contract_number', None)
+        provider_contract_date = request.data.get('provider_contract_date', None)
         if ProviderContract.objects.filter(contract_number=provider_contract_number).exists():
             provider_contract = ProviderContract.objects.get(contract_number=provider_contract_number)
             request.data['provider_contract'] = provider_contract.id
