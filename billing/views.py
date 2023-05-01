@@ -1,4 +1,5 @@
 import math
+from _decimal import Decimal
 
 from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
@@ -131,9 +132,9 @@ class ExpertiseTariffSummAPIView(views.APIView):
 
     def calculate(self, projects):
 
-        total_cash = 0
+        total_cash = Decimal(0)
         for project in projects:
-            total_cash += self.get_cash(project)
+            total_cash += Decimal(self.get_cash(project))
         return total_cash
 
     def post(self, request):
