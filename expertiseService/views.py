@@ -125,7 +125,7 @@ class CreateExpertiseServiceContractView(APIView):
             link = 'http://' + request.META['HTTP_HOST'] + f'/contracts/contract/{hash_code}'
             qr_code_path = create_qr(link)
             context['hash_code'] = hash_code
-            context['qr_code'] = f"http://api.unicon.uz/media/qr/{hash_code}.png"
+            context['qr_code'] = f"http://api2.unicon.uz/media/qr/{hash_code}.png"
 
             # rendered html file
             contract_file_for_base64_pdf = None
