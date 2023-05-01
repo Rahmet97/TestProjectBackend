@@ -2,43 +2,45 @@ import math
 
 from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.generics import CreateAPIView, ListCreateAPIView, RetrieveUpdateAPIView
-from rest_framework.permissions import IsAuthenticated
+
+from rest_framework import generics, views, response, status, permissions
+
+from main.utils import responseErrorMessage
 
 from accounts.models import Group
+
 from billing.models import BillingLog, InvoiceElements
 from billing.serializers import RequestSerializer, InvoiceElementsSerializer
+
 from contracts.models import Tarif, Element, TarifLog, Service
 from contracts.serializers import TarifSerializer, ElementSerializer
 
 
-class ElementAPIView(ListCreateAPIView):
+class ElementAPIView(generics.ListCreateAPIView):
     queryset = Element.objects.all()
     serializer_class = ElementSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
 
-class ElementUpdateAPIView(RetrieveUpdateAPIView):
+class ElementUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = Element.objects.all()
     serializer_class = ElementSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
 
-class InvoiceElementsAPIView(ListCreateAPIView):
+class InvoiceElementsAPIView(generics.ListCreateAPIView):
     queryset = InvoiceElements.objects.all()
     serializer_class = InvoiceElementsSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
 
-class InvoiceElementsUpdateAPIView(RetrieveUpdateAPIView):
+class InvoiceElementsUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = InvoiceElements.objects.all()
     serializer_class = InvoiceElementsSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
 
-class ColocationTariffSummAPIView(APIView):
+class ColocationTariffSummAPIView(views.APIView):
     permission_classes = ()
 
     def post(self, request):
@@ -105,4 +107,44 @@ class ColocationTariffSummAPIView(APIView):
             ],
             'amount': amount
         }
-        return Response(data)
+        return response.Response(data)
+
+
+class ExpertiseTariffSummAPIView(views.APIView):
+    permission_classes = []
+
+    @staticmethod
+    def validate_data(projects):
+        for project in projects:
+            if project.get("is_discount") and project.get("discount_price") is None:
+                return False
+            if not project.get("is_discount") and project.get("price") is None:
+                return False
+        return True
+
+    @staticmethod
+    def get_cash(project):
+
+        if project["is_discount"] and project.get("discount_price") is not None:
+            return project["discount_price"]
+        return project["price"]
+
+    def calculate(self, projects):
+
+        total_cash = 0
+        for project in projects:
+            total_cash += self.get_cash(project)
+        return total_cash
+
+    def post(self, request):
+        projects = request.data.get("projects")
+
+        if not projects:
+            return responseErrorMessage(message="Fill in the input", status_code=status.HTTP_400_BAD_REQUEST)
+
+        if not self.validate_data(projects=projects):
+            return responseErrorMessage(message="Fill in the input", status_code=status.HTTP_400_BAD_REQUEST)
+
+        res = self.calculate(projects=projects)
+        return response.Response({"total_cash": res}, status=status.HTTP_200_OK)
+

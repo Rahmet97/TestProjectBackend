@@ -25,3 +25,12 @@ class InvoiceElementsSerializer(serializers.ModelSerializer):
     class Meta:
         model = InvoiceElements
         fields = '__all__'
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Add a custom field to the representation
+        data['group_service'] = {
+            "group": instance.service.group.name,
+            "service": instance.service.name
+        }
+        return data
