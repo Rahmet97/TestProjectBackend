@@ -85,6 +85,8 @@ def create_qr(link):
     )
     file_name = link.split('/')[-1]
     file_path = f"{settings.MEDIA_ROOT}/qr/"
+    print('88 >>>>', file_name)
+    print('89 >>>>', file_path)
     qr.add_data(link)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
