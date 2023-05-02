@@ -46,6 +46,8 @@ class InvoiceElementsSerializer(serializers.ModelSerializer):
 
         # update the instance's date field with the combined datetime object
         instance.date = combined_datetime
+        instance.service = validated_data("service", instance.service)
+        instance.is_automate = validated_data("is_automate", instance.is_automate)
 
         # save and return the updated instance
         instance.save()
