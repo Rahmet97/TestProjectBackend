@@ -38,7 +38,7 @@ class InvoiceElementsAPIView(generics.ListCreateAPIView):
 class InvoiceElementsUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = InvoiceElements.objects.all()
     serializer_class = InvoiceElementsSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    # permission_classes = (permissions.IsAuthenticated,)
 
 
 class ColocationTariffSummAPIView(views.APIView):
