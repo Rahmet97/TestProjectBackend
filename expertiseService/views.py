@@ -496,11 +496,13 @@ class ExpertiseGetContractFile(APIView):
                 contract.save()
 
             file_pdf_path, pdf_file_name = file_downloader(
-                bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'), contract.id)
+                base64file=bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'),
+                pk=contract.id,
+            )
             if os.path.exists(file_pdf_path):
                 with open(file_pdf_path, 'rb') as fh:
                     response = HttpResponse(fh.read(), content_type="application/pdf")
-                    response['Content-Disposition'] = f'attachment; filename="{pdf_file_name}"'
+                    response['Content-Disposition'] = f'attachment; filename={contract.contract_number}.pdf'
                     delete_file(file_pdf_path)
                     return response
         else:
