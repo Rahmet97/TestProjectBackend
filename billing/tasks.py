@@ -18,8 +18,9 @@ def send_periodic_request():
     try:
         url = 'http://django:8000/one-c/create-invoice'
         invoice_elements = InvoiceElements.objects.filter(Q(is_automate=True),
-                                                          (Q(date__gte=datetime.now() - timedelta(seconds=30)),
-                                                           Q(date__lte=datetime.now()))).values('service__name')
+                                                          Q(date__day=datetime.now().day()),
+                                                          (Q(date__time__gte=datetime.now().time() - timedelta(seconds=30)),
+                                                           Q(date__time__lte=datetime.now().time()))).values('service__name')
         print(invoice_elements)
         for invoice_element in invoice_elements:
             if 'Co-location' in invoice_element.values():
