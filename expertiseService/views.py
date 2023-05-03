@@ -122,10 +122,30 @@ class CreateExpertiseServiceContractView(APIView):
                 text=f"{context.get('user_obj').get_director_short_full_name}{context.get('contract_number')}{context.get('u_type')}{datetime.now()}"
             )
 
-            link = 'http://' + request.META['HTTP_HOST'] + f'/contracts/contract/{hash_code}'
+            link = 'http://' + request.META['HTTP_HOST'] + f'/expertise/contract/{hash_code}'
             qr_code_path = create_qr(link)
             context['hash_code'] = hash_code
             context['qr_code'] = f"http://api2.unicon.uz/media/qr/{hash_code}.png"
+
+            # Contract yaratib olamiz bazada id_code olish uchun
+            user_stir = request_objects_serializers.validated_data.pop('stir')
+            projects_data = request_objects_serializers.validated_data.pop('projects')
+
+            client = UserData.objects.get(username=user_stir)
+            expertise_service_contract = ExpertiseServiceContract.objects.create(
+                **request_objects_serializers.validated_data,
+                service_id=int(request.data['service_id']),
+                client=client,
+                status=4,
+                contract_status=0,
+                payed_cash=0,
+                # base64file=base64code,
+                hashcode=hash_code,
+                # like_preview_pdf=like_preview_pdf_path
+            )
+            expertise_service_contract.save()
+
+            context['id_code'] = expertise_service_contract.id_code
 
             # rendered html file
             contract_file_for_base64_pdf = None
@@ -167,24 +187,8 @@ class CreateExpertiseServiceContractView(APIView):
             if like_preview_pdf_path is None:
                 error_response_500()
 
-            projects_data = request_objects_serializers.validated_data.pop('projects')
-            user_stir = request_objects_serializers.validated_data.pop('stir')
-            client = UserData.objects.get(username=user_stir)
-
-            # Script code ni togirlash kk
-            expertise_service_contract = ExpertiseServiceContract.objects.create(
-                **request_objects_serializers.validated_data,
-
-                service_id=int(request.data['service_id']),
-                client=client,
-                status=4,
-                contract_status=0,
-
-                payed_cash=0,
-                base64file=base64code,
-                hashcode=hash_code,
-                like_preview_pdf=like_preview_pdf_path
-            )
+            expertise_service_contract.base64file = base64code
+            expertise_service_contract.like_preview_pdf = like_preview_pdf_path
             expertise_service_contract.save()
 
             for project_data in projects_data:
