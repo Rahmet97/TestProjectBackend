@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.utils import timezone
 
 from rest_framework import serializers
 from django.contrib.postgres.fields import ArrayField
@@ -33,6 +34,26 @@ class InvoiceElementsSerializer(serializers.ModelSerializer):
         # fields = '__all__'
         exclude = ["date"]
 
+    # def update(self, instance, validated_data):
+    #     # extract the date and time fields from the validated data
+    #     day_time = validated_data.get('day_time', instance.date.date())
+    #     time = validated_data.get('time', instance.date.time())
+    #
+    #     # get the time component of the time field using datetime.time()
+    #     time_component = time.time() if isinstance(time, datetime) else time
+    #
+    #     # combine the date and time fields into a single datetime object
+    #     combined_datetime = datetime.combine(day_time, time_component)
+    #
+    #     # update the instance's date field with the combined datetime object
+    #     instance.date = combined_datetime
+    #     instance.service = validated_data.get("service", instance.service.pk)
+    #     instance.is_automate = validated_data.get("is_automate", instance.is_automate)
+    #
+    #     # save and return the updated instance
+    #     instance.save()
+    #     return instance
+
     def update(self, instance, validated_data):
         # extract the date and time fields from the validated data
         day_time = validated_data.get('day_time', instance.date.date())
@@ -42,7 +63,9 @@ class InvoiceElementsSerializer(serializers.ModelSerializer):
         time_component = time.time() if isinstance(time, datetime) else time
 
         # combine the date and time fields into a single datetime object
-        combined_datetime = datetime.combine(day_time, time_component)
+        combined_datetime = timezone.make_aware(
+            datetime.combine(day_time, time_component), timezone.get_current_timezone()
+        )
 
         # update the instance's date field with the combined datetime object
         instance.date = combined_datetime
@@ -77,6 +100,8 @@ class InvoiceElementsSerializer(serializers.ModelSerializer):
             "group": instance.service.group.name,
             "service": instance.service.name
         }
-        data['day_time'] = instance.date.date()
-        data['time'] = instance.date.time()
+        # Convert the datetime object to the local time zone
+        local_time = timezone.localtime(instance.date)
+        data['day_time'] = local_time.date()
+        data['time'] = local_time.time()
         return data
