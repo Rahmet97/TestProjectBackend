@@ -625,7 +625,7 @@ class ExpertiseSavePkcs(APIView):
 
 
 class ExpertiseMonitoringContractViews(APIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAuthenticated]
 
     @staticmethod
     def get_objects(
@@ -682,3 +682,9 @@ class ExpertiseMonitoringContractViews(APIView):
         )
         serializer = ExpertiseMonitoringContractSerializer(contracts, many=True)
         return response.Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ExpertiseMonitoringContractDetailViews(generics.RetrieveAPIView):
+    queryset = ExpertiseServiceContract.objects.all()
+    serializer_class = ExpertiseMonitoringContractSerializer
+    permission_classes = [IsAuthenticated]

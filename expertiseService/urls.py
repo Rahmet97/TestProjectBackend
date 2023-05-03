@@ -8,7 +8,11 @@ urlpatterns = [
          views.CreateExpertiseServiceContractView.as_view(),
          name="create-expertise-contract"),
 
-    path('contract-monitoring', views.ExpertiseMonitoringContractViews.as_view(), name='ExpertiseMonitoringContractViews'),
+    path('contract-monitoring', views.ExpertiseMonitoringContractViews.as_view(),
+         name='ExpertiseMonitoringContractViews'),
+
+    path('contract-monitoring/<int:pk>', views.ExpertiseMonitoringContractDetailViews.as_view(),
+         name='ExpertiseMonitoringContractViews'),
 
     path('tarifs', views.ExpertiseTarifListAPIView.as_view(), name='TarifListAPIView'),
     path('tarifs/<int:tarif_id>', views.ExpertiseTarifUpdateAPIView.as_view(), name='ExpertiseTarifUpdateAPIView'),

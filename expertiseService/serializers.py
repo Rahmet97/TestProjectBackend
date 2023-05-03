@@ -244,4 +244,5 @@ class ExpertiseMonitoringContractSerializer(serializers.ModelSerializer):
         # ).data,
 
         representation["total_payed_percentage"] = instance.total_payed_percentage
+        representation["arrearage"] = instance.get_arrearage
         return representation

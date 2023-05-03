@@ -1352,6 +1352,7 @@ class AddOldContractsViews(APIView):
 
 
 class MonitoringContractViews(APIView):
+    permission_classes = [IsAuthenticated]
 
     @staticmethod
     def get_objects(
@@ -1408,3 +1409,9 @@ class MonitoringContractViews(APIView):
         )
         serializer = MonitoringContractSerializer(contracts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class MonitoringContractDetailViews(generics.RetrieveAPIView):
+    queryset = Contract.objects.all()
+    serializer_class = MonitoringContractSerializer
+    permission_classes = [IsAuthenticated]
