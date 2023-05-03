@@ -57,6 +57,39 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'image', 'user_type', 'period', 'need_documents', 'group', 'is_saved')
 
 
+class ServiceCreateSerializer(serializers.ModelSerializer):
+    # need_documents = DocumentSerializer(many=True)
+    # group = GroupSerializer()
+    user_type = serializers.SerializerMethodField()
+    # is_saved = serializers.SerializerMethodField()
+
+    def get_user_type(self, obj):
+        user_type_mapping = {
+            1: "Jismoniy",
+            2: "Yuridik"
+        }
+        return user_type_mapping.get(
+            obj.user_type, "Jismoniy va Yuridik"
+        )
+
+    # def get_is_saved(self, obj):
+    #     request = self.context.get('request')
+    #     if request and request.user.is_authenticated:
+    #
+    #         saved_service = SavedService.objects.filter(
+    #             user=request.user,
+    #             services=obj
+    #         ).exists()
+    #
+    #         return saved_service
+    #     return False
+
+    class Meta:
+        model = Service
+        # fields = ('id', 'name', 'description', 'image', 'user_type', 'period', 'need_documents', 'group', 'is_saved')
+        fields = "__all__"
+
+
 class ServiceSerializerForContract(serializers.ModelSerializer):
     class Meta:
         model = Service

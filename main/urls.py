@@ -9,4 +9,7 @@ urlpatterns = [
 
     # Retrieve a single application by its pk
     path("application/detail/<int:pk>/", views.ApplicationRetrieveView.as_view(), name="application-detail"),
+
+    # Need Document Create and List api
+    path('document-create-list', views.DocumentCreateListAPIView.as_view(), name='DocumentCreateListAPIView'),
 ]

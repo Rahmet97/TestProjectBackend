@@ -44,7 +44,7 @@ from .serializers import (
     ContractSerializerForContractList, ContractSerializerForBackoffice, ExpertSummarySerializer,
     ContractParticipantsSerializers, ExpertSummarySerializerForSave, ContractSerializerForDetail,
     ConnectMethodSerializer, AddOldContractSerializers, UserOldContractTarifDeviceSerializer,
-    MonitoringContractSerializer
+    MonitoringContractSerializer, ServiceCreateSerializer
 )
 
 from .utils import (
@@ -208,14 +208,8 @@ class GetPinnedUserDataAPIView(APIView):
 
 class ServiceCreateAPIView(generics.CreateAPIView):
     queryset = Service.objects.all()
-    serializer_class = ServiceSerializer
+    serializer_class = ServiceCreateSerializer
     permission_classes = (SuperAdminPermission,)
-
-
-class DocumentCreateAPIView(generics.CreateAPIView):
-    queryset = Document.objects.all()
-    serializer_class = DocumentSerializer
-    permission_classes = (AdminPermission,)
 
 
 class SavedServiceAPIView(APIView):

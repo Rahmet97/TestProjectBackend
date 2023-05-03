@@ -4,7 +4,7 @@ from contracts.views import (
     DeleteUserContract, GetRackContractDetailWithNumber, GetUnitContractDetailWithNumber,
     ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDetailAPIView, UserDetailAPIView, TarifListAPIView,
     DeviceListAPIView, OfferCreateAPIView, OfferDetailAPIView, GetGroupAdminDataAPIView, ServiceCreateAPIView,
-    DocumentCreateAPIView, SavedServiceAPIView, SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService,
+    SavedServiceAPIView, SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService,
     CreateContractFileAPIView, SavePkcs, GetContractFile, GetUserContracts, GetContractFileWithID, ContractDetail,
     GetGroupContract, ConfirmContract, ConnectMethodListAPIView, GetPinnedUserDataAPIView, AddOldContractsViews,
     MonitoringContractViews, TariffUpdateAPIView, TariffCreateAPIView
@@ -23,7 +23,7 @@ urlpatterns = [
     path('group-admin', GetGroupAdminDataAPIView.as_view(), name='GetGroupAdminDataAPIView'),
     path('group-pinned-user', GetPinnedUserDataAPIView.as_view(), name='GetPinnedUserDataAPIView'),
     path('service-create', ServiceCreateAPIView.as_view(), name='ServiceCreateAPIView'),
-    path('document-create', DocumentCreateAPIView.as_view(), name='DocumentAPIView'),
+
     path('saved-service', SavedServiceAPIView.as_view(), name='SavedServiceAPIView'),
     path('selected-tarif-devices', SelectedTarifDevicesAPIView.as_view(), name='SelectedTarifDevicesAPIView'),
     path('tarif-elements-devices', TarifAPIView.as_view(), name='TarifAPIView'),

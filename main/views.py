@@ -2,11 +2,25 @@ from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, response, generics
 
+from accounts.permissions import AdminPermission
+from contracts.serializers import DocumentSerializer
 from main.utils import responseErrorMessage
 from main.permission import IsAndPinnedToService, PERMITED_ROLES
 from .models import Application
-from contracts.models import Service
+from contracts.models import Service, Document
 from .serializers import ApplicationSerializer
+
+
+# class DocumentCreateAPIView(generics.CreateAPIView):
+#     queryset = Document.objects.all()
+#     serializer_class = DocumentSerializer
+#     permission_classes = (AdminPermission,)
+
+
+class DocumentCreateListAPIView(generics.ListCreateAPIView):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+    permission_classes = (AdminPermission,)
 
 
 class ApplicationCreateView(CreateAPIView):
