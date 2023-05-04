@@ -13,7 +13,6 @@ from contracts.models import Contract, UserContractTarifDevice, UserDeviceCount,
 from expertiseService.models import ExpertiseServiceContract
 from one_c.models import Invoice, Status, Nomenclature, PayedInformation
 
-
 load_dotenv()
 
 

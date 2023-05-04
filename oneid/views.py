@@ -5,11 +5,12 @@ import requests
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from dotenv import load_dotenv
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework import status, permissions, response, views
+
 from rest_framework_simplejwt import tokens
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from main.utils import responseErrorMessage
 
 from accounts.models import UserData, FizUser, YurUser, Role
 from accounts.serializers import FizUserSerializer, YurUserSerializer
@@ -17,7 +18,7 @@ from accounts.serializers import FizUserSerializer, YurUserSerializer
 load_dotenv()
 
 
-class OneIDLoginView(APIView):
+class OneIDLoginView(views.APIView):
     permission_classes = ()
 
     def get(self, request):
@@ -31,7 +32,7 @@ class OneIDLoginView(APIView):
         return redirect(url)
 
 
-class LoginView(APIView):
+class LoginView(views.APIView):
     permission_classes = ()
 
     def post(self, request):
@@ -49,12 +50,10 @@ class LoginView(APIView):
             'code': code
         })
 
-        print(json.loads(res.content))
-
         return JsonResponse(json.loads(res.content))
 
 
-class GetUser(APIView):
+class GetUser(views.APIView):
     permission_classes = ()
 
     def kiril2latin(self, text):
@@ -66,38 +65,72 @@ class GetUser(APIView):
         return response.json()
 
     def post(self, request):
+        is_client = request.data.get("is_client", None)
+        if is_client is None:
+            responseErrorMessage(message="is_client is required", status_code=status.HTTP_400_BAD_REQUEST)
         grant_type = 'one_access_token_identify'
         client_id = os.getenv("CLIENT_ID")
         client_secret = os.getenv('CLIENT_SECRET')
         access_token = request.META.get("HTTP_X_AUTHENTICATION")
-        is_client = request.data["is_client"]
         scope = os.getenv("SCOPE")
         base_url = os.getenv("BASE_URL")
-        res = requests.post(base_url, {"grant_type": grant_type, "client_id": client_id, "client_secret": client_secret,
-                                       "access_token": access_token, "scope": scope})
+        res = requests.post(base_url, {
+            "grant_type": grant_type,
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "access_token": access_token,
+            "scope": scope
+        })
         if res.status_code == 200:
-            data = json.loads(res.content)
-            if data['legal_info']:
+            # data = json.loads(res.content)
+            # if data['legal_info']:
+            #     username = data['legal_info'][0]['tin']
+            #     password = data['first_name'][0] + data['legal_info'][0]['tin'] + data['first_name'][-1]
+            # else:
+            #     username = data['pin']
+            #     password = data['first_name'][0] + data['pin'] + data['first_name'][-1]
+
+            data = res.json()
+            if data.get('legal_info'):
                 username = data['legal_info'][0]['tin']
-                password = data['first_name'][0] + data['legal_info'][0]['tin'] + data['first_name'][-1]
             else:
                 username = data['pin']
-                password = data['first_name'][0] + data['pin'] + data['first_name'][-1]
+
+            first_name = data['first_name']
+            password = f"{first_name[0]}{username}{first_name[-1]}"
 
             # UserData table ga yangi kirgan userni ma'lumotlarini yozish
 
-            if UserData.objects.filter(username=username).exists():
+            # if UserData.objects.filter(username=username).exists():
+            #     user = UserData.objects.get(username=username)
+            # else:
+            #     if int(is_client):
+            #         client_role = Role.objects.get(name='mijoz')
+            #     else:
+            #         client_role = None
+            #     if data['legal_info']:
+            #         user = UserData.objects.create_user(username=username, password=password, type=2, role=client_role)
+            #     else:
+            #         user = UserData.objects.create_user(username=username, password=password, type=1, role=client_role)
+            # print(data)
+
+            try:
                 user = UserData.objects.get(username=username)
-            else:
-                if int(is_client):
-                    client_role = Role.objects.get(name='mijoz')
-                else:
-                    client_role = None
-                if data['legal_info']:
-                    user = UserData.objects.create_user(username=username, password=password, type=2, role=client_role)
-                else:
-                    user = UserData.objects.create_user(username=username, password=password, type=1, role=client_role)
-            print(data)
+            except UserData.DoesNotExist:
+                client_role = Role.objects.get(name='mijoz') if int(is_client) else None
+                user_type = 2 if data['legal_info'] else 1
+                user = UserData.objects.create_user(
+                    username=username,
+                    password=password,
+                    type=user_type,
+                    role=client_role
+                )
+            if not is_client and user.status_action == 1:
+                user.status_action = 2
+                user.save()
+
+            # if (user.status_action != 3 or str(user.role.name).lower() == "mijoz") and not is_client:
+            #     responseErrorMessage(message="you are not employee", status_code=status.HTTP_400_BAD_REQUEST)
 
             data['userdata'] = user.id
             data['pport_issue_date'] = json.loads(res.content)['_pport_issue_date']
@@ -143,8 +176,8 @@ class GetUser(APIView):
             return JsonResponse({"error": "Xatolik!"})
 
 
-class Logout(APIView):
-    permission_classes = (IsAuthenticated,)
+class Logout(views.APIView):
+    permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
         grant_type = 'one_log_out'
@@ -166,4 +199,4 @@ class Logout(APIView):
         token = RefreshToken(refresh_token)
         token.blacklist()
 
-        return Response(status=205)
+        return response.Response(status=205)

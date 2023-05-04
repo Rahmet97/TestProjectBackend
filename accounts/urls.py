@@ -4,8 +4,9 @@ from django.urls import path
 from .views import (
     GroupCreateAPIView, GroupUpdateDeleteAPIView, PinUserToGroupRole, RoleCreateAPIView,
     PermissionCreateAPIView, GroupListAPIView, PermissionListAPIView, RoleUpdateDeleteAPIView,
-    PermissionUpdateDeleteAPIView, GroupDetailAPIView, UpdateYurUserAPIView, UpdateFizUserAPIView, 
-    GetBankNameAPIView, GetCurrentTimeAPIView, UniconDataAPIView, RoleListAPIView
+    PermissionUpdateDeleteAPIView, GroupDetailAPIView, UpdateYurUserAPIView, UpdateFizUserAPIView,
+    GetBankNameAPIView, GetCurrentTimeAPIView, UniconDataAPIView, RoleListAPIView, GetUsersForBackOffice,
+    GetUsersDetailForBackOffice
 )
 
 
@@ -25,6 +26,9 @@ urlpatterns = [
     path('update-fizuser/<int:pk>', UpdateFizUserAPIView.as_view(), name='UpdateFizUserAPIView'),
     path('get-bank', GetBankNameAPIView.as_view(), name='GetBankNameAPIView'),
     path('current-time', GetCurrentTimeAPIView.as_view(), name='GetCurrentTimeAPIView'),
+
+    path('get-users', GetUsersForBackOffice.as_view(), name='GetUsersForBackOffice'),
+    path('get-users/<int:pk>', GetUsersDetailForBackOffice.as_view(), name='GetUsersDetailForBackOffice'),
 
     path('unicon-data', UniconDataAPIView.as_view(), name="unicon-data")
 ]
