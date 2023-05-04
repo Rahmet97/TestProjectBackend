@@ -13,6 +13,8 @@ from contracts.models import Contract, UserContractTarifDevice, UserDeviceCount,
 from expertiseService.models import ExpertiseServiceContract
 from one_c.models import Invoice, Status, Nomenclature, PayedInformation
 
+from TestProjectBackend.contracts.models import Contract
+
 load_dotenv()
 
 
@@ -64,10 +66,11 @@ class CreateInvoiceAPIView(views.APIView):
             customer_mfo = user.bank_mfo.mfo
         
         products = None
-        if str(contract_id_code).upper().startswith("C", 0, 2):  # co-lication
+        if str(contract_id_code).upper().startswith("C", 0, 2):  # co-location
 
             user_contract_tarif_device = UserContractTarifDevice.objects.get(contract=contract)
-            if invoice.contract.tarif.name == 'Rack-1':
+            contract = Contract.objects.get(id_code=contract_id_code)
+            if contract.tarif.name == 'Rack-1':
                 quantity = user_contract_tarif_device.rack_count
             else:
                 quantity = 0
