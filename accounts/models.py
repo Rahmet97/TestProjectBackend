@@ -42,7 +42,7 @@ class Departament(models.Model):
 
 
 class Group(models.Model):
-    full_name = models.CharField(max_length=255)
+    full_name = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=100)
     slug = models.CharField(max_length=100, blank=True)
     comment = models.TextField()
