@@ -37,7 +37,7 @@ class CreateInvoiceAPIView(views.APIView):
             customer=contract.client,
             number=f'{contract.id_code}/{str(datetime.now().month).zfill(2)}{datetime.now().year % 100}',
             # contract=contract,
-            contract_id_code=contract_id_code,
+            contract_code=contract_id_code,
             status=Status.objects.get(name='Yangi')
         )
         invoice.save()
