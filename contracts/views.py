@@ -1102,7 +1102,7 @@ class GetUnitContractDetailWithNumber(APIView):
             sum += i.device_count * i.units_count
             electricity += i.electricity * i.units_count
         empty_electricity = DeviceUnit.objects.filter(
-            rack__unit__contract=contract).aggregate(Sum('electricity'))
+            rack__unit__contract=contract).exclude(status__name='qaytarilgan').aggregate(Sum('electricity'))
         empty = sum - Unit.objects.filter(Q(is_busy=True), Q(contract=contract)).count()
         odf_count = user_contract_tariff_device.odf_count
         provider = ConnetMethod.objects.get(
@@ -1415,3 +1415,14 @@ class MonitoringContractDetailViews(generics.RetrieveAPIView):
     queryset = Contract.objects.all()
     serializer_class = MonitoringContractSerializer
     permission_classes = [IsAuthenticated]
+
+
+class EndContractAPIView(APIView):
+    def post(self, request):
+        contract_id = request.POST.get('contract_id', None)
+        expiration_date = request.POST.get('expiration_date', None)
+
+        contract = Contract.objects.get(pk=contract_id)
+        contract.expiration_date = expiration_date
+        contract.save()
+        return Response(status=200)

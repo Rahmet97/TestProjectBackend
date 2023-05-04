@@ -37,7 +37,7 @@ class CreateInvoiceAPIView(views.APIView):
             customer=contract.client,
             number=f'{contract.id_code}/{str(datetime.now().month).zfill(2)}{datetime.now().year % 100}',
             # contract=contract,
-            contract_id_code=contract_id_code,
+            contract_code=contract_id_code,
             status=Status.objects.get(name='Yangi')
         )
         invoice.save()
@@ -64,10 +64,11 @@ class CreateInvoiceAPIView(views.APIView):
             customer_mfo = user.bank_mfo.mfo
         
         products = None
-        if str(contract_id_code).upper().startswith("c", 0, 2):  # co-lication
+        if str(contract_id_code).upper().startswith("C", 0, 2):  # co-location
 
             user_contract_tarif_device = UserContractTarifDevice.objects.get(contract=contract)
-            if invoice.contract.tarif.name == 'Rack-1':
+            contract = Contract.objects.get(id_code=contract_id_code)
+            if contract.tarif.name == 'Rack-1':
                 quantity = user_contract_tarif_device.rack_count
             else:
                 quantity = 0
@@ -82,7 +83,7 @@ class CreateInvoiceAPIView(views.APIView):
                 "amountVAT": float(contract.contract_cash) / 1.12 * 0.12
             }]
 
-        elif str(contract_id_code).upper().startswith("e", 0, 2):  # expertise
+        elif str(contract_id_code).upper().startswith("E", 0, 2):  # expertise
             products = [{
                 "nomenclatureID": Nomenclature.objects.get(service=contract.service).nomenclature,
                 "quantity": contract.expertisetarifcontract_set.count(),
@@ -107,8 +108,9 @@ class CreateInvoiceAPIView(views.APIView):
             "fullnumber": contract.id_code,
             "products": products
         }
-        response = requests.get(url, headers=headers, data=json.dumps(data))
-        return response.Response(response.content)
+        print(data)
+        rspns = requests.get(url, headers=headers, data=json.dumps(data))
+        return response.Response(rspns.content)
 
 
 class UpdateInvoiceStatus(views.APIView):

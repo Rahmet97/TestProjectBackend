@@ -11,6 +11,8 @@ from expertiseService.models import ExpertiseServiceContract
 
 from celery.utils.log import get_task_logger
 
+from contracts.models import ContractStatus
+
 logger = get_task_logger(__name__)
 
 
@@ -70,3 +72,19 @@ def send_periodic_request():
     except Exception as e:
         return f'{e}'
     return 'Done'  # response.text
+
+
+@shared_task
+def contract_end():
+    now = datetime.now()
+    time_30_seconds_ago = now - timedelta(seconds=30)
+
+    query = Q(
+        expiration_date__gte=time_30_seconds_ago,
+        expiration_date__lte=now.time(),
+    )
+    contracts = Contract.objects.filter(query)
+    for contract in contracts:
+        contract.contract_status = ContractStatus.objects.get(name='Yakunlangan')
+        contract.save()
+    return "Done"
