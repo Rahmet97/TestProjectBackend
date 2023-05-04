@@ -64,7 +64,7 @@ class CreateInvoiceAPIView(views.APIView):
             customer_mfo = user.bank_mfo.mfo
         
         products = None
-        if str(contract_id_code).upper().startswith("c", 0, 2):  # co-lication
+        if str(contract_id_code).upper().startswith("C", 0, 2):  # co-lication
 
             user_contract_tarif_device = UserContractTarifDevice.objects.get(contract=contract)
             if invoice.contract.tarif.name == 'Rack-1':
@@ -82,7 +82,7 @@ class CreateInvoiceAPIView(views.APIView):
                 "amountVAT": float(contract.contract_cash) / 1.12 * 0.12
             }]
 
-        elif str(contract_id_code).upper().startswith("e", 0, 2):  # expertise
+        elif str(contract_id_code).upper().startswith("E", 0, 2):  # expertise
             products = [{
                 "nomenclatureID": Nomenclature.objects.get(service=contract.service).nomenclature,
                 "quantity": contract.expertisetarifcontract_set.count(),
