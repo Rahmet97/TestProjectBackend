@@ -79,18 +79,18 @@ class CreateInvoiceAPIView(views.APIView):
             products = [{
                 "nomenclatureID": Nomenclature.objects.get(service=contract.service).nomenclature,
                 "quantity": quantity,
-                "Price": float(contract.tarif.price),
-                "amount": float(contract.contract_cash) / 1.12,
-                "amountVAT": float(contract.contract_cash) / 1.12 * 0.12
+                "Price": round(float(contract.tarif.price), 3),
+                "amount": round(float(contract.contract_cash) / 1.12, 3),
+                "amountVAT": round(float(contract.contract_cash) / 1.12 * 0.12, 3)
             }]
 
         elif str(contract_id_code).upper().startswith("E", 0, 2):  # expertise
             products = [{
                 "nomenclatureID": Nomenclature.objects.get(service=contract.service).nomenclature,
                 "quantity": contract.expertisetarifcontract_set.count(),
-                "Price": float(contract.contract_cash),
-                "amount": float(contract.contract_cash) / 1.12,
-                "amountVAT": float(contract.contract_cash) / 1.12 * 0.12
+                "Price": round(float(contract.contract_cash), 3),
+                "amount": round(float(contract.contract_cash) / 1.12, 3),
+                "amountVAT": round(float(contract.contract_cash) / 1.12 * 0.12, 3)
             }]
 
         data = {
@@ -105,7 +105,7 @@ class CreateInvoiceAPIView(views.APIView):
             "invoiceDate": str(invoice.date).replace(' ', 'T').split('.')[0],
             "invoiceNum": f'{contract.id_code}/{invoice.number}',
             "сontractID": contract.contract_number,
-            "agreementdate": str(contract.contract_date).replace(' ', 'T').split('+')[0],
+            "agreementdate": str(contract.contract_date).replace(' ', 'T').split('+')[0].split('.')[0],
             "fullnumber": contract.id_code,
             "products": products
         }
