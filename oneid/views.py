@@ -125,11 +125,12 @@ class GetUser(views.APIView):
                     type=user_type,
                     role=client_role
                 )
-                if not is_client and user.status_action == 1:
-                    user.status_action = 2
-                    user.save()
-            if (user.status_action != 3 or str(user.role.name).lower() == "mijoz") and not is_client:
-                responseErrorMessage(message="you are not employee", status_code=status.HTTP_400_BAD_REQUEST)
+            if not is_client and user.status_action == 1:
+                user.status_action = 2
+                user.save()
+
+            # if (user.status_action != 3 or str(user.role.name).lower() == "mijoz") and not is_client:
+            #     responseErrorMessage(message="you are not employee", status_code=status.HTTP_400_BAD_REQUEST)
 
             data['userdata'] = user.id
             data['pport_issue_date'] = json.loads(res.content)['_pport_issue_date']
