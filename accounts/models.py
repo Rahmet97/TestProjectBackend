@@ -7,30 +7,54 @@ from django.template.defaultfilters import slugify
 from .managers import CustomUserManager
 
 
+# def slugify_upload(instance, filename):
+#     folder = instance._meta.model.__name__
+#     name, ext = splitext(filename)
+#     try:
+#
+#         name_t = slugify(name)
+#         if name_t is None:
+#             name_t = name
+#         path = folder + "/" + name_t + ext
+#     except:
+#         path = folder + "/default" + ext
+#
+#     return path
+
 def slugify_upload(instance, filename):
-    folder = instance._meta.model.__name__
+    folder = instance._meta.model_name
     name, ext = splitext(filename)
-    try:
+    name_t = slugify(name) or name
+    return f"{folder}/{name_t}{ext}"
 
-        name_t = slugify(name)
-        if name_t is None:
-            name_t = name
-        path = folder + "/" + name_t + ext
-    except:
-        path = folder + "/default" + ext
 
-    return path
+class Departament(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(null=True, blank=True, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 
 class Group(models.Model):
+    full_name = models.CharField(max_length=255)
     name = models.CharField(max_length=100)
     slug = models.CharField(max_length=100, blank=True)
     comment = models.TextField()
-    created_date = models.DateTimeField(auto_now_add=True)
     prefix = models.CharField(max_length=5)
+
     active_icon = models.ImageField(upload_to=slugify_upload, blank=True, null=True)
     inactive_icon = models.ImageField(upload_to=slugify_upload, blank=True, null=True)
+
     is_one_time_payment = models.BooleanField(default=False, verbose_name="bir martalik to'lovmi?")
+    is_visible_in_front = models.BooleanField(default=False)
+
+    created_date = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -39,6 +63,14 @@ class Group(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class DepartamentGroup(models.Model):
+    departament = models.ForeignKey(to=Departament, related_name="departament_croup", on_delete=models.CASCADE)
+    group = models.ForeignKey(to="Group", related_name="croup_departament", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.departament.name} -> {self.group.full_name}|{self.group.name}"
 
 
 class Permission(models.Model):
@@ -74,6 +106,11 @@ class RolePermission(models.Model):
 
 
 class UserData(AbstractUser):
+    class StatusChoices(models.IntegerChoices):
+        CLIENT = 1, "Mijoz"
+        WAITING_LIST = 2, "Kutish zali"
+        EMPLOYEE = 3, "Xodim"
+
     FIZ = 1
     YUR = 2
     user_type = (
@@ -83,6 +120,7 @@ class UserData(AbstractUser):
     role = models.ForeignKey(Role, on_delete=models.CASCADE, blank=True, null=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True)
     type = models.IntegerField(choices=user_type, blank=True, null=True)
+    status_action = models.IntegerField(choices=StatusChoices.choices, default=1)
 
     objects = CustomUserManager()
 

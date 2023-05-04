@@ -1,7 +1,9 @@
 from datetime import datetime
+from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status, response, views, permissions
-from django.db.models import Q
+
+from main.utils import responseErrorMessage
 
 from .models import Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName, RolePermission
 from .permissions import SuperAdminPermission, WorkerPermission
@@ -62,7 +64,8 @@ class RoleCreateAPIView(views.APIView):
 
         for permission in permission_list:
             permission_detail = Permission.objects.get(pk=permission['permission_id'])
-            if not RolePermission.objects.filter(Q(group=group), Q(role=role), Q(permissions=permission_detail)).exists():
+            if not RolePermission.objects.filter(Q(group=group), Q(role=role),
+                                                 Q(permissions=permission_detail)).exists():
                 role_permission = RolePermission.objects.create(
                     group=group,
                     role=role,
@@ -93,6 +96,7 @@ class PermissionListAPIView(generics.ListAPIView):
     # queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
     # cache_backend = RedisCache
 
     def get_queryset(self):
@@ -137,6 +141,39 @@ class UpdateFizUserAPIView(generics.UpdateAPIView):
     queryset = FizUser.objects.all()
     serializer_class = FizUserSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+
+class GetUsersForBackOffice(views.APIView):
+    permission_classes = []
+
+    def get(self, request):
+        query = request.GET.get('query')
+        if query not in ["wl", "ee"]:
+            return responseErrorMessage(message="404 NOT FOUND ERROR", status_code=status.HTTP_404_NOT_FOUND)
+
+        user_datas_fiz, user_datas_yur = None, None
+        if query == "wl":
+            user_datas_fiz = FizUser.objects.filter(userdata__status_action=2, userdata__type=1)
+            user_datas_yur = YurUser.objects.filter(userdata__status_action=2, userdata__type=2)
+        elif query == "ee":
+            user_datas_fiz = FizUser.objects.filter(userdata__status_action=3, userdata__type=1)
+            user_datas_yur = YurUser.objects.filter(userdata__status_action=3, userdata__type=2)
+
+        serialized_data = {
+            "fiz_users": FizUserSerializer(user_datas_fiz, many=True).data,
+            "yur_users": YurUserSerializer(user_datas_yur, many=True).data
+        }
+
+        return response.Response(data=serialized_data, status=status.HTTP_200_OK)
+
+
+class GetUsersDetailForBackOffice(views.APIView):
+    permission_classes = []
+
+    def post(self, request, pk):
+        user = UserData.objects.get(pk=pk)
+        user.status_action = 3
+        user.save()
 
 
 class GetBankNameAPIView(views.APIView):

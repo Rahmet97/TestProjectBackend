@@ -24,3 +24,13 @@ class BankMFOResource(resources.ModelResource):
 @admin.register(BankMFOName)
 class ViewAdmin(ImportExportModelAdmin):
     resource_class = BankMFOResource
+
+
+@admin.register(Departament)
+class DepartamentAdmin(admin.ModelAdmin):
+    list_display = ["name", "slug"]
+
+
+@admin.register(DepartamentGroup)
+class DepartamentGroupAdmin(admin.ModelAdmin):
+    pass
