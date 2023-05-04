@@ -20,7 +20,7 @@ from .serializers import ApplicationSerializer
 class DocumentCreateListAPIView(generics.ListCreateAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
-    permission_classes = (AdminPermission,)
+    # permission_classes = (AdminPermission,)
 
 
 class ApplicationCreateView(CreateAPIView):
