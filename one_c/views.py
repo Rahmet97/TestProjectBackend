@@ -107,6 +107,7 @@ class CreateInvoiceAPIView(views.APIView):
             "fullnumber": contract.id_code,
             "products": products
         }
+        print(data)
         rspns = requests.get(url, headers=headers, data=json.dumps(data))
         return response.Response(rspns.content)
 
