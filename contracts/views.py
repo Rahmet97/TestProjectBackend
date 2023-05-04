@@ -1415,3 +1415,14 @@ class MonitoringContractDetailViews(generics.RetrieveAPIView):
     queryset = Contract.objects.all()
     serializer_class = MonitoringContractSerializer
     permission_classes = [IsAuthenticated]
+
+
+class EndContractAPIView(APIView):
+    def post(self, request):
+        contract_id = request.POST.get('contract_id', None)
+        expiration_date = request.POST.get('expiration_date', None)
+
+        contract = Contract.objects.get(pk=contract_id)
+        contract.expiration_date = expiration_date
+        contract.save()
+        return Response(status=200)
