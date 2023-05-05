@@ -62,7 +62,7 @@ class ServiceCreateSerializer(serializers.ModelSerializer):
     # need_documents = DocumentSerializer(many=True)
     # group = GroupSerializer()
     user_type = serializers.SerializerMethodField()
-    need_documents = serializers.PrimaryKeyRelatedField(queryset=Document.objects.all(), many=True, write_only=True)
+    need_documents = serializers.PrimaryKeyRelatedField(queryset=Document.objects.all(), many=True)
     # is_saved = serializers.SerializerMethodField()
 
     def get_user_type(self, obj):
@@ -100,6 +100,7 @@ class ServiceCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         need_documents = validated_data.pop('need_documents', [])
         service = super().create(validated_data)
+        print("need_documents >> ", need_documents)
         service.need_documents.set(need_documents)
         service.save()
         return service
