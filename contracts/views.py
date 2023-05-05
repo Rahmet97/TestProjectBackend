@@ -15,6 +15,7 @@ from django.db.models import Q, Sum
 from django.shortcuts import redirect, render, get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, validators, status
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -207,6 +208,7 @@ class GetPinnedUserDataAPIView(APIView):
 
 
 class ServiceCreateAPIView(generics.CreateAPIView):
+    parser_classes = (MultiPartParser,)
     queryset = Service.objects.all()
     serializer_class = ServiceCreateSerializer
     permission_classes = (SuperAdminPermission,)
