@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from decimal import Decimal
 
@@ -91,13 +92,7 @@ class ServiceCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         need_documents = validated_data.pop('need_documents', [])
-        # Convert each value in the need_documents array to an integer and retrieve the related Document instance
-        documents = []
-        for document_id in need_documents:
-            if isinstance(document_id, str):
-                document_id = int(document_id)
-            document = Document.objects.get(pk=document_id)
-            documents.append(document)
+        documents = [Document.objects.get(pk=document_id) for document_id in json.loads(need_documents)]
         validated_data['need_documents'] = documents
         return super().create(validated_data)
 
