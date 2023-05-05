@@ -1086,8 +1086,10 @@ class GetUnitContractDetailWithNumber(APIView):
         contract = Contract.objects.get(contract_number=contract_number)
         serializer = ContractSerializerForBackoffice(contract)
         try:
-            user_contract_tariff_device = UserContractTarifDevice.objects.get(Q(contract=contract),
-                                                                              Q(tarif__name='Unit-1'))
+            user_contract_tariff_device = UserContractTarifDevice.objects.get(
+                Q(contract=contract),
+                Q(tarif__name='Unit-1')
+            )
         except UserContractTarifDevice.DoesNotExist:
             data = {
                 'success': False,
@@ -1095,22 +1097,25 @@ class GetUnitContractDetailWithNumber(APIView):
             }
             return Response(data, status=405)
         user_device_count = UserDeviceCount.objects.filter(
-            user=user_contract_tariff_device)
-        sum = 0
+            user=user_contract_tariff_device
+        )
+        summ = 0
         electricity = 0
         for i in user_device_count:
-            sum += i.device_count * i.units_count
+            summ += i.device_count * i.units_count
             electricity += i.electricity * i.units_count
         empty_electricity = DeviceUnit.objects.filter(
-            rack__unit__contract=contract).exclude(status__name='qaytarilgan').aggregate(Sum('electricity'))
-        empty = sum - Unit.objects.filter(Q(is_busy=True), Q(contract=contract)).count()
+            rack__unit__contract=contract
+        ).exclude(status__name='qaytarilgan').aggregate(Sum('electricity'))
+        empty = summ - Unit.objects.filter(Q(is_busy=True), Q(contract=contract)).count()
         odf_count = user_contract_tariff_device.odf_count
         provider = ConnetMethod.objects.get(
-            pk=user_contract_tariff_device.connect_method.id)
+            pk=user_contract_tariff_device.connect_method.id
+        )
         provider_serializer = ConnectMethodSerializer(provider)
         data = {
             'contract': serializer.data,
-            'count': sum,
+            'count': summ,
             'empty': empty,
             'odf_count': odf_count,
             'provider': provider_serializer.data,
