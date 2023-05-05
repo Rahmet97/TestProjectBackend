@@ -217,6 +217,7 @@ class ServiceCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         need_documents = self.request.data.get('need_documents')
         user_type = self.request.data.get('user_type')
+        print(type(need_documents), need_documents)
 
         if not need_documents or not user_type:
             response = responseErrorMessage(
@@ -224,6 +225,9 @@ class ServiceCreateAPIView(generics.CreateAPIView):
                 status_code=status.HTTP_400_BAD_REQUEST
             )
             raise ValidationError(response.data)
+
+        need_documents = json.dumps(need_documents)
+        user_type = int(user_type)
 
         serializer.save(
             need_documents=need_documents,
