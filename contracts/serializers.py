@@ -89,8 +89,8 @@ class ServiceCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
         # fields = ('id', 'name', 'description', 'image', 'user_type', 'period', 'need_documents', 'group', 'is_saved')
-        # fields = "__all__"
-        exclude = ["need_documents"]
+        fields = "__all__"
+        # exclude = ["need_documents"]
 
 
 class ServiceSerializerForContract(serializers.ModelSerializer):

@@ -212,27 +212,27 @@ class ServiceCreateAPIView(generics.CreateAPIView):
     parser_classes = (MultiPartParser,)
     queryset = Service.objects.all()
     serializer_class = ServiceCreateSerializer
-    permission_classes = (SuperAdminPermission,)
+    # permission_classes = (SuperAdminPermission,)
 
-    def perform_create(self, serializer):
-        need_documents = self.request.data.get('need_documents')
-        user_type = self.request.data.get('user_type')
-        print(type(need_documents), need_documents)
-
-        if not need_documents or not user_type:
-            response = responseErrorMessage(
-                "need_documents and user_type are required fields",
-                status_code=status.HTTP_400_BAD_REQUEST
-            )
-            raise ValidationError(response.data)
-
-        need_documents = json.dumps(need_documents)
-        user_type = int(user_type)
-
-        serializer.save(
-            need_documents=need_documents,
-            user_type=user_type
-        )
+    # def perform_create(self, serializer):
+    #     need_documents = self.request.data.get('need_documents')
+    #     user_type = self.request.data.get('user_type')
+    #     print(type(need_documents), need_documents)
+    #
+    #     if not need_documents or not user_type:
+    #         response = responseErrorMessage(
+    #             "need_documents and user_type are required fields",
+    #             status_code=status.HTTP_400_BAD_REQUEST
+    #         )
+    #         raise ValidationError(response.data)
+    #
+    #     need_documents = json.dumps(need_documents)
+    #     user_type = int(user_type)
+    #
+    #     serializer.save(
+    #         need_documents=need_documents,
+    #         user_type=user_type
+    #     )
 
 
 class SavedServiceAPIView(APIView):
