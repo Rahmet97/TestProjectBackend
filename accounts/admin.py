@@ -8,7 +8,7 @@ admin.site.register((UserData, Permission, Role, Group, LogGroup, LogPermission)
 
 @admin.register(RolePermission)
 class RolePermissionAdmin(admin.ModelAdmin):
-    list_display = ["group", "role", "filter_tag"]
+    list_display = ["group", "role"]
     # pass
 
 

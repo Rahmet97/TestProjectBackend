@@ -74,8 +74,13 @@ class DepartamentGroup(models.Model):
 
 
 class Permission(models.Model):
+    class FilterTagChoices(models.IntegerChoices):
+        MANAGEMENT = 1, "Boshqaruv"
+
     name = models.CharField(max_length=50)
     slug = models.CharField(max_length=100, blank=True)
+
+    filter_tag = models.IntegerField(choices=FilterTagChoices.choices, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -96,8 +101,6 @@ class Role(models.Model):
 
 
 class RolePermission(models.Model):
-    class FilterTagChoices(models.IntegerChoices):
-        MANAGEMENT = 1, "Boshqaruv"
 
     group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
@@ -106,8 +109,6 @@ class RolePermission(models.Model):
     read = models.BooleanField(default=False)
     update = models.BooleanField(default=False)
     delete = models.BooleanField(default=False)
-
-    filter_tag = models.IntegerField(choices=FilterTagChoices.choices, blank=True, null=True)
 
     # def __str__(self):
     #     return str(self.group.name) + "|" + str(self.role.name) + "|" + str(self.filter_tag)
