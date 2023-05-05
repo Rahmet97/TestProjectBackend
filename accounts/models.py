@@ -109,8 +109,8 @@ class RolePermission(models.Model):
 
     filter_tag = models.IntegerField(choices=FilterTagChoices.choices, blank=True, null=True)
 
-    def __str__(self):
-        return str(self.group.name) + "|" + str(self.role.name) + "|" + str(self.filter_tag)
+    # def __str__(self):
+    #     return str(self.group.name) + "|" + str(self.role.name) + "|" + str(self.filter_tag)
 
 
 class UserData(AbstractUser):

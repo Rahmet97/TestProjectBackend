@@ -3,7 +3,13 @@ from .models import *
 from import_export.admin import ImportExportModelAdmin
 from import_export import resources
 
-admin.site.register((UserData, Permission, Role, Group, LogGroup, LogPermission, RolePermission))
+admin.site.register((UserData, Permission, Role, Group, LogGroup, LogPermission))
+
+
+@admin.register(RolePermission)
+class RolePermissionAdmin(admin.ModelAdmin):
+    list_display = ["group", "role", "filter_tag"]
+    # pass
 
 
 @admin.register(FizUser)
