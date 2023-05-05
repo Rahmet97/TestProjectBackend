@@ -96,6 +96,9 @@ class Role(models.Model):
 
 
 class RolePermission(models.Model):
+    class FilterTagChoices(models.IntegerChoices):
+        MANAGEMENT = 1, "Boshqaruv"
+
     group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     permissions = models.ForeignKey(Permission, on_delete=models.CASCADE)
@@ -103,6 +106,11 @@ class RolePermission(models.Model):
     read = models.BooleanField(default=False)
     update = models.BooleanField(default=False)
     delete = models.BooleanField(default=False)
+
+    filter_tag = models.IntegerField(choices=FilterTagChoices.choices, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.group.name}|{self.role.name}|{self.filter_tag}"
 
 
 class UserData(AbstractUser):
