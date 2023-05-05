@@ -64,9 +64,9 @@ class ServiceCreateSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def create(self, validated_data):
-        need_documents = validated_data.pop("need_documents", [])
-        need_documents = [int(pk) for pk in need_documents]  # convert strings to integers
-        print("validated_data >>>", validated_data)  # print validated data to check that `need_documents` is correctly parsed
+        need_documents = validated_data.pop("need_documents", "[]")
+        need_documents = json.loads(need_documents)
+        need_documents = [int(pk) for pk in need_documents]
         instance = super().create(validated_data)
         instance.need_documents.set(need_documents)
         return instance
