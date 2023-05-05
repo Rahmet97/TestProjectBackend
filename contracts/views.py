@@ -1104,7 +1104,7 @@ class GetUnitContractDetailWithNumber(APIView):
         for i in user_device_count:
             summ += i.device_count * i.units_count
             # electricity += i.electricity * i.units_count
-            electricity += i.electricity * i.units_count
+            electricity += i.electricity
 
         empty_electricity = DeviceUnit.objects.filter(
             rack__unit__contract=contract
