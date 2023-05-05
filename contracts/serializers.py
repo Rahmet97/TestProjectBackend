@@ -89,6 +89,17 @@ class ServiceCreateSerializer(serializers.ModelSerializer):
         # fields = ('id', 'name', 'description', 'image', 'user_type', 'period', 'need_documents', 'group', 'is_saved')
         fields = "__all__"
 
+    def create(self, validated_data):
+        need_documents = validated_data.pop('need_documents')
+        # Check if need_documents is an integer representing the primary key value of the related Document instance
+        if isinstance(need_documents, int):
+            document = Document.objects.get(pk=need_documents)
+        else:
+            # Convert need_documents to an integer if it is a string
+            document = Document.objects.get(pk=int(need_documents))
+        validated_data['need_documents'] = document
+        return super().create(validated_data)
+
 
 class ServiceSerializerForContract(serializers.ModelSerializer):
     class Meta:
