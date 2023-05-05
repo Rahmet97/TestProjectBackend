@@ -216,14 +216,19 @@ class ServiceCreateAPIView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         need_documents = self.request.data.get('need_documents')
-        if need_documents is not None:
-            serializer.save(need_documents=need_documents)
-        else:
+        user_type = self.request.data.get('user_type')
+
+        if not need_documents or not user_type:
             response = responseErrorMessage(
-                "need_documents should not be empty",
+                "need_documents and user_type are required fields",
                 status_code=status.HTTP_400_BAD_REQUEST
             )
             raise ValidationError(response.data)
+
+        serializer.save(
+            need_documents=need_documents,
+            user_type=user_type
+        )
 
 
 class SavedServiceAPIView(APIView):

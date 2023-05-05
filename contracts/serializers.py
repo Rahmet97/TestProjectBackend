@@ -61,18 +61,18 @@ class ServiceSerializer(serializers.ModelSerializer):
 class ServiceCreateSerializer(serializers.ModelSerializer):
     # need_documents = DocumentSerializer(many=True)
     # group = GroupSerializer()
-    user_type = serializers.SerializerMethodField()
+    # user_type = serializers.SerializerMethodField()
     # need_documents = serializers.PrimaryKeyRelatedField(queryset=Document.objects.all(), many=True)
     # is_saved = serializers.SerializerMethodField()
 
-    def get_user_type(self, obj):
-        user_type_mapping = {
-            1: "Jismoniy",
-            2: "Yuridik"
-        }
-        return user_type_mapping.get(
-            obj.user_type, "Jismoniy va Yuridik"
-        )
+    # def get_user_type(self, obj):
+    #     user_type_mapping = {
+    #         1: "Jismoniy",
+    #         2: "Yuridik"
+    #     }
+    #     return user_type_mapping.get(
+    #         obj.user_type, "Jismoniy va Yuridik"
+    #     )
 
     # def get_is_saved(self, obj):
     #     request = self.context.get('request')
