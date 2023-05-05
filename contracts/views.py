@@ -210,7 +210,7 @@ class GetPinnedUserDataAPIView(APIView):
 
 class ServiceCreateAPIView(generics.CreateAPIView):
     # parser_classes = (MultiPartParser,)
-    parser_classes = (FormParser,)
+    # parser_classes = (FormParser,)
     queryset = Service.objects.all()
     serializer_class = ServiceCreateSerializer
     # permission_classes = (SuperAdminPermission,)
