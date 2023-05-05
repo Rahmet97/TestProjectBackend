@@ -215,6 +215,10 @@ class ServiceCreateAPIView(generics.CreateAPIView):
     serializer_class = ServiceCreateSerializer
     # permission_classes = (SuperAdminPermission,)
 
+    def create(self, request, *args, **kwargs):
+        print("request.data >>>", request.data)
+        return super().create(request, *args, **kwargs)
+
     # def perform_create(self, serializer):
     #     need_documents = self.request.data.get('need_documents')
     #     user_type = self.request.data.get('user_type')
