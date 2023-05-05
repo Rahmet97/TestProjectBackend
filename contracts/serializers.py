@@ -62,7 +62,7 @@ class ServiceCreateSerializer(serializers.ModelSerializer):
     # need_documents = DocumentSerializer(many=True)
     # group = GroupSerializer()
     user_type = serializers.SerializerMethodField()
-    need_documents = serializers.PrimaryKeyRelatedField(queryset=Document.objects.all(), many=True)
+    # need_documents = serializers.PrimaryKeyRelatedField(queryset=Document.objects.all(), many=True)
     # is_saved = serializers.SerializerMethodField()
 
     def get_user_type(self, obj):
@@ -89,21 +89,8 @@ class ServiceCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
         # fields = ('id', 'name', 'description', 'image', 'user_type', 'period', 'need_documents', 'group', 'is_saved')
-        fields = "__all__"
-
-    # def create(self, validated_data):
-    #     need_documents = validated_data.pop('need_documents', [])
-    #     documents = [Document.objects.get(pk=document_id) for document_id in json.loads(need_documents)]
-    #     validated_data['need_documents'] = documents
-    #     return super().create(validated_data)
-
-    def create(self, validated_data):
-        need_documents = validated_data.pop('need_documents', [])
-        service = super().create(validated_data)
-        print("need_documents >> ", need_documents)
-        service.need_documents.set(need_documents)
-        service.save()
-        return service
+        # fields = "__all__"
+        exclude = ["need_documents"]
 
 
 class ServiceSerializerForContract(serializers.ModelSerializer):

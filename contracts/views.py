@@ -8,6 +8,7 @@ from decimal import Decimal
 
 import requests
 from django.http import HttpResponse
+from django.core.exceptions import ValidationError
 
 from datetime import datetime, timedelta
 
@@ -212,6 +213,17 @@ class ServiceCreateAPIView(generics.CreateAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceCreateSerializer
     permission_classes = (SuperAdminPermission,)
+
+    def perform_create(self, serializer):
+        need_documents = self.request.data.get('need_documents')
+        if need_documents is not None:
+            serializer.save(need_documents=need_documents)
+        else:
+            response = responseErrorMessage(
+                "need_documents should not be empty",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+            raise ValidationError(response.data)
 
 
 class SavedServiceAPIView(APIView):
