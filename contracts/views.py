@@ -209,16 +209,9 @@ class GetPinnedUserDataAPIView(APIView):
 
 
 class ServiceCreateAPIView(generics.CreateAPIView):
-    # parser_classes = (MultiPartParser,)
-    # parser_classes = (FormParser,)
     queryset = Service.objects.all()
     serializer_class = ServiceCreateSerializer
-
-    # permission_classes = (SuperAdminPermission,)
-
-    def create(self, request, *args, **kwargs):
-        print("request.data >>>", request.data)
-        return super().create(request, *args, **kwargs)
+    permission_classes = (SuperAdminPermission,)
 
     def perform_create(self, serializer):
         if not self.request.data.get('need_documents'):
@@ -229,7 +222,6 @@ class ServiceCreateAPIView(generics.CreateAPIView):
             raise ValidationError(response.data)
 
         need_documents = self.request.data.pop("need_documents", "[]")
-        print("need_documents 232 >>", need_documents)
         need_documents = [int(pk) for pk in need_documents[0].split(',') if pk]  # convert strings to integers
 
         serializer.save(need_documents=need_documents)
