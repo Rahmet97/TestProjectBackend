@@ -61,7 +61,8 @@ class ServiceSerializer(serializers.ModelSerializer):
 class ServiceCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
-        fields = "__all__"
+        # fields = "__all__"
+        exclude = ["need_documents"]
 
     # def create(self, validated_data):
     #     need_documents = validated_data.pop("need_documents", "[]")
@@ -71,13 +72,13 @@ class ServiceCreateSerializer(serializers.ModelSerializer):
     #     instance.need_documents.set(need_documents)
     #     return instance
 
-    def create(self, validated_data):
-        need_documents = validated_data.pop("need_documents", "[]")
-        print("need_documents 76 >>", need_documents)
-        need_documents = [int(pk) for pk in need_documents[0].split(',') if pk]  # convert strings to integers
-        instance = super().create(validated_data)
-        instance.need_documents.set(need_documents)
-        return instance
+    # def create(self, validated_data):
+    #     need_documents = validated_data.pop("need_documents", "[]")
+    #     print("need_documents 76 >>", need_documents)
+    #     need_documents = [int(pk) for pk in need_documents[0].split(',') if pk]  # convert strings to integers
+    #     instance = super().create(validated_data)
+    #     instance.need_documents.set(need_documents)
+    #     return instance
 
 
 class ServiceSerializerForContract(serializers.ModelSerializer):

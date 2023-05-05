@@ -213,31 +213,26 @@ class ServiceCreateAPIView(generics.CreateAPIView):
     # parser_classes = (FormParser,)
     queryset = Service.objects.all()
     serializer_class = ServiceCreateSerializer
+
     # permission_classes = (SuperAdminPermission,)
 
     def create(self, request, *args, **kwargs):
         print("request.data >>>", request.data)
         return super().create(request, *args, **kwargs)
 
-    # def perform_create(self, serializer):
-    #     need_documents = self.request.data.get('need_documents')
-    #     user_type = self.request.data.get('user_type')
-    #     print(type(need_documents), need_documents)
-    #
-    #     if not need_documents or not user_type:
-    #         response = responseErrorMessage(
-    #             "need_documents and user_type are required fields",
-    #             status_code=status.HTTP_400_BAD_REQUEST
-    #         )
-    #         raise ValidationError(response.data)
-    #
-    #     need_documents = json.dumps(need_documents)
-    #     user_type = int(user_type)
-    #
-    #     serializer.save(
-    #         need_documents=need_documents,
-    #         user_type=user_type
-    #     )
+    def perform_create(self, serializer):
+        if not self.request.data.get('need_documents'):
+            response = responseErrorMessage(
+                "need_documents is required fields",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+            raise ValidationError(response.data)
+
+        need_documents = self.request.data.pop("need_documents", "[]")
+        print("need_documents 232 >>", need_documents)
+        need_documents = [int(pk) for pk in need_documents[0].split(',') if pk]  # convert strings to integers
+
+        serializer.save(need_documents=need_documents)
 
 
 class SavedServiceAPIView(APIView):
