@@ -1120,11 +1120,11 @@ class GetUnitContractDetailWithNumber(APIView):
             summ += i.device_count * i.units_count
             electricity += i.electricity * i.units_count
 
-        empty_electricity = DeviceUnit.objects.filter(
-            Q(rack__unit__contract=contract),
-            Q(status__name="o'rnatilgan")
-        ).aggregate(Sum('electricity'))
-        print("empty_electricity >>> ", empty_electricity)
+        filter_conditions = Q(rack__unit__contract=contract) & Q(status__name="o'rnatilgan")
+        empty_electricity = DeviceUnit.objects.filter(filter_conditions).aggregate(Sum('electricity'))
+        tests = DeviceUnit.objects.filter(filter_conditions)
+        for test in tests:
+            print(f"ID: {test.id} -> {test.electricity}")
 
         empty = summ - Unit.objects.filter(Q(is_busy=True), Q(contract=contract)).count()
         odf_count = user_contract_tariff_device.odf_count
