@@ -146,6 +146,7 @@ class UpdateContractPayedCash(views.APIView):
 
     def post(self, request):
         try:
+            print(request.data)
             id_code = request.data['contractID']
             contract_code = request.data.get('contractCode', None)
             invoice_number = request.data.get('invoiceNum', None)
@@ -157,6 +158,17 @@ class UpdateContractPayedCash(views.APIView):
             customer_payment_account = request.data.get('customerPaymentAccount', None)
             customer_mfo = request.data.get('customerMFO', None)
             company_payment_account = request.data.get('companyPaymentAccount', None)
+            print('id_code >>>>> ', id_code)
+            print('contract_code >>>>> ', contract_code)
+            print('invoice_number >>>>> ', invoice_number)
+            print('customer_tin >>>>> ', customer_tin)
+            print('payed_cash >>>>> ', payed_cash)
+            print('payed_time >>>>> ', payed_time)
+            print('currency >>>>> ', currency)
+            print('comment >>>>> ', comment)
+            print('customer_payment_account >>>>> ', customer_payment_account)
+            print('customer_mfo >>>>> ', customer_mfo)
+            print('company_payment_account >>>>> ', company_payment_account)
             contract = None
             if str(id_code).lower().startswith("c", 0, 2):
                 contract = Contract.objects.get(id_code=id_code)
