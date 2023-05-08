@@ -79,6 +79,7 @@ class Permission(models.Model):
 
     name = models.CharField(max_length=50)
     slug = models.CharField(max_length=100, blank=True)
+    icon = models.ImageField(upload_to=slugify_upload, blank=True, null=True)
 
     filter_tag = models.IntegerField(choices=FilterTagChoices.choices, blank=True, null=True)
 
