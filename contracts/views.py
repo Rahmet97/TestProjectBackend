@@ -1120,9 +1120,11 @@ class GetUnitContractDetailWithNumber(APIView):
             summ += i.device_count * i.units_count
             electricity += i.electricity * i.units_count
 
+        # Bu Django ORM script codeni boshqattan korish kk chunki dublicat malumotlarniyam hisoblashi mumkin bazada
         filter_conditions = Q(rack__unit__contract=contract) & Q(status__name="o'rnatilgan")
-        empty_electricity = DeviceUnit.objects.filter(filter_conditions).aggregate(Sum('electricity'))
-        tests = DeviceUnit.objects.filter(filter_conditions)
+        empty_electricity = DeviceUnit.objects.filter(filter_conditions).distinct().aggregate(Sum('electricity'))
+
+        tests = DeviceUnit.objects.filter(filter_conditions).distinct()
         for test in tests:
             print(f"ID: {test.id} -> {test.electricity}")
 
