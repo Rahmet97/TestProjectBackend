@@ -44,7 +44,7 @@ class RackDetailAPIView(APIView):
             'units': units_data.data,
             'devices': devices_data.data
         })
-    
+
     def post(self, request):
         id = int(request.data('rack_id'))
         rack = Rack.objects.get(pk=id)
@@ -73,7 +73,7 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
         elif provider_contract_number and provider_contract_date:
             provider_contract = ProviderContract.objects.create(
                 contract_number=provider_contract_number,
-                contract_date=provider_contract_date 
+                contract_date=provider_contract_date
             )
             provider_contract.save()
             request.data['provider_contract'] = provider_contract.id
@@ -94,7 +94,7 @@ class ListInternetProviderAPIView(generics.ListAPIView):
     queryset = InternetProvider.objects.all()
     serializer_class = InternetProviderSerializer
     permission_classes = (IsAuthenticated,)
-    
+
 
 class AddDeviceAPIView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -149,7 +149,7 @@ class AddDeviceAPIView(APIView):
                 end=end
             )
             device.save()
-            for i in range(start, end+1):
+            for i in range(start, end + 1):
                 unit = Unit.objects.get(Q(number=i), Q(rack_id=rack))
                 unit.device = device
                 unit.is_busy = True
@@ -181,7 +181,7 @@ class DeviceUnitDetail(generics.RetrieveAPIView):
         odf_count = UserContractTarifDevice.objects.get(contract=unit.contract).odf_count
         if device.provider_contract:
             device_contract_number = device.provider_contract.contract_number
-            device_contract_date= device.provider_contract.contract_date
+            device_contract_date = device.provider_contract.contract_date
         else:
             device_contract_number = None
             device_contract_date = None
