@@ -29,7 +29,7 @@ class GetElementAPIView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
 
-class ElementUpdateAPIView(generics.RetrieveUpdateAPIView):
+class ElementUpdateAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Element.objects.all()
     serializer_class = ElementSerializer
     permission_classes = (permissions.IsAuthenticated,)
