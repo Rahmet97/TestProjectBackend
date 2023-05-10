@@ -60,14 +60,20 @@ class GetRackInformationSerializer(serializers.ModelSerializer):
         devices = Unit.objects.filter(rack=obj).exclude(device=None)
         return devices.count()
 
+    # @staticmethod
+    # def get_electricity(obj):
+    #     # elect = Unit.objects.filter(rack=obj).distinct().aggregate(Sum('device__electricity'))
+    #     device_electricity_sum = Unit.objects.filter(rack=obj).device_units.all().distinct().aggregate(Sum('electricity'))
+    #     return {'device_electricity_sum': device_electricity_sum['electricity__sum'] or 0}
+    #     # filter_conditions = Q(rack__unit__contract=contract) & Q(status__name="o'rnatilgan")
+    #     # empty_electricity = DeviceUnit.objects.filter(filter_conditions).distinct().aggregate(Sum('electricity'))
+    #     # return DeviceUnit.objects.filter(rack=obj).distinct().aggregate(Sum('electricity'))
+
     @staticmethod
     def get_electricity(obj):
-        # elect = Unit.objects.filter(rack=obj).distinct().aggregate(Sum('device__electricity'))
-        device_electricity_sum = Unit.objects.filter(rack=obj).device_units.all().distinct().aggregate(Sum('electricity'))
-        return {'device_electricity_sum': device_electricity_sum['electricity__sum'] or 0}
-        # filter_conditions = Q(rack__unit__contract=contract) & Q(status__name="o'rnatilgan")
-        # empty_electricity = DeviceUnit.objects.filter(filter_conditions).distinct().aggregate(Sum('electricity'))
-        # return DeviceUnit.objects.filter(rack=obj).distinct().aggregate(Sum('electricity'))
+        device_ids = Unit.objects.filter(rack=obj).exclude(device=None).values_list('device_id', flat=True)
+        electricity_sum = DeviceUnit.objects.filter(id__in=device_ids).aggregate(Sum('electricity'))
+        return {'device_electricity_sum': electricity_sum['electricity__sum'] or 0}
 
     @staticmethod
     def get_percentage(obj):
