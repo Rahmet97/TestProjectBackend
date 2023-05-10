@@ -2,9 +2,10 @@ from datetime import datetime
 
 from rest_framework import serializers, status
 
-from accounts.models import FizUser, YurUser
+from accounts.models import FizUser, YurUser, UserData
 
-from accounts.serializers import FizUserSerializerForContractDetail, YurUserSerializerForContractDetail
+from accounts.serializers import FizUserSerializerForContractDetail, YurUserSerializerForContractDetail, \
+    FizUserSerializer, YurUserSerializer
 
 from contracts.serializers import ServiceSerializerForContract
 
@@ -242,6 +243,14 @@ class ExpertiseMonitoringContractSerializer(serializers.ModelSerializer):
         # representation['payed_information'] = PayedInformationSerializer(
         #     payed_information_objects, many=True, context={'contract_cash': instance.contract_cash}
         # ).data,
+
+        client = UserData.objects.get(id=instance.client.id)
+        if client.type == 1:  # FIZ = 1 YUR = 2
+            representation["client"] = FizUserSerializer(FizUser.objects.get(userdata=client)).data
+            representation["user_type"] = "fiz"
+        else:
+            representation["client"] = YurUserSerializer(YurUser.objects.get(userdata=client)).data
+            representation["user_type"] = "yur"
 
         representation["total_payed_percentage"] = instance.total_payed_percentage
         representation["arrearage"] = instance.get_arrearage

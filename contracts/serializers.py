@@ -354,5 +354,13 @@ class MonitoringContractSerializer(serializers.ModelSerializer):
                 payed_information_objects, many=True, context={'contract_cash': instance.contract_cash}
             ).data[0],
 
+        client = UserData.objects.get(id=instance.client.id)
+        if client.type == 1:  # FIZ = 1 YUR = 2
+            representation["client"] = FizUserSerializer(FizUser.objects.get(userdata=client)).data
+            representation["user_type"] = "fiz"
+        else:
+            representation["client"] = YurUserSerializer(YurUser.objects.get(userdata=client)).data
+            representation["user_type"] = "yur"
+
         # representation["total_payed_percentage"] = (float(instance.payed_cash) * float(100))/float(instance.contract_cash)
         return representation
