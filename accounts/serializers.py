@@ -24,10 +24,33 @@ class ContactFizUserSerializer(serializers.ModelSerializer):
         fields = ('',)
 
 
+# Role changed history
+class HistoricalRoleSerializer(serializers.ModelSerializer):
+    # history_user = UserSerializer()
+
+    class Meta:
+        model = Role.history.model
+        fields = '__all__'
+
+
 class RoleSerializer(serializers.ModelSerializer):
+    history = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Role
         fields = "__all__"
+
+    @staticmethod
+    def get_history(obj):
+        history = obj.history.all().order_by("-id")[:10]
+        serialized_history = []
+        for index, h in enumerate(history):
+            old_data = HistoricalRoleSerializer(history[index - 1]).data if index > 0 else None
+            new_data = HistoricalRoleSerializer(h).data
+            new_data['old_history'] = old_data
+            # new_data['history_user'] = h.history_user.username if h.history_user else None
+            serialized_history.append(new_data)
+        return serialized_history
 
 
 class PermissionSerializer(serializers.ModelSerializer):

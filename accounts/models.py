@@ -1,8 +1,10 @@
 from os.path import splitext
+from django.utils.translation import gettext_lazy as _
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, AbstractUser
 from django.template.defaultfilters import slugify
+from simple_history.models import HistoricalRecords
 
 from .managers import CustomUserManager
 
@@ -97,12 +99,13 @@ class Role(models.Model):
     partition = models.ManyToManyField(Permission, through='RolePermission')
     created_date = models.DateTimeField(auto_now_add=True)
 
+    history = HistoricalRecords()
+
     def __str__(self):
         return self.name
 
 
 class RolePermission(models.Model):
-
     group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     permissions = models.ForeignKey(Permission, on_delete=models.CASCADE)
@@ -185,11 +188,11 @@ class FizUser(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.sur_name}"
-    
+
     @property
     def get_short_full_name(self):
         return f"{str(self.first_name)[0]}.{str(self.mid_name)[0]} {self.sur_name}"
-    
+
     @property
     def get_user_role(self):
         return f"{self.userdata.role}"
@@ -285,11 +288,11 @@ class YurUser(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     @property
     def get_director_short_full_name(self):
         return f"{str(self.director_firstname)[0]}.{str(self.director_middlename)[0]} {self.director_lastname}"
-    
+
     @property
     def get_director_full_name(self):
         return f"{self.director_firstname} {self.director_middlename} {self.director_lastname}"
@@ -297,4 +300,3 @@ class YurUser(models.Model):
     @property
     def get_user_role(self):
         return f"{self.userdata.role}"
-

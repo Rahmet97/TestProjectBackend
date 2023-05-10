@@ -85,6 +85,32 @@ class RoleUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RoleSerializer
     permission_classes = (SuperAdminPermission,)
 
+    def update(self, request, *args, **kwargs):
+        role = self.get_object()
+        serializer = self.get_serializer(instance=role, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        role.refresh_from_db()  # Reload the object from the database with the updated values
+
+        # Create the historical record with the user and user_role fields
+        if request.user.is_authenticated:
+            # history_record = role.history.last()
+            history_record = role.history.first()
+            history_record.history_user = request.user
+            # history_record.user_role = user_role
+            history_record.save()
+
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+
+class RoleDetailAPIView(generics.RetrieveAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    permission_classes = [SuperAdminPermission]
+
 
 class PermissionCreateAPIView(generics.CreateAPIView):
     queryset = Permission.objects.all()

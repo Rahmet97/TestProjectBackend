@@ -6,13 +6,12 @@ from .views import (
     PermissionCreateAPIView, GroupListAPIView, PermissionListAPIView, RoleUpdateDeleteAPIView,
     PermissionUpdateDeleteAPIView, GroupDetailAPIView, UpdateYurUserAPIView, UpdateFizUserAPIView,
     GetBankNameAPIView, GetCurrentTimeAPIView, UniconDataAPIView, RoleListAPIView, GetUsersForBackOffice,
-    GetUsersDetailForBackOffice
+    GetUsersDetailForBackOffice, RoleDetailAPIView
 )
 
 
 urlpatterns = [
     path('role-create', RoleCreateAPIView.as_view(), name='RoleCreate'),
-    path('roles', RoleListAPIView.as_view(), name='RoleList'),
     path('permission-create', PermissionCreateAPIView.as_view(), name='PermissionCreate'),
     path('group-create', GroupCreateAPIView.as_view(), name='CustomGroupCreate'),
     path('group-list', GroupListAPIView.as_view(), name='CustomGroupList'),
@@ -20,7 +19,11 @@ urlpatterns = [
     path('group-update-delete/<int:pk>/', GroupUpdateDeleteAPIView.as_view(), name='CustomGroupUpdateDelete'),
     path('group-detail/<int:pk>/', GroupDetailAPIView.as_view(), name='CustomGroupDetailAPIView'),
     path('pin-user', PinUserToGroupRole.as_view(), name='PinUserToGroupRole'),
-    path('role-update-delete/<int:pk>/', RoleUpdateDeleteAPIView.as_view(), name='RoleUpdateDelete'),
+
+    path('roles', RoleListAPIView.as_view(), name='RoleList'),
+    path('roles-detail/<int:pk>', RoleDetailAPIView.as_view(), name='RoleDetailAPIView'),
+    path('roles-update-delete/<int:pk>/', RoleUpdateDeleteAPIView.as_view(), name='RoleUpdateDelete'),
+
     path('permission-update-delete/<int:pk>/', PermissionUpdateDeleteAPIView.as_view(), name='PermissionUpdateDelete'),
     path('update-yuruser/<int:pk>', UpdateYurUserAPIView.as_view(), name='UpdateYurUserAPIView'),
     path('update-fizuser/<int:pk>', UpdateFizUserAPIView.as_view(), name='UpdateFizUserAPIView'),
