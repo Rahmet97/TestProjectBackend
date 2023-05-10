@@ -63,10 +63,10 @@ class GetRackInformationSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_electricity(obj):
         # elect = Unit.objects.filter(rack=obj).distinct().aggregate(Sum('device__electricity'))
-        # Bu Django ORM script codeni boshqatan korish kk chunki duplicate malumotlarniyam hisob qoyishi mumkin bazada
+        # return Unit.objects.filter(rack=obj).device_units.all().distinct().aggregate(Sum('electricity'))
         # filter_conditions = Q(rack__unit__contract=contract) & Q(status__name="o'rnatilgan")
         # empty_electricity = DeviceUnit.objects.filter(filter_conditions).distinct().aggregate(Sum('electricity'))
-        return Unit.objects.filter(rack=obj).device_units.all().distinct().aggregate(Sum('electricity'))
+        return DeviceUnit.objects.filter(rack=obj).distinct().aggregate(Sum('electricity'))
 
     @staticmethod
     def get_percentage(obj):
