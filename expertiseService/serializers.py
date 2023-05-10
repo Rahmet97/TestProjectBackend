@@ -15,7 +15,7 @@ from expertiseService.models import (
     ExpertiseExpertSummaryDocument, ExpertisePkcs, ExpertiseTarif
 )
 from main.utils import responseErrorMessage
-from one_c.models import PayedInformation
+from one_c.models import PayedInformation, Invoice
 
 
 class ExpertiseTarifSerializer(serializers.ModelSerializer):
@@ -254,4 +254,12 @@ class ExpertiseMonitoringContractSerializer(serializers.ModelSerializer):
 
         representation["total_payed_percentage"] = instance.total_payed_percentage
         representation["arrearage"] = instance.get_arrearage
+
+        representation["invoice_status"] = {}
+        if Invoice.objects.filter(contract_code=instance.id_code).exists():
+            invoice = Invoice.objects.filter(contract_code=instance.id_code).last()
+            representation["invoice_status"] = {
+                "name": invoice.status.name,
+                "status_code": invoice.status.status_code
+            }
         return representation

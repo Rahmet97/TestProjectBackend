@@ -7,7 +7,7 @@ from rest_framework import serializers, status
 
 from main.utils import responseErrorMessage
 
-from one_c.models import PayedInformation
+from one_c.models import PayedInformation, Invoice
 
 from accounts.models import YurUser, FizUser, UserData
 from accounts.serializers import (
@@ -206,6 +206,7 @@ class ElementSerializer(serializers.ModelSerializer):
 class GetElementSerializer(serializers.ModelSerializer):
     group = GroupSerializer()
     tariff = TarifSerializer()
+
     class Meta:
         model = Element
         fields = '__all__'
@@ -339,6 +340,33 @@ class PayedInformationSerializer(serializers.ModelSerializer):
         return date_object.strftime("%B")
 
 
+class InvoiceInformationSerializer(serializers.ModelSerializer):
+    payed_information = serializers.SerializerMethodField()
+
+    def get_payed_information(self, obj):
+        if PayedInformation.objects.filter(invoice=obj).exists():
+            payed_info = PayedInformation.objects.get(invoice=obj)
+            return PayedInformationSerializer(
+                payed_info, context={
+                    'contract_cash': self.context.get("contract_cash")
+                }).data
+        return {}
+
+    class Meta:
+        model = Invoice
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        representation["invoice_status"] = {}
+        representation["invoice_status"] = {
+            "name": instance.status.name,
+            "status_code": instance.status.status_code
+        }
+        return representation
+
+
 class MonitoringContractSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contract
@@ -348,9 +376,15 @@ class MonitoringContractSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         # Customize the representation of your data here
         representation['payed_information'] = None
-        payed_information_objects = PayedInformation.objects.filter(contract_code=instance.id_code)
+        # payed_information_objects = PayedInformation.objects.filter(contract_code=instance.id_code)
+        # if payed_information_objects:
+        #     representation['payed_information'] = PayedInformationSerializer(
+        #         payed_information_objects, many=True, context={'contract_cash': instance.contract_cash}
+        #     ).data[0],
+
+        payed_information_objects = Invoice.objects.filter(contract_code=instance.id_code)
         if payed_information_objects:
-            representation['payed_information'] = PayedInformationSerializer(
+            representation['payed_information'] = InvoiceInformationSerializer(
                 payed_information_objects, many=True, context={'contract_cash': instance.contract_cash}
             ).data[0],
 

@@ -55,7 +55,7 @@ class PayedInformation(models.Model):
     currency = models.CharField(max_length=10, blank=True, null=True)
     comment = models.CharField(max_length=255, blank=True, null=True)
     customer_payment_account = models.CharField(max_length=30, blank=True, null=True)
-    customer_mfo = models.IntegerField(blank=True, null=True)
+    customer_mfo = models.IntegerField(blank=True, null=True)  # MFO charfild bolishi kk
     company_payment_account = models.CharField(max_length=30, blank=True, null=True)
 
     def __str__(self):
