@@ -66,6 +66,7 @@ class GetRackInformationSerializer(serializers.ModelSerializer):
         # Bu Django ORM script codeni boshqatan korish kk chunki duplicate malumotlarniyam hisob qoyishi mumkin bazada
         # filter_conditions = Q(rack__unit__contract=contract) & Q(status__name="o'rnatilgan")
         # empty_electricity = DeviceUnit.objects.filter(filter_conditions).distinct().aggregate(Sum('electricity'))
+        all_devices = DeviceUnit.objects.filter(unit__isnull=False)
         return Unit.objects.filter(rack=obj).distinct().aggregate(Sum('device__electricity'))
 
     @staticmethod

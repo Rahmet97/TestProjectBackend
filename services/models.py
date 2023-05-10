@@ -76,7 +76,7 @@ class Unit(models.Model):
     rack = models.ForeignKey(Rack, on_delete=models.CASCADE)
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE, blank=True, null=True)
     is_busy = models.BooleanField(default=False)
-    device = models.ForeignKey(DeviceUnit, on_delete=models.CASCADE, blank=True, null=True)
+    device = models.ForeignKey(DeviceUnit, on_delete=models.CASCADE, blank=True, null=True, related_name='device_units')
     
     def __str__(self):
         return f'{self.rack.number}-rack {self.number}-unit'
