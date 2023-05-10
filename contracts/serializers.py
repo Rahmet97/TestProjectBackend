@@ -185,12 +185,6 @@ class UserContractTarifDeviceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class DeviceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Device
-        fields = '__all__'
-
-
 class UserDeviceCountSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDeviceCount
@@ -204,6 +198,14 @@ class OfferSerializer(serializers.ModelSerializer):
 
 
 class ElementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Element
+        fields = '__all__'
+
+
+class GetElementSerializer(serializers.ModelSerializer):
+    group = GroupSerializer()
+    tariff = TarifSerializer()
     class Meta:
         model = Element
         fields = '__all__'

@@ -14,12 +14,18 @@ from billing.models import BillingLog, InvoiceElements
 from billing.serializers import RequestSerializer, InvoiceElementsSerializer
 
 from contracts.models import Tarif, Element, TarifLog, Service
-from contracts.serializers import TarifSerializer, ElementSerializer
+from contracts.serializers import TarifSerializer, ElementSerializer, GetElementSerializer
 
 
-class ElementAPIView(generics.ListCreateAPIView):
+class ElementAPIView(generics.CreateAPIView):
     queryset = Element.objects.all()
     serializer_class = ElementSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+class GetElementAPIView(generics.ListAPIView):
+    queryset = Element.objects.all()
+    serializer_class = GetElementSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
 
