@@ -13,7 +13,7 @@ urlpatterns = [
 
     path('element', ElementAPIView.as_view(), name='ElementAPIView'),
     path('get-element', GetElementAPIView.as_view(), name='GetElementAPIView'),
-    path('element-update-delete', ElementUpdateAPIView.as_view(), name='ElementUpdateAPIView'),
+    path('element-update-delete/<int:pk>', ElementUpdateAPIView.as_view(), name='ElementUpdateAPIView'),
     path('invoice-element', InvoiceElementsAPIView.as_view(), name='InvoiceElementsAPIView'),
     path('invoice-element-update/<int:pk>', InvoiceElementsUpdateAPIView.as_view(), name='InvoiceElementsUpdateAPIView'),
 ]
