@@ -51,11 +51,11 @@ class PayedInformation(models.Model):
     payed_cash = models.FloatField()
     payed_time = models.DateTimeField()
     contract_code = models.CharField(max_length=20, blank=True, null=True)  # id_code which is of the contract
-    customer_tin = models.IntegerField(blank=True, null=True)
+    customer_tin = models.CharField(max_length=14, blank=True, null=True)
     currency = models.CharField(max_length=10, blank=True, null=True)
     comment = models.CharField(max_length=255, blank=True, null=True)
     customer_payment_account = models.CharField(max_length=30, blank=True, null=True)
-    customer_mfo = models.IntegerField(blank=True, null=True)
+    customer_mfo = models.CharField(max_length=5, blank=True, null=True)
     company_payment_account = models.CharField(max_length=30, blank=True, null=True)
 
     def __str__(self):
