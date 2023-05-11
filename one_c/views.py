@@ -170,13 +170,16 @@ class UpdateContractPayedCash(views.APIView):
             print('customer_mfo >>>>> ', customer_mfo)
             print('company_payment_account >>>>> ', company_payment_account)
             contract = None
+            contract_status = None
             if str(contract_code).lower().startswith("c", 0, 2):
                 contract = Contract.objects.get(id_code=contract_code)
+                contract_status = ContractStatus.objects.get(name='Aktiv')
             if str(contract_code).lower().startswith("e", 0, 2):
                 contract = ExpertiseServiceContract.objects.get(id_code=contract_code)
+                contract_status = 3 # Aktiv
 
             contract.payed_cash = payed_cash
-            contract.contract_status = ContractStatus.objects.get(name='Aktiv')
+            contract.contract_status = contract_status
             contract.save()
 
             payed_inform = PayedInformation.objects.create(
