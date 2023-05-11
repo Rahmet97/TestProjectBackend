@@ -187,7 +187,7 @@ class UpdateContractPayedCash(views.APIView):
                 # contract=contract,
                 payed_cash=payed_cash,
                 payed_time=payed_time,
-                contract_code=id_code,
+                contract_code=contract_code,
                 customer_tin=customer_tin,
                 currency=currency,
                 comment=comment,
