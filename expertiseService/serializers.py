@@ -2,9 +2,10 @@ from datetime import datetime
 
 from rest_framework import serializers, status
 
-from accounts.models import FizUser, YurUser
+from accounts.models import FizUser, YurUser, UserData
 
-from accounts.serializers import FizUserSerializerForContractDetail, YurUserSerializerForContractDetail
+from accounts.serializers import FizUserSerializerForContractDetail, YurUserSerializerForContractDetail, \
+    FizUserSerializer, YurUserSerializer
 
 from contracts.serializers import ServiceSerializerForContract
 
@@ -14,7 +15,7 @@ from expertiseService.models import (
     ExpertiseExpertSummaryDocument, ExpertisePkcs, ExpertiseTarif
 )
 from main.utils import responseErrorMessage
-from one_c.models import PayedInformation
+from one_c.models import PayedInformation, Invoice
 
 
 class ExpertiseTarifSerializer(serializers.ModelSerializer):
@@ -243,6 +244,22 @@ class ExpertiseMonitoringContractSerializer(serializers.ModelSerializer):
         #     payed_information_objects, many=True, context={'contract_cash': instance.contract_cash}
         # ).data,
 
+        client = UserData.objects.get(id=instance.client.id)
+        if client.type == 1:  # FIZ = 1 YUR = 2
+            representation["client"] = FizUserSerializer(FizUser.objects.get(userdata=client)).data
+            representation["user_type"] = "fiz"
+        else:
+            representation["client"] = YurUserSerializer(YurUser.objects.get(userdata=client)).data
+            representation["user_type"] = "yur"
+
         representation["total_payed_percentage"] = instance.total_payed_percentage
         representation["arrearage"] = instance.get_arrearage
+
+        representation["invoice_status"] = {}
+        if Invoice.objects.filter(contract_code=instance.id_code).exists():
+            invoice = Invoice.objects.filter(contract_code=instance.id_code).last()
+            representation["invoice_status"] = {
+                "name": invoice.status.name,
+                "status_code": invoice.status.status_code
+            }
         return representation
