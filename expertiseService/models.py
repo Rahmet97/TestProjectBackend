@@ -57,7 +57,8 @@ class ExpertiseServiceContract(models.Model):
     def get_new_id_code():
         try:
             ExpertiseServiceContract.objects.last()
-            count = int(ExpertiseServiceContract.objects.last().id_code[-1])
+            # count = int(ExpertiseServiceContract.objects.last().id_code[-1])
+            count = ExpertiseServiceContract.objects.last().id
         except ExpertiseServiceContract.DoesNotExist:
             count = 0
         return f"E{count + 1}"
