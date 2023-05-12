@@ -224,8 +224,7 @@ class GetCurrentTimeAPIView(views.APIView):
 
 class UniconDataAPIView(views.APIView):
     serializer_class = UniconDataSerializer
-
-    # permission_classes = [WorkerPermission]
+    permission_classes = [WorkerPermission]
 
     def refresh_unicon_data(self):
         # Delete all UniconDatas objects
