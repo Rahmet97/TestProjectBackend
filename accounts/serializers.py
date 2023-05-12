@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Group, RolePermission, Role, Permission, FizUser, YurUser, UserData, BankMFOName
+from .models import Group, RolePermission, Role, Permission, FizUser, YurUser, UserData, BankMFOName, UniconDatas
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -140,3 +140,39 @@ class YurUserForOldContractSerializers(serializers.ModelSerializer):
             "name", "per_adr", "director_firstname", "director_lastname", "director_middlename",
             "bank_mfo", "paymentAccount", "xxtut", "ktut", "oked", "position", "tin"
         ]
+
+
+class UniconDatasHistoricalSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UniconDatas.history.model
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["bank_mfo"] = instance.bank_mfo.mfo
+        return representation
+
+
+class UniconDataSerializer(serializers.ModelSerializer):
+    history = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = UniconDatas
+        fields = '__all__'
+
+    @staticmethod
+    def get_history(obj):
+        history = obj.history.all().order_by("-id")[:10]
+        serialized_history = []
+        for index, h in enumerate(history):
+            old_data = UniconDatasHistoricalSerializer(history[index - 1]).data if index > 0 else None
+            new_data = UniconDatasHistoricalSerializer(h).data
+            new_data['old_history'] = old_data
+            serialized_history.append(new_data)
+        return serialized_history
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["bank_mfo"] = instance.bank_mfo.mfo
+        return representation

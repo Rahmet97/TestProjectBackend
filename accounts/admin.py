@@ -39,3 +39,8 @@ class DepartamentAdmin(admin.ModelAdmin):
 @admin.register(DepartamentGroup)
 class DepartamentGroupAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(UniconDatas)
+class UniconDatasAdmin(admin.ModelAdmin):
+    pass

@@ -300,3 +300,61 @@ class YurUser(models.Model):
     @property
     def get_user_role(self):
         return f"{self.userdata.role}"
+
+
+class UniconDatas(models.Model):
+    name = models.CharField(max_length=255)
+    name_en = models.CharField(max_length=255, blank=True, null=True)
+    name_ru = models.CharField(max_length=255, blank=True, null=True)
+
+    short_name = models.CharField(max_length=100)
+    short_name_en = models.CharField(max_length=100, blank=True, null=True)
+    short_name_ru = models.CharField(max_length=100, blank=True, null=True)
+
+    position = models.CharField(max_length=255)
+    position_en = models.CharField(max_length=255, blank=True, null=True)
+    position_ru = models.CharField(max_length=255, blank=True, null=True)
+
+    first_name = models.CharField(max_length=50)
+    first_name_en = models.CharField(max_length=50, blank=True, null=True)
+    first_name_ru = models.CharField(max_length=50, blank=True, null=True)
+
+    mid_name = models.CharField(max_length=50)
+    mid_name_en = models.CharField(max_length=50, blank=True, null=True)
+    mid_name_ru = models.CharField(max_length=50, blank=True, null=True)
+
+    sur_name = models.CharField(max_length=50)
+    sur_name_en = models.CharField(max_length=50, blank=True, null=True)
+    sur_name_ru = models.CharField(max_length=50, blank=True, null=True)
+
+    document = models.CharField(max_length=50, blank=True, null=True)
+    document_en = models.CharField(max_length=50, blank=True, null=True)
+    document_ru = models.CharField(max_length=50, blank=True, null=True)
+
+    per_adr = models.CharField(max_length=255)
+    per_adr_en = models.CharField(max_length=255, blank=True, null=True)
+    per_adr_ru = models.CharField(max_length=255, blank=True, null=True)
+
+    phone_number = models.CharField(max_length=50, blank=True, null=True)
+    fax = models.CharField(max_length=50, blank=True, null=True)  # faks
+    email = models.EmailField(blank=True, null=True)
+    e_xat = models.EmailField(blank=True, null=True)
+    postCode = models.CharField(max_length=20, blank=True, null=True)
+    tin = models.CharField(max_length=9, blank=True, null=True)
+    bank_mfo = models.ForeignKey(BankMFOName, on_delete=models.CASCADE, blank=True, null=True)
+    paymentAccount = models.CharField(max_length=24, blank=True, null=True)
+    xxtut = models.CharField(max_length=20, blank=True, null=True)
+    ktut = models.CharField(max_length=20, blank=True, null=True)
+    oked = models.CharField(max_length=5, blank=True, null=True)  # ifut
+    web_site = models.URLField(blank=True, null=True)
+    dm_web_site = models.URLField(blank=True, null=True)
+    dm_phone_number = models.CharField(max_length=50, blank=True, null=True)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def get_full_name(self):
+        return f"{self.first_name} {self.mid_name} {self.sur_name}"

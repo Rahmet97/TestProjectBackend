@@ -1,15 +1,17 @@
 from datetime import datetime
+
+from django.db import transaction
 from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status, response, views, permissions
 
 from main.utils import responseErrorMessage
 
-from .models import Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName, RolePermission
+from .models import Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName, RolePermission, UniconDatas
 from .permissions import SuperAdminPermission, WorkerPermission
 from .serializers import (
     GroupSerializer, RoleSerializer, PermissionSerializer, PinUserToGroupRoleSerializer,
-    YurUserSerializer, FizUserSerializer, BankMFONameSerializer
+    YurUserSerializer, FizUserSerializer, BankMFONameSerializer, UniconDataSerializer
 )
 
 
@@ -221,12 +223,37 @@ class GetCurrentTimeAPIView(views.APIView):
 
 
 class UniconDataAPIView(views.APIView):
-    serializer_class = YurUserSerializer
-    permission_classes = [WorkerPermission]
+    serializer_class = UniconDataSerializer
 
-    @staticmethod
-    def get_obj():
-        return YurUser.objects.get(userdata__role__name="direktor")  # , tin="123456789")
+    # permission_classes = [WorkerPermission]
+
+    def refresh_unicon_data(self):
+        # Delete all UniconDatas objects
+        UniconDatas.objects.all().delete()
+        # Get the YurUser object for the director with the "direktor" role
+        unicon_director_obj = YurUser.objects.get(userdata__role__name="direktor")
+        # Serialize the director object using YurUserSerializer
+        unicon_director_serializer = YurUserSerializer(unicon_director_obj)
+        # Get the serialized data for the director object
+        unicon_data = unicon_director_serializer.data
+        # Get the bank MFO for the director object
+        bank_mfo = unicon_director_obj.bank_mfo
+        # Add the bank MFO and short name to the serialized data
+        unicon_data["bank_mfo"] = bank_mfo.pk
+        unicon_data["short_name"] = unicon_data["name"]
+        # Create a new instance of the serializer class with the updated data
+        unicon_serializer = self.serializer_class(data=unicon_data)
+        # Check if the data is valid and raise an exception if it's not
+        unicon_serializer.is_valid(raise_exception=True)
+        # Save the serialized data to a new UniconDatas object
+        unicon_serializer.save()
+
+    def get_obj(self):
+        if UniconDatas.objects.count() == 1:
+            return UniconDatas.objects.last()
+
+        self.refresh_unicon_data()
+        return UniconDatas.objects.last()
 
     # Unicon data larini olish ya'ni unicon directorini
     def get(self, request):
@@ -235,12 +262,20 @@ class UniconDataAPIView(views.APIView):
 
     # Unicon data larini ozgartirish ya'ni unicon directorini
     def patch(self, request):
-        serializer = self.serializer_class(self.get_obj(), request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-
         if request.data.get("bank_mfo") is not None:
             bank_mfo = BankMFOName.objects.get(mfo=request.data.get("bank_mfo"))
-            serializer.save(bank_mfo=bank_mfo)
-        else:
-            serializer.save()
+            request.data["bank_mfo"] = bank_mfo.pk
+
+        unicon_obj = self.get_obj()
+        serializer = self.serializer_class(unicon_obj, request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        unicon_obj.refresh_from_db()  # Reload the object from the database with the updated values
+        # Create the historical record with the user and user_role fields
+        if request.user.is_authenticated:
+            history_record = unicon_obj.history.first()
+            history_record.history_user = request.user
+            history_record.save()
+
         return response.Response(data=serializer.data, status=status.HTTP_200_OK)
