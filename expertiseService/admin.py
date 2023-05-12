@@ -21,7 +21,7 @@ class ExpertiseServiceContractTarifAdmin(admin.ModelAdmin):
 
 @admin.register(ExpertiseServiceContract)
 class ExpertiseServiceContractAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["contract_number", "id_code"]
 
 
 @admin.register(ExpertiseTarifContract)

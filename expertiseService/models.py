@@ -37,7 +37,7 @@ class ExpertiseServiceContract(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     client = models.ForeignKey(UserData, on_delete=models.CASCADE)
     contract_number = models.CharField(max_length=10, unique=True)
-    id_code = models.CharField(max_length=20, blank=True, null=True)
+    id_code = models.CharField(max_length=20, blank=True, null=True, unique=True)
     # condition = models.IntegerField(default=0)
 
     contract_cash = models.DecimalField(max_digits=20, decimal_places=2)  # total_price
@@ -55,7 +55,11 @@ class ExpertiseServiceContract(models.Model):
 
     @staticmethod
     def get_new_id_code():
-        count = ExpertiseServiceContract.objects.all().count()
+        try:
+            ExpertiseServiceContract.objects.last()
+            count = int(ExpertiseServiceContract.objects.last().id_code[-1])
+        except ExpertiseServiceContract.DoesNotExist:
+            count = 0
         return f"E{count + 1}"
 
     @property
