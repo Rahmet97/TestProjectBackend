@@ -1123,6 +1123,7 @@ class GetUnitContractDetailWithNumber(APIView):
         # Bu Django ORM script codeni boshqatan korish kk chunki duplicate malumotlarniyam hisob qoyishi mumkin bazada
         # filter_conditions = Q(rack__unit__contract=contract) & Q(status__name="o'rnatilgan")
         unit = Unit.objects.filter(contract=contract)
+        print(unit.values('device_id'))
         ppp = list(set(unit.values('device_id')))
         empty_electricity = 0
         for i in ppp:
