@@ -1121,7 +1121,8 @@ class GetUnitContractDetailWithNumber(APIView):
             electricity += i.electricity * i.units_count
 
         # Bu Django ORM script codeni boshqatan korish kk chunki duplicate malumotlarniyam hisob qoyishi mumkin bazada
-        filter_conditions = Q(rack__unit__contract=contract) & Q(status__name="o'rnatilgan")
+        # filter_conditions = Q(rack__unit__contract=contract) & Q(status__name="o'rnatilgan")
+        filter_conditions = Q(rack__contract=contract) & Q(status__name="o'rnatilgan")
         empty_electricity = DeviceUnit.objects.filter(filter_conditions).distinct().aggregate(Sum('electricity'))
 
         empty = summ - Unit.objects.filter(Q(is_busy=True), Q(contract=contract)).count()
