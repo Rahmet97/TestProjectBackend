@@ -103,16 +103,18 @@ class AddDeviceAPIView(APIView):
         rack = int(request.data['rack'])
         start = int(request.data['start'])
         end = int(request.data['end'])
+
         rack_data = Rack.objects.get(pk=rack)
         if int(request.data['contract_id']):
             contract = int(request.data['contract_id'])
-        elif Rack.objects.get(pk=rack).contract:
+        elif rack_data.contract:
             contract = rack_data.contract.id
         else:
             return Response({
                 'success': False,
                 'message': 'Rack sotib olinmagan'
             })
+
         device_id = int(request.data['device_id'])
         device_publisher = int(request.data['device_publisher'])
         device_model = request.data['device_model']
