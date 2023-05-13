@@ -57,6 +57,7 @@ class ExpertiseServiceContract(models.Model):
     def get_new_id_code():
         count = 1
         if ExpertiseServiceContract.objects.last():
+            print("last_id", ExpertiseServiceContract.objects.last().id)
             count = ExpertiseServiceContract.objects.last().id + 1
         return f"E{count}"
 
