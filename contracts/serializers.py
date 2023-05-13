@@ -42,21 +42,10 @@ class ServiceSerializer(serializers.ModelSerializer):
         else:
             return "Jismoniy va Yuridik"
 
-    # def get_is_saved(self, obj):
-    #     try:
-    #         request = self.context.get('request', None)
-    #         saved_service = SavedService.objects.get(user=request.user)
-    #         if obj in saved_service.services.all():
-    #             return True
-    #         else:
-    #             return False
-    #     except:
-    #         return False
-
     def get_is_saved(self, obj):
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            saved_services = SavedService.objects.filter(user=request.user).first()
+        user = self.context.get('user')
+        if user and user.is_authenticated:
+            saved_services = SavedService.objects.filter(user=user).first()
             if saved_services and saved_services.services.filter(pk=obj.pk).exists():
                 return True
         return False
