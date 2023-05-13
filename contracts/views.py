@@ -245,7 +245,7 @@ class SavedServiceAPIView(APIView):
         if saved_services:
             services = saved_services.services.all()
 
-        serializer = ServiceSerializer(services, many=True, context={'request': request})
+        serializer = ServiceSerializer(services, many=True, context={'user': request.user})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
