@@ -800,7 +800,7 @@ class GetUserContracts(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        contracts = Contract.objects.filter(client=request.user)
+        contracts = Contract.objects.filter(client=request.user).order_by('-id')
         serializer = ContractSerializerForContractList(contracts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
