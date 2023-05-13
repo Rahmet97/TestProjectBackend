@@ -1124,12 +1124,13 @@ class GetUnitContractDetailWithNumber(APIView):
         # filter_conditions = Q(rack__unit__contract=contract) & Q(status__name="o'rnatilgan")
         unit = Unit.objects.filter(contract=contract)
         print(unit.values('device_id'))
-        ppp = list(set(unit.values('device_id')))
+        unique_tuples = set(tuple(sorted(d.items())) for d in unit.values('device_id'))
+        unique_dicts = [dict(t) for t in unique_tuples]
         empty_electricity = 0
-        for i in ppp:
-            device = DeviceUnit.objects.get(Q(id=i), Q(status__name="o'rnatilgan"))
+        for i in unique_dicts:
+            device = DeviceUnit.objects.get(Q(id=i['device_id']), Q(status__name="o'rnatilgan"))
             empty_electricity += device.electricity
-
+        print('empty_electricity >>>>>>> ', empty_electricity)
         # empty_electricity = DeviceUnit.objects.filter(filter_conditions).distinct().aggregate(Sum('electricity'))
 
         empty = summ - Unit.objects.filter(Q(is_busy=True), Q(contract=contract)).count()
