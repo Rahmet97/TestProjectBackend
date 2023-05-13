@@ -4,7 +4,7 @@ import requests
 import base64
 from datetime import datetime
 
-from rest_framework import response, views, permissions, authentication, status
+from rest_framework import response, views, permissions, authentication, status, generics, serializers
 from dotenv import load_dotenv
 
 from accounts.models import FizUser, YurUser
@@ -207,3 +207,16 @@ class UpdateContractPayedCash(views.APIView):
             }
             return response.Response({"OperationResult": data}, status=405)
         return response.Response({"OperationResult": data}, status=200)
+
+
+# Test api
+class InvoiceSerializers(serializers.ModelSerializer):
+
+    class Meta:
+        model = Invoice
+        fields = "__all__"
+
+
+class ListInvoiceAPIView(generics.ListAPIView):
+    serializer_class = InvoiceSerializers
+    queryset = Invoice.objects.all()

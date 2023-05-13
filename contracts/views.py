@@ -1025,8 +1025,7 @@ class GetGroupContract(APIView):
             }
             return Response(contracts)
         else:
-            contracts = Contract.objects.filter(
-                Q(service__group=group), Q(condition=3))
+            contracts = Contract.objects.filter(Q(service__group=group), Q(condition=3))
             serializer = ContractSerializerForBackoffice(contracts, many=True)
             return Response(serializer.data)
 
