@@ -32,7 +32,6 @@ class ServiceSerializer(serializers.ModelSerializer):
     need_documents = DocumentSerializer(many=True)
     group = GroupSerializer()
     user_type = serializers.SerializerMethodField()
-    is_saved = serializers.SerializerMethodField()
 
     def get_user_type(self, obj):
         if obj.user_type == 1:
@@ -52,7 +51,20 @@ class ServiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Service
-        fields = ('id', 'name', 'description', 'image', 'user_type', 'period', 'need_documents', 'group', 'is_saved')
+        fields = ('id', 'name', 'description', 'image', 'user_type', 'period', 'need_documents', 'group')
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        representation["is_saved"] = False
+        user = self.context.get('user')
+        if user and user.is_authenticated:
+            saved_services = SavedService.objects.filter(user=user).first()
+
+            if saved_services and saved_services.services.filter(pk=instance.pk).exists():
+                representation["is_saved"] = True
+
+        return representation
 
 
 class ServiceCreateSerializer(serializers.ModelSerializer):

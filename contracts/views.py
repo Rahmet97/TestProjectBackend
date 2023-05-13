@@ -232,39 +232,74 @@ class ServiceCreateAPIView(generics.CreateAPIView):
         serializer.save(need_documents=need_documents)
 
 
-class SavedServiceAPIView(APIView):
+# class SavedServiceAPIView(APIView):
+#     permission_classes = (IsAuthenticated,)
+#
+#     def get(self, request):
+#         services = []
+#         try:
+#             saved_services = SavedService.objects.get(user=request.user)
+#         except SavedService.DoesNotExist:
+#             saved_services = None
+#
+#         if saved_services:
+#             services = saved_services.services.all()
+#
+#         serializer = ServiceSerializer(services, many=True, context={'user': request.user})
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+#
+#     @swagger_auto_schema(
+#         operation_summary="Service ni saqlangan servicega qo'shish. Bu yerda service_id ni " "jo'natishiz kere bo'ladi"
+#     )
+#     def post(self, request):
+#         service_id = request.data['service_id']
+#         user = request.user
+#         service = Service.objects.get(pk=service_id)
+#         if SavedService.objects.filter(user=user).exists():
+#             saved_service = SavedService.objects.get(user=user)
+#         else:
+#             saved_service = SavedService.objects.create(user=user)
+#         if service not in saved_service.services.all():
+#             saved_service.services.add(service)
+#             saved_service.save()
+#         else:
+#             return Response({'message': 'Bu service oldindan mavjud'}, status=status.HTTP_302_FOUND)
+#         return Response(status=status.HTTP_200_OK)
+
+
+class SavedServiceAPIView(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
+    serializer_class = ServiceSerializer
 
-    def get(self, request):
-        services = []
+    def get_queryset(self):
         try:
-            saved_services = SavedService.objects.get(user=request.user)
+            saved_services = SavedService.objects.get(user=self.request.user)
         except SavedService.DoesNotExist:
-            saved_services = None
+            return Service.objects.none()
+        else:
+            return saved_services.services.all()
 
-        if saved_services:
-            services = saved_services.services.all()
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['user'] = self.request.user
+        return context
 
-        serializer = ServiceSerializer(services, many=True, context={'user': request.user})
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @swagger_auto_schema(
-        operation_summary="Service ni saqlangan servicega qo'shish. Bu yerda service_id ni " "jo'natishiz kere bo'ladi"
-    )
-    def post(self, request):
-        service_id = request.data['service_id']
-        user = request.user
+    def perform_create(self, serializer):
+        service_id = self.request.data['service_id']
+        user = self.request.user
         service = Service.objects.get(pk=service_id)
+
         if SavedService.objects.filter(user=user).exists():
             saved_service = SavedService.objects.get(user=user)
         else:
             saved_service = SavedService.objects.create(user=user)
+
         if service not in saved_service.services.all():
             saved_service.services.add(service)
             saved_service.save()
         else:
-            return Response({'message': 'Bu service oldindan mavjud'}, status=status.HTTP_302_FOUND)
-        return Response(status=status.HTTP_200_OK)
+            # Raise a validation error if the service already exists in the saved services list
+            raise ValidationError({'message': 'Bu service oldindan mavjud'})
 
 
 class DeleteSavedService(APIView):
