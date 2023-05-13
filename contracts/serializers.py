@@ -56,7 +56,7 @@ class ServiceSerializer(serializers.ModelSerializer):
     def get_is_saved(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            saved_services = SavedService.objects.filter(user=request.user)
+            saved_services = SavedService.objects.filter(user=request.user).first()
             if saved_services and saved_services.services.filter(pk=obj.pk).exists():
                 return True
         return False
