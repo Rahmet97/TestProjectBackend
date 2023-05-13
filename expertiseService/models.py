@@ -55,10 +55,10 @@ class ExpertiseServiceContract(models.Model):
 
     @staticmethod
     def get_new_id_code():
-        count = 0
+        count = 1
         if ExpertiseServiceContract.objects.last():
-            count = ExpertiseServiceContract.objects.last().id
-        return f"E{count + 1}"
+            count = ExpertiseServiceContract.objects.last().id + 1
+        return f"E{count}"
 
     @property
     def total_payed_percentage(self):

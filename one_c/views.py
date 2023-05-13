@@ -32,7 +32,7 @@ class CreateInvoiceAPIView(views.APIView):
             contract = ExpertiseServiceContract.objects.get(id_code=contract_id_code)
         else:
             responseErrorMessage(message="Contract does not exist", status_code=status.HTTP_404_NOT_FOUND)
-        
+
         invoice = Invoice.objects.create(
             customer=contract.client,
             number=f'{contract.id_code}/{str(datetime.now().month).zfill(2)}{datetime.now().year % 100}',
@@ -41,7 +41,7 @@ class CreateInvoiceAPIView(views.APIView):
             status=Status.objects.get(name='Yangi')
         )
         invoice.save()
-        
+
         headers = {
             "Authorization": f"Basic {base64.b64encode(f'{username}:{password}'.encode()).decode()}"
         }
@@ -62,7 +62,7 @@ class CreateInvoiceAPIView(views.APIView):
             customer_address = user.per_adr
             customer_account = user.paymentAccount
             customer_mfo = user.bank_mfo.mfo
-        
+
         products = None
         if str(contract_id_code).upper().startswith("C", 0, 2):  # co-location
 
@@ -74,7 +74,7 @@ class CreateInvoiceAPIView(views.APIView):
                 quantity = 0
                 for element in UserDeviceCount.objects.filter(user=user_contract_tarif_device):
                     quantity += element.device_count * element.units_count
-            
+
             products = [{
                 "nomenclatureID": Nomenclature.objects.get(service=contract.service).nomenclature,
                 "quantity": quantity,
@@ -176,7 +176,7 @@ class UpdateContractPayedCash(views.APIView):
                 contract_status = ContractStatus.objects.get(name='Aktiv')
             if str(contract_code).lower().startswith("e", 0, 2):
                 contract = ExpertiseServiceContract.objects.get(id_code=contract_code)
-                contract_status = 3 # Aktiv
+                contract_status = 3  # Aktiv
 
             contract.payed_cash = payed_cash
             contract.contract_status = contract_status
@@ -211,7 +211,6 @@ class UpdateContractPayedCash(views.APIView):
 
 # Test api
 class InvoiceSerializers(serializers.ModelSerializer):
-
     class Meta:
         model = Invoice
         fields = "__all__"
