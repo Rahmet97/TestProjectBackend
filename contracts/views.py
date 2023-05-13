@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 from django.db.models import Q, Sum
 from django.shortcuts import redirect, render, get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics, validators, status
+from rest_framework import generics, validators, status, mixins
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -267,39 +267,43 @@ class ServiceCreateAPIView(generics.CreateAPIView):
 #         return Response(status=status.HTTP_200_OK)
 
 
-class SavedServiceAPIView(generics.ListCreateAPIView):
+class SavedServiceAPIView(mixins.ListModelMixin, generics.GenericAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ServiceSerializer
 
     def get_queryset(self):
+        user = self.request.user
         try:
-            saved_services = SavedService.objects.get(user=self.request.user)
+            saved_services = SavedService.objects.get(user=user)
+            return saved_services.services.all()
         except SavedService.DoesNotExist:
             return Service.objects.none()
-        else:
-            return saved_services.services.all()
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['user'] = self.request.user
         return context
 
-    def perform_create(self, serializer):
-        service_id = self.request.data['service_id']
-        user = self.request.user
+    @swagger_auto_schema(
+        operation_summary="Service ni saqlangan servicega qo'shish. Bu yerda service_id ni " "jo'natishiz kere bo'ladi"
+    )
+    def post(self, request):
+        service_id = request.data['service_id']
+        user = request.user
         service = Service.objects.get(pk=service_id)
-
         if SavedService.objects.filter(user=user).exists():
             saved_service = SavedService.objects.get(user=user)
         else:
             saved_service = SavedService.objects.create(user=user)
-
         if service not in saved_service.services.all():
             saved_service.services.add(service)
             saved_service.save()
         else:
-            # Raise a validation error if the service already exists in the saved services list
-            raise ValidationError({'message': 'Bu service oldindan mavjud'})
+            return Response({'message': 'Bu service oldindan mavjud'}, status=status.HTTP_302_FOUND)
+        return Response(status=status.HTTP_200_OK)
 
 
 class DeleteSavedService(APIView):
