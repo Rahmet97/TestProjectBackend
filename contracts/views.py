@@ -955,16 +955,22 @@ class GetGroupContract(APIView):
                 ).values('contract')
 
                 yangi_data_query_filter = (
-                    Q(id__in=contract_participants) & Q(contract_status__name="Yangi")
+                    Q(id__in=contract_participants) &
+                    Q(contract_status__name="Yangi")
+                )
+                yangi_data_exclude_query_filter = (
+                    Q(id__in=director_accepted_contracts) |
+                    Q(id__in=contract_participants) & Q(contract_date__lt=datetime.now() - timedelta(days=1))  # mudati o'tgan
                 )
                 yangi_data = Contract.objects.filter(
                     yangi_data_query_filter
                 ).exclude(
-                    Q(id__in=director_accepted_contracts)
+                    yangi_data_exclude_query_filter
                 ).select_related().order_by('-condition', '-contract_date')
             else:
                 contract_participants_query_filter = (
-                    Q(role=request.user.role) & (Q(agreement_status__name='Yuborilgan') | Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                    Q(role=request.user.role) &
+                    (Q(agreement_status__name='Yuborilgan') | Q(agreement_status__name="Ko'rib chiqilmoqda"))
                 )
                 contract_participants = Contracts_Participants.objects.filter(
                     contract_participants_query_filter
@@ -972,7 +978,9 @@ class GetGroupContract(APIView):
 
                 yangi_data_query_filter = Q(id__in=contract_participants) & Q(contract_status__name="Yangi")
                 yangi_data_exclude_query_filter = (
-                        Q(contract_status__name="Bekor qilingan") | Q(contract_status__name="Rad etilgan")
+                        Q(contract_status__name="Bekor qilingan") |
+                        Q(contract_status__name="Rad etilgan") |
+                        Q(id__in=contract_participants) & Q(contract_date__lt=datetime.now() - timedelta(days=1))  # mudati o'tgan
                 )
                 yangi_data = Contract.objects.filter(
                     yangi_data_query_filter
