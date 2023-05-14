@@ -249,7 +249,9 @@ class ExpertiseGetGroupContract(APIView):
             yangi_data = ExpertiseServiceContract.objects.filter(id__in=contract_participants).exclude(
                 Q(id__in=director_accepted_contracts),
                 Q(contract_status=5),
-                Q(contract_status=1)).select_related().order_by('-contract_date')
+                Q(contract_status=1),
+                Q(contract_date__lt=datetime.now() - timedelta(days=1))
+            ).select_related().order_by('-contract_date')
         else:
             contract_participants = ExpertiseContracts_Participants.objects.filter(
                 Q(role=request.user.role),
@@ -257,8 +259,9 @@ class ExpertiseGetGroupContract(APIView):
                  Q(agreement_status__name="Ko'rib chiqilmoqda"))
             ).values('contract')
             yangi_data = ExpertiseServiceContract.objects.filter(id__in=contract_participants).exclude(
-                Q(contract_status=5) | Q(contract_status=1)).select_related() \
-                .order_by('-contract_date')
+                Q(contract_status=5) | Q(contract_status=1),
+                Q(contract_date__lt=datetime.now() - timedelta(days=1))
+            ).select_related().order_by('-contract_date')
         self.check_object_permissions(request=request, obj=yangi_data)
         yangi = ExpertiseContractSerializerForBackoffice(yangi_data, many=True)
 
@@ -288,7 +291,8 @@ class ExpertiseGetGroupContract(APIView):
         ).values('contract')
         expired_data = ExpertiseServiceContract.objects.filter(
             Q(id__in=contract_participants),
-            Q(contract_date__lt=datetime.now() - timedelta(days=1))).select_related().order_by('-contract_date')
+            Q(contract_date__lt=datetime.now() - timedelta(days=1))
+        ).select_related().order_by('-contract_date')
         self.check_object_permissions(request=request, obj=expired_data)
         expired = ExpertiseContractSerializerForBackoffice(expired_data, many=True)
 
