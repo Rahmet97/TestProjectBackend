@@ -571,7 +571,8 @@ class CreateContractFileAPIView(APIView):
         tarif = Tarif.objects.get(pk=int(request.data['tarif'])).name
 
         try:
-            number = Contract.objects.last().id + 1
+            # number = Contract.objects.last().id + 1
+            number = int(Contract.objects.last().contract_number[-1]) + 1
         except AttributeError:
             number = 1
         prefix = Service.objects.get(pk=int(request.data['service_id'])).group.prefix
@@ -741,6 +742,17 @@ class CreateContractFileAPIView(APIView):
             template_name = "shablonYuridik.html"
 
         return render(request=request, template_name=template_name, context=context)
+
+
+class CreateContractFileDeleteAPIView(generics.DestroyAPIView):
+    queryset = Contract.objects.all()
+    permission_classes = [WorkerPermission]
+    lookup_field = "contract_pk"
+
+    # def delete(self, request, contract_pk):
+    #     contract = get_object_or_404(Contract, pk=contract_pk)
+    #     contract.delete()
+    #     return Response(status=status.HTTP_200_OK)
 
 
 class SavePkcs(APIView):
