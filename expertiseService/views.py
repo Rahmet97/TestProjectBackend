@@ -457,8 +457,8 @@ class ExpertiseContractDetail(APIView):
 
         # agar request user mijoz bo'lsa
         # expertise model yaratilganidan keyin statusi ozgarishi kk front ofise uchun
-        # yani iqtisodchi va yurist dan otganidan keyin
-        if request.user.role.name == "mijoz" and contract.client == request.user and contract.contract_status == 6:
+        # yani iqtisodchi va yurist dan otganidan keyin1
+        if request.user.role.name == "mijoz" and contract.client == request.user and contract.contract_status != 0:
             client = request.user
 
         # agar reuqest user direktor, direktor o'rin bosari bo'lsa
@@ -477,7 +477,8 @@ class ExpertiseContractDetail(APIView):
 
         try:
             expert_summary_value = ExpertiseExpertSummary.objects.get(
-                Q(contract=contract), Q(user=request.user),
+                Q(contract=contract),
+                Q(user=request.user),
                 (Q(user__group=request.user.group) | Q(user__group=None))
             ).summary
 
