@@ -17,6 +17,7 @@ from rest_framework import response, status, generics, permissions
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
+from accounts.permissions import WorkerPermission
 from contracts.models import Participant, Service
 from contracts.tasks import file_downloader
 from contracts.permission import IsAuthenticatedAndOwner
@@ -227,6 +228,11 @@ class CreateExpertiseServiceContractView(APIView):
 
         template_name = "shablonEkspertiza.html"
         return render(request=request, template_name=template_name, context=context)
+
+
+class ExpertiseServiceContractDeleteAPIView(generics.DestroyAPIView):
+    queryset = ExpertiseServiceContract.objects.all()
+    permission_classes = [WorkerPermission]
 
 
 class ExpertiseGetGroupContract(APIView):

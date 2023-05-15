@@ -748,11 +748,6 @@ class ContractFileDeleteAPIView(generics.DestroyAPIView):
     queryset = Contract.objects.all()
     permission_classes = [WorkerPermission]
 
-    # def delete(self, request, contract_pk):
-    #     contract = get_object_or_404(Contract, pk=contract_pk)
-    #     contract.delete()
-    #     return Response(status=status.HTTP_200_OK)
-
 
 class SavePkcs(APIView):
     permission_classes = (IsAuthenticated,)
