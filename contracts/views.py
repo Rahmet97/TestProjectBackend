@@ -1014,8 +1014,15 @@ class GetGroupContract(APIView):
             contract_participants = Contracts_Participants.objects.filter(
                 contract_participants_query_filter
             ).values('contract')
-            expired_data_query_filter = Q(id__in=contract_participants) & Q(contract_date__lt=datetime.now() - timedelta(days=1))
-            expired_data_exclude_query_filter = Q(contract_status__name='Bekor qilingan') | Q(contract_status__name="Rad etilgan")
+            expired_data_query_filter = (
+                    Q(id__in=contract_participants) &
+                    Q(contract_date__lt=datetime.now() - timedelta(days=1))
+                    # Q(contract_status__name='Yangi')
+            )
+            expired_data_exclude_query_filter = (
+                    Q(contract_status__name='Bekor qilingan') |
+                    Q(contract_status__name="Rad etilgan")
+            )
             expired_data = Contract.objects.filter(expired_data_query_filter).select_related().exclude(
                 expired_data_exclude_query_filter
             ).order_by('-condition', '-contract_date')
@@ -1060,7 +1067,6 @@ class GetGroupContract(APIView):
             contracts_selected = ExpertSummary.objects.select_related('contract').filter(
                 Q(user=request.user)
             ).order_by('-contract__condition', '-contract__contract_date')
-            # in_time_data = [element.contract for element in contracts_selected if element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(days=1)]
             in_time_data = [
                 element.contract for element in contracts_selected
                 if element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(days=1)
