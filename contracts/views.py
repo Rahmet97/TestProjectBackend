@@ -572,7 +572,7 @@ class CreateContractFileAPIView(APIView):
 
         try:
             # number = Contract.objects.last().id + 1
-            number = int(Contract.objects.last().contract_number[-1]) + 1
+            number = int(Contract.objects.last().contract_number.split("-")[-1]) + 1
         except AttributeError:
             number = 1
         prefix = Service.objects.get(pk=int(request.data['service_id'])).group.prefix
