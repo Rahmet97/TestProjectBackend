@@ -1016,8 +1016,8 @@ class GetGroupContract(APIView):
             ).values('contract')
             expired_data_query_filter = (
                     Q(id__in=contract_participants) &
-                    Q(contract_date__lt=datetime.now() - timedelta(days=1))
-                    # Q(contract_status__name='Yangi')
+                    Q(contract_date__lt=datetime.now() - timedelta(days=1)) &
+                    Q(contract_status__name='Yangi')
             )
             expired_data_exclude_query_filter = (
                     Q(contract_status__name='Bekor qilingan') |
