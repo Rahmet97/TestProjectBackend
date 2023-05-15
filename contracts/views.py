@@ -744,10 +744,9 @@ class CreateContractFileAPIView(APIView):
         return render(request=request, template_name=template_name, context=context)
 
 
-class CreateContractFileDeleteAPIView(generics.DestroyAPIView):
+class ContractFileDeleteAPIView(generics.DestroyAPIView):
     queryset = Contract.objects.all()
     permission_classes = [WorkerPermission]
-    lookup_field = "contract_pk"
 
     # def delete(self, request, contract_pk):
     #     contract = get_object_or_404(Contract, pk=contract_pk)

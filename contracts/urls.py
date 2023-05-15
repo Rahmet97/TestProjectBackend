@@ -8,7 +8,7 @@ from contracts.views import (
     CreateContractFileAPIView, SavePkcs, GetContractFile, GetUserContracts, GetContractFileWithID, ContractDetail,
     GetGroupContract, ConfirmContract, ConnectMethodListAPIView, GetPinnedUserDataAPIView, AddOldContractsViews,
     MonitoringContractViews, TariffUpdateAPIView, TariffCreateAPIView, MonitoringContractDetailViews,
-    EndContractAPIView, CreateContractFileDeleteAPIView
+    EndContractAPIView, ContractFileDeleteAPIView
 )
 
 
@@ -31,7 +31,7 @@ urlpatterns = [
     path('delete-saved-service/<int:pk>', DeleteSavedService.as_view(), name='DeleteSavedService'),
 
     path('contract-create', CreateContractFileAPIView.as_view(), name='CreateContractFileAPIView'),
-    path('reject/<int:contract_pk>', CreateContractFileDeleteAPIView.as_view(), name='CreateContractFileDeleteAPIView'),
+    path('reject/<int:pk>', ContractFileDeleteAPIView.as_view(), name='CreateContractFileDeleteAPIView'),
 
     path('contract-monitoring', MonitoringContractViews.as_view(), name='MonitoringContractViews'),
     path('contract-monitoring/<int:pk>', MonitoringContractDetailViews.as_view(), name='MonitoringContractDetailViews'),
