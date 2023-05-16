@@ -247,7 +247,9 @@ class ExpertiseGetGroupContract(APIView):
                 Q(role__name='direktor'), Q(agreement_status__name='Kelishildi')
             ).values('contract')
 
-            yangi_data = ExpertiseServiceContract.objects.filter(id__in=contract_participants).exclude(
+            yangi_data = ExpertiseServiceContract.objects.filter(
+                Q(id__in=contract_participants) | Q(is_confirmed_contract_client=True)
+            ).exclude(
                 Q(id__in=director_accepted_contracts),
                 Q(contract_status=5),
                 Q(contract_status=1),
@@ -259,7 +261,9 @@ class ExpertiseGetGroupContract(APIView):
                 (Q(agreement_status__name='Yuborilgan') |
                  Q(agreement_status__name="Ko'rib chiqilmoqda"))
             ).values('contract')
-            yangi_data = ExpertiseServiceContract.objects.filter(id__in=contract_participants).exclude(
+            yangi_data = ExpertiseServiceContract.objects.filter(
+                id__in=contract_participants
+            ).exclude(
                 Q(contract_status=5) | Q(contract_status=1),
                 Q(contract_date__lt=datetime.now() - timedelta(days=1))
             ).select_related().order_by('-contract_date')
