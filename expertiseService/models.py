@@ -58,7 +58,7 @@ class ExpertiseServiceContract(models.Model):
         count = 1
         if ExpertiseServiceContract.objects.last():
             print("last_id", ExpertiseServiceContract.objects.last().id)
-            count = ExpertiseServiceContract.objects.last().id + 1  # to'girlab ketish kk
+            count = ExpertiseServiceContract.objects.last().id + 2  # to'girlab ketish kk
         return f"E{count}"
 
     @property
