@@ -153,7 +153,7 @@ class UniconDatasHistoricalSerializer(serializers.ModelSerializer):
         representation["bank_mfo"] = instance.bank_mfo.mfo
 
         if instance.history_user:
-            history_user = UserData.objects.get(id=instance.history_user)
+            history_user = UserData.objects.get(id=instance.history_user.id)
             if history_user.type == 1:  # fizik
                 history_user = FizUser.objects.get(userdata=history_user).get_short_full_name
             else:
