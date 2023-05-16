@@ -8,8 +8,6 @@ urlpatterns = [
          views.CreateExpertiseServiceContractView.as_view(),
          name="create-expertise-contract"),
 
-    path('reject/<int:pk>', views.ExpertiseServiceContractDeleteAPIView.as_view(), name='CreateContractFileDeleteAPIView'),
-
     path('contract-monitoring', views.ExpertiseMonitoringContractViews.as_view(),
          name='ExpertiseMonitoringContractViews'),
 

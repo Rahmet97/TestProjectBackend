@@ -230,11 +230,6 @@ class CreateExpertiseServiceContractView(APIView):
         return render(request=request, template_name=template_name, context=context)
 
 
-class ExpertiseServiceContractDeleteAPIView(generics.DestroyAPIView):
-    queryset = ExpertiseServiceContract.objects.all()
-    permission_classes = [WorkerPermission]
-
-
 class ExpertiseGetGroupContract(APIView):
     permission_classes = [IsRelatedToExpertiseBackOffice]
 
