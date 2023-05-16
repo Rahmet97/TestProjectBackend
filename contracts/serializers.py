@@ -127,6 +127,22 @@ class ContractSerializerForContractList(serializers.ModelSerializer):
         model = Contract
         fields = ('id', 'service', 'contract_number', 'contract_date', 'contract_status', 'contract_cash', 'hashcode')
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        old_contract = instance.old_contract_file.all()
+        context = {
+            "has_old_contract": False,
+            "old_contract": None
+        }
+
+        if old_contract:
+            context['has_old_contract'] = True
+            context['old_contract'] = AddOldContractFilesSerializers(old_contract, many=True).data
+
+        representation["old_contract"] = context
+        return representation
+
 
 class ContractSerializerForBackoffice(serializers.ModelSerializer):
     arrearage = serializers.SerializerMethodField()
