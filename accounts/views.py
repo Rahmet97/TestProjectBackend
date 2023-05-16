@@ -121,9 +121,9 @@ class PermissionCreateAPIView(generics.CreateAPIView):
 
 
 class PermissionListAPIView(generics.ListAPIView):
-    # queryset = Permission.objects.all()
+    queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    # permission_classes = (permissions.IsAuthenticated,)
 
     # cache_backend = RedisCache
 
