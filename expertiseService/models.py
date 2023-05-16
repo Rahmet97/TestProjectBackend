@@ -56,9 +56,10 @@ class ExpertiseServiceContract(models.Model):
     @staticmethod
     def get_new_id_code():
         count = 1
-        if ExpertiseServiceContract.objects.last():
+        if ExpertiseServiceContract.objects.all().exists():
             print("last_id", ExpertiseServiceContract.objects.last().id)
-            count = ExpertiseServiceContract.objects.last().id + 1  # to'girlab ketish kk
+            count = ExpertiseServiceContract.objects.last().id  # to'girlab ketish kk
+            count += 1
         return f"E{count}"
 
     @property
@@ -75,8 +76,11 @@ class ExpertiseServiceContract(models.Model):
         return self.contract_cash
 
     def save(self, *args, **kwargs):
-        self.id_code = self.get_new_id_code()
-        super(ExpertiseServiceContract, self).save(*args, **kwargs)
+        if not self.pk:
+            # Actions to perform only when creating the instance
+            self.id_code = self.get_new_id_code()
+
+        super().save(*args, **kwargs)
 
 
 class ExpertiseTarif(models.Model):
