@@ -626,6 +626,9 @@ class ExpertiseSavePkcs(APIView):
                     new_pkcs7 = self.join2pkcs(pkcs7, client_pkcs)
                     pkcs_exist_object.pkcs7 = new_pkcs7
                     pkcs_exist_object.save()
+            if request.user == contract.client:
+                contract.is_confirmed_contract_client = True
+                contract.save()
         except ExpertiseServiceContract.DoesNotExist:
             return response.Response({'message': 'Bunday shartnoma mavjud emas'})
         return response.Response({'message': 'Success'})
