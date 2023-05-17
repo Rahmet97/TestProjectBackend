@@ -59,12 +59,14 @@ class CreateExpertiseServiceContractView(APIView):
     queryset = ExpertiseServiceContract.objects.all()
     permission_classes = [IsAuthenticated]
 
-    def generate_hash_code(self, text: str):
+    @staticmethod
+    def generate_hash_code(text: str):
         hashcode = hashlib.md5(text.encode())
         hash_code = hashcode.hexdigest()
         return hash_code
 
-    def create_contract_participants(self, service_id: int):
+    @staticmethod
+    def create_contract_participants(service_id: int):
         participants = Participant.objects.get(service_id=service_id).participants.all()
         users = []
         service_group = Service.objects.get(id=service_id).group
