@@ -8,7 +8,7 @@ admin.site.register((UserData, Permission, Role, Group, LogGroup, LogPermission)
 
 @admin.register(RolePermission)
 class RolePermissionAdmin(admin.ModelAdmin):
-    list_display = ["group", "role"]
+    list_display = ["group", "role", "permissions"]
 
 
 @admin.register(FizUser)
