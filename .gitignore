@@ -293,3 +293,6 @@ docker-compose.yml
 dsv-service-launcher/
 nginx
 accounts.json
+
+.DS_Store
+*.DS_Store

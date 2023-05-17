@@ -584,7 +584,8 @@ class CreateContractFileAPIView(APIView):
             context['month'] = datetime.now().month
             context['day'] = datetime.now().day
             context['client'] = request.data['name']
-            context['client_fullname'] = request.data['director_fullname']
+            # context['client_fullname'] = request.data['director_fullname']
+            context['client_fullname'] = request.data['name']
             director = request.data['director_fullname'].split()
             context['director'] = f"{director[1][0]}.{director[2][0]}.{director[0]}"
             context['price'] = int(request.data['price']) * 12 - int(datetime.now().month)
@@ -875,18 +876,22 @@ class ContractDetail(APIView):
             if request.user.role.name != 'direktor':
                 contract_participants = Contracts_Participants.objects.filter(contract=contract).get(
                     Q(role=request.user.role),
-                    Q(contract__service__group=request.user.group))
+                    Q(contract__service__group=request.user.group)
+                )
             else:
-                contract_participants = Contracts_Participants.objects.filter(
-                    contract=contract).get(role=request.user.role)
+                contract_participants = Contracts_Participants.objects.filter(contract=contract).get(role=request.user.role)
         except Contracts_Participants.DoesNotExist:
             contract_participants = None
 
-        if (request.user.role.name == "bo'lim boshlig'i" or
-            request.user.role.name == "direktor o'rinbosari" or
-            request.user.role.name == "dasturchi" or
-            request.user.role.name == "direktor") and \
-                (contract_participants.agreement_status.name == "Yuborilgan"):
+        if (
+                request.user.role.name == "bo'lim boshlig'i" or
+                request.user.role.name == "direktor o'rinbosari" or
+                request.user.role.name == "dasturchi" or
+                request.user.role.name == "direktor"
+        ) and (
+                contract_participants is not None and
+                contract_participants.agreement_status.name == "Yuborilgan"
+        ):
             agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
             contract_participants.agreement_status = agreement_status
             contract_participants.save()
@@ -902,19 +907,21 @@ class ContractDetail(APIView):
 
         participants = Contracts_Participants.objects.filter(contract=contract).order_by('role_id')
         participant_serializer = ContractParticipantsSerializers(participants, many=True)
+
         try:
             if request.user.role.name == 'direktor':
-                expert_summary_value = ExpertSummary.objects.get(
+                expert_summary = ExpertSummary.objects.get(
                     Q(contract=contract),
                     Q(user=request.user),
                     Q(user__group=request.user.group)
-                ).summary
+                )
             else:
-                expert_summary_value = ExpertSummary.objects.get(
+                expert_summary = ExpertSummary.objects.get(
                     Q(contract=contract),
                     Q(user=request.user),
                     Q(user__group=request.user.group)
-                ).summary
+                )
+            expert_summary_value = expert_summary.summary
         except ExpertSummary.DoesNotExist:
             expert_summary_value = 0
 
@@ -947,26 +954,27 @@ class GetGroupContract(APIView):
             # yangi
             if request.user.role.name == 'direktor':
                 contract_participants_query_filter = (
-                    Q(role__name="direktor o'rinbosari") & Q(agreement_status__name='Kelishildi')
+                        Q(role__name="direktor o'rinbosari") & Q(agreement_status__name='Kelishildi')
                 )
                 contract_participants = Contracts_Participants.objects.filter(
                     contract_participants_query_filter
                 ).values('contract')
 
                 director_accepted_contracts_query_filter = (
-                    Q(role__name='direktor') & Q(agreement_status__name='Kelishildi')
+                        Q(role__name='direktor') & Q(agreement_status__name='Kelishildi')
                 )
                 director_accepted_contracts = Contracts_Participants.objects.filter(
                     director_accepted_contracts_query_filter
                 ).values('contract')
 
                 yangi_data_query_filter = (
-                    Q(id__in=contract_participants) &
-                    Q(contract_status__name="Yangi")
+                        Q(id__in=contract_participants) &
+                        Q(contract_status__name="Yangi")
                 )
                 yangi_data_exclude_query_filter = (
-                    Q(id__in=director_accepted_contracts) |
-                    Q(id__in=contract_participants) & Q(contract_date__lt=datetime.now() - timedelta(days=1))  # mudati o'tgan
+                        Q(id__in=director_accepted_contracts) |
+                        Q(id__in=contract_participants) & Q(contract_date__lt=datetime.now() - timedelta(days=1))
+                    # mudati o'tgan
                 )
                 yangi_data = Contract.objects.filter(
                     yangi_data_query_filter
@@ -975,8 +983,8 @@ class GetGroupContract(APIView):
                 ).select_related().order_by('-condition', '-contract_date')
             else:
                 contract_participants_query_filter = (
-                    Q(role=request.user.role) &
-                    (Q(agreement_status__name='Yuborilgan') | Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                        Q(role=request.user.role) &
+                        (Q(agreement_status__name='Yuborilgan') | Q(agreement_status__name="Ko'rib chiqilmoqda"))
                 )
                 contract_participants = Contracts_Participants.objects.filter(
                     contract_participants_query_filter
@@ -986,7 +994,8 @@ class GetGroupContract(APIView):
                 yangi_data_exclude_query_filter = (
                         Q(contract_status__name="Bekor qilingan") |
                         Q(contract_status__name="Rad etilgan") |
-                        Q(id__in=contract_participants) & Q(contract_date__lt=datetime.now() - timedelta(days=1))  # mudati o'tgan
+                        Q(id__in=contract_participants) & Q(contract_date__lt=datetime.now() - timedelta(days=1))
+                    # mudati o'tgan
                 )
                 yangi_data = Contract.objects.filter(
                     yangi_data_query_filter
@@ -1006,7 +1015,8 @@ class GetGroupContract(APIView):
             kelishilgan = ContractSerializerForBackoffice(kelishilgan_data, many=True)
 
             # rad_etildi
-            rad_etildi_data_query_filter = Q(contract_status__name='Bekor qilingan') | Q(contract_status__name="Rad etilgan")
+            rad_etildi_data_query_filter = Q(contract_status__name='Bekor qilingan') | Q(
+                contract_status__name="Rad etilgan")
             rad_etildi_data = Contract.objects.filter(
                 rad_etildi_data_query_filter
             ).order_by('-condition', '-contract_date')
@@ -1014,8 +1024,8 @@ class GetGroupContract(APIView):
 
             # expired
             contract_participants_query_filter = (
-                Q(role=request.user.role) &
-                (Q(agreement_status__name='Yuborilgan') | Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                    Q(role=request.user.role) &
+                    (Q(agreement_status__name='Yuborilgan') | Q(agreement_status__name="Ko'rib chiqilmoqda"))
             )
             contract_participants = Contracts_Participants.objects.filter(
                 contract_participants_query_filter
@@ -1036,17 +1046,19 @@ class GetGroupContract(APIView):
 
             # lastday
             contract_participants_query_filter = (
-                Q(role=request.user.role) &
-                (Q(agreement_status__name='Yuborilgan') | Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                    Q(role=request.user.role) &
+                    (Q(agreement_status__name='Yuborilgan') | Q(agreement_status__name="Ko'rib chiqilmoqda"))
             )
-            contract_participants = Contracts_Participants.objects.filter(contract_participants_query_filter).values('contract')
+            contract_participants = Contracts_Participants.objects.filter(contract_participants_query_filter).values(
+                'contract')
             lastday_data_query_filter = (
-                Q(id__in=contract_participants) &
-                Q(contract_date__day=datetime.now().day) &
-                Q(contract_date__month=datetime.now().month) &
-                Q(contract_date__year=datetime.now().year)
+                    Q(id__in=contract_participants) &
+                    Q(contract_date__day=datetime.now().day) &
+                    Q(contract_date__month=datetime.now().month) &
+                    Q(contract_date__year=datetime.now().year)
             )
-            lastday_exclude_data_query_filter = Q(contract_status__name='Bekor qilingan') | Q(contract_status__name='Rad etilgan')
+            lastday_exclude_data_query_filter = Q(contract_status__name='Bekor qilingan') | Q(
+                contract_status__name='Rad etilgan')
             lastday_data = Contract.objects.filter(lastday_data_query_filter).exclude(
                 lastday_exclude_data_query_filter
             ).select_related().order_by('-condition', '-contract_date')
@@ -1054,15 +1066,15 @@ class GetGroupContract(APIView):
 
             # expired_accepted
             contract_participants_query_filter = (
-                Q(role=request.user.role) &
-                Q(agreement_status__name='Kelishildi')
+                    Q(role=request.user.role) &
+                    Q(agreement_status__name='Kelishildi')
             )
             contract_participants = Contracts_Participants.objects.filter(
                 contract_participants_query_filter
             ).values('contract')
             expired_accepted_data_query_filter = (
-                Q(id__in=contract_participants) &
-                Q(contract_date__lt=datetime.now() - timedelta(days=1))
+                    Q(id__in=contract_participants) &
+                    Q(contract_date__lt=datetime.now() - timedelta(days=1))
             )
             expired_accepted_data = Contract.objects.filter(
                 expired_accepted_data_query_filter

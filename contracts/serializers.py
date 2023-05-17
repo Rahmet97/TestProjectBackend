@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 from decimal import Decimal
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import serializers, status
 
@@ -91,6 +92,33 @@ class DeviceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserDeviceCountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserDeviceCount
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['device'] = DeviceSerializer(instance.device).data
+        return representation
+
+
+class UserContractTarifDeviceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserContractTarifDevice
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['tarif'] = TarifSerializer(instance.tarif).data
+
+        representation['user_device'] = UserDeviceCountSerializer(
+            UserDeviceCount.objects.filter(user=instance), many=True
+        ).data
+
+        return representation
+
+
 # old contract file serializers
 class AddOldContractFilesSerializers(serializers.ModelSerializer):
     class Meta:
@@ -178,42 +206,55 @@ class ContractSerializerForBackoffice(serializers.ModelSerializer):
 class ContractSerializerForDetail(serializers.ModelSerializer):
     arrearage = serializers.SerializerMethodField()
     contract_status = ContractStatusSerializerForContractsList()
-    old_contract = serializers.SerializerMethodField()
+    # old_contract = serializers.SerializerMethodField()
 
-    def get_arrearage(self, obj):
+    @staticmethod
+    def get_arrearage(obj):
         return obj.contract_cash - obj.payed_cash
 
-    def get_old_contract(self, obj):
-        old_contract = obj.old_contract_file.all()
-
-        context = {
-            "has_old_contract": False,
-            "old_contract": None
-        }
-
-        if old_contract:
-            context['has_old_contract'] = True
-            context['old_contract'] = AddOldContractFilesSerializers(old_contract, many=True).data
-        return context
+    # @staticmethod
+    # def get_old_contract(obj):
+    #     old_contract = obj.old_contract_file.all()
+    #
+    #     context = {
+    #         "has_old_contract": False,
+    #         "old_contract": None
+    #     }
+    #
+    #     if old_contract:
+    #         context['has_old_contract'] = True
+    #         context['old_contract'] = AddOldContractFilesSerializers(old_contract, many=True).data
+    #     return context
 
     class Meta:
         model = Contract
         fields = (
             'id', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash', 'payed_cash',
-            'arrearage', 'contract_status', 'base64file', 'hashcode', 'old_contract'
+            'arrearage', 'contract_status', 'base64file', 'hashcode'
         )
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
 
-class UserContractTarifDeviceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserContractTarifDevice
-        fields = '__all__'
+        user_contract_tariff_device = UserContractTarifDevice.objects.filter(contract=instance)
+        representation["tariff"] = {
+            "tariff": TarifSerializer(instance.tarif).data,
+            "user_contract_tariff_device": UserContractTarifDeviceSerializer(
+                user_contract_tariff_device, many=True
+            ).data
+        }
 
+        old_contract = instance.old_contract_file.all()
+        representation['old_contract'] = {
+            "has_old_contract": False,
+            "old_contract": None
+        }
 
-class UserDeviceCountSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserDeviceCount
-        fields = '__all__'
+        if old_contract:
+            representation['old_contract']['has_old_contract'] = True
+            representation['old_contract']['old_contract'] = AddOldContractFilesSerializers(old_contract, many=True).data
+
+        return representation
 
 
 class OfferSerializer(serializers.ModelSerializer):
@@ -295,19 +336,38 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
     userdata = serializers.SerializerMethodField()
     expert_summary = serializers.SerializerMethodField()
 
-    def get_userdata(self, obj):
-        if obj.role.name != "dasturchi" and obj.role.name != 'mijoz':
-            userdata = UserData.objects.get(Q(role=obj.role), (Q(group=obj.contract.service.group) | Q(group=None)))
-            if userdata.type == 2:
-                u = YurUser.objects.get(userdata=userdata)
-                user = YurUserSerializerForContractDetail(u)
-            else:
-                u = FizUser.objects.get(userdata=userdata)
-                user = FizUserSerializerForContractDetail(u)
-            return user.data
+    # @staticmethod
+    # def get_userdata(obj):
+    #     if obj.role.name != "dasturchi" and obj.role.name != 'mijoz':
+    #         userdata = UserData.objects.get(Q(role=obj.role), (Q(group=obj.contract.service.group) | Q(group=None)))
+    #         if userdata.type == 2:
+    #             u = YurUser.objects.get(userdata=userdata)
+    #             user = YurUserSerializerForContractDetail(u)
+    #         else:
+    #             u = FizUser.objects.get(userdata=userdata)
+    #             user = FizUserSerializerForContractDetail(u)
+    #         return user.data
+    #     return None
+
+    @staticmethod
+    def get_userdata(obj):
+        try:
+            if obj.role.name != "dasturchi" and obj.role.name != 'mijoz':
+                userdata = UserData.objects.get(
+                    Q(role=obj.role) & (Q(group=obj.contract.service.group) | Q(group=None)))
+                if userdata.type == 2:
+                    u = YurUser.objects.get(userdata=userdata)
+                    user = YurUserSerializerForContractDetail(u)
+                else:
+                    u = FizUser.objects.get(userdata=userdata)
+                    user = FizUserSerializerForContractDetail(u)
+                return user.data
+        except ObjectDoesNotExist:
+            pass
         return None
 
-    def get_expert_summary(self, obj):
+    @staticmethod
+    def get_expert_summary(obj):
         try:
             userdata = UserData.objects.get(Q(role=obj.role), Q(group=obj.contract.service.group))
             summary = ExpertSummary.objects.filter(contract=obj.contract).get(user=userdata)
@@ -316,7 +376,8 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
         except:
             return dict()
 
-    def get_agreement_status(self, obj):
+    @staticmethod
+    def get_agreement_status(obj):
         return obj.agreement_status.name
 
     class Meta:
@@ -384,7 +445,6 @@ class InvoiceInformationSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
 
-        representation["invoice_status"] = {}
         representation["invoice_status"] = {
             "name": instance.status.name,
             "status_code": instance.status.status_code
