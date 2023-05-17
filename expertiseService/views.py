@@ -169,8 +169,6 @@ class CreateExpertiseServiceContractView(APIView):
             contract_file = open(contract_file_for_base64_pdf, 'rb').read()
             base64code = base64.b64encode(contract_file)
 
-            agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
-
             # pdf fileni ochirish
             delete_file(contract_file_for_base64_pdf)
             # qr_code fileni ochirish
@@ -207,20 +205,21 @@ class CreateExpertiseServiceContractView(APIView):
 
             # test mode
             participants = self.create_contract_participants(service_id=service_id)
+            agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
 
-            if expertise_service_contract.contract_cash >= 10_000_000:
-                exclude_role_name = "direktor o'rinbosari"
-            else:
-                exclude_role_name = "direktor"
+            # if expertise_service_contract.contract_cash <= 10_000_000:
+            #     exclude_role_name = "direktor o'rinbosari"
+            # else:
+            #     exclude_role_name = "direktor"
 
             for participant in participants:
-                if participant.role.name != exclude_role_name:
-                    ExpertiseContracts_Participants.objects.create(
-                        contract=expertise_service_contract,
-                        role=participant.role,
-                        participant_user=participant,
-                        agreement_status=agreement_status
-                    ).save()
+                # if participant.role.name != exclude_role_name:
+                ExpertiseContracts_Participants.objects.create(
+                    contract=expertise_service_contract,
+                    role=participant.role,
+                    participant_user=participant,
+                    agreement_status=agreement_status
+                ).save()
 
             # Contract yaratilgandan so'ng application ni is_contracted=True qilib qo'yish kk 
             application_pk = request.data.get("application_pk")
@@ -402,23 +401,24 @@ class ExpertiseConfirmContract(APIView):
             cntrct = None
 
         try:
-            cntrctIqYu = ExpertiseContracts_Participants.objects.filter(
-                Q(role__name="iqtisodchi") | Q(role__name="yurist"),
-                contract=contract,
-                agreement_status__name='Kelishildi'
-            )
+            # cntrctIqYu = ExpertiseContracts_Participants.objects.filter(
+            #     Q(role__name="iqtisodchi") | Q(role__name="yurist"),
+            #     contract=contract,
+            #     agreement_status__name='Kelishildi'
+            # )
             cntrctDiDo = ExpertiseContracts_Participants.objects.filter(
                 Q(role__name="direktor") | Q(role__name="direktor o'rinbosari"),
                 contract=contract,
                 agreement_status__name='Yuborilgan'
             )
         except ExpertiseContracts_Participants.DoesNotExist:
-            cntrctIqYu, cntrctDiDo = None, None
+            # cntrctIqYu, cntrctDiDo = None, None
+            cntrctDiDo = None
 
         if cntrct:
             contract.contract_status = 4  # To'lov kutilmoqda
 
-        if len(cntrctIqYu) == 2 and len(cntrctDiDo) != 0:
+        if len(cntrctDiDo) != 0:  # len(cntrctIqYu) == 2 and len(cntrctDiDo) != 0:
             contract.contract_status = 6  # Yangi
 
         contract.save()
@@ -450,9 +450,10 @@ class ExpertiseGetUserContracts(APIView):
 # General APIs
 class ExpertiseContractDetail(APIView):
     permission_classes = (IsAuthenticated,)
-    permitted_roles = ["direktor o'rinbosari", "direktor", "iqtisodchi", "yurist", "dasturchi"]
+    permitted_roles = ["direktor o'rinbosari", "direktor", "bo'lim boshlig'i", "departament boshlig'i"]
 
     def get(self, request, pk):
+        client = None
         contract = ExpertiseServiceContract.objects.select_related('client').get(pk=pk)
         contract_serializer = ExpertiseContractSerializerForDetail(contract)
 
