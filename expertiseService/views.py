@@ -370,6 +370,13 @@ class ExpertiseConfirmContract(APIView):
         else:
             agreement_status = AgreementStatus.objects.get(name='Rad etildi')
             contract.contract_status = 1
+            if contract.contract_cash >= 10_000_000:
+                director_participants = ExpertiseContracts_Participants.objects.get(
+                    Q(role__name="direktor"),
+                    Q(contract=contract),
+                )
+                director_participants.agreement_status = agreement_status
+                director_participants.save()
 
         contracts_participants = ExpertiseContracts_Participants.objects.get(
             Q(role=request.user.role),
@@ -410,9 +417,6 @@ class ExpertiseConfirmContract(APIView):
         if cntrct:
             contract.is_confirmed_contract_client = True
             contract.contract_status = 4  # To'lov kutilmoqda
-
-        # if len(cntrctDiDo) != 0:  # len(cntrctIqYu) == 2 and len(cntrctDiDo) != 0:
-        #     contract.contract_status = 6  # Yangi
 
         contract.save()
 
