@@ -398,26 +398,21 @@ class ExpertiseConfirmContract(APIView):
         except ExpertiseContracts_Participants.DoesNotExist:
             cntrct = None
 
-        try:
-            # cntrctIqYu = ExpertiseContracts_Participants.objects.filter(
-            #     Q(role__name="iqtisodchi") | Q(role__name="yurist"),
-            #     contract=contract,
-            #     agreement_status__name='Kelishildi'
-            # )
-            cntrctDiDo = ExpertiseContracts_Participants.objects.filter(
-                Q(role__name="direktor") | Q(role__name="direktor o'rinbosari"),
-                contract=contract,
-                agreement_status__name='Yuborilgan'
-            )
-        except ExpertiseContracts_Participants.DoesNotExist:
-            # cntrctIqYu, cntrctDiDo = None, None
-            cntrctDiDo = None
+        # try:
+        #     cntrctDiDo = ExpertiseContracts_Participants.objects.filter(
+        #         Q(role__name="direktor") | Q(role__name="direktor o'rinbosari"),
+        #         contract=contract,
+        #         agreement_status__name='Yuborilgan'
+        #     )
+        # except ExpertiseContracts_Participants.DoesNotExist:
+        #     cntrctDiDo = None
 
         if cntrct:
+            contract.is_confirmed_contract_client = True
             contract.contract_status = 4  # To'lov kutilmoqda
 
-        if len(cntrctDiDo) != 0:  # len(cntrctIqYu) == 2 and len(cntrctDiDo) != 0:
-            contract.contract_status = 6  # Yangi
+        # if len(cntrctDiDo) != 0:  # len(cntrctIqYu) == 2 and len(cntrctDiDo) != 0:
+        #     contract.contract_status = 6  # Yangi
 
         contract.save()
 
@@ -440,7 +435,7 @@ class ExpertiseGetUserContracts(APIView):
 
     # @cache_page(60 * 15)
     def get(self, request):
-        contracts = ExpertiseServiceContract.objects.filter(client=request.user).exclude(contract_status=0)
+        contracts = ExpertiseServiceContract.objects.filter(client=request.user)
         serializer = ExpertiseContractSerializerForContractList(contracts, many=True)
         return response.Response(serializer.data)
 
@@ -638,9 +633,9 @@ class ExpertiseSavePkcs(APIView):
                     new_pkcs7 = self.join2pkcs(pkcs7, client_pkcs)
                     pkcs_exist_object.pkcs7 = new_pkcs7
                     pkcs_exist_object.save()
-            if request.user == contract.client:
-                contract.is_confirmed_contract_client = True
-                contract.save()
+            # if request.user == contract.client:
+            #     contract.is_confirmed_contract_client = True
+            #     contract.save()
         except ExpertiseServiceContract.DoesNotExist:
             return response.Response({'message': 'Bunday shartnoma mavjud emas'})
         return response.Response({'message': 'Success'})
