@@ -66,8 +66,8 @@ class CreateExpertiseServiceContractView(APIView):
         return hash_code
 
     @staticmethod
-    def create_contract_participants(service_id: int):
-        participants = Participant.objects.get(service_id=service_id).participants.all()
+    def create_contract_participants(service_id: int, exclude_role=None):
+        participants = Participant.objects.get(service_id=service_id).participants.all().exclude(name=exclude_role)
         users = []
         service_group = Service.objects.get(id=service_id).group
         for role in participants:
@@ -201,16 +201,15 @@ class CreateExpertiseServiceContractView(APIView):
                 )
 
             # ExpertiseContracts_Participants
-            service_id = int(request.data['service'])
-
-            # test mode
-            participants = self.create_contract_participants(service_id=service_id)
-            agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
-
             # if the amount of the contract is less than 10 million,
             # the director will not participate as a participant
-            if expertise_service_contract.contract_cash >= 10_000_000:
-                participants.remove("direktor")
+            exclude_role = None
+            if expertise_service_contract.contract_cash < 10_000_000:
+                exclude_role = "direktor"
+
+            service_id = int(request.data['service'])
+            participants = self.create_contract_participants(service_id=service_id, exclude_role=exclude_role)
+            agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
 
             for participant in participants:
                 ExpertiseContracts_Participants.objects.create(
