@@ -28,6 +28,7 @@ class ExpertiseServiceContract(models.Model):
         PAYMENT_IS_PENDING = 4, "To'lov kutilmoqda"
         CANCELLED = 5, "Bekor qilingan"
         NEW = 6, "Yangi"
+        APPROVED = 7, "Tasdiqlangan"
 
     status = models.IntegerField(choices=StatusChoices.choices, default=4)  # ijro statuslari
     contract_status = models.IntegerField(choices=ContractStatusChoices.choices, default=0)  # hujjat statuslari
