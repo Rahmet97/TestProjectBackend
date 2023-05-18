@@ -140,7 +140,7 @@ class CreateExpertiseServiceContractView(APIView):
                 service_id=int(request.data['service_id']),
                 client=client,
                 status=4,
-                contract_status=0,
+                contract_status=6,  # new
                 payed_cash=0,
                 # base64file=base64code,
                 hashcode=hash_code,
@@ -457,15 +457,22 @@ class ExpertiseContractDetail(APIView):
 
         # agar request user mijoz bo'lsa
         # expertise model yaratilganidan keyin statusi ozgarishi kk front ofise uchun
-        # yani iqtisodchi va yurist dan otganidan keyin1
-        if request.user.role.name == "mijoz" and contract.client == request.user and contract.contract_status != 0:
+        # yani iqtisodchi va yurist dan otganidan keyin
+        if request.user.role.name == "mijoz" and contract.client == request.user:  # and contract.contract_status != 0:
             client = request.user
 
-        # agar reuqest user direktor, direktor o'rin bosari bo'lsa
-        # agar reuqest user iqtisodchi, yurist yoki dasturchi bo'lsa
+        # agar reuqest user role permitted_roles tarkibida bo'lsa
         elif request.user.role.name in self.permitted_roles:
             client = contract.client
-
+            participant = ExpertiseContracts_Participants.objects.filter(
+                contract=contract,
+                role=request.user.role,
+                participant_user=request.user,
+                agreement_status__name="Yuborilgan"
+            )
+            if participant:
+                participant.agreement_status = AgreementStatus.objects.filter(name="Ko'rib chiqilmoqda")
+                participant.save()
         else:
             responseErrorMessage(message="You are not permitted to view this contact detail", status_code=200)
 
