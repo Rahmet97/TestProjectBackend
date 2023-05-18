@@ -469,7 +469,7 @@ class ExpertiseContractDetail(APIView):
                 role=request.user.role,
                 participant_user=request.user,
                 agreement_status__name="Yuborilgan"
-            )
+            ).last()
             if participant:
                 participant.agreement_status = AgreementStatus.objects.filter(name="Ko'rib chiqilmoqda")
                 participant.save()
