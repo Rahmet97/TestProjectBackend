@@ -207,21 +207,18 @@ class CreateExpertiseServiceContractView(APIView):
             participants = self.create_contract_participants(service_id=service_id)
             agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
 
-            # if expertise_service_contract.contract_cash <= 10_000_000:
-            #     exclude_role_name = "direktor o'rinbosari"
-            # else:
-            #     exclude_role_name = "direktor"
-
             for participant in participants:
-                # if participant.role.name != exclude_role_name:
-                ExpertiseContracts_Participants.objects.create(
-                    contract=expertise_service_contract,
-                    role=participant.role,
-                    participant_user=participant,
-                    agreement_status=agreement_status
-                ).save()
+                # if the amount of the contract is less than 10 million,
+                # the director will not participate as a participant
+                if expertise_service_contract.contract_cash <= 10_000_000 and participant.role.name != "direktor":
+                    ExpertiseContracts_Participants.objects.create(
+                        contract=expertise_service_contract,
+                        role=participant.role,
+                        participant_user=participant,
+                        agreement_status=agreement_status
+                    ).save()
 
-            # Contract yaratilgandan so'ng application ni is_contracted=True qilib qo'yish kk 
+            # After the contract is created, the application is_contracted=True
             application_pk = request.data.get("application_pk")
             Application.objects.filter(pk=application_pk).update(is_contracted=True)
 
