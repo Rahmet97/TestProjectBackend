@@ -134,3 +134,4 @@ class ServiceParticipantsResource(resources.ModelResource):
 @admin.register(ServiceParticipants)
 class ServiceParticipantsAdmin(ImportExportModelAdmin):
     resource_class = ServiceParticipantsResource
+    list_display = ["participant", "role", "with_eds"]
