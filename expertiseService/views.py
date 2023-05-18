@@ -471,7 +471,7 @@ class ExpertiseContractDetail(APIView):
                 agreement_status__name="Yuborilgan"
             ).last()
             if participant:
-                participant.agreement_status = AgreementStatus.objects.filter(name="Ko'rib chiqilmoqda")
+                participant.agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
                 participant.save()
         else:
             responseErrorMessage(message="You are not permitted to view this contact detail", status_code=200)
