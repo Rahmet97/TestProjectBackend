@@ -182,6 +182,9 @@ class UpdateContractPayedCash(views.APIView):
             contract.contract_status = contract_status
             contract.save()
 
+            if not invoice_number:
+                invoice_number = Invoice.objects.filter(number__startswith=contract_code).last().number
+
             payed_inform = PayedInformation.objects.create(
                 invoice=Invoice.objects.get(number=invoice_number),
                 # contract=contract,
