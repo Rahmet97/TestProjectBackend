@@ -14,10 +14,11 @@ PRICE_SELECT_PERCENTAGE = (
 
 
 class ExpertiseServiceContract(models.Model):
-    class ConfirmedContractStatusChoices(models.IntegerChoices):
-        WAITING = 1, "WAITING"
-        UNICON_CONFIRMED = 2, "UNICON_CONFIRMED"
-        CLIENT_CONFIRMED = 3, "CLIENT_CONFIRMED"
+    CONFIRMED_CONTRACT_CHOICES = [
+        (1, "WAITING"),
+        (2, "UNICON_CONFIRMED"),
+        (3, "CLIENT_CONFIRMED"),
+    ]
 
     class StatusChoices(models.IntegerChoices):
         DONE = 1, "Bajarildi"
@@ -57,7 +58,8 @@ class ExpertiseServiceContract(models.Model):
     like_preview_pdf = models.FileField(blank=True, null=True, upload_to="media/Contract/pdf/")  # test mode
 
     is_confirmed_contract = models.IntegerField(
-        choices=ConfirmedContractStatusChoices, default=ConfirmedContractStatusChoices.WAITING
+        choices=CONFIRMED_CONTRACT_CHOICES,
+        default=1
     )
 
     def __str__(self):
