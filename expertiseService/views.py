@@ -247,7 +247,7 @@ class ExpertiseGetGroupContract(APIView):
             ).values('contract')
 
             yangi_data = ExpertiseServiceContract.objects.filter(
-                Q(id__in=contract_participants) | Q(is_confirmed_contract_client=False)
+                Q(id__in=contract_participants) | Q(is_confirmed_contract=1)
             ).exclude(
                 Q(id__in=director_accepted_contracts),
                 Q(contract_status=5),
@@ -406,7 +406,7 @@ class ExpertiseConfirmContract(APIView):
             cntrct = None
 
         if cntrct:
-            # contract.is_confirmed_contract_client = True
+            contract.is_confirmed_contract = 2  # UNICON_CONFIRMED
             contract.contract_status = 7  # "Tasdiqlangan"
 
         contract.save()
@@ -630,7 +630,7 @@ class ExpertiseSavePkcs(APIView):
                     pkcs_exist_object.save()
             if request.user == contract.client:
                 contract.contract_status = 4  # "To'lov kutilmoqda"
-                contract.is_confirmed_contract_client = True
+                contract.is_confirmed_contract = 3  # CLIENT_CONFIRMED
                 contract.save()
         except ExpertiseServiceContract.DoesNotExist:
             return response.Response({'message': 'Bunday shartnoma mavjud emas'})

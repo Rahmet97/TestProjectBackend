@@ -46,6 +46,11 @@ class ExpertiseContractSerializerForDetail(serializers.ModelSerializer):
             'base64file', 'hashcode', 'status', 'is_confirmed_contract_client'
         )
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["is_confirmed_contract"] = instance.is_confirmed_contract
+        return representation
+
 
 class ExpertiseExpertSummarySerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
@@ -118,8 +123,15 @@ class ExpertiseContractSerializerForContractList(serializers.ModelSerializer):
 
     class Meta:
         model = ExpertiseServiceContract
-        fields = ('id', 'service', 'contract_number', 'contract_date',
-                  'contract_status', 'status', 'contract_cash', 'hashcode')
+        fields = (
+            'id', 'service', 'contract_number', 'contract_date',
+            'contract_status', 'status', 'contract_cash', 'hashcode'
+        )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["is_confirmed_contract"] = instance.is_confirmed_contract
+        return representation
 
 
 class ExpertiseContractSerializerForBackoffice(serializers.ModelSerializer):
@@ -159,6 +171,11 @@ class ExpertiseContractSerializerForBackoffice(serializers.ModelSerializer):
             'payed_cash', 'arrearage', 'contract_status', 'status'
         )
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["is_confirmed_contract"] = instance.is_confirmed_contract
+        return representation
+
 
 class ExpertiseServiceContractProjects(serializers.ModelSerializer):
     class Meta:
@@ -172,8 +189,15 @@ class ExpertiseServiceContractSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = ExpertiseServiceContract
-        fields = ["service", "contract_number", "contract_date",
-                  "projects", "stir", "contract_cash", "price_select_percentage"]
+        fields = [
+            "service", "contract_number", "contract_date",
+            "projects", "stir", "contract_cash", "price_select_percentage"
+        ]
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["is_confirmed_contract"] = instance.is_confirmed_contract
+        return representation
 
 
 class ExpertiseExpertSummarySerializerForSave(serializers.ModelSerializer):
