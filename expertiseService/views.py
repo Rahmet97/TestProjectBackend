@@ -311,8 +311,7 @@ class ExpertiseGetGroupContract(APIView):
             Q(contract_date__day=datetime.now().day),
             Q(contract_date__month=datetime.now().month),
             Q(contract_date__year=datetime.now().year)).exclude(
-            Q(contract_status=5) | Q(contract_status=1)).select_related() \
-            .order_by('-contract_date')
+            Q(contract_status=5) | Q(contract_status=1)).select_related().order_by('-contract_date')
         self.check_object_permissions(request=request, obj=lastday_data)
         lastday = ExpertiseContractSerializerForBackoffice(lastday_data, many=True)
 
@@ -429,7 +428,7 @@ class ExpertiseGetUserContracts(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        contracts = ExpertiseServiceContract.objects.filter(client=request.user)
+        contracts = ExpertiseServiceContract.objects.filter(client=request.user).order_by('-id')
         serializer = ExpertiseContractSerializerForContractList(contracts, many=True)
         return response.Response(serializer.data)
 
