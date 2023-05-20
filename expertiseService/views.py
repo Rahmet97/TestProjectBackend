@@ -428,9 +428,8 @@ class ExpertiseConfirmContract(APIView):
 class ExpertiseGetUserContracts(APIView):
     permission_classes = [IsAuthenticated]
 
-    # @cache_page(60 * 15)
     def get(self, request):
-        contracts = ExpertiseServiceContract.objects.filter(client=request.user).exclude(contract_status=1)
+        contracts = ExpertiseServiceContract.objects.filter(client=request.user)
         serializer = ExpertiseContractSerializerForContractList(contracts, many=True)
         return response.Response(serializer.data)
 
