@@ -43,7 +43,7 @@ class ExpertiseContractSerializerForDetail(serializers.ModelSerializer):
         fields = (
             'id', 'contract_number', 'contract_date', 'expiration_date',
             'contract_cash', 'payed_cash', 'arrearage', 'contract_status',
-            'base64file', 'hashcode', 'status', 'is_confirmed_contract_client'
+            'base64file', 'hashcode', 'status'
         )
 
     def to_representation(self, instance):
