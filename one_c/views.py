@@ -28,6 +28,7 @@ class CreateInvoiceAPIView(views.APIView):
         contract_id_code = request.data['contract_id_code']
         month = request.data.get('month', None)
         year = request.data.get('year', None)
+        comment = request.data['comment']
 
         if str(contract_id_code).lower().startswith("c", 0, 2):
             contract = Contract.objects.get(id_code=contract_id_code)
@@ -43,7 +44,7 @@ class CreateInvoiceAPIView(views.APIView):
         invoice = Invoice.objects.create(
             customer=contract.client,
             number=f'{contract.id_code}/{str(m).zfill(2)}{y % 100}',
-            # contract=contract,
+            comment=comment,
             contract_code=contract_id_code,
             status=Status.objects.get(name='Yangi')
         )
@@ -110,6 +111,7 @@ class CreateInvoiceAPIView(views.APIView):
             "customerMFO": customer_mfo,
             "invoiceDate": str(invoice.date).replace(' ', 'T').split('.')[0],
             "invoiceNum": f'{invoice.number}',
+            "comment": comment,
             "сontractID": contract.contract_number,
             "agreementdate": str(contract.contract_date).replace(' ', 'T').split('+')[0].split('.')[0],
             "fullnumber": contract.id_code,

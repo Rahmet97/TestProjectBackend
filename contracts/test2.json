@@ -1,14 +1,15 @@
 {
-    "request_id": "6bf4e9ba-eb35-11ed-a0e6-00e04c3f806g",
-    "contractID": "DM-22",
-    "contractCode": "C22",
-    "invoiceNum": null,
-    "customerTIN": "300112532",
-    "payedDate": "2023-05-16T11:00:00",
-    "payedCash": 14490000.0,
-    "currency": "UZS",
-    "comment": "Test comment",
-    "customerPaymentAccount": "12345678912345654235",
-    "customerMFO": "09057",
-    "companyPaymentAccount": "200011102222220001111222"
-  }
+  "request_id": "6bf4e9ba-eb35-11ed-a0e6-00e04c3f806e",
+  "contractID": "DM-24",
+  "contractCode": "C24",
+  "invoiceID": "78c97806-113a-44a1-8f00-fb50e5937b8d",
+  "invoiceNum": null,
+  "customerTIN": "300112532",
+  "payedDate": "2023-05-22T17:00:00",
+  "payedCash": 14490000.0,
+  "currency": "UZS",
+  "comment": "Test comment",
+  "customerPaymentAccount": "12345678912345654235",
+  "customerMFO": "09057",
+  "companyPaymentAccount": "200011102222220001111222"
+}

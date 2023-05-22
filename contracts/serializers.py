@@ -431,7 +431,7 @@ class InvoiceInformationSerializer(serializers.ModelSerializer):
 
     def get_payed_information(self, obj):
         if PayedInformation.objects.filter(invoice=obj).exists():
-            print(PayedInformation.objects.filter(invoice=obj))
+            print(obj)
             payed_info = PayedInformation.objects.get(invoice=obj)
             return PayedInformationSerializer(
                 payed_info, context={
