@@ -26,6 +26,8 @@ class CreateInvoiceAPIView(views.APIView):
         password = os.getenv('ONE_C_PASSWORD')
         # contract_id = int(request.data['contract_id'])
         contract_id_code = request.data['contract_id_code']
+        month = request.data.get('month', None)
+        year = request.data.get('year', None)
 
         if str(contract_id_code).lower().startswith("c", 0, 2):
             contract = Contract.objects.get(id_code=contract_id_code)
@@ -34,9 +36,13 @@ class CreateInvoiceAPIView(views.APIView):
         else:
             responseErrorMessage(message="Contract does not exist", status_code=status.HTTP_404_NOT_FOUND)
 
+        if month and year:
+            m, y = int(month), int(year)
+        else:
+            m, y = datetime.now().month, datetime.now().year
         invoice = Invoice.objects.create(
             customer=contract.client,
-            number=f'{contract.id_code}/{str(datetime.now().month).zfill(2)}{datetime.now().year % 100}',
+            number=f'{contract.id_code}/{str(m).zfill(2)}{y % 100}',
             # contract=contract,
             contract_code=contract_id_code,
             status=Status.objects.get(name='Yangi')
@@ -121,10 +127,11 @@ class UpdateInvoiceStatus(views.APIView):
     def post(self, request):
         try:
             number = request.data['invoiceNum']
+            invoice_id = request.data['invoiceID']
             status = int(request.data['invoiceStatus'])
             document_type = request.data['documentType']
             status_object = Status.objects.get(status_code=status)
-            invoice = Invoice.objects.get(number=number)
+            invoice = Invoice.objects.get(pk=invoice_id)
             invoice.status = status_object
             invoice.document_type = document_type
             invoice.save()
@@ -150,6 +157,7 @@ class UpdateContractPayedCash(views.APIView):
             print(request.data)
             id_code = request.data['contractID']
             contract_code = request.data.get('contractCode', None)
+            invoice_id = request.data.get('invoiceID', None)
             invoice_number = request.data.get('invoiceNum', None)
             customer_tin = request.data['customerTIN']
             payed_cash = float(request.data['payedCash'])
@@ -161,6 +169,7 @@ class UpdateContractPayedCash(views.APIView):
             company_payment_account = request.data.get('companyPaymentAccount', None)
             print('id_code >>>>> ', id_code)
             print('contract_code >>>>> ', contract_code)
+            print('invoice_id >>>>> ', invoice_id)
             print('invoice_number >>>>> ', invoice_number)
             print('customer_tin >>>>> ', customer_tin)
             print('payed_cash >>>>> ', payed_cash)
@@ -189,7 +198,7 @@ class UpdateContractPayedCash(views.APIView):
                 ).order_by('id').last().number
 
             payed_inform = PayedInformation.objects.create(
-                invoice=Invoice.objects.get(number=invoice_number),
+                invoice=Invoice.objects.get(pk=invoice_id),
                 # contract=contract,
                 payed_cash=payed_cash,
                 payed_time=payed_time,
