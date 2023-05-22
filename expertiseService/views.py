@@ -116,6 +116,8 @@ class CreateExpertiseServiceContractView(APIView):
         context['qr_code'] = ''
         context['save'] = False
         context['page_break'] = False
+        # context['save'] = True
+        # context['page_break'] = True
 
         if int(request.data['save']):
             context['save'] = True
@@ -176,6 +178,7 @@ class CreateExpertiseServiceContractView(APIView):
 
             # preview ni bazaga ham saqlab ketishim kk chunki contractni statusiga qarab foydalanish uchun
             context['save'] = False
+            # context['save'] = True
             like_preview_pdf = render_to_pdf(template_src=template_name, context_dict=context)
 
             like_preview_pdf_path = None
@@ -224,6 +227,7 @@ class CreateExpertiseServiceContractView(APIView):
             Application.objects.filter(pk=application_pk).update(is_contracted=True)
 
             return response.Response(data={"message": "Created Expertise Service Contract"}, status=201)
+            # return render(request=request, template_name=template_name, context=context)
 
         template_name = "shablonEkspertiza.html"
         return render(request=request, template_name=template_name, context=context)

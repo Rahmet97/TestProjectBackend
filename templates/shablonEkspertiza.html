@@ -2,315 +2,329 @@
 <!doctype html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <style>
-        body {
-            width: 100%;
-            overflow-x: hidden;
-            font-family: "Times New Roman", Times, serif;
-            font-size: 14px;
-            text-indent: 30px;
-        }
-        
-        .container {
-            width: 90%;
-            margin: 0 auto;
-        }
-        
-        .publicOffer {
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-orient: vertical;
-            -webkit-box-direction: normal;
-            -ms-flex-direction: column;
-            flex-direction: column;
-            width: 100%;
-        }
-        
-        .publicOffer_title {
-            margin-left: 45px;
-            font-style: normal;
-            font-weight: 700;
-            font-size: 36px;
-            line-height: 44px;
-            color: #0E0E4B;
-        }
-        
-        .publicOffer_content {
-            margin-top: 35px;
-            width: 100%;
-            min-height: 500px;
-            /* padding: 15px; */
-            background: #FFFFFF;
-            -webkit-box-shadow: 0px 7.94708px 24px -2px rgba(0, 0, 0, 0.25);
-            box-shadow: 0px 7.94708px 24px -2px rgba(0, 0, 0, 0.25);
-            border-radius: 30px;
-        }
-        
-        .publicOffer_content::-webkit-scrollbar {
-            display: none;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        
-        .requirement-wrapper {
-            width: 100%;
-            /* box-shadow: 0px 7.94708px 24px -2px rgba(0, 0, 0, 0.25);
-            border-radius: 31.7883px; */
-            padding: 20px 42px;
-            margin-bottom: 25px;
-            overflow-y: scroll;
-            background-color: #F4F8F2;
-            height: 450px;
-        }
-        
-        .requirement-wrapper-scroll {
-            width: 100%;
-            height: 1150px;
-            margin-right: auto;
-            margin-left: auto;
-            background-color: #fff;
-            padding: 60px 80px 60px 120px;
-            -webkit-box-shadow: 0px 7.94708px 24px -2px #aca6a6;
-            box-shadow: 0px 7.94708px 24px -2px #aca6a6;
-            margin-bottom: 10px;
-            /* overflow-y: scroll; */
-        }
-        
-        .requirement-wrapper::-webkit-scrollbar {
-            width: 17px;
-            border-radius: 31px;
-        }
-        
-        .requirement-wrapper::-webkit-scrollbar-track {
-            background: #0e0e4b;
-            border-radius: 31px;
-        }
-        
-        .requirement-wrapper::-webkit-scrollbar-thumb {
-            background: #fff;
-            border: 3.5px solid #0e0e4b;
-            border-radius: 31px;
-        }
-        
-        .requirement-title-main {
-            font-family: "Times New Roman", Times, serif;
-            font-style: normal;
-            font-weight: 700;
-            font-size: 22px;
-            line-height: 26px;
-            text-align: center;
-            color: #0e0e4b;
-            margin-bottom: 19px;
-            margin-top: 14px;
-        }
-        
-        .d-flex {
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-pack: justify;
-            -ms-flex-pack: justify;
-            justify-content: space-between;
-        }
-        
-        .justify_evenly {
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-pack: space-evenly;
-            -ms-flex-pack: space-evenly;
-            justify-content: space-evenly;
-        }
-        
-        .justify_evenly div {
-            width: 50%;
-        }
-        
-        .justify_evenly span {
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-pack: center;
-            -ms-flex-pack: center;
-            justify-content: center;
-        }
-        
-        .requirement-title {
-            font-family: "Times New Roman", Times, serif;
-            font-style: normal;
-            font-weight: 700;
-            font-size: 17px;
-            line-height: 26px;
-            text-align: center;
-            color: #0e0e4b;
-            margin-bottom: 19px;
-            margin-top: 14px;
-        }
-        
-        .requirement-text {
-            font-family: "Times New Roman", Times, serif;
-            font-style: normal;
-            font-weight: 400;
-            font-size: 17px;
-            line-height: 20px;
-            color: #0e0e4b;
-            margin-bottom: 12px;
-            margin-top: 0;
-            text-align: justify;
-            text-indent: 30px;
-        }
-        
-        .requirement-title.justify-content .requirement-text.justify-content {
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-pack: justify;
-            -ms-flex-pack: justify;
-            justify-content: space-between;
-            -webkit-box-orient: vertical;
-            -webkit-box-direction: normal;
-            -ms-flex-direction: column;
-            flex-direction: column;
-        }
-        
-        .requirement-text.justify-content span {
-            text-align: center;
-        }
-        
-        table {
-            width: 100%;
-            border: 1px solid #000 !important;
-        }
-        
-        .span {
-            width: 10%;
-            border-right: 1px solid #000;
-        }
-        
-        h4 {
-            font-size: 16px;
-        }
-        
-        
-        .tg {
-            border-collapse: collapse;
-            border-spacing: 0;
-        }
-        
-        .tg td {
-            border-color: black;
-            border-style: solid;
-            border-width: 1px;
-            font-family: "Times New Roman", Times, serif;
-            font-size: 14px;
-            overflow: hidden;
-            padding: 10px 5px;
-            word-break: normal;
-        }
-        
-        .tg th {
-            border-color: black;
-            border-style: solid;
-            border-width: 1px;
-            font-family: "Times New Roman", Times, serif;
-            font-size: 14px;
-            font-weight: normal;
-            overflow: hidden;
-            padding: 10px 5px;
-            word-break: normal;
-        }
-        
-        .tg .tg-0pky {
-            border-color: inherit;
-            text-align: left;
-            vertical-align: top
-        }
-        
-        .tg .tg-0lax {
-            text-align: left;
-            vertical-align: top
-        }
-        
-        .head .d-flex:nth-child(1) {
-            border-bottom: 1px solid #000;
-        }
-        
-        .head span {
-            border-right: 1px solid #000;
-            padding: 10px;
-        }
-        
-        .head span:last-child {
-            border: none;
-        }
-        
-        .contract_number {
-            -webkit-box-pack: center;
-            -ms-flex-pack: center;
-            justify-content: center;
-        }
-        
-        .ilova {
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-pack: center;
-            -ms-flex-pack: center;
-            justify-content: center;
-            -webkit-box-align: end;
-            -ms-flex-align: end;
-            align-items: flex-end;
-            -webkit-box-orient: vertical;
-            -webkit-box-direction: normal;
-            -ms-flex-direction: column;
-            flex-direction: column;
-        }
-        
-        .text-align {
-            text-align: center;
-        }
-        
-        .between {
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-box-pack: justify;
-            -ms-flex-pack: justify;
-            justify-content: space-between;
-            -webkit-box-orient: vertical;
-            -webkit-box-direction: normal;
-            -ms-flex-direction: column;
-            flex-direction: column;
-        }
-        
-        table th img {
-            width: 130px;
-        }
-        
-        .table_ijro {
-            border: none !important;
-        }
-    </style>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Document</title>
+        <style>
+            body {
+                width: 100%;
+                overflow-x: hidden;
+                font-family: "Times New Roman", Times, serif;
+                font-size: 7.5pt;
+                text-indent: 30px;
+            }
 
-<body>
-    <div class="container">
-        <h3 class='requirement-title-main'>
+            .container {
+                width: 90%;
+                margin: 0 auto;
+            }
+
+            .publicOffer {
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-orient: vertical;
+                -webkit-box-direction: normal;
+                -ms-flex-direction: column;
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .publicOffer_title {
+                margin-left: 45px;
+                font-style: normal;
+                font-weight: 700;
+                font-size: 36px;
+                line-height: 44px;
+                color: #0E0E4B;
+            }
+
+            .publicOffer_content {
+                margin-top: 35px;
+                width: 100%;
+                min-height: 500px;
+                /* padding: 15px; */
+                background: #FFFFFF;
+                -webkit-box-shadow: 0px 7.94708px 24px -2px rgba(0, 0, 0, 0.25);
+                box-shadow: 0px 7.94708px 24px -2px rgba(0, 0, 0, 0.25);
+                border-radius: 30px;
+            }
+
+            .publicOffer_content::-webkit-scrollbar {
+                display: none;
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .requirement-wrapper {
+                width: 100%;
+                /* box-shadow: 0px 7.94708px 24px -2px rgba(0, 0, 0, 0.25);
+                border-radius: 31.7883px; */
+                padding: 20px 42px;
+                margin-bottom: 25px;
+                overflow-y: scroll;
+                background-color: #F4F8F2;
+                height: 450px;
+            }
+
+            .requirement-wrapper-scroll {
+                width: 100%;
+                height: 1150px;
+                margin-right: auto;
+                margin-left: auto;
+                background-color: #fff;
+                padding: 60px 80px 60px 120px;
+                -webkit-box-shadow: 0px 7.94708px 24px -2px #aca6a6;
+                box-shadow: 0px 7.94708px 24px -2px #aca6a6;
+                margin-bottom: 10px;
+                /* overflow-y: scroll; */
+            }
+
+            .requirement-wrapper::-webkit-scrollbar {
+                width: 17px;
+                border-radius: 31px;
+            }
+
+            .requirement-wrapper::-webkit-scrollbar-track {
+                background: #0e0e4b;
+                border-radius: 31px;
+            }
+
+            .requirement-wrapper::-webkit-scrollbar-thumb {
+                background: #fff;
+                border: 3.5px solid #0e0e4b;
+                border-radius: 31px;
+            }
+
+            .requirement-title-main {
+                font-family: "Times New Roman", Times, serif;
+                font-style: normal;
+                font-weight: 700;
+                font-size: 22px;
+                line-height: 26px;
+                text-align: center;
+                color: #0e0e4b;
+                margin-bottom: 19px;
+                margin-top: 14px;
+            }
+
+            .d-flex {
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-pack: justify;
+                -ms-flex-pack: justify;
+                justify-content: space-between;
+            }
+
+            .justify_evenly {
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-pack: space-evenly;
+                -ms-flex-pack: space-evenly;
+                justify-content: space-evenly;
+            }
+
+            .justify_evenly div {
+                width: 50%;
+            }
+
+            .justify_evenly span {
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-pack: center;
+                -ms-flex-pack: center;
+                justify-content: center;
+            }
+
+            .requirement-title {
+                font-family: "Times New Roman", Times, serif;
+                font-style: normal;
+                font-weight: 700;
+                font-size: 17px;
+                line-height: 26px;
+                text-align: center;
+                color: #0e0e4b;
+                margin-bottom: 19px;
+                margin-top: 14px;
+            }
+
+            .requirement-text {
+                font-family: "Times New Roman", Times, serif;
+                font-style: normal;
+                font-weight: 400;
+                font-size: 17px;
+                line-height: 20px;
+                color: #0e0e4b;
+                margin-bottom: 12px;
+                margin-top: 0;
+                text-align: justify;
+                text-indent: 30px;
+            }
+
+            .requirement-title.justify-content .requirement-text.justify-content {
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-pack: justify;
+                -ms-flex-pack: justify;
+                justify-content: space-between;
+                -webkit-box-orient: vertical;
+                -webkit-box-direction: normal;
+                -ms-flex-direction: column;
+                flex-direction: column;
+            }
+
+            .requirement-text.justify-content span {
+                text-align: center;
+            }
+
+            table {
+                width: 100%;
+                border: 1px solid #000 !important;
+            }
+
+            .span {
+                width: 10%;
+                border-right: 1px solid #000;
+            }
+
+            h4 {
+                font-size: 16px;
+            }
+
+
+            .tg {
+                border-collapse: collapse;
+                border-spacing: 0;
+            }
+
+            .tg td {
+                border-color: black;
+                border-style: solid;
+                border-width: 1px;
+                font-family: "Times New Roman", Times, serif;
+                font-size: 14px;
+                overflow: hidden;
+                padding: 10px 5px;
+                word-break: normal;
+            }
+
+            .tg th {
+                border-color: black;
+                border-style: solid;
+                border-width: 1px;
+                font-family: "Times New Roman", Times, serif;
+                font-size: 14px;
+                font-weight: normal;
+                overflow: hidden;
+                padding: 10px 5px;
+                word-break: normal;
+            }
+
+            .tg .tg-0pky {
+                border-color: inherit;
+                text-align: left;
+                vertical-align: top
+            }
+
+            .tg .tg-0lax {
+                text-align: left;
+                vertical-align: top
+            }
+
+            .head .d-flex:nth-child(1) {
+                border-bottom: 1px solid #000;
+            }
+
+            .head span {
+                border-right: 1px solid #000;
+                padding: 10px;
+            }
+
+            .head span:last-child {
+                border: none;
+            }
+
+            .contract_number {
+                -webkit-box-pack: center;
+                -ms-flex-pack: center;
+                justify-content: center;
+            }
+
+            .ilova {
+                font-size: 12.5pt;
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-pack: center;
+                -ms-flex-pack: center;
+                justify-content: center;
+                -webkit-box-align: end;
+                -ms-flex-align: end;
+                align-items: flex-end;
+                -webkit-box-orient: vertical;
+                -webkit-box-direction: normal;
+                -ms-flex-direction: column;
+                flex-direction: column;
+            }
+
+            .text-align {
+                text-align: center;
+            }
+
+            .between {
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-pack: justify;
+                -ms-flex-pack: justify;
+                justify-content: space-between;
+                -webkit-box-orient: vertical;
+                -webkit-box-direction: normal;
+                -ms-flex-direction: column;
+                flex-direction: column;
+            }
+
+            table th img {
+                width: 130px;
+            }
+
+            .table_ijro {
+                border: none !important;
+                font-size: 12.5pt;
+            }
+            .head-table {
+                border: none !important;
+            }
+            .ilova.ilova_num {
+                position: absolute;
+                right: 4%;
+                border: none !important;
+                float: right;
+                text-align: right;
+                width: 100%;
+                font-size: 12.5pt;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+        <h3 class='requirement-title-main' style="border: none;">
             <strong>Loyiha hujjatlarini ekspertiza qilish xizmatlarini ko'rsatish uchun</strong>
             <br />
             <strong>{{contract_number}}-sonli</strong>
             <br />
             <strong>Shartnoma</strong>
         </h3>
-        <div class='d-flex' style="justify-content: space-between; margin-bottom: 20px">
-            <table>
+        <div class='d-flex' style="justify-content: space-between; margin-bottom: 20px; border: none;">
+            <table class="head-table" style="border: none; font-size: 12.5pt">
                 <thead>
                     <colgroup>
                         <col width="5%" />
@@ -422,7 +436,7 @@
                 - loyihalash topshirig'i loyihasining muvofiqligini tekshirish;
             </p>
             <p class='requirement-text'>
-                - taqdim etilgan materiallar tarkibi va butligini baholash; 
+                - taqdim etilgan materiallar tarkibi va butligini baholash;
             </p>
             <p class='requirement-text'>
                 - loyiha hujjatlari barcha bo'limlarining sifatini baholash;
@@ -558,8 +572,6 @@
                 </thead>
                 <tbody>
                     <tr>
-                    </tr>
-                    <tr>
                         <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi
                         </td>
                         <td align="center"></td>
@@ -602,8 +614,8 @@
                     {% endif %}
                 </tbody>
             </table> <br>
-            {% if save %}
-            <table border="1" cellpadding="10" cellspacing="0">
+        {% if save %}
+            <table border="1" style="font-size: 12.5pt;" cellpadding="10" cellspacing="0">
                 <tr>
                     <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
                 </tr>
@@ -631,17 +643,29 @@
                     <th>{{user_obj.tin}}</th>
                 </tr>
             </table>
-            {{page_break}}
+            {% endif %}
+            {% if page_break %}
+                <div style="page-break-after: always;"></div>
             {% endif %}
             <br>
-            <div class="ilova">
-                <span>
-                    {{datetime}}
-                </span>
-                <span class="contract_number">{{contract_number}}-sonli shartnomaga</span>
-                <span class="contract_number">1-ilova</span>
-            </div>
-            <h4 class="requirement-title">Ishlarning shartnoma narxi to'g'risidagi kelishuv <br> BAYONNOMASI</h4>
+            <table class="ilova ilova_num" align="right">
+                <tr>
+                    <th colspan="6"></th>
+                    <th></th>
+                    <th>{{datetime}}</th>
+                </tr>
+                <tr>
+                    <th colspan="6"></th>
+                    <th></th>
+                    <th>{{contract_number}}-sonli shartnomaga</th>
+                </tr>
+                <tr>
+                    <th colspan="6"></th>
+                    <th></th>
+                    <th>1-ilovaga</th>
+                </tr>
+            </table>
+            <h4 class="requirement-title" style="margin-top: 100px;">Ishlarning shartnoma narxi to'g'risidagi kelishuv <br> BAYONNOMASI</h4>
             <p class='requirement-text'>
                 Biz, quyida imzo qo'yuvchilar, Buyurtmachi - {{client}} nomidan Director va ikkinchi tomondan
                 Bajaruvchi
@@ -686,6 +710,10 @@
                         <td align="center"></td>
                         <td align="center">{{user_obj.get_director_short_full_name}}</td>
                     </tr>
+
+                    {% if page_break %}
+                        <div style="page-break-after: always;"></div>
+                    {% endif %}
                     {% if save %}
                     <tr>
                         <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
@@ -696,7 +724,7 @@
                 </tbody>
             </table>
             {% if save %}
-            <table border="1" cellpadding="10" cellspacing="0">
+            <table border="1" style="font-size: 12.5pt;" cellpadding="10" cellspacing="0">
                 <tr>
                     <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
                 </tr>
@@ -724,18 +752,30 @@
                     <th>{{user_obj.tin}}</th>
                 </tr>
             </table>
-            {{page_break}}
             {% endif %}
+            {% if page_break %}
+                <div style="page-break-after: always;"></div>
+            {% endif %}
+            <table class="ilova ilova_num" align="right">
+                <tr>
+                    <th colspan="6"></th>
+                    <th></th>
+                    <th>{{datetime}}</th>
+                </tr>
+                <tr>
+                    <th colspan="6"></th>
+                    <th></th>
+                    <th>{{contract_number}}-sonli shartnomaga</th>
+                </tr>
+                <tr>
+                    <th colspan="6"></th>
+                    <th></th>
+                    <th>1-ilovaga</th>
+                </tr>
+            </table>
             <br>
-            <div class="ilova">
-                <span>
-                    {{datetime}}
-                </span>
-                <span class="contract_number">{{contract_number}}-sonli shartnomaga</span>
-                <span class="contract_number">2-ilova</span>
-            </div>
-            <h4 class="requirement-title">Ekspertizaga taqdim etilgan ishchi loyihalar ro'yxati</h4>
-            <table class="loyiha_table" border="1" cellpadding="10" cellspacing="0">
+            <h4 class="requirement-title" style="margin-top: 100px;">Ekspertizaga taqdim etilgan ishchi loyihalar ro'yxati</h4>
+            <table class="loyiha_table" style="font-size: 12.5pt;" border="1" cellpadding="10" cellspacing="0">
                 <thead>
                     <colgroup>
                         <col width="5%" />
@@ -767,9 +807,12 @@
                 1-jadval bo'yicha ekspertizaning narxi QQS siz - {{withoutnds_price}} ({{withoutnds_price_text}}) so'm. <br>
                 12% QQS summasi - {{onlynds_price}} ({{onlynds_price_text}}) so'm. <br>
                 Ekspertizaning umumiy narxi QQS bilan - {{price}} ({{price_text}}) so'm. <br> <br>
-                
+
                 Ushbu ilova {{contract_number}} shartnomaning ajralmas qismi hisoblanadi.
             </p>
+            {% if page_break %}
+                <div style="page-break-after: always;"></div>
+            {% endif %}
             <table class="table_ijro" cellpadding="10" cellspacing="0">
                 <thead>
                     <colgroup>
@@ -802,6 +845,7 @@
                         <td align="center"></td>
                         <td align="center">{{user_obj.get_director_short_full_name}}</td>
                     </tr>
+
                     {% if save %}
                     <tr>
                         <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
@@ -813,7 +857,7 @@
             </table>
             <br>
             {% if save %}
-            <table border="1" cellpadding="10" cellspacing="0">
+            <table border="1" style="font-size: 12.5pt;" cellpadding="10" cellspacing="0">
                 <tr>
                     <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
                 </tr>
@@ -841,8 +885,8 @@
                     <th>{{user_obj.tin}}</th>
                 </tr>
             </table>
-            {% endif %}
+        {% endif %}
         </div>
     </body>
-    
-    </html>
+
+</html>
