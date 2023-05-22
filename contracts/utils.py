@@ -148,12 +148,11 @@ def convert_docx_to_pdf(docx_file_path: str):
     return pdf_file_path
 
 
-def render_to_pdf(template_src: str, context_dict={}):
+def render_to_pdf(template_src: str, context_dict=None):
     template = get_template(template_name=template_src)
     html = template.render(context_dict)
 
     result = BytesIO()
-    # pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
     pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result)
 
     if not pdf.err:
