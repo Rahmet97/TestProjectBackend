@@ -680,7 +680,7 @@ class ExpertiseMonitoringContractViews(APIView):
             query |= Q(contract_date__year=query_year)
 
         # execute the query and retrieve the matching books
-        contracts = ExpertiseServiceContract.objects.filter(query)
+        contracts = ExpertiseServiceContract.objects.filter(query).order_by("-id")
         return contracts
 
     def get(self, request):

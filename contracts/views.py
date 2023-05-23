@@ -1547,7 +1547,7 @@ class MonitoringContractViews(APIView):
             query |= Q(contract_date__year=query_year)
 
         # execute the query and retrieve the matching books
-        contracts = Contract.objects.filter(query)
+        contracts = Contract.objects.filter(query).order_by("-id")
         return contracts
 
     def get(self, request):
