@@ -431,12 +431,12 @@ class InvoiceInformationSerializer(serializers.ModelSerializer):
 
     def get_payed_information(self, obj):
         if PayedInformation.objects.filter(invoice=obj).exists():
-            print(obj)
-            payed_info = PayedInformation.objects.get(invoice=obj)
+            # payed_info = PayedInformation.objects.get(invoice=obj)
+            payed_info = PayedInformation.objects.filter(invoice=obj)
             return PayedInformationSerializer(
                 payed_info, context={
                     'contract_cash': self.context.get("contract_cash")
-                }).data
+                }, many=True).data
         return {}
 
     class Meta:
