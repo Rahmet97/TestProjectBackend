@@ -7,7 +7,7 @@
         <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>Document</title>
+        <title>Expertise Contracts</title>
         <style>
             body {
                 width: 100%;
@@ -321,10 +321,10 @@
         <div class='d-flex' style="justify-content: space-between; margin-bottom: 20px; border: none;">
             <table class="head-table" style="border: none; font-size: 12.5pt">
                 <thead>
-                    <colgroup>
-                        <col width="5%" />
-                        <col width="5%" />
-                    </colgroup>
+<!--                    <colgroup>-->
+<!--                        <col width="5%" />-->
+<!--                        <col width="5%" />-->
+<!--                    </colgroup>-->
                     <tr>
                         <th align="left" class="col-quantity">Toshkent sh.</th>
                         <th align="right" class="col-price">{{datetime}}</th>
@@ -554,11 +554,11 @@
             <h4 class="requirement-title">XII. YURIDIK MANZILLAR VA BANK REKVIZITLARI</h4>
             <table class="table_ijro" cellpadding="10" cellspacing="0">
                 <thead>
-                    <colgroup>
-                        <col width="30%" />
-                        <col width="5%" />
-                        <col width="30%" span="1" />
-                    </colgroup>
+<!--                    <colgroup>-->
+<!--                        <col width="30%" />-->
+<!--                        <col width="5%" />-->
+<!--                        <col width="30%" span="1" />-->
+<!--                    </colgroup>-->
                     <tr>
                         <th align="center" class="col-quantity">BAJARUVCHI</th>
                         <th align="center" class="col-price"></th>
@@ -675,11 +675,11 @@
             </p>
             <table class="table_ijro" cellpadding="10" cellspacing="0">
                 <thead>
-                    <colgroup>
-                        <col width="30%" />
-                        <col width="5%" />
-                        <col width="30%" span="1" />
-                    </colgroup>
+<!--                    <colgroup>-->
+<!--                        <col width="30%" />-->
+<!--                        <col width="5%" />-->
+<!--                        <col width="30%" span="1" />-->
+<!--                    </colgroup>-->
                     <tr>
                         <th align="center" class="col-quantity">BAJARUVCHI</th>
                         <th align="center" class="col-price"></th>
@@ -688,14 +688,11 @@
                 </thead>
                 <tbody>
                     <tr>
-                    </tr>
-                    <tr>
-                        <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi
+                        <td align="center">
+                            “UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi
                         </td>
                         <td align="center"></td>
                         <td align="center">{{user_obj.name}}</td>
-                    </tr>
-                    <tr>
                     </tr>
                     <tr>
                         <td align="center"></td>
@@ -705,10 +702,6 @@
                         <td align="center"></td>
                         <td align="center">{{user_obj.get_director_short_full_name}}</td>
                     </tr>
-
-                    {% if page_break %}
-                        <div style="page-break-after: always;"></div>
-                    {% endif %}
                     {% if save %}
                     <tr>
                         <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
@@ -718,6 +711,9 @@
                     {% endif %}
                 </tbody>
             </table>
+            {% if page_break %}
+                <div style="page-break-after: always;"></div>
+            {% endif %}
             {% if save %}
             <table border="1" style="font-size: 12.5pt;" cellpadding="10" cellspacing="0">
                 <tr>
@@ -772,11 +768,11 @@
             <h4 class="requirement-title" style="margin-top: 100px;">Ekspertizaga taqdim etilgan ishchi loyihalar ro'yxati</h4>
             <table class="loyiha_table" style="font-size: 12.5pt;" border="1" cellpadding="10" cellspacing="0">
                 <thead>
-                    <colgroup>
-                        <col width="5%" />
-                        <col width="50%" />
-                        <col width="20%" />
-                    </colgroup>
+<!--                    <colgroup>-->
+<!--                        <col width="5%" />-->
+<!--                        <col width="50%" />-->
+<!--                        <col width="20%" />-->
+<!--                    </colgroup>-->
                     <tr>
                         <th align="center" class="col-item-name">T/r</th>
                         <th align="center" class="col-quantity">Loyihaning nomi</th>
@@ -805,16 +801,16 @@
 
                 Ushbu ilova {{contract_number}} shartnomaning ajralmas qismi hisoblanadi.
             </p>
-            {% if page_break %}
-                <div style="page-break-after: always;"></div>
-            {% endif %}
+<!--            {% if page_break %}-->
+<!--                <div style="page-break-after: always;"></div>-->
+<!--            {% endif %}-->
             <table class="table_ijro" cellpadding="10" cellspacing="0">
                 <thead>
-                    <colgroup>
-                        <col width="30%" />
-                        <col width="5%" />
-                        <col width="30%" span="1" />
-                    </colgroup>
+<!--                    <colgroup>-->
+<!--                        <col width="30%" />-->
+<!--                        <col width="5%" />-->
+<!--                        <col width="30%" span="1" />-->
+<!--                    </colgroup>-->
                     <tr>
                         <th align="center" class="col-quantity">BAJARUVCHI</th>
                         <th align="center" class="col-price"></th>
