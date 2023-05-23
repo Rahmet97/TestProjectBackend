@@ -571,7 +571,6 @@ class CreateContractFileAPIView(APIView):
         tarif = Tarif.objects.get(pk=int(request.data['tarif'])).name
 
         try:
-            # number = Contract.objects.last().id + 1
             number = int(Contract.objects.last().contract_number.split("-")[-1]) + 1
         except AttributeError:
             number = 1
@@ -584,8 +583,8 @@ class CreateContractFileAPIView(APIView):
             context['month'] = datetime.now().month
             context['day'] = datetime.now().day
             context['client'] = request.data['name']
-            # context['client_fullname'] = request.data['director_fullname']
             context['client_fullname'] = request.data['name']
+            context['director_client_fullname'] = request.data['director_fullname']
             director = request.data['director_fullname'].split()
             context['director'] = f"{director[1][0]}.{director[2][0]}.{director[0]}"
             context['price'] = int(request.data['price']) * 12 - int(datetime.now().month)
@@ -605,7 +604,8 @@ class CreateContractFileAPIView(APIView):
             context['price2'] = request.data['price']
             context['host'] = 'http://' + request.META['HTTP_HOST']
             context["get_director_short_full_name"] = YurUser.objects.get(
-                userdata=request.user).get_director_short_full_name
+                userdata=request.user
+            ).get_director_short_full_name
         else:
             context['u_type'] = 'fizik'
             context['contract_number'] = prefix + '-' + str(number)
