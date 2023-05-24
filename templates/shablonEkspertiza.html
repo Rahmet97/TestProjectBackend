@@ -355,20 +355,20 @@
             o'tkaziladi:
         </p>
         <p class='requirement-text'>
-            {% if price_select_percentage == 50 %}
+        {% if price_select_percentage == 50 %}
             2.2.1. Mazkur Shartnoma imzolangandan keyin 5 ish kuni ichida mazkur Shartnomaning 1-ilovasida ko'rsatilgan
             ishlar umumiy shartnomaviy narxining 50 foizi ellik foizi) miqdoridagi summani, qolgan 50 foizini esa
             bajarilgan ishlar dalolatnomasi va hisob-faktura imzolangandan keyin 10 kun ichida Bajaruvchining hisob
             raqamiga o'tkazishi kerak.
         </p>
         <p class='requirement-text'>
-            {% elif price_select_percentage == 100 %}
+        {% elif price_select_percentage == 100 %}
             2.2.1. Mazkur Shartnoma imzolangandan keyin 5 ish kuni ichida mazkur Shartnomaning 1-ilovasida ko'rsatilgan
             ishlar umumiy shartnomaviy narxining 100 foizi (yuz foizi) miqdoridagi summani Bajaruvchining hisob raqamiga
             o'tkazishi kerak.
         </p>
         <p class='requirement-text'>
-            {% endif %}
+        {% endif %}
             2.3. Buyurtmachidan Bajaruvchining hisob raqamiga pul o'tkazmalarini amalga oshirishda ushlab qolinadigan
             komissiya yig'imlari va bojlari Buyurtmachi tomonidan to'lanadi.
         </p>
@@ -713,36 +713,36 @@
             {% if page_break %}
                 <div style="page-break-after: always;"></div>
             {% endif %}
-            {% if save %}
-            <table border="1" style="font-size: 12.5pt;" cellpadding="10" cellspacing="0">
-                <tr>
-                    <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
-                </tr>
-                <tr>
-                    <th>Shartnoma raqami</th>
-                    <th>{{contract_number}}</th>
-                    <th rowspan="5">
-                        <img src="{{ qr_code }}" alt="">
-                    </th>
-                </tr>
-                <tr>
-                    <th>Shartnoma sanasi</th>
-                    <th>{{datetime}}</th>
-                </tr>
-                <tr>
-                    <th>Shartnoma kodi</th>
-                    <th>{{id_code}}</th>
-                </tr>
-                <tr>
-                    <th>Ijrochining STIR raqami</th>
-                    <th>200 898 586</th>
-                </tr>
-                <tr>
-                    <th>Buyurtmachining STIR/JShShIR raqami</th>
-                    <th>{{user_obj.tin}}</th>
-                </tr>
-            </table>
-            {% endif %}
+<!--            {% if save %}-->
+<!--            <table border="1" style="font-size: 12.5pt;" cellpadding="10" cellspacing="0">-->
+<!--                <tr>-->
+<!--                    <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Shartnoma raqami</th>-->
+<!--                    <th>{{contract_number}}</th>-->
+<!--                    <th rowspan="5">-->
+<!--                        <img src="{{ qr_code }}" alt="">-->
+<!--                    </th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Shartnoma sanasi</th>-->
+<!--                    <th>{{datetime}}</th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Shartnoma kodi</th>-->
+<!--                    <th>{{id_code}}</th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Ijrochining STIR raqami</th>-->
+<!--                    <th>200 898 586</th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Buyurtmachining STIR/JShShIR raqami</th>-->
+<!--                    <th>{{user_obj.tin}}</th>-->
+<!--                </tr>-->
+<!--            </table>-->
+<!--            {% endif %}-->
 <!--            {% if page_break %}-->
 <!--                <div style="page-break-after: always;"></div>-->
 <!--            {% endif %}-->
