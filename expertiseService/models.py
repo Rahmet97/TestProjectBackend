@@ -27,14 +27,15 @@ class ExpertiseServiceContract(models.Model):
         NEW = 4, "Yangi"
 
     class ContractStatusChoices(models.IntegerChoices):
-        CREATED = 0, "Yaratilgan"
-        REJECTED = 1, "Rad etilgan"
-        FINISHED = 2, "Yakunlangan"
-        ACTIVE = 3, "Aktiv"
-        PAYMENT_IS_PENDING = 4, "To'lov kutilmoqda"
-        CANCELLED = 5, "Bekor qilingan"
-        NEW = 6, "Yangi"
-        APPROVED = 7, "Tasdiqlangan"
+        NEW = 1, "Yangi"
+        CUSTOMER_SIGNATURE_IS_EXPECTED = 2, "Mijoz imzolashi kutilmoqda"
+        PAYMENT_IS_PENDING = 3, "To'lov kutilmoqda"
+        ACTIVE = 4, "Aktiv"
+
+        REJECTED = 5, "Rad etilgan"
+        CANCELLED = 6, "Bekor qilingan"
+
+        FINISHED = 7, "Yakunlangan"
 
     status = models.IntegerField(choices=StatusChoices.choices, default=4)  # ijro statuslari
     contract_status = models.IntegerField(choices=ContractStatusChoices.choices, default=0)  # hujjat statuslari
@@ -69,7 +70,6 @@ class ExpertiseServiceContract(models.Model):
     def get_new_id_code():
         count = 1
         if ExpertiseServiceContract.objects.all().exists():
-            print("last_id", ExpertiseServiceContract.objects.last().id)
             count = ExpertiseServiceContract.objects.last().id  # to'girlab ketish kk
             count += 1
         return f"E{count}"

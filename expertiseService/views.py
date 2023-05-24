@@ -142,7 +142,7 @@ class CreateExpertiseServiceContractView(APIView):
                 service_id=int(request.data['service_id']),
                 client=client,
                 status=4,
-                contract_status=6,  # new
+                contract_status=1,  # new
                 payed_cash=0,
                 # base64file=base64code,
                 hashcode=hash_code,
@@ -254,8 +254,8 @@ class ExpertiseGetGroupContract(APIView):
                 Q(id__in=contract_participants) | Q(is_confirmed_contract=1)
             ).exclude(
                 Q(id__in=director_accepted_contracts),
-                Q(contract_status=5),
-                Q(contract_status=1),
+                Q(contract_status=5),  # REJECTED
+                Q(contract_status=6),  # CANCELLED
                 Q(contract_date__lt=datetime.now() - timedelta(days=1))
             ).select_related().order_by('-contract_date')
         else:
@@ -267,7 +267,7 @@ class ExpertiseGetGroupContract(APIView):
             yangi_data = ExpertiseServiceContract.objects.filter(
                 id__in=contract_participants
             ).exclude(
-                Q(contract_status=5) | Q(contract_status=1),
+                Q(contract_status=5) | Q(contract_status=6),  # REJECTED, CANCELLED
                 Q(contract_date__lt=datetime.now() - timedelta(days=1))
             ).select_related().order_by('-contract_date')
         self.check_object_permissions(request=request, obj=yangi_data)
@@ -286,7 +286,7 @@ class ExpertiseGetGroupContract(APIView):
 
         # rad etilgan contractlar
         rad_etildi_data = ExpertiseServiceContract.objects.filter(
-            (Q(contract_status=5) | Q(contract_status=1))
+            (Q(contract_status=5) | Q(contract_status=6))  # REJECTED, CANCELLED
         ).order_by('-contract_date')
         self.check_object_permissions(request=request, obj=rad_etildi_data)
         rad_etildi = ExpertiseContractSerializerForBackoffice(rad_etildi_data, many=True)
@@ -315,7 +315,7 @@ class ExpertiseGetGroupContract(APIView):
             Q(contract_date__day=datetime.now().day),
             Q(contract_date__month=datetime.now().month),
             Q(contract_date__year=datetime.now().year)).exclude(
-            Q(contract_status=5) | Q(contract_status=1)).select_related().order_by('-contract_date')
+            Q(contract_status=5) | Q(contract_status=6)).select_related().order_by('-contract_date')
         self.check_object_permissions(request=request, obj=lastday_data)
         lastday = ExpertiseContractSerializerForBackoffice(lastday_data, many=True)
 
@@ -372,7 +372,7 @@ class ExpertiseConfirmContract(APIView):
             agreement_status = AgreementStatus.objects.get(name='Kelishildi')
         else:
             agreement_status = AgreementStatus.objects.get(name='Rad etildi')
-            contract.contract_status = 1
+            contract.contract_status = 5  # REJECTED
             if contract.contract_cash >= 10_000_000:
                 director_participants = ExpertiseContracts_Participants.objects.get(
                     Q(role__name="direktor"),
@@ -410,7 +410,7 @@ class ExpertiseConfirmContract(APIView):
 
         if cntrct:
             contract.is_confirmed_contract = 2  # UNICON_CONFIRMED
-            contract.contract_status = 7  # "Tasdiqlangan"
+            contract.contract_status = 2  # CUSTOMER_SIGNATURE_IS_EXPECTED
 
         contract.save()
 
@@ -503,7 +503,7 @@ class ExpertiseGetContractFile(APIView):
             return response.Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
 
         contract = get_object_or_404(ExpertiseServiceContract, hashcode=hash_code)
-        if contract.contract_status == 4 or contract.contract_status == 3:  # To'lov kutilmoqda va Aktiv
+        if contract.contract_status == 4 or contract.contract_status == 3:  # PAYMENT_IS_PENDING ACTIVE
             # delete like pdf file test mode
             if contract.like_preview_pdf:
                 delete_file(contract.like_preview_pdf.path)
@@ -559,11 +559,11 @@ class ExpertiseContractRejectedViews(APIView):
     def post(self, request, contract_id):
         contract = get_object_or_404(ExpertiseServiceContract, pk=contract_id)
         self.check_object_permissions(self.request, contract)
-        if contract.contract_status != 5:  # Bekor qilingan
+        if contract.contract_status != 6:  # CANCELLED
             serializer = self.serializer_class(data=request.data)
 
             serializer.is_valid(raise_exception=True)
-            contract.contract_status = 5  # Bekor qilingan
+            contract.contract_status = 6  # CANCELLED
             contract.save()
 
             serializer.save(
@@ -631,7 +631,7 @@ class ExpertiseSavePkcs(APIView):
                     pkcs_exist_object.pkcs7 = new_pkcs7
                     pkcs_exist_object.save()
             if request.user == contract.client:
-                contract.contract_status = 4  # "To'lov kutilmoqda"
+                contract.contract_status = 3  # PAYMENT_IS_PENDING
                 contract.is_confirmed_contract = 3  # CLIENT_CONFIRMED
                 contract.save()
         except ExpertiseServiceContract.DoesNotExist:
