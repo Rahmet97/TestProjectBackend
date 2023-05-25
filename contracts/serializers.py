@@ -1,6 +1,4 @@
-import json
 from datetime import datetime
-from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
@@ -212,20 +210,6 @@ class ContractSerializerForDetail(serializers.ModelSerializer):
     def get_arrearage(obj):
         return obj.contract_cash - obj.payed_cash
 
-    # @staticmethod
-    # def get_old_contract(obj):
-    #     old_contract = obj.old_contract_file.all()
-    #
-    #     context = {
-    #         "has_old_contract": False,
-    #         "old_contract": None
-    #     }
-    #
-    #     if old_contract:
-    #         context['has_old_contract'] = True
-    #         context['old_contract'] = AddOldContractFilesSerializers(old_contract, many=True).data
-    #     return context
-
     class Meta:
         model = Contract
         fields = (
@@ -252,7 +236,8 @@ class ContractSerializerForDetail(serializers.ModelSerializer):
 
         if old_contract:
             representation['old_contract']['has_old_contract'] = True
-            representation['old_contract']['old_contract'] = AddOldContractFilesSerializers(old_contract, many=True).data
+            representation['old_contract']['old_contract'] = AddOldContractFilesSerializers(
+                old_contract, many=True).data
 
         return representation
 
@@ -312,7 +297,8 @@ class ExpertSummarySerializerForSave(serializers.ModelSerializer):
     def create(self, validated_data):
         documents = self.context['documents']
         if ExpertSummary.objects.filter(
-                contract=validated_data.get("contract"), user=validated_data.get("user")).exists():
+                contract=validated_data.get("contract"), user=validated_data.get("user")
+        ).exists():
             responseErrorMessage(
                 message="Already exists in ExpertSummary",
                 status_code=status.HTTP_400_BAD_REQUEST
@@ -335,19 +321,6 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
     agreement_status = serializers.SerializerMethodField()
     userdata = serializers.SerializerMethodField()
     expert_summary = serializers.SerializerMethodField()
-
-    # @staticmethod
-    # def get_userdata(obj):
-    #     if obj.role.name != "dasturchi" and obj.role.name != 'mijoz':
-    #         userdata = UserData.objects.get(Q(role=obj.role), (Q(group=obj.contract.service.group) | Q(group=None)))
-    #         if userdata.type == 2:
-    #             u = YurUser.objects.get(userdata=userdata)
-    #             user = YurUserSerializerForContractDetail(u)
-    #         else:
-    #             u = FizUser.objects.get(userdata=userdata)
-    #             user = FizUserSerializerForContractDetail(u)
-    #         return user.data
-    #     return None
 
     @staticmethod
     def get_userdata(obj):
@@ -431,12 +404,12 @@ class InvoiceInformationSerializer(serializers.ModelSerializer):
 
     def get_payed_information(self, obj):
         if PayedInformation.objects.filter(invoice=obj).exists():
-            print(obj)
-            payed_info = PayedInformation.objects.get(invoice=obj)
+            # payed_info = PayedInformation.objects.get(invoice=obj)
+            payed_info = PayedInformation.objects.filter(invoice=obj)
             return PayedInformationSerializer(
                 payed_info, context={
                     'contract_cash': self.context.get("contract_cash")
-                }).data
+                }, many=True).data
         return {}
 
     class Meta:
@@ -462,12 +435,6 @@ class MonitoringContractSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         # Customize the representation of your data here
         representation['payed_information'] = None
-        # payed_information_objects = PayedInformation.objects.filter(contract_code=instance.id_code)
-        # if payed_information_objects:
-        #     representation['payed_information'] = PayedInformationSerializer(
-        #         payed_information_objects, many=True, context={'contract_cash': instance.contract_cash}
-        #     ).data[0],
-
         payed_information_objects = Invoice.objects.filter(contract_code=instance.id_code)
         if payed_information_objects:
             representation['payed_information'] = InvoiceInformationSerializer(
@@ -482,5 +449,6 @@ class MonitoringContractSerializer(serializers.ModelSerializer):
             representation["client"] = YurUserSerializer(YurUser.objects.get(userdata=client)).data
             representation["user_type"] = "yur"
 
-        # representation["total_payed_percentage"] = (float(instance.payed_cash) * float(100))/float(instance.contract_cash)
+        # representation["total_payed_percentage"] = (float(instance.payed_cash) * float(100))/float(
+        # instance.contract_cash)
         return representation

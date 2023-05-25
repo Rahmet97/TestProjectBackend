@@ -4,7 +4,7 @@ from .models import Application, TelegramBotChatIDs
 
 @admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
-    list_display = ["name", "user", "phone", "email"]
+    list_display = ["name", "user", "phone", "email", "is_contracted"]
 
 
 @admin.register(TelegramBotChatIDs)

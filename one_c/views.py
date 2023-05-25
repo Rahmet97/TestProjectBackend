@@ -188,7 +188,7 @@ class UpdateContractPayedCash(views.APIView):
                 contract_status = ContractStatus.objects.get(name='Aktiv')
             if str(contract_code).lower().startswith("e", 0, 2):
                 contract = ExpertiseServiceContract.objects.get(id_code=contract_code)
-                contract_status = 3  # Aktiv
+                contract_status = 4  # ACTIVE
 
             contract.payed_cash = payed_cash
             contract.contract_status = contract_status

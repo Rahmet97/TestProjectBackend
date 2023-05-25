@@ -7,14 +7,13 @@
         <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>Document</title>
+        <title>Expertise Contracts</title>
         <style>
             body {
                 width: 100%;
                 overflow-x: hidden;
                 font-family: "Times New Roman", Times, serif;
-                font-size: 7.5pt;
-                text-indent: 30px;
+                color: #000;
             }
 
             .container {
@@ -39,7 +38,6 @@
                 font-weight: 700;
                 font-size: 36px;
                 line-height: 44px;
-                color: #0E0E4B;
             }
 
             .publicOffer_content {
@@ -106,7 +104,6 @@
                 font-size: 22px;
                 line-height: 26px;
                 text-align: center;
-                color: #0e0e4b;
                 margin-bottom: 19px;
                 margin-top: 14px;
             }
@@ -149,7 +146,6 @@
                 font-size: 17px;
                 line-height: 26px;
                 text-align: center;
-                color: #0e0e4b;
                 margin-bottom: 19px;
                 margin-top: 14px;
             }
@@ -160,7 +156,6 @@
                 font-weight: 400;
                 font-size: 17px;
                 line-height: 20px;
-                color: #0e0e4b;
                 margin-bottom: 12px;
                 margin-top: 0;
                 text-align: justify;
@@ -326,10 +321,10 @@
         <div class='d-flex' style="justify-content: space-between; margin-bottom: 20px; border: none;">
             <table class="head-table" style="border: none; font-size: 12.5pt">
                 <thead>
-                    <colgroup>
-                        <col width="5%" />
-                        <col width="5%" />
-                    </colgroup>
+<!--                    <colgroup>-->
+<!--                        <col width="5%" />-->
+<!--                        <col width="5%" />-->
+<!--                    </colgroup>-->
                     <tr>
                         <th align="left" class="col-quantity">Toshkent sh.</th>
                         <th align="right" class="col-price">{{datetime}}</th>
@@ -360,20 +355,20 @@
             o'tkaziladi:
         </p>
         <p class='requirement-text'>
-            {% if price_select_percentage == 50 %}
+        {% if price_select_percentage == 50 %}
             2.2.1. Mazkur Shartnoma imzolangandan keyin 5 ish kuni ichida mazkur Shartnomaning 1-ilovasida ko'rsatilgan
             ishlar umumiy shartnomaviy narxining 50 foizi ellik foizi) miqdoridagi summani, qolgan 50 foizini esa
             bajarilgan ishlar dalolatnomasi va hisob-faktura imzolangandan keyin 10 kun ichida Bajaruvchining hisob
             raqamiga o'tkazishi kerak.
         </p>
         <p class='requirement-text'>
-            {% elif price_select_percentage == 100 %}
+        {% elif price_select_percentage == 100 %}
             2.2.1. Mazkur Shartnoma imzolangandan keyin 5 ish kuni ichida mazkur Shartnomaning 1-ilovasida ko'rsatilgan
             ishlar umumiy shartnomaviy narxining 100 foizi (yuz foizi) miqdoridagi summani Bajaruvchining hisob raqamiga
             o'tkazishi kerak.
         </p>
         <p class='requirement-text'>
-            {% endif %}
+        {% endif %}
             2.3. Buyurtmachidan Bajaruvchining hisob raqamiga pul o'tkazmalarini amalga oshirishda ushlab qolinadigan
             komissiya yig'imlari va bojlari Buyurtmachi tomonidan to'lanadi.
         </p>
@@ -559,11 +554,11 @@
             <h4 class="requirement-title">XII. YURIDIK MANZILLAR VA BANK REKVIZITLARI</h4>
             <table class="table_ijro" cellpadding="10" cellspacing="0">
                 <thead>
-                    <colgroup>
-                        <col width="30%" />
-                        <col width="5%" />
-                        <col width="30%" span="1" />
-                    </colgroup>
+<!--                    <colgroup>-->
+<!--                        <col width="30%" />-->
+<!--                        <col width="5%" />-->
+<!--                        <col width="30%" span="1" />-->
+<!--                    </colgroup>-->
                     <tr>
                         <th align="center" class="col-quantity">BAJARUVCHI</th>
                         <th align="center" class="col-price"></th>
@@ -614,7 +609,7 @@
                     {% endif %}
                 </tbody>
             </table> <br>
-        {% if save %}
+            {% if save %}
             <table border="1" style="font-size: 12.5pt;" cellpadding="10" cellspacing="0">
                 <tr>
                     <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
@@ -647,7 +642,6 @@
             {% if page_break %}
                 <div style="page-break-after: always;"></div>
             {% endif %}
-            <br>
             <table class="ilova ilova_num" align="right">
                 <tr>
                     <th colspan="6"></th>
@@ -680,11 +674,11 @@
             </p>
             <table class="table_ijro" cellpadding="10" cellspacing="0">
                 <thead>
-                    <colgroup>
-                        <col width="30%" />
-                        <col width="5%" />
-                        <col width="30%" span="1" />
-                    </colgroup>
+<!--                    <colgroup>-->
+<!--                        <col width="30%" />-->
+<!--                        <col width="5%" />-->
+<!--                        <col width="30%" span="1" />-->
+<!--                    </colgroup>-->
                     <tr>
                         <th align="center" class="col-quantity">BAJARUVCHI</th>
                         <th align="center" class="col-price"></th>
@@ -693,14 +687,11 @@
                 </thead>
                 <tbody>
                     <tr>
-                    </tr>
-                    <tr>
-                        <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi
+                        <td align="center">
+                            “UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi
                         </td>
                         <td align="center"></td>
                         <td align="center">{{user_obj.name}}</td>
-                    </tr>
-                    <tr>
                     </tr>
                     <tr>
                         <td align="center"></td>
@@ -710,10 +701,6 @@
                         <td align="center"></td>
                         <td align="center">{{user_obj.get_director_short_full_name}}</td>
                     </tr>
-
-                    {% if page_break %}
-                        <div style="page-break-after: always;"></div>
-                    {% endif %}
                     {% if save %}
                     <tr>
                         <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
@@ -723,39 +710,42 @@
                     {% endif %}
                 </tbody>
             </table>
-            {% if save %}
-            <table border="1" style="font-size: 12.5pt;" cellpadding="10" cellspacing="0">
-                <tr>
-                    <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
-                </tr>
-                <tr>
-                    <th>Shartnoma raqami</th>
-                    <th>{{contract_number}}</th>
-                    <th rowspan="5">
-                        <img src="{{ qr_code }}" alt="">
-                    </th>
-                </tr>
-                <tr>
-                    <th>Shartnoma sanasi</th>
-                    <th>{{datetime}}</th>
-                </tr>
-                <tr>
-                    <th>Shartnoma kodi</th>
-                    <th>{{id_code}}</th>
-                </tr>
-                <tr>
-                    <th>Ijrochining STIR raqami</th>
-                    <th>200 898 586</th>
-                </tr>
-                <tr>
-                    <th>Buyurtmachining STIR/JShShIR raqami</th>
-                    <th>{{user_obj.tin}}</th>
-                </tr>
-            </table>
-            {% endif %}
             {% if page_break %}
                 <div style="page-break-after: always;"></div>
             {% endif %}
+<!--            {% if save %}-->
+<!--            <table border="1" style="font-size: 12.5pt;" cellpadding="10" cellspacing="0">-->
+<!--                <tr>-->
+<!--                    <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Shartnoma raqami</th>-->
+<!--                    <th>{{contract_number}}</th>-->
+<!--                    <th rowspan="5">-->
+<!--                        <img src="{{ qr_code }}" alt="">-->
+<!--                    </th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Shartnoma sanasi</th>-->
+<!--                    <th>{{datetime}}</th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Shartnoma kodi</th>-->
+<!--                    <th>{{id_code}}</th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Ijrochining STIR raqami</th>-->
+<!--                    <th>200 898 586</th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Buyurtmachining STIR/JShShIR raqami</th>-->
+<!--                    <th>{{user_obj.tin}}</th>-->
+<!--                </tr>-->
+<!--            </table>-->
+<!--            {% endif %}-->
+<!--            {% if page_break %}-->
+<!--                <div style="page-break-after: always;"></div>-->
+<!--            {% endif %}-->
             <table class="ilova ilova_num" align="right">
                 <tr>
                     <th colspan="6"></th>
@@ -777,11 +767,11 @@
             <h4 class="requirement-title" style="margin-top: 100px;">Ekspertizaga taqdim etilgan ishchi loyihalar ro'yxati</h4>
             <table class="loyiha_table" style="font-size: 12.5pt;" border="1" cellpadding="10" cellspacing="0">
                 <thead>
-                    <colgroup>
-                        <col width="5%" />
-                        <col width="50%" />
-                        <col width="20%" />
-                    </colgroup>
+<!--                    <colgroup>-->
+<!--                        <col width="5%" />-->
+<!--                        <col width="50%" />-->
+<!--                        <col width="20%" />-->
+<!--                    </colgroup>-->
                     <tr>
                         <th align="center" class="col-item-name">T/r</th>
                         <th align="center" class="col-quantity">Loyihaning nomi</th>
@@ -810,16 +800,16 @@
 
                 Ushbu ilova {{contract_number}} shartnomaning ajralmas qismi hisoblanadi.
             </p>
-            {% if page_break %}
-                <div style="page-break-after: always;"></div>
-            {% endif %}
+<!--            {% if page_break %}-->
+<!--                <div style="page-break-after: always;"></div>-->
+<!--            {% endif %}-->
             <table class="table_ijro" cellpadding="10" cellspacing="0">
                 <thead>
-                    <colgroup>
-                        <col width="30%" />
-                        <col width="5%" />
-                        <col width="30%" span="1" />
-                    </colgroup>
+<!--                    <colgroup>-->
+<!--                        <col width="30%" />-->
+<!--                        <col width="5%" />-->
+<!--                        <col width="30%" span="1" />-->
+<!--                    </colgroup>-->
                     <tr>
                         <th align="center" class="col-quantity">BAJARUVCHI</th>
                         <th align="center" class="col-price"></th>
@@ -855,37 +845,37 @@
                     {% endif %}
                 </tbody>
             </table>
-            <br>
-            {% if save %}
-            <table border="1" style="font-size: 12.5pt;" cellpadding="10" cellspacing="0">
-                <tr>
-                    <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
-                </tr>
-                <tr>
-                    <th>Shartnoma raqami</th>
-                    <th>{{contract_number}}</th>
-                    <th rowspan="5">
-                        <img src="{{ qr_code }}" alt="">
-                    </th>
-                </tr>
-                <tr>
-                    <th>Shartnoma sanasi</th>
-                    <th>{{datetime}}</th>
-                </tr>
-                <tr>
-                    <th>Shartnoma kodi</th>
-                    <th>{{id_code}}</th>
-                </tr>
-                <tr>
-                    <th>Ijrochining STIR raqami</th>
-                    <th>200 898 586</th>
-                </tr>
-                <tr>
-                    <th>Buyurtmachining STIR/JShShIR raqami</th>
-                    <th>{{user_obj.tin}}</th>
-                </tr>
-            </table>
-        {% endif %}
+<!--            <br>-->
+<!--        {% if save %}-->
+<!--            <table border="1" style="font-size: 12.5pt;" cellpadding="10" cellspacing="0">-->
+<!--                <tr>-->
+<!--                    <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Shartnoma raqami</th>-->
+<!--                    <th>{{contract_number}}</th>-->
+<!--                    <th rowspan="5">-->
+<!--                        <img src="{{ qr_code }}" alt="">-->
+<!--                    </th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Shartnoma sanasi</th>-->
+<!--                    <th>{{datetime}}</th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Shartnoma kodi</th>-->
+<!--                    <th>{{id_code}}</th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Ijrochining STIR raqami</th>-->
+<!--                    <th>200 898 586</th>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <th>Buyurtmachining STIR/JShShIR raqami</th>-->
+<!--                    <th>{{user_obj.tin}}</th>-->
+<!--                </tr>-->
+<!--            </table>-->
+<!--        {% endif %}-->
         </div>
     </body>
 
