@@ -99,8 +99,6 @@ class Role(models.Model):
     partition = models.ManyToManyField(Permission, through='RolePermission')
     created_date = models.DateTimeField(auto_now_add=True)
 
-    history = HistoricalRecords()
-
     def __str__(self):
         return self.name
 

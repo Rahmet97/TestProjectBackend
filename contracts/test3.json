@@ -1,0 +1,23 @@
+{
+  "ID": "3df2e067-7ab3-4bb0-8563-4138dac76557",
+  "customerID": "6",
+  "customerName": "\"XASANMERGANLIK OTASHIN PAXTAKOR\" FERMER XO‘JALIGI",
+  "customerINN": "300112532",
+  "customerNDS": null,
+  "customerAdress": "XASANMERGAN MFY, IPAK YULI KO‘CHASI,  uy:YUK",
+  "customerAccount": "1234 5678 9123 4565 4235",
+  "customerMFO": "09057",
+  "invoiceDate": "2023-05-25T09:33:49",
+  "invoiceNum": "C26/0523",
+  "comment": "test",
+  "contractID": "DM-26",
+  "agreementdate": "2023-05-15T07:31:25",
+  "fullnumber": "C26",
+  "products": [{
+    "nomenclatureID": "10306003001000000",
+    "quantity": 1,
+    "Price": 14490000.0,
+    "amount": 12937500.0,
+    "amountVAT": 1552500.0
+  }]
+}
