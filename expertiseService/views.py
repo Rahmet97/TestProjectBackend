@@ -26,7 +26,7 @@ from contracts.utils import (
     delete_file, create_qr
 )
 
-from accounts.models import YurUser, UserData
+from accounts.models import YurUser, UserData, Role
 from accounts.serializers import YurUserSerializerForContractDetail
 
 from main.models import Application
@@ -454,7 +454,14 @@ class ExpertiseGetUserContracts(APIView):
 # General APIs
 class ExpertiseContractDetail(APIView):
     permission_classes = (IsAuthenticated,)
-    permitted_roles = ["direktor o'rinbosari", "direktor", "bo'lim boshlig'i", "departament boshlig'i"]
+    permitted_roles = [
+        Role.RoleNames.ADMIN,
+        Role.RoleNames.ECONOMIST,
+        Role.RoleNames.DIRECTOR,
+        Role.RoleNames.DEPUTY_DIRECTOR,
+        Role.RoleNames.DEPARTMENT_BOSS,
+        Role.RoleNames.SECTION_HEAD,
+    ]
 
     def get(self, request, pk):
         client = None
@@ -464,7 +471,7 @@ class ExpertiseContractDetail(APIView):
         # agar request user mijoz bo'lsa
         # expertise model yaratilganidan keyin statusi ozgarishi kk front ofise uchun
         # yani iqtisodchi va yurist dan otganidan keyin
-        if request.user.role.name == "mijoz" and contract.client == request.user:  # and contract.contract_status != 0:
+        if request.user.role.name == Role.RoleNames.CLIENT and contract.client == request.user:  # and contract.contract_status != 0:
             client = request.user
 
         # agar reuqest user role permitted_roles tarkibida bo'lsa
