@@ -33,7 +33,7 @@ from main.models import Application
 from main.permission import MonitoringPermission
 from main.utils import responseErrorMessage
 
-from expertiseService.permission import IsRelatedToExpertiseBackOffice
+from expertiseService.permission import IsRelatedToExpertiseBackOffice, ExpertiseConfirmContractPermission
 from expertiseService.models import (
     AgreementStatus, ExpertiseContracts_Participants,
     ExpertiseServiceContract, ExpertiseTarifContract,
@@ -377,7 +377,7 @@ class ExpertiseGetGroupContract(APIView):
 
 
 class ExpertiseConfirmContract(APIView):
-    permission_classes = (IsRelatedToExpertiseBackOffice,)
+    permission_classes = (ExpertiseConfirmContractPermission,)
 
     def post(self, request):
         contract = get_object_or_404(ExpertiseServiceContract, pk=int(request.data['contract']))
@@ -469,9 +469,7 @@ class ExpertiseContractDetail(APIView):
         contract_serializer = ExpertiseContractSerializerForDetail(contract)
 
         # agar request user mijoz bo'lsa
-        # expertise model yaratilganidan keyin statusi ozgarishi kk front ofise uchun
-        # yani iqtisodchi va yurist dan otganidan keyin
-        if request.user.role.name == Role.RoleNames.CLIENT and contract.client == request.user:  # and contract.contract_status != 0:
+        if request.user.role.name == Role.RoleNames.CLIENT and contract.client == request.user:
             client = request.user
 
         # agar reuqest user role permitted_roles tarkibida bo'lsa
