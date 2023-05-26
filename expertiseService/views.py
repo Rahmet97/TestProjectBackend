@@ -197,7 +197,6 @@ class CreateExpertiseServiceContractView(APIView):
             expertise_service_contract.save()
 
             for project_data in projects_data:
-                # project_data.expertise_service_tarif = int(project_data.expertise_service_tarif)
                 project = ExpertiseServiceContractTarif.objects.create(**project_data)
                 ExpertiseTarifContract.objects.create(
                     contract=expertise_service_contract,
@@ -237,8 +236,12 @@ class CreateExpertiseServiceContractView(APIView):
 class ExpertiseGetGroupContract(APIView):
     permission_classes = [IsRelatedToExpertiseBackOffice]
 
-    # @cache_page(60 * 15)
     def get(self, request):
+
+        # barcha contractlar
+        barcha_data = ExpertiseServiceContract.objects.order_by('-contract_date')
+        self.check_object_permissions(request=request, obj=barcha_data)
+        barcha = ExpertiseContractSerializerForBackoffice(barcha_data, many=True)
 
         # yangi contractlar
         if request.user.role.name == 'direktor':
@@ -251,8 +254,9 @@ class ExpertiseGetGroupContract(APIView):
                 Q(role__name='direktor'), Q(agreement_status__name='Kelishildi')
             ).values('contract')
 
-            yangi_data = ExpertiseServiceContract.objects.filter(
-                Q(id__in=contract_participants) | Q(is_confirmed_contract=1)
+            yangi_data = barcha_data.filter(
+                Q(id__in=contract_participants) | Q(is_confirmed_contract=1),
+                Q(contract_status=1)
             ).exclude(
                 Q(id__in=director_accepted_contracts),
                 Q(contract_status=5),  # REJECTED
@@ -265,8 +269,9 @@ class ExpertiseGetGroupContract(APIView):
                 (Q(agreement_status__name='Yuborilgan') |
                  Q(agreement_status__name="Ko'rib chiqilmoqda"))
             ).values('contract')
-            yangi_data = ExpertiseServiceContract.objects.filter(
-                id__in=contract_participants
+            yangi_data = barcha_data.filter(
+                id__in=contract_participants,
+                contract_status=1
             ).exclude(
                 Q(contract_status=5) | Q(contract_status=6),  # REJECTED, CANCELLED
                 Q(contract_date__lt=datetime.now() - timedelta(days=1))
@@ -276,77 +281,85 @@ class ExpertiseGetGroupContract(APIView):
 
         # kelishilgan contractlar
         contract_participants = ExpertiseContracts_Participants.objects.filter(
-            Q(role=request.user.role),
-            Q(agreement_status__name='Kelishildi')
-        ).values('contract')
-        kelishilgan_data = ExpertiseServiceContract.objects.filter(
+            role=request.user.role,
+            agreement_status__name='Kelishildi'
+        ).values_list('contract', flat=True)
+
+        # Retrieve contracts with the matching IDs, order by contract_date and prefetch related data
+        kelishilgan_data = barcha_data.filter(
             id__in=contract_participants
+        ).exclude(
+            contract_status__in=[1, 5, 6, 7]  # List of contract_status values to exclude
         ).select_related().order_by('-contract_date')
         self.check_object_permissions(request=request, obj=kelishilgan_data)
         kelishilgan = ExpertiseContractSerializerForBackoffice(kelishilgan_data, many=True)
 
         # rad etilgan contractlar
-        rad_etildi_data = ExpertiseServiceContract.objects.filter(
-            (Q(contract_status=5) | Q(contract_status=6))  # REJECTED, CANCELLED
+        rejected_cancelled_data = barcha_data.filter(
+            contract_status__in=[5, 6]  # REJECTED, CANCELLED
         ).order_by('-contract_date')
-        self.check_object_permissions(request=request, obj=rad_etildi_data)
-        rad_etildi = ExpertiseContractSerializerForBackoffice(rad_etildi_data, many=True)
+        self.check_object_permissions(request=request, obj=rejected_cancelled_data)
+        rad_etildi = ExpertiseContractSerializerForBackoffice(rejected_cancelled_data, many=True)
 
         # expired contracts
+        # Retrieve contract IDs where the user's role matches and agreement_status is 'Kelishildi'
         contract_participants = ExpertiseContracts_Participants.objects.filter(
-            Q(role=request.user.role),
-            (Q(agreement_status__name='Yuborilgan') |
-             Q(agreement_status__name="Ko'rib chiqilmoqda"))
-        ).values('contract')
-        expired_data = ExpertiseServiceContract.objects.filter(
-            Q(id__in=contract_participants),
-            Q(contract_date__lt=datetime.now() - timedelta(days=1))
-        ).select_related().order_by('-contract_date')
+            role=request.user.role,
+            agreement_status__name__in=['Yuborilgan', "Ko'rib chiqilmoqda"]
+        ).values_list('contract', flat=True)
+
+        expired_data = barcha_data.filter(
+            id__in=contract_participants,
+            contract_date__lt=datetime.now() - timedelta(days=1),
+            contract_status=1
+        ).select_related().exclude(
+            contract_status__in=[5, 6]  # REJECTED, CANCELLED
+        ).order_by('-contract_date')
+
         self.check_object_permissions(request=request, obj=expired_data)
         expired = ExpertiseContractSerializerForBackoffice(expired_data, many=True)
 
-        # last day contractlar
+        # last day contracts
+        today = datetime.now()
         contract_participants = ExpertiseContracts_Participants.objects.filter(
-            Q(role=request.user.role),
-            (Q(agreement_status__name='Yuborilgan') |
-             Q(agreement_status__name="Ko'rib chiqilmoqda"))
-        ).values('contract')
-        lastday_data = ExpertiseServiceContract.objects.filter(
-            Q(id__in=contract_participants),
-            Q(contract_date__day=datetime.now().day),
-            Q(contract_date__month=datetime.now().month),
-            Q(contract_date__year=datetime.now().year)).exclude(
-            Q(contract_status=5) | Q(contract_status=6)).select_related().order_by('-contract_date')
+            role=request.user.role,
+            agreement_status__name__in=['Yuborilgan', "Ko'rib chiqilmoqda"]
+        ).values_list('contract', flat=True)
+
+        lastday_data = barcha_data.filter(
+            id__in=contract_participants,
+            contract_date__date=today.date()
+        ).exclude(
+            contract_status__in=[5, 6]
+        ).select_related().order_by('-contract_date')
         self.check_object_permissions(request=request, obj=lastday_data)
         lastday = ExpertiseContractSerializerForBackoffice(lastday_data, many=True)
 
         # expired accepted contracts
         contract_participants = ExpertiseContracts_Participants.objects.filter(
-            Q(role=request.user.role),
-            Q(agreement_status__name='Kelishildi')
-        ).values('contract')
-        expired_accepted_data = ExpertiseServiceContract.objects.filter(
-            Q(id__in=contract_participants),
-            Q(contract_date__lt=datetime.now() - timedelta(days=1))
+            role=request.user.role,
+            agreement_status__name='Kelishildi'
+        ).values_list('contract', flat=True)
+
+        expired_accepted_data = barcha_data.filter(
+            id__in=contract_participants,
+            contract_date__lt=datetime.now() - timedelta(days=1)
         ).select_related().order_by('-contract_date')
         self.check_object_permissions(request=request, obj=expired_accepted_data)
         expired_accepted = ExpertiseContractSerializerForBackoffice(expired_accepted_data, many=True)
 
         # in_time contracts
+        # Retrieve contracts based on the specified conditions and ordering
         contracts_selected = ExpertiseExpertSummary.objects.select_related('contract').filter(
-            Q(user=request.user)
+            user=request.user
         ).order_by('-contract', '-contract__contract_date')
+        # Filter the contracts that are in time based on the date comparison
         in_time_data = [
             element.contract for element in contracts_selected
             if element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(days=1)
         ]
         self.check_object_permissions(request=request, obj=in_time_data)
         in_time = ExpertiseContractSerializerForBackoffice(in_time_data, many=True)
-
-        # barcha contractlar
-        barcha_data = ExpertiseServiceContract.objects.all().order_by('-contract_date')
-        self.check_object_permissions(request=request, obj=barcha_data)
-        barcha = ExpertiseContractSerializerForBackoffice(barcha_data, many=True)
 
         return response.Response(
             data={
