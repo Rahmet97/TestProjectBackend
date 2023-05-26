@@ -456,7 +456,7 @@ class ExpertiseContractDetail(APIView):
     permission_classes = (IsAuthenticated,)
     permitted_roles = [
         Role.RoleNames.ADMIN,
-        Role.RoleNames.ECONOMIST,
+        Role.RoleNames.ACCOUNTANT,
         Role.RoleNames.DIRECTOR,
         Role.RoleNames.DEPUTY_DIRECTOR,
         Role.RoleNames.DEPARTMENT_BOSS,

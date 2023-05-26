@@ -33,7 +33,7 @@ class MonitoringPermission(permissions.BasePermission):
     message = "You don't have permission for this section"
     permitted_roles = [
         Role.RoleNames.ADMIN,
-        Role.RoleNames.ECONOMIST,
+        Role.RoleNames.ACCOUNTANT,
         Role.RoleNames.DIRECTOR,
         Role.RoleNames.DEPUTY_DIRECTOR,
         Role.RoleNames.DEPARTMENT_BOSS,

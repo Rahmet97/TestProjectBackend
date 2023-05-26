@@ -101,7 +101,8 @@ class Role(models.Model):
         SECTION_HEAD = "bo'lim boshlig'i", "bo'lim boshlig'i"
         DEPUTY_DIRECTOR = "direktor o'rinbosari", "direktor o'rinbosari"
         DIRECTOR = "direktor", "direktor"
-        ECONOMIST = "iqtisodchi", "iqtisodchi"
+        # ECONOMIST = "iqtisodchi", "iqtisodchi"
+        ACCOUNTANT = "buxgalteriya", "buxgalteriya"
         DISPATCHER = "dispetcher", "dispetcher"
         CLIENT = "mijoz", "mijoz"
 
