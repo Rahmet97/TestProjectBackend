@@ -30,6 +30,7 @@ from accounts.models import YurUser, UserData
 from accounts.serializers import YurUserSerializerForContractDetail
 
 from main.models import Application
+from main.permission import MonitoringPermission
 from main.utils import responseErrorMessage
 
 from expertiseService.permission import IsRelatedToExpertiseBackOffice
@@ -640,7 +641,7 @@ class ExpertiseSavePkcs(APIView):
 
 
 class ExpertiseMonitoringContractViews(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [MonitoringPermission]
 
     @staticmethod
     def get_objects(
@@ -670,9 +671,6 @@ class ExpertiseMonitoringContractViews(APIView):
         if tin:
             query |= Q(client__username=tin)
 
-        # if payed_percentage:  # this condition does not work
-        #     query |= Q(payed_information__payed_percentage=payed_percentage)
-
         if contract_cash:
             query |= Q(contract_cash=contract_cash)
 
@@ -693,7 +691,6 @@ class ExpertiseMonitoringContractViews(APIView):
             pin=request.GET.get("pin"),
             tin=request.GET.get("tin"),
             contract_cash=request.GET.get("contract_cash"),
-            # payed_percentage=request.GET.get("payed_percentage"),
         )
         serializer = ExpertiseMonitoringContractSerializer(contracts, many=True)
         return response.Response(serializer.data, status=status.HTTP_200_OK)
@@ -702,4 +699,4 @@ class ExpertiseMonitoringContractViews(APIView):
 class ExpertiseMonitoringContractDetailViews(generics.RetrieveAPIView):
     queryset = ExpertiseServiceContract.objects.all()
     serializer_class = ExpertiseMonitoringContractSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [MonitoringPermission]

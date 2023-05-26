@@ -1,13 +1,52 @@
 from rest_framework import permissions
 
-PERMITED_ROLES = ["iqtisodchi", "yurist", "dasturchi",  "bo'lim boshlig'i" "direktor o'rinbosari", "direktor"]
+from accounts.models import Role
+from contracts.models import Service
 
-class IsAndPinnedToService(permissions.BasePermission):
-    message = 'Bu user tizmga kirmagan yoki service ga pinned qilinmagan'
+
+class ApplicationPermission(permissions.BasePermission):
+    message = "You don't have permission for this section"
+    permitted_roles = [
+        Role.RoleNames.ADMIN,
+
+        Role.RoleNames.DIRECTOR,
+        Role.RoleNames.DEPUTY_DIRECTOR,
+        Role.RoleNames.DEPARTMENT_BOSS,
+        Role.RoleNames.SECTION_HEAD,
+    ]
+
+    def has_permission(self, request, view):
+        return (
+                request.user and
+                request.user.is_authenticated and
+                (request.user.role is not None)
+        )
 
     def has_object_permission(self, request, view, obj):
         return (
-            (obj.service.pinned_user == request.user) or \
-            (request.user.role.name  != "mijoz") 
+                (obj.service.pinned_user == request.user) or
+                (request.user.role.name in self.permitted_roles)
         )
-    
+
+
+class MonitoringPermission(permissions.BasePermission):
+    message = "You don't have permission for this section"
+    permitted_roles = [
+        Role.RoleNames.ADMIN,
+        Role.RoleNames.ECONOMIST,
+        Role.RoleNames.DIRECTOR,
+        Role.RoleNames.DEPUTY_DIRECTOR,
+        Role.RoleNames.DEPARTMENT_BOSS,
+        Role.RoleNames.SECTION_HEAD,
+    ]
+
+    def has_permission(self, request, view):
+        return (
+                request.user and
+                request.user.is_authenticated and
+                (request.user.role is not None) and
+                (
+                        (request.user.role.name in self.permitted_roles) or
+                        (Service.objects.filter(pinned_user=request.user).exists())
+                )
+        )

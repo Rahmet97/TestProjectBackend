@@ -30,8 +30,8 @@ from accounts.serializers import (
 
 from services.models import Rack, Unit, DeviceUnit
 
-from .permission import IsAuthenticatedAndOwner
 from main.utils import responseErrorMessage
+from main.permission import MonitoringPermission
 
 from .models import (
     Service, Tarif, Device, Offer, Document, SavedService, Element, UserContractTarifDevice,
@@ -1510,7 +1510,7 @@ class AddOldContractsViews(APIView):
 
 
 class MonitoringContractViews(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [MonitoringPermission]
 
     @staticmethod
     def get_objects(
@@ -1540,9 +1540,6 @@ class MonitoringContractViews(APIView):
         if tin:
             query |= Q(client__username=tin)
 
-        # if payed_percentage:  # this condition does not work
-        #     query |= Q(payed_information__payed_percentage=payed_percentage)
-
         if contract_cash:
             query |= Q(contract_cash=contract_cash)
 
@@ -1563,7 +1560,6 @@ class MonitoringContractViews(APIView):
             pin=request.GET.get("pin"),
             tin=request.GET.get("tin"),
             contract_cash=request.GET.get("contract_cash"),
-            # payed_percentage=request.GET.get("payed_percentage"),
         )
         serializer = MonitoringContractSerializer(contracts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -1572,7 +1568,7 @@ class MonitoringContractViews(APIView):
 class MonitoringContractDetailViews(generics.RetrieveAPIView):
     queryset = Contract.objects.all()
     serializer_class = MonitoringContractSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [MonitoringPermission]
 
 
 class EndContractAPIView(APIView):
@@ -1582,5 +1578,6 @@ class EndContractAPIView(APIView):
 
         contract = Contract.objects.get(pk=contract_id)
         contract.expiration_date = expiration_date
+        contract.contract_status = ContractStatus.objects.get(name="Yakunlangan")
         contract.save()
         return Response(status=200)

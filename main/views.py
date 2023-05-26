@@ -5,7 +5,7 @@ from rest_framework import status, response, generics
 from accounts.permissions import AdminPermission
 from contracts.serializers import DocumentSerializer
 from main.utils import responseErrorMessage
-from main.permission import IsAndPinnedToService, PERMITED_ROLES
+from main.permission import ApplicationPermission
 from .models import Application
 from contracts.models import Service, Document
 from .serializers import ApplicationSerializer
@@ -36,10 +36,10 @@ class ApplicationCreateView(CreateAPIView):
 class ApplicationListView(ListAPIView):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
-    permission_classes = [IsAndPinnedToService, IsAuthenticated]
+    permission_classes = [ApplicationPermission]
     
     def get_queryset(self):
-        if self.request.user.role.name in PERMITED_ROLES:
+        if self.request.user.role.name in ApplicationPermission.permitted_roles:
             queryset = self.queryset.all()
         else:
             pinned_user = self.request.user
@@ -47,6 +47,7 @@ class ApplicationListView(ListAPIView):
             try:
                 service_pk = Service.objects.get(pinned_user=pinned_user).pk
             except Service.DoesNotExist:
+                service_pk = None
                 # Return an empty queryset if the user is not pinned to any service
                 responseErrorMessage(
                     message="Siz Xizmat turiga biriktirilmagan siz",
@@ -60,18 +61,19 @@ class ApplicationListView(ListAPIView):
 class ApplicationRetrieveView(RetrieveAPIView):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
-    permission_classes = [IsAuthenticated, IsAndPinnedToService]
+    permission_classes = [ApplicationPermission]
     
     def get_object(self):
         obj = super(ApplicationRetrieveView, self).get_object()
 
-        if self.request.user.role.name in PERMITED_ROLES:
+        if self.request.user.role.name in ApplicationPermission.permitted_roles:
             obj = self.queryset.filter(pk=self.kwargs.get("pk")).first()
         else:
             pinned_user = self.request.user
             try:
                 service_pk = Service.objects.get(pinned_user=pinned_user).pk
             except Service.DoesNotExist:
+                service_pk = None
                 # Return an empty queryset if the user is not pinned to any service
                 responseErrorMessage(
                     message="Siz Xizmat turiga biriktirilmagan siz",

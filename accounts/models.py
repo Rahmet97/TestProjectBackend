@@ -95,7 +95,18 @@ class Permission(models.Model):
 
 
 class Role(models.Model):
-    name = models.CharField(max_length=50)
+    class RoleNames(models.TextChoices):
+        ADMIN = "admin", "admin"
+        DEPARTMENT_BOSS = "departament boshlig'i", "departament boshlig'i"
+        SECTION_HEAD = "bo'lim boshlig'i", "bo'lim boshlig'i"
+        DEPUTY_DIRECTOR = "direktor o'rinbosari", "direktor o'rinbosari"
+        DIRECTOR = "direktor", "direktor"
+        ECONOMIST = "iqtisodchi", "iqtisodchi"
+        DISPATCHER = "dispetcher", "dispetcher"
+        CLIENT = "mijoz", "mijoz"
+
+    name = models.CharField(max_length=50, choices=RoleNames.choices)
+    # name = models.CharField(max_length=50)
     partition = models.ManyToManyField(Permission, through='RolePermission')
     created_date = models.DateTimeField(auto_now_add=True)
 
