@@ -139,6 +139,9 @@ class UserDetailAPIView(APIView):
                 except ServiceParticipants.DoesNotExist:
                     pass
 
+            # If user is pinned_user
+            data["is_pinned_user"] = Service.objects.filter(pinned_user=user.userdata).exists()
+
         # Return data as a response
         return Response(data)
 
