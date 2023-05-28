@@ -41,9 +41,12 @@ class CreateInvoiceAPIView(views.APIView):
             m, y = int(month), int(year)
         else:
             m, y = datetime.now().month, datetime.now().year
+        inv_count = Invoice.objects.filter(
+            number__startswith=f'{contract.id_code}/{str(m).zfill(2)}{y % 100}'
+        ).count()
         invoice = Invoice.objects.create(
             customer=contract.client,
-            number=f'{contract.id_code}/{str(m).zfill(2)}{y % 100}',
+            number=f'{contract.id_code}/{str(m).zfill(2)}{y % 100}/{inv_count + 1}',
             comment=comment,
             contract_code=contract_id_code,
             status=Status.objects.get(name='Yangi')
