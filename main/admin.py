@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Application, TelegramBotChatIDs
+from .models import Application, TelegramBotChatIDs, TestFileUploader
 
 
 @admin.register(Application)
@@ -10,3 +10,8 @@ class ApplicationAdmin(admin.ModelAdmin):
 @admin.register(TelegramBotChatIDs)
 class TelegramBotChatIDsAdmin(admin.ModelAdmin):
     list_display = ["chat_name", "chat_id"]
+
+
+@admin.register(TestFileUploader)
+class TestFileUploaderAdmin(admin.ModelAdmin):
+    list_display = ["name"]

@@ -6,9 +6,14 @@ from accounts.permissions import AdminPermission
 from contracts.serializers import DocumentSerializer
 from main.utils import responseErrorMessage
 from main.permission import ApplicationPermission
-from .models import Application
+from .models import Application, TestFileUploader
 from contracts.models import Service, Document
-from .serializers import ApplicationSerializer
+from .serializers import ApplicationSerializer, TestFileUploaderSerializer
+
+
+class TestFileUploaderView(generics.ListCreateAPIView):
+    queryset = TestFileUploader.objects.all()
+    serializer_class = TestFileUploaderSerializer
 
 
 # class DocumentCreateAPIView(generics.CreateAPIView):

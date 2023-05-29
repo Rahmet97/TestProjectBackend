@@ -4,6 +4,8 @@ from main import views
 
 urlpatterns = [
     path("send-message", views.ApplicationCreateView.as_view(), name="send-message"),
+
+    path("test-file-uploader", views.TestFileUploaderView.as_view(), name="test-file-uploader"),
     # List all applications for the pinned user's service
     path("application/list/", views.ApplicationListView.as_view(), name="application-list"),
 

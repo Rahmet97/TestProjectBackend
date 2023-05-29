@@ -1,8 +1,15 @@
 from rest_framework import serializers
-from .models import Application
+from .models import Application, TestFileUploader
 
 from accounts.models import FizUser, YurUser
 from accounts.serializers import FizUserForOldContractSerializers, YurUserSerializerForContractDetail
+
+
+class TestFileUploaderSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TestFileUploader
+        fields = "__all__"
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
