@@ -38,7 +38,7 @@ class ExpertiseServiceContract(models.Model):
         FINISHED = 7, "Yakunlangan"
 
     status = models.IntegerField(choices=StatusChoices.choices, default=4)  # ijro statuslari
-    contract_status = models.IntegerField(choices=ContractStatusChoices.choices, default=0)  # hujjat statuslari
+    contract_status = models.IntegerField(choices=ContractStatusChoices.choices, default=1)  # hujjat statuslari
 
     price_select_percentage = models.IntegerField(choices=PRICE_SELECT_PERCENTAGE, blank=True, null=True)
 

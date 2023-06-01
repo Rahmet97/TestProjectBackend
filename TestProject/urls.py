@@ -43,6 +43,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('api/oauth/', include("oneid.urls")),
+
     path('accounts/', include("accounts.urls")),
     path('contracts/', include("contracts.urls")),
     path('services/', include("services.urls")),
@@ -51,6 +52,7 @@ urlpatterns = [
 
     path('main/', include('main.urls')),
     path('expertise/', include("expertiseService.urls")),
+    path('vps/', include("vpsService.urls")),
 
     path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

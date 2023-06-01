@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # packages
     'oneid',
     'rest_framework',
     'corsheaders',
@@ -55,12 +57,15 @@ INSTALLED_APPS = [
     'django_celery_results',
     'rest_framework_simplejwt.token_blacklist',
     'import_export',
+
+    # local apps
     'services',
     'one_c',
     'billing',
 
     'main',
     'expertiseService',
+    'vpsService'
 ]
 
 MIDDLEWARE = [
