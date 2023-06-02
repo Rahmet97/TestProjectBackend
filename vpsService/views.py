@@ -22,14 +22,14 @@ class OperationSystemListView(generics.ListAPIView):
     # Use OperationSystemSerializers for serialization
     serializer_class = OperationSystemSerializers
 
-    # Specify the permission classes for this view (commented out)
-    # permission_classes = [permissions.IsAuthenticated]
+    # Specify the permission classes for this view
+    permission_classes = [permissions.IsAuthenticated]
 
 
 # View for listing OperationSystemVersion objects based on an operation_system_id
 class OperationSystemVersionListView(views.APIView):
-    # Specify the permission classes for this view (commented out)
-    # permission_classes = [permissions.IsAuthenticated]
+    # Specify the permission classes for this view
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, operation_system_id):
         # Filter OperationSystemVersion objects based on the provided operation_system_id
