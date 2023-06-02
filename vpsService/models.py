@@ -185,7 +185,9 @@ class VpsContractDevice(models.Model):
 class VpsContracts_Participants(models.Model):
     contract = models.ForeignKey(VpsServiceContract, on_delete=models.CASCADE)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
-    participant_user = models.ForeignKey(to=UserData, on_delete=models.CASCADE, related_name="participant_user")
+    participant_user = models.ForeignKey(
+        to=UserData, on_delete=models.CASCADE, related_name="vps_contracts_participants"
+    )
     # kelishuv statuslari
     agreement_status = models.ForeignKey(AgreementStatus, on_delete=models.CASCADE, blank=True, null=True)
 
