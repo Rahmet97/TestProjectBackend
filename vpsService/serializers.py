@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from contracts.serializers import ServiceSerializerForContract
 from .models import (
     VpsServiceContract,
     OperationSystem,
@@ -54,9 +55,7 @@ class VpsServiceContractCreateSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = VpsServiceContract
-        fields = [
-            "service", "contract_date", "configuration", "user_tin_or_pin", "contract_cash"
-        ]
+        fields = ["service", "contract_date", "configuration", "user_tin_or_pin", "contract_cash"]
 
 
 # Serializer for VpsService app showed
@@ -72,6 +71,21 @@ class VpsTariffSerializers(serializers.ModelSerializer):
         fields = ["id", "tariff_name"]
 
     def to_representation(self, instance):
-        context_data = super().to_representation(instance)
-        context_data["vps_device"] = VpsDeviceSerializers(instance.vps_device).data
-        return context_data
+        representation = super().to_representation(instance)
+        representation["vps_device"] = VpsDeviceSerializers(instance.vps_device).data
+        return representation
+
+
+class VpsGetUserContractsListSerializer(serializers.ModelSerializer):
+    service = ServiceSerializerForContract()
+
+    class Meta:
+        model = VpsServiceContract
+        fields = ['id', 'service', 'contract_number', 'contract_date', 'contract_cash', 'hashcode']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["is_confirmed_contract"] = instance.is_confirmed_contract
+        representation["status"] = instance.get_status_display()
+        representation["contract_status"] = instance.get_contract_status_display()
+        return representation

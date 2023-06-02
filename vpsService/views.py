@@ -26,7 +26,7 @@ from .models import (
 from .permission import VpsServiceContractDeletePermission
 from .serializers import (
     OperationSystemSerializers, OperationSystemVersionSerializers,
-    VpsServiceContractCreateSerializers, VpsTariffSerializers
+    VpsServiceContractCreateSerializers, VpsTariffSerializers, VpsGetUserContractsListSerializer
 )
 
 
@@ -39,6 +39,15 @@ class OperationSystemListView(generics.ListAPIView):
 
     # Specify the permission classes for this view
     permission_classes = [permissions.IsAuthenticated]
+
+
+class VpsGetUserContracts(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        contracts = VpsServiceContract.objects.filter(client=request.user).order_by('-id')
+        serializer = VpsGetUserContractsListSerializer(contracts, many=True)
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
 
 
 # View for listing OperationSystemVersion objects based on an operation_system_id
