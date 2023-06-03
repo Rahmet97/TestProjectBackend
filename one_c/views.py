@@ -203,7 +203,7 @@ class UpdateContractPayedCash(views.APIView):
                 ).order_by('id').last().number
 
             payed_inform = PayedInformation.objects.create(
-                invoice=Invoice.objects.get(pk=invoice_id),
+                invoice=Invoice.objects.get(number=invoice_number),
                 # contract=contract,
                 payed_cash=payed_cash,
                 payed_time=payed_time,
