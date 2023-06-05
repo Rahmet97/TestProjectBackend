@@ -204,6 +204,7 @@ class ContractSerializerForBackoffice(serializers.ModelSerializer):
 class ContractSerializerForDetail(serializers.ModelSerializer):
     arrearage = serializers.SerializerMethodField()
     contract_status = ContractStatusSerializerForContractsList()
+
     # old_contract = serializers.SerializerMethodField()
 
     @staticmethod
@@ -462,3 +463,31 @@ class MonitoringContractSerializer(serializers.ModelSerializer):
         # representation["total_payed_percentage"] = (float(instance.payed_cash) * float(100))/float(
         # instance.contract_cash)
         return representation
+
+
+# Serializers for GetGroupContract API
+class GroupContractSerializerForBackoffice(serializers.ModelSerializer):
+
+    class Meta:
+        model = Contract
+        fields = ["id", "contract_number", "contract_date", "expiration_date", "contract_cash", "payed_cash"]
+        read_only_fields = ["id"]
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep["contract_status"] = instance.contract_status.name
+        rep["arrearage"] = instance.contract_cash - instance.payed_cash
+
+        rep["client"] = {}
+        client = instance.client
+        if client.type == 2:
+            client = YurUser.objects.get(userdata=client)
+            rep["name"] = client.name
+            rep["full_name"] = client.full_name
+            rep["tin"] = client.tin
+        else:
+            client = FizUser.objects.get(userdata=client)
+            rep["full_name"] = client.full_name
+            rep["pin"] = client.pin
+
+        return rep
