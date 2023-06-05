@@ -8,7 +8,7 @@ from main.utils import responseErrorMessage
 
 from one_c.models import PayedInformation, Invoice
 
-from accounts.models import YurUser, FizUser, UserData
+from accounts.models import YurUser, FizUser, UserData, Role
 from accounts.serializers import (
     GroupSerializer, FizUserSerializer, YurUserSerializer,
     YurUserSerializerForContractDetail, FizUserSerializerForContractDetail
@@ -325,7 +325,8 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
     @staticmethod
     def get_userdata(obj):
         try:
-            if obj.role.name != "dasturchi" and obj.role.name != 'mijoz':
+            # if obj.role.name != Role.RoleNames.ADMIN and obj.role.name != Role.RoleNames.CLIENT:
+            if obj.role.name not in [Role.RoleNames.ADMIN,  Role.RoleNames.CLIENT]:
                 userdata = UserData.objects.get(
                     Q(role=obj.role) &
                     (
