@@ -875,7 +875,7 @@ class ContractDetail(APIView):
                 #     Q(role=request.user.role),
                 #     Q(contract__service__group__in=request.user.group)
                 # )
-                contract_participants = Contracts_Participants.objects.get(
+                contract_participants = Contracts_Participants.objects.filter(
                     contract=contract,
                     role=request.user.role,
                     contract__service__group__in=request.user.group.all()
@@ -892,11 +892,12 @@ class ContractDetail(APIView):
                 request.user.role.name == Role.RoleNames.ADMIN or
                 request.user.role.name == Role.RoleNames.DIRECTOR
         ) and (
-                contract_participants is not None and
-                contract_participants.agreement_status.name == "Yuborilgan"
+                contract_participants.exists() and
+                contract_participants.first().agreement_status.name == "Yuborilgan"
         ):
             agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
-            contract_participants.agreement_status = agreement_status
+            contract_participants = contract_participants.first()
+            contract_participants.agreement_status.name = agreement_status
             contract_participants.save()
 
         client = contract.client
