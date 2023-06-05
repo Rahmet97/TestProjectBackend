@@ -325,22 +325,22 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
     @staticmethod
     def get_userdata(obj):
         try:
-            # if obj.role.name != Role.RoleNames.ADMIN and obj.role.name != Role.RoleNames.CLIENT:
-            if obj.role.name not in [Role.RoleNames.ADMIN,  Role.RoleNames.CLIENT]:
-                userdata = UserData.objects.get(
+            if obj.role.name != Role.RoleNames.ADMIN and obj.role.name != Role.RoleNames.CLIENT:
+                userdata = UserData.objects.filter(
                     Q(role=obj.role) &
                     (
                             Q(group__in=[obj.contract.service.group]) |
                             Q(group=None)
                     )
-                )
-                if userdata.type == 2:
-                    u = YurUser.objects.get(userdata=userdata)
-                    user = YurUserSerializerForContractDetail(u)
-                else:
-                    u = FizUser.objects.get(userdata=userdata)
-                    user = FizUserSerializerForContractDetail(u)
-                return user.data
+                ).first()
+                if userdata is not None:
+                    if userdata.type == 2:
+                        u = YurUser.objects.get(userdata=userdata)
+                        user = YurUserSerializerForContractDetail(u)
+                    else:
+                        u = FizUser.objects.get(userdata=userdata)
+                        user = FizUserSerializerForContractDetail(u)
+                    return user.data
         except ObjectDoesNotExist:
             pass
         return None
@@ -348,12 +348,16 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
     @staticmethod
     def get_expert_summary(obj):
         try:
-            userdata = UserData.objects.get(Q(role=obj.role), Q(group=obj.contract.service.group))
+            userdata = UserData.objects.get(
+                Q(role=obj.role),
+                # Q(group=obj.contract.service.group)
+                Q(group__in=[obj.contract.service.group])
+            )
             summary = ExpertSummary.objects.filter(contract=obj.contract).get(user=userdata)
             serializer = ExpertSummarySerializer(summary)
             return serializer.data
-        except:
-            return dict()
+        except ObjectDoesNotExist:
+            return {}
 
     @staticmethod
     def get_agreement_status(obj):
