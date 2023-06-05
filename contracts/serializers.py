@@ -349,12 +349,13 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
     @staticmethod
     def get_expert_summary(obj):
         try:
-            userdata = UserData.objects.get(
+            # userdata = UserData.objects.get(
+            userdata = UserData.objects.filter(
                 Q(role=obj.role),
                 # Q(group=obj.contract.service.group)
                 Q(group__in=[obj.contract.service.group])
             )
-            summary = ExpertSummary.objects.filter(contract=obj.contract).get(user=userdata)
+            summary = ExpertSummary.objects.filter(contract=obj.contract, user__in=userdata)
             # serializer = ExpertSummarySerializer(summary)
             serializer = ExpertSummarySerializer(summary, many=True)
             return serializer.data
