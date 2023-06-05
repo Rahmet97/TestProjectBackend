@@ -881,7 +881,10 @@ class ContractDetail(APIView):
                 )
 
             else:
-                contract_participants = Contracts_Participants.objects.filter(contract=contract).get(role=request.user.role)
+                contract_participants = Contracts_Participants.objects.filter(
+                    contract=contract,
+                    role=request.user.role
+                )
         except Contracts_Participants.DoesNotExist:
             contract_participants = None
 
