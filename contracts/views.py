@@ -137,7 +137,7 @@ class UserDetailAPIView(APIView):
                     #     ).with_eds
                     participant_ids = request.user.role.serviceparticipants_set.values_list('id', flat=True)
                     service_participants = ServiceParticipants.objects.filter(id__in=participant_ids)
-                    data["with_ads"] = {sp: sp.with_eds for sp in service_participants}
+                    data["with_ads"] = {str(sp.participant.service.name): sp.with_eds for sp in service_participants}
                 except ServiceParticipants.DoesNotExist:
                     pass
 
