@@ -355,7 +355,8 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
                 Q(group__in=[obj.contract.service.group])
             )
             summary = ExpertSummary.objects.filter(contract=obj.contract).get(user=userdata)
-            serializer = ExpertSummarySerializer(summary)
+            # serializer = ExpertSummarySerializer(summary)
+            serializer = ExpertSummarySerializer(summary, many=True)
             return serializer.data
         except ObjectDoesNotExist:
             return {}
