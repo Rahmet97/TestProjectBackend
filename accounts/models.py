@@ -141,7 +141,8 @@ class UserData(AbstractUser):
         (YUR, 'Yuridik')
     )
     role = models.ForeignKey(Role, on_delete=models.CASCADE, blank=True, null=True)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True)
+    # group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True)
+    group = models.ManyToManyField(Group, blank=True, null=True)
     type = models.IntegerField(choices=user_type, blank=True, null=True)
     status_action = models.IntegerField(choices=StatusChoices.choices, default=1)
 

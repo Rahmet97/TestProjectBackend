@@ -3,7 +3,7 @@ from django.urls import path
 from contracts.views import (
     DeleteUserContract, GetRackContractDetailWithNumber, GetUnitContractDetailWithNumber,
     ListAllServicesAPIView, ListGroupServicesAPIView, ServiceDetailAPIView, UserDetailAPIView, TarifListAPIView,
-    DeviceListAPIView, OfferCreateAPIView, OfferDetailAPIView, GetGroupAdminDataAPIView, ServiceCreateAPIView,
+    DeviceListAPIView, OfferCreateAPIView, OfferDetailAPIView, ServiceCreateAPIView,
     SavedServiceAPIView, SelectedTarifDevicesAPIView, TarifAPIView, DeleteSavedService,
     CreateContractFileAPIView, SavePkcs, GetContractFile, GetUserContracts, GetContractFileWithID, ContractDetail,
     GetGroupContract, ConfirmContract, ConnectMethodListAPIView, GetPinnedUserDataAPIView, AddOldContractsViews,
@@ -21,7 +21,7 @@ urlpatterns = [
     path('devices', DeviceListAPIView.as_view(), name='DeviceListAPIView'),
     path('offer-create', OfferCreateAPIView.as_view(), name='OfferCreateAPIView'),
     path('offer-detail', OfferDetailAPIView.as_view(), name='OfferDetailAPIView'),
-    path('group-admin', GetGroupAdminDataAPIView.as_view(), name='GetGroupAdminDataAPIView'),
+    # path('group-admin', GetGroupAdminDataAPIView.as_view(), name='GetGroupAdminDataAPIView'),
     path('group-pinned-user', GetPinnedUserDataAPIView.as_view(), name='GetPinnedUserDataAPIView'),
     path('service-create', ServiceCreateAPIView.as_view(), name='ServiceCreateAPIView'),
 

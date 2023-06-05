@@ -43,7 +43,7 @@ class PermissionSerializer(serializers.ModelSerializer):
 
 class UserDataSerializer(serializers.ModelSerializer):
     role = RoleSerializer()
-    group = GroupSerializer()
+    group = GroupSerializer(many=True)
 
     class Meta:
         model = UserData

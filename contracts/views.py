@@ -125,16 +125,19 @@ class UserDetailAPIView(APIView):
             # Check if user role is not 'mijoz' and retrieve with_eds field from ServiceParticipants model
             if request.user.role.name != 'mijoz':
                 try:
-                    if request.user.role.name != 'direktor':
-                        with_ads = ServiceParticipants.objects.get(
-                            Q(role=request.user.role),
-                            Q(participant__service__group=request.user.group)
-                        ).with_eds
-                    else:
-                        with_ads = ServiceParticipants.objects.get(
-                            Q(role=request.user.role),
-                            Q(participant__service__group__name='Data Markaz')
-                        ).with_eds
+                    # if request.user.role.name != 'direktor':
+                    #     with_ads = ServiceParticipants.objects.get(
+                    #         Q(role=request.user.role),
+                    #         Q(participant__service__group__in=request.user.group)
+                    #     ).with_eds
+                    # else:
+                    #     with_ads = ServiceParticipants.objects.get(
+                    #         Q(role=request.user.role),
+                    #         Q(participant__service__group__name='Data Markaz')
+                    #     ).with_eds
+                    participant_ids = request.user.role.serviceparticipants_set.values_list('id', flat=True)
+                    service_participants = ServiceParticipants.objects.filter(id__in=participant_ids)
+                    with_ads = [service_participant.with_eds for service_participant in service_participants]
                     data["with_ads"] = with_ads
                 except ServiceParticipants.DoesNotExist:
                     pass
@@ -190,18 +193,44 @@ class OfferDetailAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class GetGroupAdminDataAPIView(APIView):
-    permission_classes = ()
+# class GetGroupAdminDataAPIView(APIView):
+#     permission_classes = ()
+#
+#     def get(self, request):
+#         service_id = request.GET.get('service_id')
+#         if not service_id:
+#             return Response({'error': 'service_id parameter is missing'}, status=status.HTTP_400_BAD_REQUEST)
+#         try:
+#             service = Service.objects.get(pk=service_id)
+#         except Service.DoesNotExist:
+#             return Response({'error': 'Service does not exist'}, status=status.HTTP_404_NOT_FOUND)
+#
+#         user = UserData.objects.get(
+#             Q(group__service__in=[service]),  # Pass service as a list
+#             Q(role__name=Role.RoleNames.SECTION_HEAD)
+#         )
+#         dt = FizUser.objects.get(userdata=user)
+#         serializer = FizUserSerializer(dt)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def get(self, request):
-        service_id = request.GET.get('service_id')
-        service = Service.objects.get(pk=service_id)
-        user = UserData.objects.get(
-            Q(group__service=service), Q(role__name="bo'lim boshlig'i")
-        )
-        dt = FizUser.objects.get(userdata=user)
-        serializer = FizUserSerializer(dt)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+# class GetGroupAdminDataAPIView(APIView):
+#     permission_classes = ()
+#
+#     def get(self, request):
+#         service_id = request.GET.get('service_id')
+#         if not service_id:
+#             return Response({'error': 'service_id parameter is missing'}, status=status.HTTP_400_BAD_REQUEST)
+#
+#         service = get_object_or_404(Service, pk=service_id)
+#
+#         user = get_object_or_404(
+#             UserData.objects.select_related('fizuser'),
+#             Q(group__service=service) & Q(role__name=Role.RoleNames.SECTION_HEAD)
+#         )
+#
+#         serializer = FizUserSerializer(user.fizuser)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GetPinnedUserDataAPIView(APIView):
@@ -232,41 +261,6 @@ class ServiceCreateAPIView(generics.CreateAPIView):
         need_documents = [int(pk) for pk in need_documents[0].split(',') if pk]  # convert strings to integers
 
         serializer.save(need_documents=need_documents)
-
-
-# class SavedServiceAPIView(APIView):
-#     permission_classes = (IsAuthenticated,)
-#
-#     def get(self, request):
-#         services = []
-#         try:
-#             saved_services = SavedService.objects.get(user=request.user)
-#         except SavedService.DoesNotExist:
-#             saved_services = None
-#
-#         if saved_services:
-#             services = saved_services.services.all()
-#
-#         serializer = ServiceSerializer(services, many=True, context={'user': request.user})
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-#
-#     @swagger_auto_schema(
-#         operation_summary="Service ni saqlangan servicega qo'shish. Bu yerda service_id ni " "jo'natishiz kere bo'ladi"
-#     )
-#     def post(self, request):
-#         service_id = request.data['service_id']
-#         user = request.user
-#         service = Service.objects.get(pk=service_id)
-#         if SavedService.objects.filter(user=user).exists():
-#             saved_service = SavedService.objects.get(user=user)
-#         else:
-#             saved_service = SavedService.objects.create(user=user)
-#         if service not in saved_service.services.all():
-#             saved_service.services.add(service)
-#             saved_service.save()
-#         else:
-#             return Response({'message': 'Bu service oldindan mavjud'}, status=status.HTTP_302_FOUND)
-#         return Response(status=status.HTTP_200_OK)
 
 
 class SavedServiceAPIView(mixins.ListModelMixin, generics.GenericAPIView):
@@ -876,21 +870,27 @@ class ContractDetail(APIView):
         contract = Contract.objects.select_related('client').get(pk=pk)
         contract_serializer = ContractSerializerForDetail(contract)
         try:
-            if request.user.role.name != 'direktor':
-                contract_participants = Contracts_Participants.objects.filter(contract=contract).get(
-                    Q(role=request.user.role),
-                    Q(contract__service__group=request.user.group)
+            if request.user.role.name != Role.RoleNames.DIRECTOR:
+                # contract_participants = Contracts_Participants.objects.filter(contract=contract).get(
+                #     Q(role=request.user.role),
+                #     Q(contract__service__group__in=request.user.group)
+                # )
+                contract_participants = Contracts_Participants.objects.get(
+                    contract=contract,
+                    role=request.user.role,
+                    contract__service__group__in=request.user.group.all()
                 )
+
             else:
                 contract_participants = Contracts_Participants.objects.filter(contract=contract).get(role=request.user.role)
         except Contracts_Participants.DoesNotExist:
             contract_participants = None
 
         if (
-                request.user.role.name == "bo'lim boshlig'i" or
-                request.user.role.name == "direktor o'rinbosari" or
-                request.user.role.name == "dasturchi" or
-                request.user.role.name == "direktor"
+                request.user.role.name == Role.RoleNames.DEPARTMENT_BOSS or
+                request.user.role.name == Role.RoleNames.DEPUTY_DIRECTOR or
+                request.user.role.name == Role.RoleNames.ADMIN or
+                request.user.role.name == Role.RoleNames.DIRECTOR
         ) and (
                 contract_participants is not None and
                 contract_participants.agreement_status.name == "Yuborilgan"
@@ -912,17 +912,17 @@ class ContractDetail(APIView):
         participant_serializer = ContractParticipantsSerializers(participants, many=True)
 
         try:
-            if request.user.role.name == 'direktor':
+            if request.user.role.name == Role.RoleNames.DIRECTOR:
                 expert_summary = ExpertSummary.objects.get(
                     Q(contract=contract),
                     Q(user=request.user),
-                    Q(user__group=request.user.group)
+                    Q(user__group__in=request.user.group.all())
                 )
             else:
                 expert_summary = ExpertSummary.objects.get(
                     Q(contract=contract),
                     Q(user=request.user),
-                    Q(user__group=request.user.group)
+                    Q(user__group__in=request.user.group.all())
                 )
             expert_summary_value = expert_summary.summary
         except ExpertSummary.DoesNotExist:
@@ -948,14 +948,14 @@ class GetGroupContract(APIView):
 
     def get(self, request):
         group = request.user.group
-        if request.user.role.name != "mijoz":
+        if request.user.role.name != Role.RoleNames.CLIENT:
 
             # barcha
             barcha_data = Contract.objects.all().order_by('-condition', '-contract_date')
             barcha = ContractSerializerForBackoffice(barcha_data, many=True)
 
             # yangi
-            if request.user.role.name == 'direktor':
+            if request.user.role.name == Role.RoleNames.DIRECTOR:
                 contract_participants_query_filter = (
                         Q(role__name="direktor o'rinbosari") & Q(agreement_status__name='Kelishildi')
                 )
@@ -964,7 +964,7 @@ class GetGroupContract(APIView):
                 ).values('contract')
 
                 director_accepted_contracts_query_filter = (
-                        Q(role__name='direktor') & Q(agreement_status__name='Kelishildi')
+                        Q(role__name=Role.RoleNames.DIRECTOR) & Q(agreement_status__name='Kelishildi')
                 )
                 director_accepted_contracts = Contracts_Participants.objects.filter(
                     director_accepted_contracts_query_filter
@@ -1018,8 +1018,10 @@ class GetGroupContract(APIView):
             kelishilgan = ContractSerializerForBackoffice(kelishilgan_data, many=True)
 
             # rad_etildi
-            rad_etildi_data_query_filter = Q(contract_status__name='Bekor qilingan') | Q(
-                contract_status__name="Rad etilgan")
+            rad_etildi_data_query_filter = (
+                    Q(contract_status__name='Bekor qilingan') |
+                    Q(contract_status__name="Rad etilgan")
+            )
             rad_etildi_data = Contract.objects.filter(
                 rad_etildi_data_query_filter
             ).order_by('-condition', '-contract_date')
@@ -1028,7 +1030,10 @@ class GetGroupContract(APIView):
             # expired
             contract_participants_query_filter = (
                     Q(role=request.user.role) &
-                    (Q(agreement_status__name='Yuborilgan') | Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                    (
+                            Q(agreement_status__name='Yuborilgan') |
+                            Q(agreement_status__name="Ko'rib chiqilmoqda")
+                    )
             )
             contract_participants = Contracts_Participants.objects.filter(
                 contract_participants_query_filter
@@ -1050,18 +1055,24 @@ class GetGroupContract(APIView):
             # lastday
             contract_participants_query_filter = (
                     Q(role=request.user.role) &
-                    (Q(agreement_status__name='Yuborilgan') | Q(agreement_status__name="Ko'rib chiqilmoqda"))
+                    (
+                            Q(agreement_status__name='Yuborilgan') |
+                            Q(agreement_status__name="Ko'rib chiqilmoqda")
+                    )
             )
-            contract_participants = Contracts_Participants.objects.filter(contract_participants_query_filter).values(
-                'contract')
+            contract_participants = Contracts_Participants.objects.filter(
+                contract_participants_query_filter
+            ).values('contract')
             lastday_data_query_filter = (
                     Q(id__in=contract_participants) &
                     Q(contract_date__day=datetime.now().day) &
                     Q(contract_date__month=datetime.now().month) &
                     Q(contract_date__year=datetime.now().year)
             )
-            lastday_exclude_data_query_filter = Q(contract_status__name='Bekor qilingan') | Q(
-                contract_status__name='Rad etilgan')
+            lastday_exclude_data_query_filter = (
+                    Q(contract_status__name='Bekor qilingan') |
+                    Q(contract_status__name='Rad etilgan')
+            )
             lastday_data = Contract.objects.filter(lastday_data_query_filter).exclude(
                 lastday_exclude_data_query_filter
             ).select_related().order_by('-condition', '-contract_date')
@@ -1137,7 +1148,7 @@ class ConfirmContract(APIView):
         try:
             cntrct = Contracts_Participants.objects.get(
                 Q(contract=contract),
-                Q(role__name='direktor'),
+                Q(role__name=Role.RoleNames.DIRECTOR),
                 Q(agreement_status__name='Kelishildi')
             )
         except Contracts_Participants.DoesNotExist:
@@ -1248,14 +1259,12 @@ class GetUnitContractDetailWithNumber(APIView):
         # Bu Django ORM script codeni boshqatan korish kk chunki duplicate malumotlarniyam hisob qoyishi mumkin bazada
         # filter_conditions = Q(rack__unit__contract=contract) & Q(status__name="o'rnatilgan")
         unit = Unit.objects.filter(contract=contract)
-        print(unit.values('device_id'))
         unique_tuples = set(tuple(sorted(d.items())) for d in unit.values('device_id'))
         unique_dicts = [dict(t) for t in unique_tuples]
         empty_electricity = 0
         for i in unique_dicts:
             device = DeviceUnit.objects.get(Q(id=i['device_id']), Q(status__name="o'rnatilgan"))
             empty_electricity += device.electricity
-        print('empty_electricity >>>>>>> ', empty_electricity)
         # empty_electricity = DeviceUnit.objects.filter(filter_conditions).distinct().aggregate(Sum('electricity'))
 
         empty = summ - Unit.objects.filter(Q(is_busy=True), Q(contract=contract)).count()
@@ -1279,8 +1288,10 @@ class GetUnitContractDetailWithNumber(APIView):
 
 
 # BackOffice da admin eski qog'ozdegi shartnomalarni scaner qilib tizimga qo'shadi
-def total_old_contract_price(electricity, tarif_pk, tarif_count, connect_method_pk, connect_method_count=None,
-                             if_tarif_is_unit=None):
+def total_old_contract_price(
+        electricity, tarif_pk, tarif_count, connect_method_pk,
+        connect_method_count=None, if_tarif_is_unit=None
+):
     tarif = Tarif.objects.get(id=tarif_pk.id)
     connect_method = ConnetMethod.objects.get(id=connect_method_pk.id)
 
@@ -1325,7 +1336,7 @@ class AddOldContractsViews(APIView):
         if type_u is None:
             error_response_404()
 
-        role_user = Role.objects.get(name="mijoz")
+        # role_user = Role.objects.get(name="mijoz")
 
         # if user is fiz human
         if type_u:
@@ -1346,7 +1357,8 @@ class AddOldContractsViews(APIView):
                     type=1,
                     first_name=first_name,
                     last_name=request.data.get("last_name"),
-                    role=role_user
+                    # role=role_user
+                    role__name=Role.RoleNames.CLIENT
                 )
                 user_obj.set_password(first_name[0].upper() + pin + first_name[-1].upper())
                 user_obj.save()
@@ -1436,7 +1448,8 @@ class AddOldContractsViews(APIView):
                 user_obj = UserData(
                     username=str(request.data.get("tin")),
                     type=2,
-                    role=role_user,
+                    # role=role_user,
+                    role__name=Role.RoleNames.CLIENT,
                 )
                 user_obj.set_password(director_firstname[0].upper() + tin + director_firstname[-1].upper())
                 user_obj.save()
