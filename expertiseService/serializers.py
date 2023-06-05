@@ -289,7 +289,7 @@ class GroupContractSerializerForBackoffice(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
-        rep["contract_status"] = instance.contract_status.name
+        rep["contract_status"] = instance.get_contract_status_display()
         rep["arrearage"] = instance.contract_cash - instance.payed_cash
 
         rep["client"] = {}
