@@ -956,7 +956,6 @@ class GetGroupContract(APIView):
 
             # barcha
             barcha_data = Contract.objects.all().order_by('-condition', '-contract_date')
-            # barcha = ContractSerializerForBackoffice(barcha_data, many=True)
             barcha = GroupContractSerializerForBackoffice(barcha_data, many=True)
 
             # yangi
@@ -1010,7 +1009,6 @@ class GetGroupContract(APIView):
                 ).exclude(
                     yangi_data_exclude_query_filter
                 ).select_related().order_by('-condition', '-contract_date')
-            # yangi = ContractSerializerForBackoffice(yangi_data, many=True)
             yangi = GroupContractSerializerForBackoffice(yangi_data, many=True)
 
             # kelishildi
@@ -1021,7 +1019,6 @@ class GetGroupContract(APIView):
             kelishilgan_data = Contract.objects.filter(
                 id__in=contract_participants
             ).select_related().order_by('-condition', '-contract_date')
-            # kelishilgan = ContractSerializerForBackoffice(kelishilgan_data, many=True)
             kelishilgan = GroupContractSerializerForBackoffice(kelishilgan_data, many=True)
 
             # rad_etildi
@@ -1032,7 +1029,6 @@ class GetGroupContract(APIView):
             rad_etildi_data = Contract.objects.filter(
                 rad_etildi_data_query_filter
             ).order_by('-condition', '-contract_date')
-            # rad_etildi = ContractSerializerForBackoffice(rad_etildi_data, many=True)
             rad_etildi = GroupContractSerializerForBackoffice(rad_etildi_data, many=True)
 
             # expired
@@ -1058,7 +1054,6 @@ class GetGroupContract(APIView):
             expired_data = Contract.objects.filter(expired_data_query_filter).select_related().exclude(
                 expired_data_exclude_query_filter
             ).order_by('-condition', '-contract_date')
-            # expired = ContractSerializerForBackoffice(expired_data, many=True)
             expired = GroupContractSerializerForBackoffice(expired_data, many=True)
 
             # lastday
@@ -1085,7 +1080,6 @@ class GetGroupContract(APIView):
             lastday_data = Contract.objects.filter(lastday_data_query_filter).exclude(
                 lastday_exclude_data_query_filter
             ).select_related().order_by('-condition', '-contract_date')
-            # lastday = ContractSerializerForBackoffice(lastday_data, many=True)
             lastday = GroupContractSerializerForBackoffice(lastday_data, many=True)
 
             # expired_accepted
@@ -1103,7 +1097,6 @@ class GetGroupContract(APIView):
             expired_accepted_data = Contract.objects.filter(
                 expired_accepted_data_query_filter
             ).select_related().order_by('-condition', '-contract_date')
-            # expired_accepted = ContractSerializerForBackoffice(expired_accepted_data, many=True)
             expired_accepted = GroupContractSerializerForBackoffice(expired_accepted_data, many=True)
 
             # in_time
@@ -1114,7 +1107,6 @@ class GetGroupContract(APIView):
                 element.contract for element in contracts_selected
                 if element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(days=1)
             ]
-            # in_time = ContractSerializerForBackoffice(in_time_data, many=True)
             in_time = GroupContractSerializerForBackoffice(in_time_data, many=True)
 
             # response context
@@ -1131,7 +1123,7 @@ class GetGroupContract(APIView):
             return Response(contracts)
         else:
             contracts = Contract.objects.filter(Q(service__group=group), Q(condition=3))
-            serializer = ContractSerializerForBackoffice(contracts, many=True)
+            serializer = GroupContractSerializerForBackoffice(contracts, many=True)
             return Response(serializer.data)
 
 

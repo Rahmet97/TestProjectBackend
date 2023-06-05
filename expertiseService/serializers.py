@@ -25,30 +25,20 @@ class ExpertiseTarifSerializer(serializers.ModelSerializer):
 
 
 class ExpertiseContractSerializerForDetail(serializers.ModelSerializer):
-    arrearage = serializers.SerializerMethodField()
-    status = serializers.SerializerMethodField()
-    contract_status = serializers.SerializerMethodField()
-
-    def get_arrearage(self, obj):
-        return obj.contract_cash - obj.payed_cash
-
-    def get_status(self, obj):
-        return obj.get_status_display()
-
-    def get_contract_status(self, obj):
-        return obj.get_contract_status_display()
 
     class Meta:
         model = ExpertiseServiceContract
         fields = (
             'id', 'contract_number', 'contract_date', 'expiration_date',
-            'contract_cash', 'payed_cash', 'arrearage', 'contract_status',
-            'base64file', 'hashcode', 'status'
+            'contract_cash', 'payed_cash', 'base64file', 'hashcode',
         )
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation["is_confirmed_contract"] = instance.is_confirmed_contract
+        representation["arrearage"] = instance.contract_cash - instance.payed_cash
+        representation["status"] = instance.get_status_display()
+        representation["contract_status"] = instance.get_contract_status_display()
         return representation
 
 
@@ -134,47 +124,47 @@ class ExpertiseContractSerializerForContractList(serializers.ModelSerializer):
         return representation
 
 
-class ExpertiseContractSerializerForBackoffice(serializers.ModelSerializer):
-    arrearage = serializers.SerializerMethodField()
-    client = serializers.SerializerMethodField()
-    status = serializers.SerializerMethodField()
-    contract_status = serializers.SerializerMethodField()
-
-    def get_status(self, obj):
-        return obj.get_status_display()
-
-    def get_contract_status(self, obj):
-        return obj.get_contract_status_display()
-
-    def get_client(self, obj):
-        try:
-            client_id = ExpertiseServiceContract.objects.select_related(
-                'client').get(id=obj.id).client
-            if client_id.type == 2:
-                clientt = YurUser.objects.get(userdata=client_id)
-                serializer = YurUserSerializerForContractDetail(clientt)
-            else:
-                clientt = FizUser.objects.get(userdata=client_id)
-                serializer = FizUserSerializerForContractDetail(clientt)
-        except ExpertiseServiceContract.DoesNotExist:
-            return dict()
-
-        return serializer.data
-
-    def get_arrearage(self, obj):
-        return obj.contract_cash - obj.payed_cash
-
-    class Meta:
-        model = ExpertiseServiceContract
-        fields = (
-            'id', 'client', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash',
-            'payed_cash', 'arrearage', 'contract_status', 'status'
-        )
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation["is_confirmed_contract"] = instance.is_confirmed_contract
-        return representation
+# class ExpertiseContractSerializerForBackoffice(serializers.ModelSerializer):
+#     arrearage = serializers.SerializerMethodField()
+#     client = serializers.SerializerMethodField()
+#     status = serializers.SerializerMethodField()
+#     contract_status = serializers.SerializerMethodField()
+#
+#     def get_status(self, obj):
+#         return obj.get_status_display()
+#
+#     def get_contract_status(self, obj):
+#         return obj.get_contract_status_display()
+#
+#     def get_client(self, obj):
+#         try:
+#             client_id = ExpertiseServiceContract.objects.select_related(
+#                 'client').get(id=obj.id).client
+#             if client_id.type == 2:
+#                 clientt = YurUser.objects.get(userdata=client_id)
+#                 serializer = YurUserSerializerForContractDetail(clientt)
+#             else:
+#                 clientt = FizUser.objects.get(userdata=client_id)
+#                 serializer = FizUserSerializerForContractDetail(clientt)
+#         except ExpertiseServiceContract.DoesNotExist:
+#             return dict()
+#
+#         return serializer.data
+#
+#     def get_arrearage(self, obj):
+#         return obj.contract_cash - obj.payed_cash
+#
+#     class Meta:
+#         model = ExpertiseServiceContract
+#         fields = (
+#             'id', 'client', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash',
+#             'payed_cash', 'arrearage', 'contract_status', 'status'
+#         )
+#
+#     def to_representation(self, instance):
+#         representation = super().to_representation(instance)
+#         representation["is_confirmed_contract"] = instance.is_confirmed_contract
+#         return representation
 
 
 class ExpertiseServiceContractProjects(serializers.ModelSerializer):
@@ -287,3 +277,31 @@ class ExpertiseMonitoringContractSerializer(serializers.ModelSerializer):
                 "status_code": invoice.status.status_code
             }
         return representation
+
+
+# Serializers for GetGroupContract API
+class GroupContractSerializerForBackoffice(serializers.ModelSerializer):
+
+    class Meta:
+        model = ExpertiseServiceContract
+        fields = ["id", "contract_number", "contract_date", "expiration_date", "contract_cash", "payed_cash"]
+        read_only_fields = ["id"]
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep["contract_status"] = instance.contract_status.name
+        rep["arrearage"] = instance.contract_cash - instance.payed_cash
+
+        rep["client"] = {}
+        client = instance.client
+        if client.type == 2:
+            client = YurUser.objects.get(userdata=client)
+            rep["client"]["name"] = client.name
+            rep["client"]["full_name"] = client.full_name
+            rep["client"]["tin"] = client.tin
+        else:
+            client = FizUser.objects.get(userdata=client)
+            rep["client"]["full_name"] = client.full_name
+            rep["client"]["pin"] = client.pin
+
+        return rep

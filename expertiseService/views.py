@@ -45,11 +45,10 @@ from expertiseService.serializers import (
     ExpertiseContractSerializerForDetail,
     ExpertiseContractParticipantsSerializers,
     ExpertiseContractSerializerForContractList,
-    ExpertiseContractSerializerForBackoffice,
     ExpertiseExpertSummarySerializerForSave,
     ExpertiseSummarySerializerForRejected,
     ExpertisePkcsSerializer, ExpertiseTarifSerializer, ExpertiseServiceContractProjects,
-    ExpertiseMonitoringContractSerializer
+    ExpertiseMonitoringContractSerializer, GroupContractSerializerForBackoffice
 )
 
 num2word = NumbersToWord()
@@ -241,7 +240,7 @@ class ExpertiseGetGroupContract(APIView):
         # barcha contractlar
         barcha_data = ExpertiseServiceContract.objects.order_by('-contract_date')
         self.check_object_permissions(request=request, obj=barcha_data)
-        barcha = ExpertiseContractSerializerForBackoffice(barcha_data, many=True)
+        barcha = GroupContractSerializerForBackoffice(barcha_data, many=True)
 
         # yangi contractlar
         if request.user.role.name == 'direktor':
@@ -277,7 +276,7 @@ class ExpertiseGetGroupContract(APIView):
                 Q(contract_date__lt=datetime.now() - timedelta(days=1))
             ).select_related().order_by('-contract_date')
         self.check_object_permissions(request=request, obj=yangi_data)
-        yangi = ExpertiseContractSerializerForBackoffice(yangi_data, many=True)
+        yangi = GroupContractSerializerForBackoffice(yangi_data, many=True)
 
         # kelishilgan contractlar
         contract_participants = ExpertiseContracts_Participants.objects.filter(
@@ -292,14 +291,14 @@ class ExpertiseGetGroupContract(APIView):
             contract_status__in=[1, 5, 6, 7]  # List of contract_status values to exclude
         ).select_related().order_by('-contract_date')
         self.check_object_permissions(request=request, obj=kelishilgan_data)
-        kelishilgan = ExpertiseContractSerializerForBackoffice(kelishilgan_data, many=True)
+        kelishilgan = GroupContractSerializerForBackoffice(kelishilgan_data, many=True)
 
         # rad etilgan contractlar
         rejected_cancelled_data = barcha_data.filter(
             contract_status__in=[5, 6]  # REJECTED, CANCELLED
         ).order_by('-contract_date')
         self.check_object_permissions(request=request, obj=rejected_cancelled_data)
-        rad_etildi = ExpertiseContractSerializerForBackoffice(rejected_cancelled_data, many=True)
+        rad_etildi = GroupContractSerializerForBackoffice(rejected_cancelled_data, many=True)
 
         # expired contracts
         # Retrieve contract IDs where the user's role matches and agreement_status is 'Kelishildi'
@@ -317,7 +316,7 @@ class ExpertiseGetGroupContract(APIView):
         ).order_by('-contract_date')
 
         self.check_object_permissions(request=request, obj=expired_data)
-        expired = ExpertiseContractSerializerForBackoffice(expired_data, many=True)
+        expired = GroupContractSerializerForBackoffice(expired_data, many=True)
 
         # last day contracts
         today = datetime.now()
@@ -333,7 +332,7 @@ class ExpertiseGetGroupContract(APIView):
             contract_status__in=[5, 6]
         ).select_related().order_by('-contract_date')
         self.check_object_permissions(request=request, obj=lastday_data)
-        lastday = ExpertiseContractSerializerForBackoffice(lastday_data, many=True)
+        lastday = GroupContractSerializerForBackoffice(lastday_data, many=True)
 
         # expired accepted contracts
         contract_participants = ExpertiseContracts_Participants.objects.filter(
@@ -346,7 +345,7 @@ class ExpertiseGetGroupContract(APIView):
             contract_date__lt=datetime.now() - timedelta(days=1)
         ).select_related().order_by('-contract_date')
         self.check_object_permissions(request=request, obj=expired_accepted_data)
-        expired_accepted = ExpertiseContractSerializerForBackoffice(expired_accepted_data, many=True)
+        expired_accepted = GroupContractSerializerForBackoffice(expired_accepted_data, many=True)
 
         # in_time contracts
         # Retrieve contracts based on the specified conditions and ordering
@@ -359,7 +358,7 @@ class ExpertiseGetGroupContract(APIView):
             if element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(days=1)
         ]
         self.check_object_permissions(request=request, obj=in_time_data)
-        in_time = ExpertiseContractSerializerForBackoffice(in_time_data, many=True)
+        in_time = GroupContractSerializerForBackoffice(in_time_data, many=True)
 
         return response.Response(
             data={
