@@ -327,7 +327,12 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
         try:
             if obj.role.name != "dasturchi" and obj.role.name != 'mijoz':
                 userdata = UserData.objects.get(
-                    Q(role=obj.role) & (Q(group=obj.contract.service.group) | Q(group=None)))
+                    Q(role=obj.role) &
+                    (
+                            Q(group__in=obj.contract.service.group.all()) |
+                            Q(group=None)
+                    )
+                )
                 if userdata.type == 2:
                     u = YurUser.objects.get(userdata=userdata)
                     user = YurUserSerializerForContractDetail(u)
