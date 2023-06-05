@@ -129,7 +129,7 @@ class PermissionListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         role_permissions = RolePermission.objects.filter(
-            Q(group=self.request.user.group),
+            Q(group__in=self.request.user.group.all()),
             Q(role=self.request.user.role),
             (Q(create=True) | Q(read=True) | Q(update=True) | Q(delete=True))
         ).values('permissions')
