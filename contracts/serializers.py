@@ -330,7 +330,7 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
                 userdata = UserData.objects.get(
                     Q(role=obj.role) &
                     (
-                            Q(group__in=obj.contract.service.group.all()) |
+                            Q(group__in=[obj.contract.service.group]) |
                             Q(group=None)
                     )
                 )
