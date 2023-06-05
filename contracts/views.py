@@ -913,17 +913,21 @@ class ContractDetail(APIView):
 
         try:
             if request.user.role.name == Role.RoleNames.DIRECTOR:
-                expert_summary = ExpertSummary.objects.get(
+                # expert_summary = ExpertSummary.objects.get(
+                expert_summary = ExpertSummary.objects.filter(
                     Q(contract=contract),
                     Q(user=request.user),
                     Q(user__group__in=request.user.group.all())
                 )
             else:
-                expert_summary = ExpertSummary.objects.get(
+                # expert_summary = ExpertSummary.objects.get(
+                expert_summary = ExpertSummary.objects.filter(
                     Q(contract=contract),
                     Q(user=request.user),
                     Q(user__group__in=request.user.group.all())
                 )
+
+                print("expert_summary >>> 929", expert_summary)
             expert_summary_value = expert_summary.summary
         except ExpertSummary.DoesNotExist:
             expert_summary_value = 0
@@ -957,7 +961,7 @@ class GetGroupContract(APIView):
             # yangi
             if request.user.role.name == Role.RoleNames.DIRECTOR:
                 contract_participants_query_filter = (
-                        Q(role__name="direktor o'rinbosari") & Q(agreement_status__name='Kelishildi')
+                        Q(role__name=Role.RoleNames.DEPARTMENT_BOSS) & Q(agreement_status__name='Kelishildi')
                 )
                 contract_participants = Contracts_Participants.objects.filter(
                     contract_participants_query_filter
