@@ -918,14 +918,14 @@ class ContractDetail(APIView):
                     Q(contract=contract),
                     Q(user=request.user),
                     Q(user__group__in=request.user.group.all())
-                )
+                ).distinct()
             else:
                 # expert_summary = ExpertSummary.objects.get(
                 expert_summary = ExpertSummary.objects.filter(
                     Q(contract=contract),
                     Q(user=request.user),
                     Q(user__group__in=request.user.group.all())
-                )
+                ).distinct()
 
                 print("expert_summary >>> 929", expert_summary)
             expert_summary_value = expert_summary.summary
