@@ -482,12 +482,12 @@ class GroupContractSerializerForBackoffice(serializers.ModelSerializer):
         client = instance.client
         if client.type == 2:
             client = YurUser.objects.get(userdata=client)
-            rep["name"] = client.name
-            rep["full_name"] = client.full_name
-            rep["tin"] = client.tin
+            rep["client"]["name"] = client.name
+            rep["client"]["full_name"] = client.full_name
+            rep["client"]["tin"] = client.tin
         else:
             client = FizUser.objects.get(userdata=client)
-            rep["full_name"] = client.full_name
-            rep["pin"] = client.pin
+            rep["client"]["full_name"] = client.full_name
+            rep["client"]["pin"] = client.pin
 
         return rep
