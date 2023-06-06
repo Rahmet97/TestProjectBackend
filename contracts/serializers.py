@@ -512,5 +512,7 @@ class GroupContractSerializerForBackoffice(serializers.ModelSerializer):
                 rep["client"]["pin"] = client.pin
         except:
             logger.error(f"contract_number is: {instance.contract_number}, the bug is here ;]")
+            Contract.objects.get(id=instance.id).delete()
+            logger.warning('Contract is deleted')
 
         return rep
