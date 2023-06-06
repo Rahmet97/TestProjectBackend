@@ -138,14 +138,10 @@ class UserDetailAPIView(APIView):
                     participant_ids = request.user.role.serviceparticipants_set.values_list('id', flat=True)
                     service_participants = ServiceParticipants.objects.filter(id__in=participant_ids)
 
-                    data["with_ads"] = {}
-                    for sp in service_participants:
-                        service_name = sp.participant.service.name
-
-                        if service_name == "Co-location":
-                            data["with_ads"]["contracts"] = sp.with_eds
-                        else:
-                            data["with_ads"][service_name] = sp.with_eds
+                    data["with_ads"] = {
+                        str(sp.participant.service.group.slug): sp.with_eds
+                        for sp in service_participants
+                    }
 
                 except ServiceParticipants.DoesNotExist:
                     pass
