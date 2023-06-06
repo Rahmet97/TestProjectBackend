@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -20,6 +21,8 @@ from .models import (
     Element, SavedService, Pkcs, ExpertSummary, Contracts_Participants, ContractStatus, ConnetMethod,
     ExpertSummaryDocument, OldContractFile
 )
+
+logger = logging.getLogger(__name__)
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -459,17 +462,23 @@ class MonitoringContractSerializer(serializers.ModelSerializer):
         try:
             if client.type == 1:  # FIZ = 1 YUR = 2
                 representation["user_type"] = "fiz"
-                representation["client"] = FizUserSerializer(
-                    # get_object_or_404(FizUser, userdata=client)
-                    FizUser.objects.get(userdata=client)
-                ).data
+                # representation["client"] = FizUserSerializer(
+                #     FizUser.objects.get(userdata=client)
+                # ).data
+                client = FizUser.objects.get(userdata=client)
+                representation["client"]["full_name"] = client.full_name
+                representation["client"]["pin"] = client.pin
             else:
                 representation["user_type"] = "yur"
-                representation["client"] = YurUserSerializer(
-                    YurUser.objects.get(userdata=client)
-                ).data
+                # representation["client"] = YurUserSerializer(
+                #     YurUser.objects.get(userdata=client)
+                # ).data
+                client = YurUser.objects.get(userdata=client)
+                representation["client"]["name"] = client.name
+                representation["client"]["full_name"] = client.full_name
+                representation["client"]["tin"] = client.tin
         except:
-            print("contract_number >>>> ", instance.contract_number)
+            logger.error(f"contract_number is: {instance.contract_number}, the bug is here ;]")
 
         # representation["total_payed_percentage"] = (float(instance.payed_cash) * float(100))/float(
         # instance.contract_cash)
@@ -490,15 +499,18 @@ class GroupContractSerializerForBackoffice(serializers.ModelSerializer):
         rep["arrearage"] = instance.contract_cash - instance.payed_cash
 
         rep["client"] = {}
-        client = instance.client
-        if client.type == 2:
-            client = YurUser.objects.get(userdata=client)
-            rep["client"]["name"] = client.name
-            rep["client"]["full_name"] = client.full_name
-            rep["client"]["tin"] = client.tin
-        else:
-            client = FizUser.objects.get(userdata=client)
-            rep["client"]["full_name"] = client.full_name
-            rep["client"]["pin"] = client.pin
+        try:
+            client = instance.client
+            if client.type == 2:
+                client = YurUser.objects.get(userdata=client)
+                rep["client"]["name"] = client.name
+                rep["client"]["full_name"] = client.full_name
+                rep["client"]["tin"] = client.tin
+            else:
+                client = FizUser.objects.get(userdata=client)
+                rep["client"]["full_name"] = client.full_name
+                rep["client"]["pin"] = client.pin
+        except:
+            logger.error(f"contract_number is: {instance.contract_number}, the bug is here ;]")
 
         return rep
