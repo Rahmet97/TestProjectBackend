@@ -455,6 +455,7 @@ class MonitoringContractSerializer(serializers.ModelSerializer):
             ).data[0],
 
         client = UserData.objects.get(id=instance.client.id)
+        print("client >>> ", client.username)
         if client.type == 1:  # FIZ = 1 YUR = 2
             representation["client"] = FizUserSerializer(FizUser.objects.get(userdata=client)).data
             representation["user_type"] = "fiz"

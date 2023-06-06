@@ -84,18 +84,23 @@ class YurUserSerializerForContractDetail(serializers.ModelSerializer):
 
 
 class YurUserSerializer(serializers.ModelSerializer):
-    bank_mfo = serializers.SerializerMethodField()
+    # bank_mfo = serializers.SerializerMethodField()
 
-    def create(self, validated_data):
-        return YurUser.objects.create(**validated_data)
+    # def create(self, validated_data):
+    #     return YurUser.objects.create(**validated_data)
 
-    @staticmethod
-    def get_bank_mfo(obj):
-        return obj.bank_mfo.mfo
+    # @staticmethod
+    # def get_bank_mfo(obj):
+    #     return obj.bank_mfo.mfo
 
     class Meta:
         model = YurUser
         fields = '__all__'
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep["bank_mfo"] = instance.bank_mfo.mfo
+        return rep
 
 
 class PinUserToGroupRoleSerializer(serializers.Serializer):
