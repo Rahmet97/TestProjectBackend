@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from django.db import transaction
@@ -13,6 +14,8 @@ from .serializers import (
     GroupSerializer, RoleSerializer, PermissionSerializer, PinUserToGroupRoleSerializer,
     YurUserSerializer, FizUserSerializer, BankMFONameSerializer, UniconDataSerializer
 )
+
+logger = logging.getLogger(__name__)
 
 
 class GroupCreateAPIView(generics.CreateAPIView):
@@ -131,13 +134,14 @@ class PermissionListAPIView(generics.ListAPIView):
         role_permissions = RolePermission.objects.filter(
             Q(group__in=self.request.user.group.all()),
             Q(role=self.request.user.role),
-            (
-                    Q(create=True) |
-                    Q(read=True) |
-                    Q(update=True) |
-                    Q(delete=True)
-            )
+            # (
+            #         Q(create=True) |
+            #         Q(read=True) |
+            #         Q(update=True) |
+            #         Q(delete=True)
+            # )
         ).values('permissions')
+        logging.error(f"144 role_permissions --> permissions: {role_permissions}")
         queryset = Permission.objects.filter(pk__in=role_permissions)
         return queryset
 

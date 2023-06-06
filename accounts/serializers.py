@@ -1,5 +1,9 @@
+import logging
+
 from rest_framework import serializers
 from .models import Group, RolePermission, Role, Permission, FizUser, YurUser, UserData, BankMFOName, UniconDatas
+
+logger = logging.getLogger(__name__)
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -33,8 +37,8 @@ class RoleSerializer(serializers.ModelSerializer):
 
 class PermissionSerializer(serializers.ModelSerializer):
 
-    def create(self, validated_data):
-        return Permission.objects.create(**validated_data)
+    # def create(self, validated_data):
+    #     return Permission.objects.create(**validated_data)
 
     class Meta:
         model = Permission
