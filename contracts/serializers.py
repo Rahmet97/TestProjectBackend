@@ -3,6 +3,7 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from rest_framework import serializers, status
+from rest_framework.generics import get_object_or_404
 
 from main.utils import responseErrorMessage
 
@@ -455,13 +456,20 @@ class MonitoringContractSerializer(serializers.ModelSerializer):
             ).data[0],
 
         client = UserData.objects.get(id=instance.client.id)
-        print("client >>> ", client.username)
-        if client.type == 1:  # FIZ = 1 YUR = 2
-            representation["client"] = FizUserSerializer(FizUser.objects.get(userdata=client)).data
-            representation["user_type"] = "fiz"
-        else:
-            representation["client"] = YurUserSerializer(YurUser.objects.get(userdata=client)).data
-            representation["user_type"] = "yur"
+        try:
+            if client.type == 1:  # FIZ = 1 YUR = 2
+                representation["user_type"] = "fiz"
+                representation["client"] = FizUserSerializer(
+                    # get_object_or_404(FizUser, userdata=client)
+                    FizUser.objects.get(userdata=client)
+                ).data
+            else:
+                representation["user_type"] = "yur"
+                representation["client"] = YurUserSerializer(
+                    YurUser.objects.get(userdata=client)
+                ).data
+        except:
+            print("contract_number >>>> ", instance.contract_number)
 
         # representation["total_payed_percentage"] = (float(instance.payed_cash) * float(100))/float(
         # instance.contract_cash)
