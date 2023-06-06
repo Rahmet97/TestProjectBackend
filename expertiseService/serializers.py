@@ -69,7 +69,6 @@ class ExpertiseContractParticipantsSerializers(serializers.ModelSerializer):
         #     Q(role=obj.role),
         #     (Q(group=obj.contract.service.group) | Q(group=None))
         # )
-        # userdata = obj.participant_user
         userdata = obj.participant_user
         if userdata.type == 2:
             user = YurUser.objects.get(userdata=userdata)
