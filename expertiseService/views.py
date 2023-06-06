@@ -72,10 +72,10 @@ class CreateExpertiseServiceContractView(APIView):
         service_group = Service.objects.get(id=service_id).group
         for role in participants:
 
-            query = Q(role=role) & (Q(group=service_group) | Q(group=None))
+            query = Q(role=role) & (Q(group__in=[service_group]) | Q(group=None))
 
             try:
-                matching_user = UserData.objects.get(query)
+                matching_user = UserData.objects.filter(query).last()
                 print(f"User {matching_user.id}: {matching_user.role.name}")
 
                 users.append(matching_user)
@@ -207,7 +207,7 @@ class CreateExpertiseServiceContractView(APIView):
             # the director will not participate as a participant
             exclude_role = None
             if expertise_service_contract.contract_cash < 10_000_000:
-                exclude_role = "direktor"
+                exclude_role = Role.RoleNames.DIRECTOR
 
             service_id = int(request.data['service'])
             participants = self.create_contract_participants(service_id=service_id, exclude_role=exclude_role)
@@ -243,14 +243,14 @@ class ExpertiseGetGroupContract(APIView):
         barcha = GroupContractSerializerForBackoffice(barcha_data, many=True)
 
         # yangi contractlar
-        if request.user.role.name == 'direktor':
+        if request.user.role.name == Role.RoleNames.DIRECTOR:
             contract_participants = ExpertiseContracts_Participants.objects.filter(
-                Q(role__name="direktor o'rinbosari"),
+                Q(role__name=Role.RoleNames.DEPUTY_DIRECTOR),
                 Q(agreement_status__name='Kelishildi')
             ).values('contract')
 
             director_accepted_contracts = ExpertiseContracts_Participants.objects.filter(
-                Q(role__name='direktor'), Q(agreement_status__name='Kelishildi')
+                Q(role__name=Role.RoleNames.DIRECTOR), Q(agreement_status__name='Kelishildi')
             ).values('contract')
 
             yangi_data = barcha_data.filter(
@@ -388,7 +388,7 @@ class ExpertiseConfirmContract(APIView):
             contract.contract_status = 5  # REJECTED
             if contract.contract_cash >= 10_000_000:
                 director_participants = ExpertiseContracts_Participants.objects.get(
-                    Q(role__name="direktor"),
+                    Q(role__name=Role.RoleNames.DIRECTOR),
                     Q(contract=contract),
                 )
                 director_participants.agreement_status = agreement_status
@@ -411,7 +411,8 @@ class ExpertiseConfirmContract(APIView):
 
         # If the amount of the contract is more than 10 million,
         # it expects the director to give a conclusion
-        director_role_name = "direktor" if contract.contract_cash >= 10_000_000 else "direktor o'rinbosari"
+        director_role_name = \
+            Role.RoleNames.DIRECTOR if contract.contract_cash >= 10_000_000 else Role.RoleNames.DEPUTY_DIRECTOR
         try:
             cntrct = ExpertiseContracts_Participants.objects.get(
                 contract=contract,
@@ -493,13 +494,14 @@ class ExpertiseContractDetail(APIView):
         participant_serializer = ExpertiseContractParticipantsSerializers(participants, many=True)
 
         try:
-            expert_summary_value = ExpertiseExpertSummary.objects.get(
+            expert_summary = ExpertiseExpertSummary.objects.filter(
                 Q(contract=contract),
                 Q(user=request.user),
-                (Q(user__group=request.user.group) | Q(user__group=None))
-            ).summary
+                (Q(user__group__in=request.user.group.all()) | Q(user__group=None))
+            ).distinct()
+            expert_summary_value = expert_summary[0].summary if expert_summary.exists() else 0
 
-        except ExpertiseExpertSummary.DoesNotExist:
+        except (ExpertiseExpertSummary.DoesNotExist, IndexError):
             expert_summary_value = 0
 
         projects_obj = ExpertiseServiceContractTarif.objects.filter(expertisetarifcontract__contract=contract)
