@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from rest_framework import serializers, status
@@ -16,6 +17,8 @@ from expertiseService.models import (
 )
 from main.utils import responseErrorMessage
 from one_c.models import PayedInformation, Invoice
+
+logger = logging.getLogger(__name__)
 
 
 class ExpertiseTarifSerializer(serializers.ModelSerializer):
@@ -259,12 +262,20 @@ class ExpertiseMonitoringContractSerializer(serializers.ModelSerializer):
         # ).data,
 
         client = UserData.objects.get(id=instance.client.id)
-        if client.type == 1:  # FIZ = 1 YUR = 2
-            representation["client"] = FizUserSerializer(FizUser.objects.get(userdata=client)).data
-            representation["user_type"] = "fiz"
-        else:
-            representation["client"] = YurUserSerializer(YurUser.objects.get(userdata=client)).data
-            representation["user_type"] = "yur"
+        try:
+            if client.type == 1:  # FIZ = 1, YUR = 2
+                representation["user_type"] = "fiz"
+                client = FizUser.objects.get(userdata=client)
+                representation["client"]["full_name"] = client.full_name
+                representation["client"]["pin"] = client.pin
+            else:
+                representation["user_type"] = "yur"
+                client = YurUser.objects.get(userdata=client)
+                representation["client"]["name"] = client.name
+                representation["client"]["full_name"] = client.full_name
+                representation["client"]["tin"] = client.tin
+        except:
+            logger.error(f"278: contract_number is: {instance.contract_number}, the bug is here ;]")
 
         representation["total_payed_percentage"] = instance.total_payed_percentage
         representation["arrearage"] = instance.get_arrearage

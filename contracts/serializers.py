@@ -462,23 +462,17 @@ class MonitoringContractSerializer(serializers.ModelSerializer):
         try:
             if client.type == 1:  # FIZ = 1 YUR = 2
                 representation["user_type"] = "fiz"
-                # representation["client"] = FizUserSerializer(
-                #     FizUser.objects.get(userdata=client)
-                # ).data
                 client = FizUser.objects.get(userdata=client)
                 representation["client"]["full_name"] = client.full_name
                 representation["client"]["pin"] = client.pin
             else:
                 representation["user_type"] = "yur"
-                # representation["client"] = YurUserSerializer(
-                #     YurUser.objects.get(userdata=client)
-                # ).data
                 client = YurUser.objects.get(userdata=client)
                 representation["client"]["name"] = client.name
                 representation["client"]["full_name"] = client.full_name
                 representation["client"]["tin"] = client.tin
         except:
-            logger.error(f"contract_number is: {instance.contract_number}, the bug is here ;]")
+            logger.error(f"475: contract_number is: {instance.contract_number}, the bug is here ;]")
 
         # representation["total_payed_percentage"] = (float(instance.payed_cash) * float(100))/float(
         # instance.contract_cash)
@@ -512,7 +506,7 @@ class GroupContractSerializerForBackoffice(serializers.ModelSerializer):
                 rep["client"]["pin"] = client.pin
         except:
             logger.error(f"contract_number is: {instance.contract_number}, the bug is here ;]")
-            Contract.objects.get(id=instance.id).delete()
-            logger.warning('Contract is deleted')
+            # Contract.objects.get(id=instance.id).delete()
+            # logger.warning('Contract is deleted')
 
         return rep
