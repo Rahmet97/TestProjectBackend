@@ -131,16 +131,24 @@ class PermissionListAPIView(generics.ListAPIView):
     # cache_backend = RedisCache
 
     def get_queryset(self):
+
+        group_filter = self.request.user.group.all() if self.request.user.group.all() else None
+
         role_permissions = RolePermission.objects.filter(
-            Q(group__in=self.request.user.group.all()),
+            Q(group__in=group_filter) if group_filter else Q(group=None),
             Q(role=self.request.user.role),
-            # (
-            #         Q(create=True) |
-            #         Q(read=True) |
-            #         Q(update=True) |
-            #         Q(delete=True)
-            # )
         ).values('permissions')
+
+        # role_permissions = RolePermission.objects.filter(
+        #     Q(group__in=group_filter),
+        #     Q(role=self.request.user.role),
+        #     (
+        #             Q(create=True) |
+        #             Q(read=True) |
+        #             Q(update=True) |
+        #             Q(delete=True)
+        #     )
+        # ).values('permissions')
         logging.error(f"144 role_permissions --> permissions: {role_permissions}")
         queryset = Permission.objects.filter(pk__in=role_permissions)
         return queryset
