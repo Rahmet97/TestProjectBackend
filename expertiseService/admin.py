@@ -9,7 +9,6 @@ from expertiseService.models import (
 
 admin.site.register((
     ExpertiseExpertSummary,
-    ExpertiseContracts_Participants,
     ExpertiseExpertSummaryDocument
 ))
 
@@ -22,6 +21,12 @@ class ExpertiseServiceContractTarifAdmin(admin.ModelAdmin):
 @admin.register(ExpertiseServiceContract)
 class ExpertiseServiceContractAdmin(admin.ModelAdmin):
     list_display = ["contract_number", "id_code"]
+
+
+@admin.register(ExpertiseContracts_Participants)
+class ExpertiseContracts_ParticipantstAdmin(admin.ModelAdmin):
+    list_display = ["contract", "role", "participant_user", "agreement_status"]
+    search_fields = ["contract"]
 
 
 @admin.register(ExpertiseTarifContract)

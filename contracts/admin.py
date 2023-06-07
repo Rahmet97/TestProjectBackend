@@ -8,7 +8,6 @@ admin.site.register((
     UserContractTarifDevice,
     UserDeviceCount,
     Contract,
-    Contracts_Participants,
     ExpertSummary,
     ExpertSummaryDocument,
 
@@ -135,3 +134,9 @@ class ServiceParticipantsResource(resources.ModelResource):
 class ServiceParticipantsAdmin(ImportExportModelAdmin):
     resource_class = ServiceParticipantsResource
     list_display = ["participant", "role", "with_eds"]
+
+
+@admin.register(Contracts_Participants)
+class Contracts_ParticipantsAdmin(admin.ModelAdmin):
+    list_display = ["contract", "role", "agreement_status"]
+    search_fields = ["contract"]

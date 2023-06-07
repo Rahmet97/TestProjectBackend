@@ -360,7 +360,6 @@ class ContractParticipantsSerializers(serializers.ModelSerializer):
                 Q(group__in=[obj.contract.service.group])
             )
             summary = ExpertSummary.objects.filter(contract=obj.contract, user__in=userdata).first()
-            logger.error(f"363-> summary: {summary}")
             serializer = ExpertSummarySerializer(summary)
             # serializer = ExpertSummarySerializer(summary, many=True)
 
