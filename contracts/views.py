@@ -799,7 +799,9 @@ class SavePkcs(APIView):
         pkcs7 = request.data['pkcs7']
         try:
             contract = Contract.objects.get(pk=contract_id)
-            logger.error(f"802{contract.id}--> {pkcs7}")
+            logger.error(f"802  {contract.id}--> {pkcs7}")
+            logger.error(f"803  request.user.role: --> {request.user.role}")
+            logger.error(f"804  Contracts_Participants.objects.filter(contract=contract).values('role')--> {Contracts_Participants.objects.filter(contract=contract).values('role')}")
             if request.user.role in Contracts_Participants.objects.filter(contract=contract).values('role'):
                 logger.error(f"804-->> pass from if")
                 if not Pkcs.objects.filter(contract=contract).exists():
