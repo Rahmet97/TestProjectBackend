@@ -810,8 +810,9 @@ class SavePkcs(APIView):
             if request.user.role.name in role_names:
                 logger.error(f"804-->> pass from if")
                 if not Pkcs.objects.filter(contract=contract).exists():
-                    pkcs = Pkcs.objects.create(contract=contract, pkcs7=pkcs7)
-                    pkcs.save()
+                    # pkcs = Pkcs.objects.create(contract=contract, pkcs7=pkcs7)
+                    # pkcs.save()
+                    Pkcs.objects.create(contract=contract, pkcs7=pkcs7)
                 else:
                     pkcs_exist_object = Pkcs.objects.get(contract=contract)
                     client_pkcs = pkcs_exist_object.pkcs7
