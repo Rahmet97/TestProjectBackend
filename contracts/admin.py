@@ -140,3 +140,9 @@ class ServiceParticipantsAdmin(ImportExportModelAdmin):
 class Contracts_ParticipantsAdmin(admin.ModelAdmin):
     list_display = ["contract", "role", "agreement_status"]
     search_fields = ["contract__contract_number__icontains"]
+
+
+@admin.register(Pkcs)
+class PkcsAdmin(admin.ModelAdmin):
+    list_display = ["contract"]
+    search_fields = ["contract__contract_number__icontains"]
