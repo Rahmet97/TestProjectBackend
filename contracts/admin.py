@@ -139,4 +139,4 @@ class ServiceParticipantsAdmin(ImportExportModelAdmin):
 @admin.register(Contracts_Participants)
 class Contracts_ParticipantsAdmin(admin.ModelAdmin):
     list_display = ["contract", "role", "agreement_status"]
-    search_fields = ["contract"]
+    search_fields = ["contract__contract_number__icontains"]

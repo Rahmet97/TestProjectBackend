@@ -26,7 +26,7 @@ class ExpertiseServiceContractAdmin(admin.ModelAdmin):
 @admin.register(ExpertiseContracts_Participants)
 class ExpertiseContracts_ParticipantstAdmin(admin.ModelAdmin):
     list_display = ["contract", "role", "participant_user", "agreement_status"]
-    search_fields = ["contract"]
+    search_fields = ["contract__contract_number__icontains"]
 
 
 @admin.register(ExpertiseTarifContract)
