@@ -1,4 +1,5 @@
 import os
+import logging
 import base64
 import hashlib
 import json
@@ -55,6 +56,7 @@ from .utils import (
 
 from .tasks import file_creator, file_downloader, generate_contract_number
 
+logger = logging.getLogger(__name__)
 num2word = NumbersToWord()
 
 
@@ -797,7 +799,9 @@ class SavePkcs(APIView):
         pkcs7 = request.data['pkcs7']
         try:
             contract = Contract.objects.get(pk=contract_id)
+            logger.error(f"802{contract.id}--> {pkcs7}")
             if request.user.role in Contracts_Participants.objects.filter(contract=contract).values('role'):
+                logger.error(f"804-->> pass from if")
                 if not Pkcs.objects.filter(contract=contract).exists():
                     pkcs = Pkcs.objects.create(contract=contract, pkcs7=pkcs7)
                     pkcs.save()
