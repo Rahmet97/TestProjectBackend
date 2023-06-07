@@ -962,25 +962,36 @@ class ContractDetail(APIView):
         # else:
         #     expert_summary = False
 
+        # try:
+        #     expert_summary = ExpertSummary.objects.filter(
+        #         Q(contract=contract),
+        #         Q(user=request.user),
+        #         Q(user__group__in=request.user.group.all())
+        #     ).distinct()
+        #
+        #     expert_summary_value = expert_summary[0].summary if expert_summary.exists() else 0
+        # except (ExpertSummary.DoesNotExist, IndexError):
+        #     expert_summary_value = 0
+        #
+        # expert_summary = int(expert_summary_value) == 1
+
         try:
             expert_summary = ExpertSummary.objects.filter(
                 Q(contract=contract),
                 Q(user=request.user),
-                Q(user__group__in=request.user.group.all())
+                (Q(user__group__in=request.user.group.all()) | Q(user__group=None))
             ).distinct()
-
             expert_summary_value = expert_summary[0].summary if expert_summary.exists() else 0
+
         except (ExpertSummary.DoesNotExist, IndexError):
             expert_summary_value = 0
-
-        expert_summary = int(expert_summary_value) == 1
 
         return Response(
             {
                 'contract': contract_serializer.data,
                 'client': client_serializer.data,
                 'participants': participant_serializer.data,
-                'is_confirmed': expert_summary
+                'is_confirmed': True if int(expert_summary_value) == 1 else False
             }, status=status.HTTP_200_OK
         )
 
