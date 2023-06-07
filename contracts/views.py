@@ -931,50 +931,6 @@ class ContractDetail(APIView):
         participants = Contracts_Participants.objects.filter(contract=contract).order_by('role_id')
         participant_serializer = ContractParticipantsSerializers(participants, many=True)
 
-        # try:
-        #     if request.user.role.name == Role.RoleNames.DIRECTOR:
-        #         # expert_summary = ExpertSummary.objects.get(
-        #         expert_summary = ExpertSummary.objects.filter(
-        #             Q(contract=contract),
-        #             Q(user=request.user),
-        #             Q(user__group__in=request.user.group.all())
-        #         ).distinct()
-        #     else:
-        #         # expert_summary = ExpertSummary.objects.get(
-        #         expert_summary = ExpertSummary.objects.filter(
-        #             Q(contract=contract),
-        #             Q(user=request.user),
-        #             Q(user__group__in=request.user.group.all())
-        #         ).distinct()
-        #
-        #     print("expert_summary >>> 930", expert_summary)
-        #
-        #     if expert_summary.exists():
-        #         expert_summary_value = expert_summary[0].summary
-        #     else:
-        #         expert_summary_value = 0
-        #
-        # except ExpertSummary.DoesNotExist:
-        #     expert_summary_value = 0
-        #
-        # if int(expert_summary_value) == 1:
-        #     expert_summary = True
-        # else:
-        #     expert_summary = False
-
-        # try:
-        #     expert_summary = ExpertSummary.objects.filter(
-        #         Q(contract=contract),
-        #         Q(user=request.user),
-        #         Q(user__group__in=request.user.group.all())
-        #     ).distinct()
-        #
-        #     expert_summary_value = expert_summary[0].summary if expert_summary.exists() else 0
-        # except (ExpertSummary.DoesNotExist, IndexError):
-        #     expert_summary_value = 0
-        #
-        # expert_summary = int(expert_summary_value) == 1
-
         try:
             expert_summary = ExpertSummary.objects.filter(
                 Q(contract=contract),
