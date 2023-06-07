@@ -802,7 +802,12 @@ class SavePkcs(APIView):
             logger.error(f"802  {contract.id}--> {pkcs7}")
             logger.error(f"803  request.user.role: --> {request.user.role}")
             logger.error(f"804  Contracts_Participants.objects.filter(contract=contract).values('role')--> {Contracts_Participants.objects.filter(contract=contract).values('role')}")
-            if request.user.role in Contracts_Participants.objects.filter(contract=contract).values('role'):
+
+            # role_names = Contracts_Participants.objects.filter(contract=contract).values('role__name')
+            # role_names = [row['role__name'] for row in role_names.values('role__name')]
+            role_names = Contracts_Participants.objects.filter(contract=contract).values_list('role__name', flat=True)
+            # if request.user.role.name in Contracts_Participants.objects.filter(contract=contract).values('role'):
+            if request.user.role.name in role_names:
                 logger.error(f"804-->> pass from if")
                 if not Pkcs.objects.filter(contract=contract).exists():
                     pkcs = Pkcs.objects.create(contract=contract, pkcs7=pkcs7)
