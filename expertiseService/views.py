@@ -1,6 +1,7 @@
 import os
 import json
 import base64
+import logging
 import hashlib
 import requests
 import xmltodict
@@ -51,6 +52,7 @@ from expertiseService.serializers import (
     ExpertiseMonitoringContractSerializer, GroupContractSerializerForBackoffice
 )
 
+logger = logging.getLogger(__name__)
 num2word = NumbersToWord()
 
 
@@ -73,16 +75,30 @@ class CreateExpertiseServiceContractView(APIView):
         for role in participants:
 
             query = Q(role=role) & (Q(group__in=[service_group]) | Q(group=None))
+            logger.error(f"80-> query: {query}")
 
-            try:
-                matching_user = UserData.objects.filter(query).last()
-                print(f"User {matching_user.id}: {matching_user.role.name}")
+            matching_user = UserData.objects.filter(query).last()
+            logger.error(f"80-> matching_user: {matching_user}")
 
+            if matching_user is not None:
+                logger.error(f"81 -> User {matching_user.id}: {matching_user.role.name}")
                 users.append(matching_user)
-            except UserData.DoesNotExist:
-                print("No matching user found")
-            except UserData.MultipleObjectsReturned:
-                print("Multiple matching users found")
+            else:
+                logger.error("84 -> No matching user found")
+
+            # try:
+            #     matching_user = UserData.objects.filter(query).last()
+            #     if matching_user is not None:
+            #         print(f"User {matching_user.id}: {matching_user.role.name}")
+            #         users.append(matching_user)
+            #     else:
+            #         print("No matching user found")
+            #
+            #     users.append(matching_user)
+            # except UserData.DoesNotExist:
+            #     print("No matching user found")
+            # except UserData.MultipleObjectsReturned:
+            #     print("Multiple matching users found")
 
         return users
 
