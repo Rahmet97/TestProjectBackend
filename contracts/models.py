@@ -271,7 +271,7 @@ class Pkcs(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['contract', 'pkcs7'])
+            models.Index(fields=['contract'])
         ]
 
     def __str__(self):

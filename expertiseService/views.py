@@ -638,7 +638,12 @@ class ExpertiseSavePkcs(APIView):
         pkcs7 = request.data['pkcs7']
         try:
             contract = ExpertiseServiceContract.objects.get(pk=contract_id)
-            if request.user.role in ExpertiseContracts_Participants.objects.filter(contract=contract).values('role'):
+            # if request.user.role in ExpertiseContracts_Participants.objects.filter(contract=contract).values('role'):
+            role_names = ExpertiseContracts_Participants.objects.filter(
+                contract=contract
+            ).values_list('role__name', flat=True)
+            # if request.user.role.name in Contracts_Participants.objects.filter(contract=contract).values('role'):
+            if request.user.role.name in role_names or request.user.role.name == Role.RoleNames.CLIENT:
                 if not ExpertisePkcs.objects.filter(contract=contract).exists():
                     pkcs = ExpertisePkcs.objects.create(contract=contract, pkcs7=pkcs7)
                     pkcs.save()
