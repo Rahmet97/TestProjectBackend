@@ -91,6 +91,8 @@ class GetUser(views.APIView):
             #     password = data['first_name'][0] + data['pin'] + data['first_name'][-1]
 
             data = res.json()
+            print("94 oneId_data_user_type: ", data.get("user_type", "Empty"))
+            print("95 oneId_data: ", data)
             if data.get('legal_info'):
                 username = data['legal_info'][0]['tin']
             else:
