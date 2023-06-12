@@ -802,6 +802,7 @@ class SavePkcs(APIView):
 
             role_names = Contracts_Participants.objects.filter(contract=contract).values_list('role__name', flat=True)
             # if request.user.role.name in Contracts_Participants.objects.filter(contract=contract).values('role'):
+            print(role_names)
             if request.user.role.name in role_names or request.user.role.name == Role.RoleNames.CLIENT:
                 if not Pkcs.objects.filter(contract=contract).exists():
                     Pkcs.objects.create(contract=contract, pkcs7=pkcs7)
