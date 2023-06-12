@@ -114,8 +114,6 @@ class CreateExpertiseServiceContractView(APIView):
         context['qr_code'] = ''
         context['save'] = False
         context['page_break'] = False
-        # context['save'] = True
-        # context['page_break'] = True
 
         if int(request.data['save']):
             context['save'] = True
