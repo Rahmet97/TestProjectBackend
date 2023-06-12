@@ -551,13 +551,13 @@ class SelectedTarifDevicesAPIView(APIView):
 
 #         # Saqlanmedigan filelarni logikasini qolishim kk
 #         # qr_code fileni ochirish kk
-#         # 
+#         #
 #         # return Response({
 #         #     'file_path': '/media/Contract/' + str(contract_file_for_preview_pdf).split('/')[-1],
 #         #     'file_path_doc': '/media/Contract/' + str(contract_file_for_preview).split('/')[-1],
 #         #     'base64file': base64code
 #         # })
-#         return 
+#         return
 
 
 class CreateContractFileAPIView(APIView):
@@ -803,7 +803,6 @@ class SavePkcs(APIView):
             role_names = Contracts_Participants.objects.filter(contract=contract).values_list('role__name', flat=True)
             # if request.user.role.name in Contracts_Participants.objects.filter(contract=contract).values('role'):
             if request.user.role.name in role_names or request.user.role.name == Role.RoleNames.CLIENT:
-                logger.error(f"804-->> pass from if")
                 if not Pkcs.objects.filter(contract=contract).exists():
                     Pkcs.objects.create(contract=contract, pkcs7=pkcs7)
                 else:
