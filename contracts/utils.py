@@ -102,12 +102,12 @@ def set_docx_font_style(docx_file_path):
     # Open the DOCX file with python-docx
     doc = docx.Document(docx_file_path)
 
-    # Create a new style based on the existing Normal style with Times New Roman font
-    times_new_roman_style = doc.styles.add_style('Times New Roman', WD_STYLE_TYPE.PARAGRAPH)
+    # Create a new style based on the existing Normal style with Times-New-Roman font
+    times_new_roman_style = doc.styles.add_style('Times-New-Roman', WD_STYLE_TYPE.PARAGRAPH)
     font = times_new_roman_style.font
-    font.name = 'Times New Roman'
+    font.name = 'Times-New-Roman'
 
-    # Apply the Times New Roman style to all paragraphs in the document
+    # Apply the Times-New-Roman style to all paragraphs in the document
     for paragraph in doc.paragraphs:
         paragraph.style = times_new_roman_style
 
