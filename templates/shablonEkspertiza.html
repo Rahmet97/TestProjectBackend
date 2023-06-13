@@ -507,6 +507,9 @@
                 to'g'risida yuqorida tavsiflanganidek, xuddi shu tariqa va xuddi shu muddatlarda boshqa Tomonga xabar
                 qilishi kerak.
             </p>
+            {% if page_break %}
+                <div style="page-break-after: always;"></div>
+            {% endif %}
             <h4 class="requirement-title">IX. TOMONLAR JAVOBGARLIGI</h4>
             <p class="requirement-text">
                 9.1. Tomonlar O'zbekiston Respublikasining 1998 yil 29 avgustdagi «Xo'jalik yurituvchi subyektlar
@@ -555,6 +558,9 @@
                 11.3. Shartnoma ikki Tomonlar tarafidan imzolangandan keyin kuchga kiradi va Tomonlar o'rtasidagi barcha
                 ishlar va o'zaro hisob-kitoblar tugagunicha haqiqiy hisoblanadi.6
             </p>
+            {% if page_break %}
+                <div style="page-break-after: always;"></div>
+            {% endif %}
             <h4 class="requirement-title">XII. YURIDIK MANZILLAR VA BANK REKVIZITLARI</h4>
             <table class="table_ijro" cellpadding="5" cellspacing="0">
                 <thead>
@@ -810,17 +816,10 @@
                 </thead>
                 <tbody>
                     <tr>
-                    </tr>
-                    <tr>
                         <td align="center">“UNICON.UZ” Fan-tehnika va marketing tadqiqotlari markazi davlat unitar korxonasi
                         </td>
                         <td align="center"></td>
                         <td align="center">{{user_obj.name}}</td>
-                    </tr>
-                    <tr>
-                    </tr>
-                    <tr>
-                        <td align="center"></td>
                     </tr>
                     <tr>
                         <td align="center">M.M. Maxmudov</td>
