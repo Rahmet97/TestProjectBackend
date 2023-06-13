@@ -837,7 +837,7 @@ class GetContractFile(APIView):
             if os.path.exists(file_pdf_path):
                 with open(file_pdf_path, 'rb') as fh:
                     response = HttpResponse(fh.read(), content_type="application/pdf")
-                    response['Content-Disposition'] = f'attachment; filename={contract.contract_number}.pdf"'
+                    response['Content-Disposition'] = f'attachment; filename={contract.contract_number}.pdf'
                     delete_file(file_pdf_path)
                     return response
         else:
