@@ -802,8 +802,6 @@ class SavePkcs(APIView):
 
             role_names = Contracts_Participants.objects.filter(contract=contract).values_list('role__name', flat=True)
             # if request.user.role.name in Contracts_Participants.objects.filter(contract=contract).values('role'):
-            print('805 >>>> ', role_names)
-            print('806 >>>> ', request.user.role.name)
             if request.user.role.name in role_names or request.user == contract.client:
                 if not Pkcs.objects.filter(contract=contract).exists():
                     Pkcs.objects.create(contract=contract, pkcs7=pkcs7)
@@ -839,7 +837,7 @@ class GetContractFile(APIView):
             if os.path.exists(file_pdf_path):
                 with open(file_pdf_path, 'rb') as fh:
                     response = HttpResponse(fh.read(), content_type="application/pdf")
-                    response['Content-Disposition'] = f'attachment; filename="{pdf_file_name}"'
+                    response['Content-Disposition'] = f'attachment; filename={contract.contract_number}.pdf"'
                     delete_file(file_pdf_path)
                     return response
         else:
