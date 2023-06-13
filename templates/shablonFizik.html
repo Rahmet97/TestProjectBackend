@@ -312,15 +312,6 @@
             width: 100%;
             font-size: 12.5pt;
         }
-        th {
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-        tr:nth-child(2) td {
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-
     </style>
 </head>
 
@@ -872,14 +863,16 @@
         {% if page_break %}
             <div style="page-break-after: always;"></div>
         {% endif %}
-        <table border="1" cellpadding="5" cellspacing="0">
             {% if save %}
-                <tr>
-                    <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
-                    <td align="center"></td>
-                    <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
-                </tr>
+                <table>
+                    <tr>
+                        <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
+                        <td align="center"></td>
+                        <td align="center">ERI YORDAMIDA IMZOLANGAN</td>
+                    </tr>
+                </table>
             {% endif %}
+        <table border="1" cellpadding="5" cellspacing="0">
             <tr>
                 <th colspan="3">SHARTNOMA ELEKTRON RAQAMLI IMZO YORDAMIDA IMZOLANGAN</th>
             </tr>
@@ -1032,9 +1025,6 @@
                     </td>
                     <td align="center"></td>
                     <td align="center">{{client_fullname}}</td>
-                </tr>
-                <tr>
-                    <td align="center"></td>
                 </tr>
                 <tr>
                     <td align="center">M.M. Maxmudov</td>
