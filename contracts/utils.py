@@ -1,3 +1,4 @@
+import logging
 import os
 import qrcode
 import subprocess
@@ -16,6 +17,8 @@ from django.conf import settings
 from rest_framework import validators, status
 
 # from xhtml2pdf.default import DEFAULT_CSS
+
+logger = logging.getLogger(__name__)
 
 
 def error_response_404():
@@ -223,8 +226,8 @@ def delete_file(file_path: str):
     if os.path.exists(file_path):
         try:
             os.remove(file_path)
-            print("The file has been deleted.")
+            logger.info("The file has been deleted.")
         except Exception as e:
-            print(e)
+            logger.error(e)
     else:
-        print("The file does not exist.")
+        logger.info("The file does not exist.")

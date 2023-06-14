@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 
 import requests
@@ -15,6 +16,7 @@ from main.utils import responseErrorMessage
 from accounts.models import UserData, FizUser, YurUser, Role
 from accounts.serializers import FizUserSerializer, YurUserSerializer
 
+logger = logging.getLogger(__name__)
 load_dotenv()
 
 
@@ -91,8 +93,9 @@ class GetUser(views.APIView):
             #     password = data['first_name'][0] + data['pin'] + data['first_name'][-1]
 
             data = res.json()
-            print("94 oneId_data_user_type: ", data.get("user_type", "Empty"))
-            print("95 oneId_data: ", data)
+            logger.info("96 oneId_data_user_type: ", data.get("user_type", "Empty"))
+            logger.info("97 oneId_data: ", data)
+
             if data.get('legal_info'):
                 username = data['legal_info'][0]['tin']
             else:
