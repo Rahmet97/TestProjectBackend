@@ -293,7 +293,7 @@ from .serializers import FileUploadSerializer
 #         return render(request=request, template_name=template_name, context=context)
 
 
-class FileUploadAPIView(APIView):
+class FileUploadAPIView(views.APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
@@ -301,6 +301,6 @@ class FileUploadAPIView(APIView):
         if serializer.is_valid():
             file = serializer.validated_data['file']
             print(file)
-            return Response({'message': 'File uploaded successfully'})
+            return response.Response({'message': 'File uploaded successfully'})
         else:
-            return Response(serializer.errors, status=400)
+            return response.Response(serializer.errors, status=400)
