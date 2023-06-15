@@ -5,7 +5,9 @@
 #
 # from django.db.models import Q
 # from django.shortcuts import render
-# from rest_framework import views, generics, permissions, response, status
+from rest_framework import views, generics, permissions, response, status
+
+
 #
 # from accounts.models import UserData, YurUser, FizUser
 # from contracts.models import AgreementStatus, Service, Participant
@@ -28,6 +30,7 @@
 #     OperationSystemSerializers, OperationSystemVersionSerializers,
 #     VpsServiceContractCreateSerializers, VpsTariffSerializers, VpsGetUserContractsListSerializer
 # )
+from .serializers import FileUploadSerializer
 #
 #
 # # View for listing OperationSystem objects
@@ -288,3 +291,16 @@
 #
 #         template_name = "shablonYuridik.html"
 #         return render(request=request, template_name=template_name, context=context)
+
+
+class FileUploadAPIView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        serializer = FileUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            file = serializer.validated_data['file']
+            print(file)
+            return Response({'message': 'File uploaded successfully'})
+        else:
+            return Response(serializer.errors, status=400)

@@ -89,3 +89,7 @@ class VpsGetUserContractsListSerializer(serializers.ModelSerializer):
         representation["status"] = instance.get_status_display()
         representation["contract_status"] = instance.get_contract_status_display()
         return representation
+
+
+class FileUploadSerializer(serializers.Serializer):
+    file = serializers.FileField()
