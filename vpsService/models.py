@@ -87,6 +87,14 @@ class VpsServiceContract(models.Model):
         super().save(*args, **kwargs)
 
 
+class VpsServiceContractFile(models.Model):
+    contract = models.OneToOneField(VpsServiceContract, on_delete=models.CASCADE)
+    file = models.FileField(upload_to=slugify_upload)
+
+    def __str__(self):
+        return self.contract
+
+
 class OperationSystem(BaseModel):
     name = models.CharField(max_length=255, unique=True)
 
