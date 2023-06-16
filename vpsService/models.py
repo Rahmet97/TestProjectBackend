@@ -1,6 +1,9 @@
 from decimal import Decimal
 from django.db import models
 
+from rest_framework import exceptions, status
+from vpsService.enum_utils import VpsDevicePriceEnum
+
 from contracts.models import (
     Service, UserData, Role, AgreementStatus,
     slugify_upload
@@ -64,7 +67,7 @@ class VpsServiceContract(models.Model):
         if VpsServiceContract.objects.all().exists():
             count = VpsServiceContract.objects.last().id  # to'girlab ketish kk
             count += 1
-        return f"E{count}"
+        return f"VPS{count}"
 
     # @property
     # def total_payed_percentage(self):
@@ -107,7 +110,7 @@ class OperationSystemVersion(BaseModel):
         to=OperationSystem, on_delete=models.CASCADE, related_name="operation_system", unique=True
     )
     version_name = models.CharField(max_length=255, unique=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    price = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True, default=0)
 
     def __str__(self):
         return f"{self.operation_system.name}-{self.version_name}"
@@ -119,12 +122,13 @@ class VpsDevice(models.Model):
         (SSD, SSD),
     )
     storage_type = models.CharField(max_length=3, choices=STORAGE_TYPE_CHOICES)
-    storage_disk = models.IntegerField()  # default -> GB
+    storage_disk: int = models.IntegerField()  # default -> GB
 
-    cpu = models.IntegerField()
-    ram = models.IntegerField()
-    internet = models.IntegerField(blank=True, null=True)
-    tasix = models.IntegerField(blank=True, null=True)
+    cpu: int = models.IntegerField()
+    ram: int = models.IntegerField()
+    internet: int = models.IntegerField(blank=True, null=True)
+    tasix: int = models.IntegerField(blank=True, null=True)
+    imut: int = models.IntegerField(blank=True, null=True)
 
     operation_system = models.ForeignKey(
         to=OperationSystem, on_delete=models.CASCADE, related_name="vps_device_operation_system"
@@ -134,19 +138,65 @@ class VpsDevice(models.Model):
     )
 
     # Device price
-    # device_price = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
+    device_price = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
+
+    def calculate_price(self):
+        price = 0
+
+        if self.storage_disk:
+            price += self.storage_disk * {
+                HHD: VpsDevicePriceEnum.HHD,
+                SSD: VpsDevicePriceEnum.SSD,
+            }.get(self.storage_type, 0)
+
+        if self.cpu:
+            price += self.cpu * VpsDevicePriceEnum.CPU
+        if self.ram:
+            price += self.ram * VpsDevicePriceEnum.RАМ
+        if self.internet:
+            price += self.internet * VpsDevicePriceEnum.INTERNET
+        if self.tasix:
+            price += self.tasix * VpsDevicePriceEnum.TASIX
+        if self.imut:
+            price += self.imut * VpsDevicePriceEnum.IMUT
+
+        price = Decimal(price)
+        # if self.operation_system_version is not None:
+        #     price += self.operation_system_version.price
+        return price
+
+    def validate_price(self, price):
+        if not self.device_price:
+            self.device_price = price
+
+    def validate_os_version(self):
+        if self.operation_system_version_id is None:
+            raise exceptions.ValidationError({
+                "operation_system_version": "Operation system version must be specified."
+            }, code=status.HTTP_400_BAD_REQUEST)
+
+    def clean(self):
+        super().clean()
+
+        self.validate_os_version()
+        device_price = self.calculate_price()
+        self.validate_price(price=device_price)
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.storage_type}-{self.storage_disk}|{self.cpu}|{self.ram}|{self.internet}"
+        return f"{self.storage_type}-{self.storage_disk}|{self.cpu}|{self.ram}"
 
 
 class VpsTariff(models.Model):
     tariff_name = models.CharField(max_length=255)
     vps_device = models.ForeignKey(to=VpsDevice, on_delete=models.CASCADE, related_name='vps_service_tariff')
 
-    price = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
-    is_discount = models.BooleanField(default=False)
-    discount_price = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    # price = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
+    # is_discount = models.BooleanField(default=False)
+    # discount_price = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
 
     def __str__(self) -> str:
         return f"{self.tariff_name}"

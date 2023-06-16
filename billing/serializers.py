@@ -5,6 +5,7 @@ from rest_framework import serializers
 from django.contrib.postgres.fields import ArrayField
 
 from billing.models import InvoiceElements
+from vpsService.models import VpsDevice, OperationSystemVersion, VpsTariff
 
 
 class RequestSerializer(serializers.Serializer):
@@ -31,28 +32,7 @@ class InvoiceElementsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InvoiceElements
-        # fields = '__all__'
         exclude = ["date"]
-
-    # def update(self, instance, validated_data):
-    #     # extract the date and time fields from the validated data
-    #     day_time = validated_data.get('day_time', instance.date.date())
-    #     time = validated_data.get('time', instance.date.time())
-    #
-    #     # get the time component of the time field using datetime.time()
-    #     time_component = time.time() if isinstance(time, datetime) else time
-    #
-    #     # combine the date and time fields into a single datetime object
-    #     combined_datetime = datetime.combine(day_time, time_component)
-    #
-    #     # update the instance's date field with the combined datetime object
-    #     instance.date = combined_datetime
-    #     instance.service = validated_data.get("service", instance.service.pk)
-    #     instance.is_automate = validated_data.get("is_automate", instance.is_automate)
-    #
-    #     # save and return the updated instance
-    #     instance.save()
-    #     return instance
 
     def update(self, instance, validated_data):
         # extract the date and time fields from the validated data
@@ -105,3 +85,22 @@ class InvoiceElementsSerializer(serializers.ModelSerializer):
         data['day_time'] = local_time.date()
         data['time'] = local_time.time()
         return data
+
+
+# VPS Serializer for billing automations
+class VpsTariffSummSerializer(serializers.ModelSerializer):
+    tariff = serializers.PrimaryKeyRelatedField(
+        required=False, allow_null=True, queryset=VpsTariff.objects.all(), write_only=True
+    )
+    operation_system_versions = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=OperationSystemVersion.objects.all(),  write_only=True
+    )
+
+    count_vm = serializers.IntegerField()
+
+    class Meta:
+        model = VpsDevice
+        fields = [
+            "id", "tariff", "storage_type", "storage_disk", "cpu", "ram", "internet", "tasix", "imut",
+            "operation_system_versions", "count_vm"
+        ]
