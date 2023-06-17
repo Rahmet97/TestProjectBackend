@@ -303,7 +303,11 @@ class FileUploadAPIView(views.APIView):
         if serializer.is_valid():
             file = serializer.validated_data['file']
             print(file)
-            return response.Response({'message': 'File uploaded successfully'})
+            serializer.save()
+            return response.Response({
+                'message': 'File uploaded successfully',
+                'data': serializer.data
+            })
         else:
             return response.Response(serializer.errors, status=400)
 
