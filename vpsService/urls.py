@@ -1,7 +1,7 @@
 from django.urls import path
 
 from . import views
-from .views import FileUploadAPIView
+from .views import FileUploadAPIView, NewFileCreateAPIView
 
 # # Define the URL patterns
 urlpatterns = [
@@ -16,5 +16,6 @@ urlpatterns = [
         views.OperationSystemVersionListView.as_view(), name="operations-systems-version-list"
     ),
     # path('reject/<int:pk>', views.VpsServiceContractDeleteAPIView.as_view(), name='VpsServiceContractDeleteAPIView'),
-    path('file', FileUploadAPIView.as_view(), name='file_upload')
+    path('file', FileUploadAPIView.as_view(), name='file_upload'),
+    path('new-file', NewFileCreateAPIView.as_view(), name='newfile_upload'),
 ]

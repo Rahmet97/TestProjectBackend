@@ -1,10 +1,14 @@
 import base64
 import hashlib
 import os
+import secrets
+import string
 from datetime import datetime
+from docx import Document
 
 from django.db.models import Q
 from django.shortcuts import render
+from django.conf import settings
 from rest_framework import views, generics, permissions, response, status
 
 from accounts.models import UserData, YurUser, FizUser
@@ -302,3 +306,20 @@ class FileUploadAPIView(views.APIView):
             return response.Response({'message': 'File uploaded successfully'})
         else:
             return response.Response(serializer.errors, status=400)
+
+
+class NewFileCreateAPIView(views.APIView):
+    permission_classes = (permissions.IsAuthenticated)
+
+    def generate_uid(self, length):
+        characters = string.ascii_letters + string.digits
+        uid = ''.join(secrets.choice(characters) for _ in range(length))
+        return uid
+
+    def post(self, request):
+        doc = Document()
+        file_name = self.generate_uid(8)
+        file_path = f'{settings.MEDIA_ROOT}/Contract/{file_name}.docx'
+        file_url = 'http://' + request.META['HTTP_HOST'] + '/media/Contract/' + file_name + '.docx'
+        doc.save(file_path)
+        return response.Response({'path': file_url})
