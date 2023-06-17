@@ -309,7 +309,7 @@ class FileUploadAPIView(views.APIView):
 
 
 class NewFileCreateAPIView(views.APIView):
-    permission_classes = (permissions.IsAuthenticated)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def generate_uid(self, length):
         characters = string.ascii_letters + string.digits
