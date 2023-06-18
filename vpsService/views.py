@@ -305,9 +305,12 @@ class FileUploadAPIView(views.APIView):
             uploaded_file = serializer.validated_data['file']
             destination_path = f'{settings.MEDIA_ROOT}/Contract/{uploaded_file}'
             saved_path = default_storage.save(destination_path, uploaded_file)
+            file_path = f"http://{request.META['HTTP_HOST']}/media/{saved_path}"
+            hashed_text = hash_text(file_path)
             return response.Response({
                 'message': 'File uploaded successfully',
-                'path': saved_path
+                'path': file_path,
+                'key': hashed_text
             })
         else:
             return response.Response(serializer.errors, status=400)
