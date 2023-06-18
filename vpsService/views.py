@@ -320,10 +320,16 @@ class NewFileCreateAPIView(views.APIView):
         uid = ''.join(secrets.choice(characters) for _ in range(length))
         return uid
 
+    def hash_text(self, text):
+        md5_hash = hashlib.md5()
+        md5_hash.update(text.encode('utf-8'))
+        return md5_hash.hexdigest()
+
     def post(self, request):
         doc = Document()
         file_name = self.generate_uid(8)
         file_path = f'{settings.MEDIA_ROOT}/Contract/{file_name}.docx'
         file_url = 'http://' + request.META['HTTP_HOST'] + '/media/Contract/' + file_name + '.docx'
         doc.save(file_path)
-        return response.Response({'path': file_url})
+        hashed_text = self.hash_text(file_path)
+        return response.Response({'path': file_url, 'key': hashed_text})
