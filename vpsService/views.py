@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.shortcuts import render
 from django.conf import settings
 from rest_framework import views, generics, permissions, response, status
+from django.core.files.storage import default_storage
 
 from accounts.models import UserData, YurUser, FizUser
 from contracts.models import AgreementStatus, Service, Participant
