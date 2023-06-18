@@ -282,6 +282,7 @@ STATIC_URL = 'static/'
 # FTP_STORAGE_HOST = '185.74.5.202'
 # FTP_STORAGE_PORT = 21
 # FTP_STORAGE_PASSIVE_MODE = True
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

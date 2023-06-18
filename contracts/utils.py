@@ -231,3 +231,14 @@ def delete_file(file_path: str):
             logger.error(e)
     else:
         logger.info("The file does not exist.")
+
+
+def generate_uid(length):
+    characters = string.ascii_letters + string.digits
+    uid = ''.join(secrets.choice(characters) for _ in range(length))
+    return uid
+
+def hash_text(text):
+    md5_hash = hashlib.md5()
+    md5_hash.update(text.encode('utf-8'))
+    return md5_hash.hexdigest()

@@ -13,7 +13,7 @@ from rest_framework import views, generics, permissions, response, status
 
 from accounts.models import UserData, YurUser, FizUser
 from contracts.models import AgreementStatus, Service, Participant
-from contracts.utils import error_response_500, render_to_pdf, delete_file, create_qr
+from contracts.utils import error_response_500, render_to_pdf, delete_file, create_qr, generate_uid, hash_text
 from contracts.views import num2word
 from main.utils import responseErrorMessage
 from .models import (
@@ -301,12 +301,12 @@ class FileUploadAPIView(views.APIView):
     def post(self, request):
         serializer = FileUploadSerializer(data=request.data)
         if serializer.is_valid():
-            file = serializer.validated_data['file']
-            print(file)
-            serializer.save()
+            uploaded_file = serializer.validated_data['file']
+            destination_path = f'{settings.MEDIA_ROOT}/Contract'
+            saved_path = default_storage.save(destination_path, uploaded_file)
             return response.Response({
                 'message': 'File uploaded successfully',
-                'data': serializer.data
+                'path': saved_path
             })
         else:
             return response.Response(serializer.errors, status=400)
@@ -315,21 +315,11 @@ class FileUploadAPIView(views.APIView):
 class NewFileCreateAPIView(views.APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def generate_uid(self, length):
-        characters = string.ascii_letters + string.digits
-        uid = ''.join(secrets.choice(characters) for _ in range(length))
-        return uid
-
-    def hash_text(self, text):
-        md5_hash = hashlib.md5()
-        md5_hash.update(text.encode('utf-8'))
-        return md5_hash.hexdigest()
-
     def post(self, request):
         doc = Document()
-        file_name = self.generate_uid(8)
+        file_name = generate_uid(8)
         file_path = f'{settings.MEDIA_ROOT}/Contract/{file_name}.docx'
         file_url = 'http://' + request.META['HTTP_HOST'] + '/media/Contract/' + file_name + '.docx'
         doc.save(file_path)
-        hashed_text = self.hash_text(file_path)
+        hashed_text = hash_text(file_path)
         return response.Response({'path': file_url, 'key': hashed_text})
