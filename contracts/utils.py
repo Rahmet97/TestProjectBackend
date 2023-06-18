@@ -2,6 +2,9 @@ import logging
 import os
 import qrcode
 import subprocess
+import hashlib
+import secrets
+import string
 
 from io import BytesIO
 from django.http import HttpResponse
