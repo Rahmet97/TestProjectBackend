@@ -165,32 +165,38 @@ class VpsTariffSummAPIView(views.APIView):
     def calculate(configuration, total_cash=0):
         calculate_data = dict()
 
-        calculate_data[f"cpu * {configuration.get('count_vm')}"] = \
-            configuration.get("cpu") * configuration.get('count_vm') * VpsDevicePriceEnum.CPU
-        total_cash += configuration.get("cpu") * configuration.get('count_vm') * VpsDevicePriceEnum.CPU
+        count_vm = configuration.get('count_vm')
+        operation_system_versions = configuration.get("operation_system_versions", [])
+        if count_vm != len(operation_system_versions):
+            responseErrorMessage(
+                message="count vm is equal to operation system versions count",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
 
-        calculate_data[f"ram * {configuration.get('count_vm')}"] = \
-            configuration.get("ram") * configuration.get('count_vm') * VpsDevicePriceEnum.RАМ
-        total_cash += configuration.get("ram") * configuration.get('count_vm') * VpsDevicePriceEnum.RАМ
+        storage_type = configuration.get("storage_type")
+        storage_disk = configuration.get("storage_disk")
 
-        if configuration.get("storage_type") == "ssd":
-            calculate_data[f"ssd * {configuration.get('count_vm')}"] = \
-                configuration.get("ram") * configuration.get('count_vm') * VpsDevicePriceEnum.SSD
-            total_cash += configuration.get("storage_disk") * configuration.get('count_vm') * VpsDevicePriceEnum.SSD
-        elif configuration.get("storage_type") == "hhd":
-            calculate_data[f"hhd * {configuration.get('count_vm')}"] = \
-                configuration.get("ram") * configuration.get('count_vm') * VpsDevicePriceEnum.HHD
-            total_cash += configuration.get("storage_disk") * configuration.get('count_vm') * VpsDevicePriceEnum.HHD
+        calculate_data[f"cpu * {count_vm}"] = configuration.get("cpu") * count_vm * VpsDevicePriceEnum.CPU
+        total_cash += configuration.get("cpu") * count_vm * VpsDevicePriceEnum.CPU
+
+        calculate_data[f"ram * {count_vm}"] = configuration.get("ram") * count_vm * VpsDevicePriceEnum.RАМ
+        total_cash += configuration.get("ram") * count_vm * VpsDevicePriceEnum.RАМ
+
+        if storage_type == "ssd":
+            calculate_data[f"ssd * {count_vm}"] = storage_disk * count_vm * VpsDevicePriceEnum.SSD
+            total_cash += calculate_data[f"ssd * {count_vm}"]
+        elif storage_type == "hhd":
+            calculate_data[f"hhd * {count_vm}"] = storage_disk * count_vm * VpsDevicePriceEnum.HHD
+            total_cash += calculate_data[f"hhd * {count_vm}"]
 
         if configuration.get("internet"):
-            total_cash += configuration.get("internet") * VpsDevicePriceEnum.INTERNET * configuration.get('count_vm')
+            total_cash += configuration.get("internet", 0) * VpsDevicePriceEnum.INTERNET * count_vm
         if configuration.get("tasix"):
-            total_cash += configuration.get("tasix") * VpsDevicePriceEnum.TASIX * configuration.get('count_vm')
+            total_cash += configuration.get("tasix", 0) * VpsDevicePriceEnum.TASIX * count_vm
         if configuration.get("imut"):
-            total_cash += configuration.get("imut") * VpsDevicePriceEnum.IMUT * configuration.get('count_vm')
+            total_cash += configuration.get("imut", 0) * VpsDevicePriceEnum.IMUT * count_vm
 
-        for os_version in configuration.get("operation_system_versions"):
-            total_cash += os_version.price
+        total_cash += sum(os_version.price for os_version in operation_system_versions)
 
         calculate_data["total_cash"] = total_cash
         return calculate_data
@@ -205,5 +211,4 @@ class VpsTariffSummAPIView(views.APIView):
                 configuration=configuration
             )
 
-        print(context)
         return response.Response({"data": context}, status=status.HTTP_200_OK)

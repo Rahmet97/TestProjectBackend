@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.utils import timezone
 
-from rest_framework import serializers
+from rest_framework import serializers, status, generics
 from django.contrib.postgres.fields import ArrayField
 
 from billing.models import InvoiceElements
@@ -93,7 +93,7 @@ class VpsTariffSummSerializer(serializers.ModelSerializer):
         required=False, allow_null=True, queryset=VpsTariff.objects.all(), write_only=True
     )
     operation_system_versions = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=OperationSystemVersion.objects.all(),  write_only=True
+        many=True, queryset=OperationSystemVersion.objects.all(), write_only=True
     )
 
     count_vm = serializers.IntegerField()
@@ -104,3 +104,47 @@ class VpsTariffSummSerializer(serializers.ModelSerializer):
             "id", "tariff", "storage_type", "storage_disk", "cpu", "ram", "internet", "tasix", "imut",
             "operation_system_versions", "count_vm"
         ]
+
+    def to_internal_value(self, data):
+        # Modify the data before it is validated
+        # Get the 'tariff' value from the data dictionary
+        tariff = data.get("tariff")
+
+        # Define the condition for validating the fields
+        if_condition = (
+                tariff is None  # 'tariff' should be None
+                and all(
+                    data.get(field)  # All these fields should have values
+                    for field in ["storage_type", "storage_disk", "cpu", "ram"]
+                )
+                and any(
+                    data.get(field)  # At least one of these fields should have a value
+                    for field in ["internet", "tasix", "imut"]
+                )
+        )
+
+        # If 'tariff' has a value, update the data with values from 'vps_device'
+        if tariff:
+            tariff = generics.get_object_or_404(VpsTariff, id=data.get("tariff"))
+            vps_device = tariff.vps_device
+            data.update(
+                {
+                    "storage_type": vps_device.storage_type,
+                    "storage_disk": vps_device.storage_disk,
+                    "cpu": vps_device.cpu,
+                    "ram": vps_device.ram,
+                    "internet": vps_device.internet,
+                    "tasix": vps_device.tasix,
+                    "imut": vps_device.imut,
+                }
+            )
+        # If 'tariff' is None and the condition is not met, raise a validation error
+        elif not if_condition:
+            raise serializers.ValidationError(
+                detail={
+                    "message": "storage_type, storage_disk, cpu, ram fields are required and"
+                               "internet, tasix, imut one of these fields should not be null"
+                },
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        return super().to_internal_value(data)
