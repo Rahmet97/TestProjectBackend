@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from billing.serializers import VpsTariffSummSerializer
 from contracts.serializers import ServiceSerializerForContract
 from .models import (
     VpsServiceContract,
@@ -34,30 +35,6 @@ class OperationSystemSerializers(serializers.ModelSerializer):
         fields = ["id", "name"]
 
 
-# Serializer for VpsService Contract Create
-class VpsServiceContractConfigurationCreateSerializers(serializers.ModelSerializer):
-    tariff_id = serializers.IntegerField(required=False)
-    operation_system_version_id = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=OperationSystemVersion.objects.all()
-    )
-
-    class Meta:
-        model = VpsDevice
-        fields = [
-            "storage_type", "storage_disk", "cpu", "ram", "internet", "tasix", "tariff_id",
-            "operation_system_version_id"
-        ]
-
-
-class VpsServiceContractCreateSerializers(serializers.ModelSerializer):
-    configuration = VpsServiceContractConfigurationCreateSerializers(many=True)
-    user_tin_or_pin = serializers.CharField(max_length=50)
-
-    class Meta:
-        model = VpsServiceContract
-        fields = ["service", "contract_date", "configuration", "user_tin_or_pin", "contract_cash"]
-
-
 # Serializer for VpsService app showed
 class VpsDeviceSerializers(serializers.ModelSerializer):
     class Meta:
@@ -89,6 +66,30 @@ class VpsGetUserContractsListSerializer(serializers.ModelSerializer):
         representation["status"] = instance.get_status_display()
         representation["contract_status"] = instance.get_contract_status_display()
         return representation
+
+
+# Serializer for VpsService Contract Via Client Create
+# class VpsServiceContractConfigurationCreateSerializers(serializers.ModelSerializer):
+#     tariff_id = serializers.IntegerField(required=False)
+#     operation_system_version_id = serializers.PrimaryKeyRelatedField(
+#         many=True, queryset=OperationSystemVersion.objects.all()
+#     )
+#
+#     class Meta:
+#         model = VpsDevice
+#         fields = [
+#             "storage_type", "storage_disk", "cpu", "ram", "internet", "tasix", "tariff_id",
+#             "operation_system_version_id"
+#         ]
+
+
+class VpsServiceContractCreateSerializers(serializers.ModelSerializer):
+    configuration = VpsTariffSummSerializer(many=True)
+    user_tin_or_pin = serializers.CharField(max_length=50)
+
+    class Meta:
+        model = VpsServiceContract
+        fields = ["service", "contract_date", "configuration", "user_tin_or_pin", "contract_cash"]
 
 
 class FileUploadSerializer(serializers.Serializer):
