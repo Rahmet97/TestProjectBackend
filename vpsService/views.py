@@ -136,7 +136,7 @@ def convert_to_pdf(request):
     docx_file = request.FILES['docx_file']
 
     # Define the URL of your ONLYOFFICE Document Server
-    document_server_url = 'http://documentserver/'
+    document_server_url = 'http://onlyoffice-documentserver/'
 
     # Define the conversion URL
     conversion_url = f'{document_server_url}Convert'
