@@ -3,6 +3,7 @@ import hashlib
 import os
 import secrets
 import string
+import requests
 from datetime import datetime
 from docx import Document
 
@@ -327,3 +328,38 @@ class NewFileCreateAPIView(views.APIView):
         doc.save(file_path)
         hashed_text = hash_text(file_path)
         return response.Response({'path': file_url, 'key': hashed_text})
+
+
+def convert_to_pdf(request):
+    # Get the DOCX file from the request
+    docx_file = request.FILES['docx_file']
+
+    # Define the URL of your ONLYOFFICE Document Server
+    document_server_url = 'http://documentserver/'
+
+    # Define the conversion URL
+    conversion_url = f'{document_server_url}Convert'
+
+    # Set the conversion parameters
+    conversion_params = {
+        'async': 0,
+        'filetype': 'pdf',
+        'outputtype': 'stream',
+    }
+
+    # Send the conversion request
+    response = requests.post(conversion_url, files={'file': docx_file}, data=conversion_params)
+
+    # Check if the conversion was successful
+    if response.status_code == 200:
+        # Create a PDF file name
+        pdf_file_name = 'converted.pdf'
+
+        # Set the response headers to indicate it's a PDF file
+        response['Content-Disposition'] = f'attachment; filename="{pdf_file_name}"'
+        response['Content-Type'] = 'application/pdf'
+
+        return response
+
+    # Handle the case where conversion failed
+    return HttpResponse('Conversion failed', status=response.status_code)

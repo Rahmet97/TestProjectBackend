@@ -1,7 +1,7 @@
 from django.urls import path
 
 from . import views
-from .views import FileUploadAPIView, NewFileCreateAPIView
+from .views import FileUploadAPIView, NewFileCreateAPIView, convert_to_pdf
 
 # # Define the URL patterns
 urlpatterns = [
@@ -18,4 +18,5 @@ urlpatterns = [
     # path('reject/<int:pk>', views.VpsServiceContractDeleteAPIView.as_view(), name='VpsServiceContractDeleteAPIView'),
     path('file', FileUploadAPIView.as_view(), name='file_upload'),
     path('new-file', NewFileCreateAPIView.as_view(), name='newfile_upload'),
+    path('convert-to-pdf/', convert_to_pdf, name='convert_to_pdf'),
 ]
