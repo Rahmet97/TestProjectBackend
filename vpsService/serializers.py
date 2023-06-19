@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from billing.serializers import VpsTariffSummSerializer
+from contracts.models import Service
 from contracts.serializers import ServiceSerializerForContract
 from .models import (
     VpsServiceContract,
@@ -83,13 +84,14 @@ class VpsGetUserContractsListSerializer(serializers.ModelSerializer):
 #         ]
 
 
-class VpsServiceContractCreateSerializers(serializers.ModelSerializer):
+class VpsServiceContractCreateViaClientSerializers(serializers.ModelSerializer):
+    service = serializers.PrimaryKeyRelatedField(queryset=Service.objects.all())
     configuration = VpsTariffSummSerializer(many=True)
-    user_tin_or_pin = serializers.CharField(max_length=50)
+    save = serializers.BooleanField(default=False)
 
     class Meta:
         model = VpsServiceContract
-        fields = ["service", "contract_date", "configuration", "user_tin_or_pin", "contract_cash"]
+        fields = ["service", "contract_date", "configuration", "contract_cash", "save"]
 
 
 class FileUploadSerializer(serializers.Serializer):
