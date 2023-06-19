@@ -1,10 +1,10 @@
 import base64
 import hashlib
 import os
-import secrets
-import string
 import requests
 from datetime import datetime
+
+from django.http import HttpResponse
 from docx import Document
 
 from django.db.models import Q
