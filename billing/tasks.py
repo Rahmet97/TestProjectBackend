@@ -52,7 +52,8 @@ def send_periodic_request():
             if 'Co-location' in invoice_element.values():
                 colocation_contracts = Contract.objects.filter(
                     Q(contract_status__name="To'lov kutilmoqda") |
-                    Q(contract_status__name="Aktiv")
+                    Q(contract_status__name="Aktiv") |
+                    Q(is_free=False)
                 )
                 for contract in colocation_contracts:
                     logger.info(f"contract >>>> {contract.id_code}")

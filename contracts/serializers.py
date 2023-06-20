@@ -3,7 +3,7 @@ from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
-from rest_framework import serializers, status
+from rest_framework import serializers, status, exceptions
 from rest_framework.generics import get_object_or_404
 
 from main.utils import responseErrorMessage
@@ -384,15 +384,32 @@ class UserOldContractTarifDeviceSerializer(serializers.ModelSerializer):
 
 
 class AddOldContractSerializers(serializers.ModelSerializer):
-    file = serializers.SerializerMethodField()
 
     class Meta:
         model = Contract
-        fields = ["id", "service", "contract_number", "contract_date", "expiration_date", "tarif", "file"]
+        fields = ["id", "service", "contract_number", "contract_date", "expiration_date", "tarif", "is_free"]
+
+    def validate(self, attrs):
+        super().validate(attrs)
+        attrs = self.validate_contract_number(attrs)
+        return attrs
 
     @staticmethod
-    def get_file(obj):
-        return AddOldContractFilesSerializers(obj.old_contract_file.all(), many=True).data
+    def validate_contract_number(attrs):
+        contract_number, is_free = attrs.get("contract_number"), attrs.get("is_free")
+
+        if is_free and str(contract_number).startswith("DM"):
+            raise exceptions.ValidationError({
+                "message": f"This type of contract cannot be created with contract number {contract_number} !"
+            })
+
+        return attrs
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        representation["file"] = AddOldContractFilesSerializers(instance.old_contract_file.all(), many=True).data
+        return representation
 
 
 # Serializer for monitoring contract

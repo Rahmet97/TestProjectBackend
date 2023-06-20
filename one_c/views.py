@@ -31,7 +31,7 @@ class CreateInvoiceAPIView(views.APIView):
         comment = request.data['comment']
 
         if str(contract_id_code).lower().startswith("c", 0, 2):
-            contract = Contract.objects.get(id_code=contract_id_code)
+            contract = Contract.objects.get(id_code=contract_id_code, is_free=False)
         elif str(contract_id_code).lower().startswith("e", 0, 2):
             contract = ExpertiseServiceContract.objects.get(id_code=contract_id_code)
         else:
@@ -187,7 +187,7 @@ class UpdateContractPayedCash(views.APIView):
             contract = None
             contract_status = None
             if str(contract_code).lower().startswith("c", 0, 2):
-                contract = Contract.objects.get(id_code=contract_code)
+                contract = Contract.objects.get(id_code=contract_code, is_free=False)
                 contract_status = ContractStatus.objects.get(name='Aktiv')
             if str(contract_code).lower().startswith("e", 0, 2):
                 contract = ExpertiseServiceContract.objects.get(id_code=contract_code)
