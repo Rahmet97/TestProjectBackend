@@ -153,10 +153,10 @@ class VpsDevice(models.Model):
             price += self.cpu * VpsDevicePriceEnum.CPU
         if self.ram:
             price += self.ram * VpsDevicePriceEnum.RАМ
-        if self.internet:
-            price += self.internet * VpsDevicePriceEnum.INTERNET
-        if self.tasix:
-            price += self.tasix * VpsDevicePriceEnum.TASIX
+        if self.internet and self.internet >= 10:
+            price += (self.internet - 10) * VpsDevicePriceEnum.INTERNET
+        if self.tasix and self.tasix >= 100:
+            price += (self.tasix - 100) * VpsDevicePriceEnum.TASIX
         if self.imut:
             price += self.imut * VpsDevicePriceEnum.IMUT
 
