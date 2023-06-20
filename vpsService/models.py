@@ -137,6 +137,8 @@ class VpsDevice(models.Model):
         to=OperationSystemVersion, on_delete=models.CASCADE, related_name="vps_device_operation_system_version"
     )
 
+    # default IPV4_ADDRESS=1
+
     # Device price
     device_price = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
 
