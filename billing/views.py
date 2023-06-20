@@ -189,10 +189,13 @@ class VpsTariffSummAPIView(views.APIView):
             calculate_data[f"hhd * {count_vm}"] = storage_disk * count_vm * VpsDevicePriceEnum.HHD
             total_cash += calculate_data[f"hhd * {count_vm}"]
 
-        if configuration.get("internet"):
-            total_cash += configuration.get("internet", 0) * VpsDevicePriceEnum.INTERNET * count_vm
-        if configuration.get("tasix"):
-            total_cash += configuration.get("tasix", 0) * VpsDevicePriceEnum.TASIX * count_vm
+        internet, tasix = configuration.get("internet", 0), configuration.get("tasix", 0)
+        if configuration.get("internet") and internet <= 10:
+            total_cash += internet * VpsDevicePriceEnum.INTERNET * count_vm
+
+        if configuration.get("tasix") and tasix <= 100:
+            total_cash += tasix * VpsDevicePriceEnum.TASIX * count_vm
+
         if configuration.get("imut"):
             total_cash += configuration.get("imut", 0) * VpsDevicePriceEnum.IMUT * count_vm
 
