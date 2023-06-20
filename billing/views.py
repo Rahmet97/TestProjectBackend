@@ -162,7 +162,7 @@ class VpsTariffSummAPIView(views.APIView):
     permission_classes = []
 
     @staticmethod
-    def calculate(configuration, total_cash=0):
+    def calculate(configuration, total_cash=VpsDevicePriceEnum.IPV4_ADDRESS):
         calculate_data = dict()
 
         count_vm = configuration.get('count_vm')

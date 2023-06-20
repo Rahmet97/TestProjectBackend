@@ -141,7 +141,7 @@ class VpsDevice(models.Model):
     device_price = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
 
     def calculate_price(self):
-        price = 0
+        price = VpsDevicePriceEnum.IPV4_ADDRESS
 
         if self.storage_disk:
             price += self.storage_disk * {
