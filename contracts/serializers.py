@@ -391,11 +391,11 @@ class AddOldContractSerializers(serializers.ModelSerializer):
 
     def validate(self, attrs):
         super().validate(attrs)
-        attrs = self.validate_contract_number(attrs)
+        attrs = self.contract_number_validate(attrs)
         return attrs
 
     @staticmethod
-    def validate_contract_number(attrs):
+    def contract_number_validate(attrs):
         contract_number, is_free = attrs.get("contract_number"), attrs.get("is_free")
 
         if is_free and str(contract_number).startswith("DM"):
