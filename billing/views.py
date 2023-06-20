@@ -185,9 +185,9 @@ class VpsTariffSummAPIView(views.APIView):
         if storage_type == "ssd":
             calculate_data[f"ssd * {count_vm}"] = storage_disk * count_vm * VpsDevicePriceEnum.SSD
             total_cash += calculate_data[f"ssd * {count_vm}"]
-        elif storage_type == "hhd":
-            calculate_data[f"hhd * {count_vm}"] = storage_disk * count_vm * VpsDevicePriceEnum.HHD
-            total_cash += calculate_data[f"hhd * {count_vm}"]
+        elif storage_type == "hdd":
+            calculate_data[f"hdd * {count_vm}"] = storage_disk * count_vm * VpsDevicePriceEnum.HDD
+            total_cash += calculate_data[f"hdd * {count_vm}"]
 
         internet, tasix = configuration.get("internet", 0), configuration.get("tasix", 0)
         if configuration.get("internet") and internet >= 10:

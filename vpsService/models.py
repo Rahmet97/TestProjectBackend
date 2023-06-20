@@ -11,7 +11,7 @@ from contracts.models import (
 from main.models import BaseModel
 from one_c.models import PayedInformation
 
-HHD, SSD = ("hhd", "ssd")
+HDD, SSD = ("hdd", "ssd")
 
 
 class VpsServiceContract(models.Model):
@@ -118,7 +118,7 @@ class OperationSystemVersion(BaseModel):
 
 class VpsDevice(models.Model):
     STORAGE_TYPE_CHOICES = (
-        (HHD, HHD),
+        (HDD, HDD),
         (SSD, SSD),
     )
     storage_type = models.CharField(max_length=3, choices=STORAGE_TYPE_CHOICES)
@@ -147,7 +147,7 @@ class VpsDevice(models.Model):
 
         if self.storage_disk:
             price += self.storage_disk * {
-                HHD: VpsDevicePriceEnum.HHD,
+                HDD: VpsDevicePriceEnum.HDD,
                 SSD: VpsDevicePriceEnum.SSD,
             }.get(self.storage_type, 0)
 
