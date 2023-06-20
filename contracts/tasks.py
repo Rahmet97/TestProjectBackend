@@ -79,15 +79,14 @@ def file_downloader(base64file, pk):
 
 @shared_task
 def generate_contract_number(obj_pk):
-
-    prefix = f"C{obj_pk}"
-    
     contract_obj = Contract.objects.get(id=obj_pk)
-    contract_obj.id_code = prefix
+
+    last_contract = Contract.objects.filter(is_free=False).last()
+    if last_contract:
+        number = int(last_contract.contract_number.split("-")[-1]) + 1
+    else:
+        number = 1
+
+    contract_obj.id_code = f"C{number}"
     contract_obj.save()
     return f"Updated {contract_obj.contract_number} contract's id_code"
-
-
-@shared_task
-def hello():
-    return "Hello World!"

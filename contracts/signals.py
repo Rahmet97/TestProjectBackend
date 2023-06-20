@@ -7,6 +7,6 @@ from .tasks import generate_contract_number
 
 @receiver(post_save, sender=Contract)
 def generate_contract_id(sender, instance, created, **kwargs):
-    if created:
+    if created and not instance.is_free:
         obj_pk = instance.pk
         generate_contract_number.delay(obj_pk)
