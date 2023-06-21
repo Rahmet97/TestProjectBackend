@@ -1,0 +1,518 @@
+[
+{
+    "model": "contracts.contractstatus",
+    "pk": 1,
+    "fields": {
+        "name": "Yangi"
+    }
+},
+{
+    "model": "contracts.contractstatus",
+    "pk": 2,
+    "fields": {
+        "name": "Bekor qilingan"
+    }
+},
+{
+    "model": "contracts.contractstatus",
+    "pk": 3,
+    "fields": {
+        "name": "To'lov kutilmoqda"
+    }
+},
+{
+    "model": "contracts.contractstatus",
+    "pk": 4,
+    "fields": {
+        "name": "Aktiv"
+    }
+},
+{
+    "model": "contracts.contractstatus",
+    "pk": 5,
+    "fields": {
+        "name": "Yakunlangan"
+    }
+},
+{
+    "model": "contracts.contractstatus",
+    "pk": 6,
+    "fields": {
+        "name": "Rad etilgan"
+    }
+},
+{
+    "model": "contracts.status",
+    "pk": 1,
+    "fields": {
+        "name": "Yangi"
+    }
+},
+{
+    "model": "contracts.status",
+    "pk": 2,
+    "fields": {
+        "name": "Ko'rib chiqilmoqda"
+    }
+},
+{
+    "model": "contracts.status",
+    "pk": 3,
+    "fields": {
+        "name": "Jarayonda"
+    }
+},
+{
+    "model": "contracts.status",
+    "pk": 4,
+    "fields": {
+        "name": "Bajarildi"
+    }
+},
+{
+    "model": "contracts.tarif",
+    "pk": 1,
+    "fields": {
+        "name": "Rack-1",
+        "group": 1,
+        "price": "14490000.00"
+    }
+},
+{
+    "model": "contracts.tarif",
+    "pk": 2,
+    "fields": {
+        "name": "Unit-1",
+        "group": 1,
+        "price": "396750.00"
+    }
+},
+{
+    "model": "contracts.element",
+    "pk": 1,
+    "fields": {
+        "name": "Elektr istemoli",
+        "cost": "23000.00",
+        "keyword": "electricity",
+        "new_cost": null,
+        "new_cost_date": null,
+        "quantity": 100,
+        "group": 1,
+        "tariff": 2
+    }
+},
+{
+    "model": "contracts.element",
+    "pk": 3,
+    "fields": {
+        "name": "ODF",
+        "cost": "23000.00",
+        "keyword": "odf",
+        "new_cost": "25000.00",
+        "new_cost_date": "2023-05-28",
+        "quantity": 1,
+        "group": 1,
+        "tariff": 2
+    }
+},
+{
+    "model": "contracts.element",
+    "pk": 6,
+    "fields": {
+        "name": "Elektr istemoli",
+        "cost": "23000.00",
+        "keyword": "electricity",
+        "new_cost": null,
+        "new_cost_date": null,
+        "quantity": 7500,
+        "group": 1,
+        "tariff": 1
+    }
+},
+{
+    "model": "contracts.document",
+    "pk": 3,
+    "fields": {
+        "name": "Loyiha xujjatlari",
+        "file": ""
+    }
+},
+{
+    "model": "contracts.document",
+    "pk": 4,
+    "fields": {
+        "name": "Xat",
+        "file": ""
+    }
+},
+{
+    "model": "contracts.document",
+    "pk": 6,
+    "fields": {
+        "name": "Shartnoma",
+        "file": ""
+    }
+},
+{
+    "model": "contracts.service",
+    "pk": 1,
+    "fields": {
+        "name": "Co-location",
+        "description": "Tarmoq va/yoki server qurilmalarini Data markazga joylashtirish",
+        "image": "Service/image-2_cgyVadA.png",
+        "group": 1,
+        "user_type": 3,
+        "pinned_user": 5,
+        "period": 1,
+        "need_documents": [
+            6
+        ]
+    }
+},
+{
+    "model": "contracts.service",
+    "pk": 2,
+    "fields": {
+        "name": "VPS",
+        "description": "Virtual serverlar ajratish xizmati",
+        "image": "Service/cloud-server.png",
+        "group": 1,
+        "user_type": 3,
+        "pinned_user": null,
+        "period": 1,
+        "need_documents": [
+            6
+        ]
+    }
+},
+{
+    "model": "contracts.service",
+    "pk": 3,
+    "fields": {
+        "name": "Hosting",
+        "description": "Web-saytlar uchun joy ajratish xizmati",
+        "image": "Service/www.png",
+        "group": 1,
+        "user_type": 3,
+        "pinned_user": null,
+        "period": 1,
+        "need_documents": [
+            6
+        ]
+    }
+},
+{
+    "model": "contracts.service",
+    "pk": 4,
+    "fields": {
+        "name": "TTV",
+        "description": "Telekommunikatsiya texnik vositalarini sertifikatlashtirish",
+        "image": "Service/award.png",
+        "group": 3,
+        "user_type": 3,
+        "pinned_user": 7,
+        "period": 10,
+        "need_documents": [
+            6
+        ]
+    }
+},
+{
+    "model": "contracts.service",
+    "pk": 5,
+    "fields": {
+        "name": "EKSPERTIZA",
+        "description": "Ishchi loyixa-smeta xujjatlari ekspertizasi",
+        "image": "Service/search.png",
+        "group": 4,
+        "user_type": 2,
+        "pinned_user": 8,
+        "period": 1,
+        "need_documents": [
+            6
+        ]
+    }
+},
+{
+    "model": "contracts.service",
+    "pk": 6,
+    "fields": {
+        "name": "E-KALIT",
+        "description": "Ximoyalangan elektron raqamli imzo kaliti va tokeni",
+        "image": "Service/pen-drive_jt7QG4j.png",
+        "group": 2,
+        "user_type": 3,
+        "pinned_user": 7,
+        "period": 1,
+        "need_documents": [
+            6
+        ]
+    }
+},
+{
+    "model": "contracts.service",
+    "pk": 7,
+    "fields": {
+        "name": "ERI",
+        "description": "Elektron raqamli imzo kaliti va sertifikati",
+        "image": "Service/key.png",
+        "group": 2,
+        "user_type": 3,
+        "pinned_user": 7,
+        "period": 1,
+        "need_documents": [
+            6
+        ]
+    }
+},
+{
+    "model": "contracts.service",
+    "pk": 8,
+    "fields": {
+        "name": "RSA",
+        "description": "Xalqaro formatdagi elektron raqamli imzo kaliti",
+        "image": "Service/key-1.png",
+        "group": 2,
+        "user_type": 3,
+        "pinned_user": 7,
+        "period": 1,
+        "need_documents": [
+            6
+        ]
+    }
+},
+{
+    "model": "contracts.offer",
+    "pk": 1,
+    "fields": {
+        "service": 1,
+        "file": "Offer/oferta_yagona_billing.pdf"
+    }
+},
+{
+    "model": "contracts.device",
+    "pk": 1,
+    "fields": {
+        "name": "Firewall"
+    }
+},
+{
+    "model": "contracts.device",
+    "pk": 2,
+    "fields": {
+        "name": "Router"
+    }
+},
+{
+    "model": "contracts.device",
+    "pk": 3,
+    "fields": {
+        "name": "Switch"
+    }
+},
+{
+    "model": "contracts.device",
+    "pk": 4,
+    "fields": {
+        "name": "Server"
+    }
+},
+{
+    "model": "contracts.device",
+    "pk": 5,
+    "fields": {
+        "name": "DSS"
+    }
+},
+{
+    "model": "contracts.device",
+    "pk": 6,
+    "fields": {
+        "name": "Backup"
+    }
+},
+{
+    "model": "contracts.connetmethod",
+    "pk": 1,
+    "fields": {
+        "name": "AK \"UZTELECOM\"",
+        "price": "0.00"
+    }
+},
+{
+    "model": "contracts.connetmethod",
+    "pk": 2,
+    "fields": {
+        "name": "\"Sarkor-Telecom\" MCHJ",
+        "price": "0.00"
+    }
+},
+{
+    "model": "contracts.connetmethod",
+    "pk": 3,
+    "fields": {
+        "name": "ODF",
+        "price": "23000.00"
+    }
+},
+{
+    "model": "contracts.agreementstatus",
+    "pk": 1,
+    "fields": {
+        "name": "Yuborilgan"
+    }
+},
+{
+    "model": "contracts.agreementstatus",
+    "pk": 2,
+    "fields": {
+        "name": "Ko'rib chiqilmoqda"
+    }
+},
+{
+    "model": "contracts.agreementstatus",
+    "pk": 3,
+    "fields": {
+        "name": "Kelishildi"
+    }
+},
+{
+    "model": "contracts.agreementstatus",
+    "pk": 4,
+    "fields": {
+        "name": "Rad etildi"
+    }
+},
+{
+    "model": "contracts.participant",
+    "pk": 1,
+    "fields": {
+        "service": 1
+    }
+},
+{
+    "model": "contracts.participant",
+    "pk": 2,
+    "fields": {
+        "service": 5
+    }
+},
+{
+    "model": "contracts.serviceparticipants",
+    "pk": 8,
+    "fields": {
+        "participant": 2,
+        "role": 1,
+        "with_eds": true
+    }
+},
+{
+    "model": "contracts.serviceparticipants",
+    "pk": 9,
+    "fields": {
+        "participant": 2,
+        "role": 2,
+        "with_eds": false
+    }
+},
+{
+    "model": "contracts.serviceparticipants",
+    "pk": 12,
+    "fields": {
+        "participant": 1,
+        "role": 1,
+        "with_eds": true
+    }
+},
+{
+    "model": "contracts.serviceparticipants",
+    "pk": 13,
+    "fields": {
+        "participant": 1,
+        "role": 2,
+        "with_eds": false
+    }
+},
+{
+    "model": "contracts.serviceparticipants",
+    "pk": 14,
+    "fields": {
+        "participant": 1,
+        "role": 3,
+        "with_eds": false
+    }
+},
+{
+    "model": "contracts.serviceparticipants",
+    "pk": 15,
+    "fields": {
+        "participant": 2,
+        "role": 3,
+        "with_eds": false
+    }
+},
+{
+    "model": "contracts.serviceparticipants",
+    "pk": 16,
+    "fields": {
+        "participant": 2,
+        "role": 11,
+        "with_eds": false
+    }
+},
+{
+    "model": "contracts.serviceparticipants",
+    "pk": 17,
+    "fields": {
+        "participant": 1,
+        "role": 11,
+        "with_eds": false
+    }
+},
+{
+    "model": "contracts.savedservice",
+    "pk": 1,
+    "fields": {
+        "user": 8,
+        "services": [
+            6,
+            1,
+            5
+        ]
+    }
+},
+{
+    "model": "contracts.savedservice",
+    "pk": 2,
+    "fields": {
+        "user": 3,
+        "services": []
+    }
+},
+{
+    "model": "contracts.savedservice",
+    "pk": 3,
+    "fields": {
+        "user": 7,
+        "services": []
+    }
+},
+{
+    "model": "contracts.savedservice",
+    "pk": 4,
+    "fields": {
+        "user": 6,
+        "services": [
+            1
+        ]
+    }
+},
+{
+    "model": "contracts.savedservice",
+    "pk": 5,
+    "fields": {
+        "user": 10,
+        "services": []
+    }
+}
+]
