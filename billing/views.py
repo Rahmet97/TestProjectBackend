@@ -173,31 +173,40 @@ class VpsTariffSummAPIView(views.APIView):
                 status_code=status.HTTP_400_BAD_REQUEST
             )
 
-        storage_type = configuration.get("storage_type")
-        storage_disk = configuration.get("storage_disk")
+        storage_type, storage_disk = configuration.get("storage_type"), configuration.get("storage_disk")
+        internet, tasix = configuration.get("internet", 0), configuration.get("tasix", 0)
 
-        calculate_data[f"cpu * {count_vm}"] = configuration.get("cpu") * count_vm * VpsDevicePriceEnum.CPU
+        calculate_data["cpu"] = configuration.get("cpu") * count_vm * VpsDevicePriceEnum.CPU
         total_cash += configuration.get("cpu") * count_vm * VpsDevicePriceEnum.CPU
 
-        calculate_data[f"ram * {count_vm}"] = configuration.get("ram") * count_vm * VpsDevicePriceEnum.RАМ
+        calculate_data["ram"] = configuration.get("ram") * count_vm * VpsDevicePriceEnum.RАМ
         total_cash += configuration.get("ram") * count_vm * VpsDevicePriceEnum.RАМ
 
         if storage_type == "ssd":
-            calculate_data[f"ssd * {count_vm}"] = storage_disk * count_vm * VpsDevicePriceEnum.SSD
-            total_cash += calculate_data[f"ssd * {count_vm}"]
+            calculate_data[f"storage_disk_price"] = storage_disk * count_vm * VpsDevicePriceEnum.SSD
+            calculate_data["storage_type"] = storage_type
+            total_cash += calculate_data["storage_disk_price"]
         elif storage_type == "hdd":
-            calculate_data[f"hdd * {count_vm}"] = storage_disk * count_vm * VpsDevicePriceEnum.HDD
-            total_cash += calculate_data[f"hdd * {count_vm}"]
+            calculate_data[f"storage_disk_price"] = storage_disk * count_vm * VpsDevicePriceEnum.HDD
+            calculate_data["storage_type"] = storage_type
+            total_cash += calculate_data["storage_disk_price"]
 
         internet, tasix = configuration.get("internet", 0), configuration.get("tasix", 0)
+        imut = configuration.get("imut")
+
+        calculate_data["internet"], calculate_data["tasix"], calculate_data["imut"] = 0, 0, 0
+
         if configuration.get("internet") and internet >= 10:
-            total_cash += (internet-10) * VpsDevicePriceEnum.INTERNET * count_vm
+            calculate_data["internet"] = (internet-10) * VpsDevicePriceEnum.INTERNET * count_vm
+            total_cash += calculate_data["internet"]
 
         if configuration.get("tasix") and tasix >= 100:
-            total_cash += (tasix-100) * VpsDevicePriceEnum.TASIX * count_vm
+            calculate_data["tasix"] = (tasix-100) * VpsDevicePriceEnum.TASIX * count_vm
+            total_cash += calculate_data["tasix"]
 
         if configuration.get("imut"):
-            total_cash += configuration.get("imut", 0) * VpsDevicePriceEnum.IMUT * count_vm
+            calculate_data["imut"] = imut * VpsDevicePriceEnum.IMUT * count_vm
+            total_cash += calculate_data["imut"]
 
         total_cash += sum(os_version.price for os_version in operation_system_versions)
 
@@ -208,10 +217,8 @@ class VpsTariffSummAPIView(views.APIView):
         serializer = self.serializer_class(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
 
-        context = dict()
+        context = []
         for configuration_id, configuration in enumerate(serializer.validated_data):
-            context[f"configuration {configuration_id + 1}*{configuration.get('count_vm')}"] = self.calculate(
-                configuration=configuration
-            )
+            context.append(self.calculate(configuration=configuration))
 
-        return response.Response({"data": context}, status=status.HTTP_200_OK)
+        return response.Response({"configurations_prices": context}, status=status.HTTP_200_OK)
