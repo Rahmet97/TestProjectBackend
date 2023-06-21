@@ -1,18 +1,23 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
+from rest_framework import status
 
+from main.utils import responseErrorMessage
 from .models import UserData
 
 
-@receiver(post_save, sender=UserData)
-def generate_contract_id(sender, instance, created, **kwargs):
-    if not created:
+@receiver(m2m_changed, sender=UserData.group.through)
+def handle_user_group_change(sender, instance, action, pk_set, **kwargs):
+    if action == 'post_add':
+        # The related groups are about to be cleared
         existing_instance = UserData.objects.filter(
-            role=instance.role, group__in=instance.group.all()
+            role=instance.role,
+            group__in=instance.group.all()
         ).exclude(id=instance.pk)
-        print("update section >> ", existing_instance)
 
         if existing_instance.exists() and instance.status_action == instance.StatusChoices.EMPLOYEE:
-            print("2 >> ", existing_instance)
-            instance.group.clear()
-            instance.save()
+            # instance.group.remove(*existing_instance.last().group.all())
+            responseErrorMessage(
+                message="This combination of role and group already exists.",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
