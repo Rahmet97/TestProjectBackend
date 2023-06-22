@@ -6,6 +6,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 from rest_framework import generics, views, response, status, permissions
 
+from contracts.utils import NumbersToWord
 from main.utils import responseErrorMessage
 
 from accounts.models import Group
@@ -16,6 +17,8 @@ from billing.serializers import RequestSerializer, InvoiceElementsSerializer, Vp
 from contracts.models import Tarif, Element, TarifLog, Service
 from contracts.serializers import TarifSerializer, ElementSerializer, GetElementSerializer
 from vpsService.enum_utils import VpsDevicePriceEnum
+
+num2word = NumbersToWord()
 
 
 class ElementAPIView(generics.CreateAPIView):
@@ -157,68 +160,86 @@ class ExpertiseTariffSummAPIView(views.APIView):
         return response.Response({"total_cash": res}, status=status.HTTP_200_OK)
 
 
+def calculate_vps(configuration: dict, total_cash=VpsDevicePriceEnum.IPV4_ADDRESS) -> dict:
+    """
+        billing calculate vps service
+    """
+    calculate_data = dict()
+
+    count_vm = configuration.get('count_vm')
+    operation_system_versions = configuration.get("operation_system_versions", [])
+    if count_vm != len(operation_system_versions):
+        responseErrorMessage(
+            message="count vm is equal to operation system versions count",
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+    storage_type, storage_disk = configuration.get("storage_type"), configuration.get("storage_disk")
+
+    calculate_data["cpu"] = configuration.get("cpu") * count_vm * VpsDevicePriceEnum.CPU
+    calculate_data["cpu_price_text"] = num2word.change_num_to_word(int(calculate_data["cpu"]))
+    total_cash += calculate_data["cpu"]
+
+    calculate_data["ram"] = configuration.get("ram") * count_vm * VpsDevicePriceEnum.RАМ
+    calculate_data["ram_price_text"] = num2word.change_num_to_word(int(calculate_data["ram"]))
+    total_cash += calculate_data["ram"]
+
+    if storage_type == "ssd":
+        calculate_data[f"storage_disk_price"] = storage_disk * count_vm * VpsDevicePriceEnum.SSD
+        calculate_data[f"storage_disk_price_text"] = num2word.change_num_to_word(
+            int(calculate_data["storage_disk_price"]))
+        calculate_data["storage_type"] = storage_type
+        total_cash += calculate_data["storage_disk_price"]
+    elif storage_type == "hdd":
+        calculate_data[f"storage_disk_price"] = storage_disk * count_vm * VpsDevicePriceEnum.HDD
+        calculate_data[f"storage_disk_price_text"] = num2word.change_num_to_word(int(calculate_data["storage_disk_price"]))
+        calculate_data["storage_type"] = storage_type
+        total_cash += calculate_data["storage_disk_price"]
+
+    internet, tasix = configuration.get("internet", 0), configuration.get("tasix", 0)
+    imut = configuration.get("imut", 0)
+
+    calculate_data["internet"], calculate_data["tasix"], calculate_data["imut"] = 0, 0, 0
+
+    if configuration.get("internet") and internet >= 10:
+        calculate_data["internet"] = (internet - 10) * VpsDevicePriceEnum.INTERNET * count_vm
+        total_cash += calculate_data["internet"]
+
+    if configuration.get("tasix") and tasix >= 100:
+        calculate_data["tasix"] = (tasix - 100) * VpsDevicePriceEnum.TASIX * count_vm
+        total_cash += calculate_data["tasix"]
+
+    if configuration.get("imut"):
+        calculate_data["imut"] = imut * VpsDevicePriceEnum.IMUT * count_vm
+        total_cash += calculate_data["imut"]
+
+    calculate_data["internet_price_text"] = num2word.change_num_to_word(int(calculate_data["internet"]))
+    calculate_data["tasix_price_text"] = num2word.change_num_to_word(int(calculate_data["tasix"]))
+    calculate_data["imut_price_text"] = num2word.change_num_to_word(int(calculate_data["imut"]))
+
+    total_cash += sum(os_version.price for os_version in operation_system_versions)
+
+    calculate_data["total_cash"] = total_cash
+    calculate_data["total_cash_price_text"] = num2word.change_num_to_word(int(total_cash))
+    return calculate_data
+
+
 class VpsTariffSummAPIView(views.APIView):
     serializer_class = VpsTariffSummSerializer
     permission_classes = []
-
-    @staticmethod
-    def calculate(configuration, total_cash=VpsDevicePriceEnum.IPV4_ADDRESS):
-        calculate_data = dict()
-
-        count_vm = configuration.get('count_vm')
-        operation_system_versions = configuration.get("operation_system_versions", [])
-        if count_vm != len(operation_system_versions):
-            responseErrorMessage(
-                message="count vm is equal to operation system versions count",
-                status_code=status.HTTP_400_BAD_REQUEST
-            )
-
-        storage_type, storage_disk = configuration.get("storage_type"), configuration.get("storage_disk")
-        internet, tasix = configuration.get("internet", 0), configuration.get("tasix", 0)
-
-        calculate_data["cpu"] = configuration.get("cpu") * count_vm * VpsDevicePriceEnum.CPU
-        total_cash += configuration.get("cpu") * count_vm * VpsDevicePriceEnum.CPU
-
-        calculate_data["ram"] = configuration.get("ram") * count_vm * VpsDevicePriceEnum.RАМ
-        total_cash += configuration.get("ram") * count_vm * VpsDevicePriceEnum.RАМ
-
-        if storage_type == "ssd":
-            calculate_data[f"storage_disk_price"] = storage_disk * count_vm * VpsDevicePriceEnum.SSD
-            calculate_data["storage_type"] = storage_type
-            total_cash += calculate_data["storage_disk_price"]
-        elif storage_type == "hdd":
-            calculate_data[f"storage_disk_price"] = storage_disk * count_vm * VpsDevicePriceEnum.HDD
-            calculate_data["storage_type"] = storage_type
-            total_cash += calculate_data["storage_disk_price"]
-
-        internet, tasix = configuration.get("internet", 0), configuration.get("tasix", 0)
-        imut = configuration.get("imut")
-
-        calculate_data["internet"], calculate_data["tasix"], calculate_data["imut"] = 0, 0, 0
-
-        if configuration.get("internet") and internet >= 10:
-            calculate_data["internet"] = (internet-10) * VpsDevicePriceEnum.INTERNET * count_vm
-            total_cash += calculate_data["internet"]
-
-        if configuration.get("tasix") and tasix >= 100:
-            calculate_data["tasix"] = (tasix-100) * VpsDevicePriceEnum.TASIX * count_vm
-            total_cash += calculate_data["tasix"]
-
-        if configuration.get("imut"):
-            calculate_data["imut"] = imut * VpsDevicePriceEnum.IMUT * count_vm
-            total_cash += calculate_data["imut"]
-
-        total_cash += sum(os_version.price for os_version in operation_system_versions)
-
-        calculate_data["total_cash"] = total_cash
-        return calculate_data
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
 
-        context = []
+        context, configurations_total_price = [], 0
         for configuration_id, configuration in enumerate(serializer.validated_data):
-            context.append(self.calculate(configuration=configuration))
+            item = calculate_vps(configuration=configuration)
+            configurations_total_price += item.get("total_cash", 0)
+            context.append(item)
 
-        return response.Response({"configurations_prices": context}, status=status.HTTP_200_OK)
+        return response.Response({
+            "configurations_prices": context,
+            "configurations_total_price": configurations_total_price,
+            "configurations_total_price_text": num2word.change_num_to_word(int(configurations_total_price))
+        }, status=status.HTTP_200_OK)

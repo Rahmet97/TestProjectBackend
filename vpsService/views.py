@@ -15,6 +15,7 @@ from django.core.files.storage import default_storage
 from rest_framework.decorators import api_view
 
 from accounts.models import UserData, YurUser, FizUser, Role
+from billing.views import calculate_vps
 from contracts.models import AgreementStatus, Service, Participant
 from contracts.utils import error_response_500, render_to_pdf, delete_file, create_qr, generate_uid, hash_text
 from contracts.views import num2word
@@ -209,7 +210,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
 
     def post(self, request):
         context = dict()
-        request_objects_serializers = VpsServiceContractCreateViaClientSerializers(data=request.data, many=True)
+        request_objects_serializers = VpsServiceContractCreateViaClientSerializers(data=request.data)
         request_objects_serializers.is_valid(raise_exception=True)
         print("request_objects_serializers >> ", request_objects_serializers)
 
@@ -227,16 +228,27 @@ class CreateVpsServiceContractViaClientView(views.APIView):
         date = request_objects_serializers.validated_data.get("contract_date")
         context['datetime'] = datetime.fromisoformat(str(date)).strftime('%d.%m.%Y')
 
-        context['price'] = request_objects_serializers.validated_data.get("contract_cash")
-        context['price_text'] = num2word.change_num_to_word(int(context['price']))
+        # context['price'] = request_objects_serializers.validated_data.get("contract_cash")
+        # context['price_text'] = num2word.change_num_to_word(int(context['price']))
+        #
+        # context['without_nds_price'] = float(context['price']) * 0.88
+        # context['without_nds_price_text'] = num2word.change_num_to_word(int(context['without_nds_price']))
+        #
+        # context['only_nds_price'] = float(context['price']) * 0.12
+        # context['only_nds_price_text'] = num2word.change_num_to_word(int(context['only_nds_price']))
 
-        context['without_nds_price'] = float(context['price']) * 0.88
-        context['without_nds_price_text'] = num2word.change_num_to_word(int(context['without_nds_price']))
+        configurations = request_objects_serializers.validated_data.get("configuration")
+        configurations_context,  configurations_total_price = [], 0
+        for configuration_id, configuration in enumerate(configurations):
+            item = calculate_vps(configuration=configuration)
+            configurations_total_price += item.get("total_cash", 0)
+            configurations_context.append(item)
 
-        context['only_nds_price'] = float(context['price']) * 0.12
-        context['only_nds_price_text'] = num2word.change_num_to_word(int(context['only_nds_price']))
-
-        context['configuration'] = request_objects_serializers.validated_data.get("configuration")
+        context['configurations'] = {
+            "configurations_total_price": configurations_total_price,
+            "configurations_total_price_text": num2word.change_num_to_word(int(configurations_total_price)),
+            "configurations": configurations_context
+        }
 
         context['host'] = 'http://' + request.META['HTTP_HOST']
         context['qr_code'] = ''
@@ -280,7 +292,11 @@ class CreateVpsServiceContractViaClientView(views.APIView):
 
             # rendered html file
             contract_file_for_base64_pdf = None
-            template_name = "shablonEkspertiza.html"
+
+            template_name = "shablonFizik.html"  # fizik
+            if request.user.type == 2:  # yuridik
+                template_name = "yurUzRuVPS.html"
+
             pdf = render_to_pdf(template_src=template_name, context_dict=context)
             if pdf:
                 output_dir = '/usr/src/app/media/Contract/pdf'
@@ -353,7 +369,11 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             # return render(request=request, template_name=template_name, context=context)
 
         print("request_objects_serializers.data >> ", request_objects_serializers.data)
-        template_name = "shablonEkspertiza.html"
+
+        template_name = "shablonFizik.html"  # fizik
+        if request.user.type == 2:  # yuridik
+            template_name = "yurUzRuVPS.html"
+
         return render(request=request, template_name=template_name, context=context)
 
 
