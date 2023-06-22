@@ -99,6 +99,7 @@ class Role(models.Model):
         ADMIN = "admin", "admin"
         DEPARTMENT_BOSS = "departament boshlig'i", "departament boshlig'i"
         SECTION_HEAD = "bo'lim boshlig'i", "bo'lim boshlig'i"
+        SECTION_SPECIALIST = "bo'lim mutaxasisi", "bo'lim mutaxasisi"
         DEPUTY_DIRECTOR = "direktor o'rinbosari", "direktor o'rinbosari"
         DIRECTOR = "direktor", "direktor"
         # ECONOMIST = "iqtisodchi", "iqtisodchi"
