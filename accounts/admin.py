@@ -13,12 +13,20 @@ class RolePermissionAdmin(admin.ModelAdmin):
 
 @admin.register(FizUser)
 class FizUserAdmin(admin.ModelAdmin):
-    list_display = ["pin", "get_short_full_name", "get_user_role"]
+    list_display = ["pin", "get_short_full_name", "get_user_role", "display_groups"]
+
+    def display_groups(self, obj):
+        return ", ".join(group.name for group in obj.userdata.group.all())
+    display_groups.short_description = "Groups"
 
 
 @admin.register(YurUser)
 class YurUserAdmin(admin.ModelAdmin):
-    list_display = ["tin", "get_director_short_full_name", "get_user_role"]
+    list_display = ["tin", "get_director_short_full_name", "get_user_role", "display_groups"]
+
+    def display_groups(self, obj):
+        return ", ".join(group.name for group in obj.userdata.group.all())
+    display_groups.short_description = "Groups"
 
 
 class BankMFOResource(resources.ModelResource):
