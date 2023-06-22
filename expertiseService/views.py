@@ -457,6 +457,7 @@ class ExpertiseContractDetail(APIView):
         Role.RoleNames.DEPUTY_DIRECTOR,
         Role.RoleNames.DEPARTMENT_BOSS,
         Role.RoleNames.SECTION_HEAD,
+        Role.RoleNames.SECTION_SPECIALIST,
     ]
 
     def get(self, request, pk):

@@ -13,6 +13,7 @@ class ApplicationPermission(permissions.BasePermission):
         Role.RoleNames.DEPUTY_DIRECTOR,
         Role.RoleNames.DEPARTMENT_BOSS,
         Role.RoleNames.SECTION_HEAD,
+        Role.RoleNames.SECTION_SPECIALIST,
     ]
 
     def has_permission(self, request, view):
