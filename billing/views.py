@@ -245,7 +245,6 @@ class VpsTariffSummAPIView(views.APIView):
 
         context, configurations_total_price = [], 0
         for configuration_id, configuration in enumerate(serializer.validated_data):
-            print("configuration >>", configuration)
             item = calculate_vps(configuration=configuration)
             configurations_total_price += item.get("total_cash", 0)
             context.append(item)
