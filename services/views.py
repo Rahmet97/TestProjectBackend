@@ -242,7 +242,7 @@ class DeleteDeviceAPIView(APIView):
         device.status = DeviceStatus.objects.get(name="qaytarilgan")
         device.save()
 
-        contract = Unit.objects.get(device=device).contract
+        contract = device.device_units.last().contract
         contract.comment_data_center = None
         contract.save()
 
