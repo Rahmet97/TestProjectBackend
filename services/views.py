@@ -67,7 +67,6 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
     def put(self, request, *args, **kwargs):
         provider_contract_number = request.data.get('provider_contract_number', None)
         provider_contract_date = request.data.get('provider_contract_date', None)
-        comment_data_center = request.data.get("comment_data_center")
 
         if ProviderContract.objects.filter(contract_number=provider_contract_number).exists():
             provider_contract = ProviderContract.objects.get(contract_number=provider_contract_number)
@@ -83,12 +82,25 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
             provider_contract = None
             request.data['provider_contract'] = provider_contract
 
-        if comment_data_center and provider_contract:
-            Contract.objects.filter(contract_number=provider_contract.contract_number).update(
-                comment_data_center=comment_data_center
-            )
-
         return super().put(request, *args, **kwargs)
+
+    def perform_update(self, serializer):
+        comment_data_center = self.request.data.get("comment_data_center")
+        is_sold = serializer.validate_data.get("is_sold")
+        contract = serializer.validate_data.get("contract")
+
+        if contract:
+            contract.contract_number = comment_data_center
+            contract = Contract.objects.get(contract_number=contract.contract_number)
+
+            if is_sold == 1 and comment_data_center:
+                contract.comment_data_center=comment_data_center
+            elif is_sold == 0:
+                contract.comment_data_center = None
+
+            contract.save()
+
+        serializer.save()
 
 
 class DevicePublisherAPIView(generics.ListAPIView):
