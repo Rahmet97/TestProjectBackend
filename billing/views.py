@@ -160,7 +160,7 @@ class ExpertiseTariffSummAPIView(views.APIView):
         return response.Response({"total_cash": res}, status=status.HTTP_200_OK)
 
 
-def calculate_vps(configuration: dict, total_cash=VpsDevicePriceEnum.IPV4_ADDRESS) -> dict:
+def calculate_vps(configuration: dict, total_cash=0) -> dict:
     """
         billing calculate vps service
     """
@@ -168,11 +168,24 @@ def calculate_vps(configuration: dict, total_cash=VpsDevicePriceEnum.IPV4_ADDRES
 
     count_vm = configuration.get('count_vm')
     operation_system_versions = configuration.get("operation_system_versions", [])
+
     if count_vm != len(operation_system_versions):
         responseErrorMessage(
             message="count vm is equal to operation system versions count",
             status_code=status.HTTP_400_BAD_REQUEST
         )
+
+    ipv_address_count = sum(1 for os_version in operation_system_versions if os_version.get("ipv_address") is True)
+    calculate_data["ipv_address_count"] = ipv_address_count
+    calculate_data["ipv_address_price"] = ipv_address_count * VpsDevicePriceEnum.IPV4_ADDRESS
+    calculate_data["ipv_address_price_text"] = num2word.change_num_to_word(int(calculate_data["ipv_address_price"]))
+    total_cash += calculate_data["ipv_address_price"]
+
+    # if operation_system_version has price
+    total_cash += sum(
+        os_version.get("operation_system_version").price if os_version.get("operation_system_version") else 0
+        for os_version in operation_system_versions
+    )
 
     storage_type, storage_disk = configuration.get("storage_type"), configuration.get("storage_disk")
 
@@ -217,8 +230,6 @@ def calculate_vps(configuration: dict, total_cash=VpsDevicePriceEnum.IPV4_ADDRES
     calculate_data["tasix_price_text"] = num2word.change_num_to_word(int(calculate_data["tasix"]))
     calculate_data["imut_price_text"] = num2word.change_num_to_word(int(calculate_data["imut"]))
 
-    total_cash += sum(os_version.price for os_version in operation_system_versions)
-
     calculate_data["total_cash"] = total_cash
     calculate_data["total_cash_price_text"] = num2word.change_num_to_word(int(total_cash))
     return calculate_data
@@ -234,6 +245,7 @@ class VpsTariffSummAPIView(views.APIView):
 
         context, configurations_total_price = [], 0
         for configuration_id, configuration in enumerate(serializer.validated_data):
+            print("configuration >>", configuration)
             item = calculate_vps(configuration=configuration)
             configurations_total_price += item.get("total_cash", 0)
             context.append(item)

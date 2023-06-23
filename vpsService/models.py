@@ -130,6 +130,8 @@ class VpsDevice(models.Model):
     tasix: int = models.IntegerField(blank=True, null=True)
     imut: int = models.IntegerField(blank=True, null=True)
 
+    ipv_address: bool = models.BooleanField(default=True)
+
     operation_system = models.ForeignKey(
         to=OperationSystem, on_delete=models.CASCADE, related_name="vps_device_operation_system"
     )
@@ -143,7 +145,7 @@ class VpsDevice(models.Model):
     device_price = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
 
     def calculate_price(self):
-        price = VpsDevicePriceEnum.IPV4_ADDRESS
+        price = 0
 
         if self.storage_disk:
             price += self.storage_disk * {
@@ -161,6 +163,8 @@ class VpsDevice(models.Model):
             price += (self.tasix - 100) * VpsDevicePriceEnum.TASIX
         if self.imut:
             price += self.imut * VpsDevicePriceEnum.IMUT
+        if self.ipv_address:
+            price += VpsDevicePriceEnum.IPV4_ADDRESS
 
         price = Decimal(price)
         # if self.operation_system_version is not None:
