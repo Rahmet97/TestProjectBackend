@@ -123,6 +123,7 @@ class AddDeviceAPIView(APIView):
         contract_number = request.data['contract_number']
         contract_date = request.data['contract_date']
         provider = request.data['provider']
+        comment_data_center = request.data.get("comment_data_center")
         if start <= end:
             if contract_number and contract_date:
                 if ProviderContract.objects.filter(contract_number=contract_number).exists():
@@ -151,12 +152,19 @@ class AddDeviceAPIView(APIView):
                 end=end
             )
             device.save()
+
+            contract = Contract.objects.get(pk=contract)
+            if comment_data_center:
+                contract.comment_data_center = comment_data_center
+            contract.save()
+
             for i in range(start, end + 1):
                 unit = Unit.objects.get(Q(number=i), Q(rack_id=rack))
                 unit.device = device
                 unit.is_busy = True
-                unit.contract = Contract.objects.get(pk=contract)
+                unit.contract = contract
                 unit.save()
+
             data = {
                 'success': True,
                 'message': "Muvaffaqiyatli qo'shildi"

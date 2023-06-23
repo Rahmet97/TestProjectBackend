@@ -157,6 +157,7 @@ class Contract(models.Model):
     hashcode = models.CharField(max_length=255, blank=True, null=True)
     like_preview_pdf = models.FileField(blank=True, null=True, upload_to="media/Contract/pdf/")  # test mode
 
+    comment_data_center = models.TextField(blank=True, null=True)
     is_free = models.BooleanField(default=False)
 
     class Meta:

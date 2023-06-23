@@ -1225,6 +1225,7 @@ class GetRackContractDetailWithNumber(APIView):
             'odf_count': odf_count,
             'provider': provider_serializer.data,
             'electricity': electricity,
+            "comment_data_center": contract.comment_data_center,
             'busy_electricity': s
         }
         return Response(data)
@@ -1283,7 +1284,8 @@ class GetUnitContractDetailWithNumber(APIView):
             'odf_count': odf_count,
             'provider': provider_serializer.data,
             'electricity': electricity,
-            'empty_electricity': empty_electricity
+            'empty_electricity': empty_electricity,
+            "comment_data_center": contract.comment_data_center
         }
         return Response(data)
 
