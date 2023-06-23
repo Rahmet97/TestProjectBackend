@@ -90,15 +90,16 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
         contract = self.get_object().contract
 
         if contract:
-            contract.contract_number = comment_data_center
             contract = Contract.objects.get(contract_number=contract.contract_number)
+            contract.contract_number = comment_data_center
 
             if is_sold == 1 and comment_data_center:
-                contract.comment_data_center=comment_data_center
+                contract.comment_data_center = comment_data_center
             elif is_sold == 0:
                 contract.comment_data_center = None
 
             contract.save()
+            print(">>>", contract)
 
         serializer.save()
 
