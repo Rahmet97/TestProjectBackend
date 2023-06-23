@@ -67,6 +67,8 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
     def put(self, request, *args, **kwargs):
         provider_contract_number = request.data.get('provider_contract_number', None)
         provider_contract_date = request.data.get('provider_contract_date', None)
+        comment_data_center = request.data.get("comment_data_center")
+
         if ProviderContract.objects.filter(contract_number=provider_contract_number).exists():
             provider_contract = ProviderContract.objects.get(contract_number=provider_contract_number)
             request.data['provider_contract'] = provider_contract.id
@@ -80,6 +82,16 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
         else:
             provider_contract = None
             request.data['provider_contract'] = provider_contract
+
+        # if comment_data_center:
+        #     contract = Contract.objects.get(contract_number=provider_contract.contract_number)
+        #     contract.comment_data_center = comment_data_center
+        #     contract.save()
+
+        if comment_data_center:
+            Contract.objects.filter(contract_number=provider_contract.contract_number).update(
+                comment_data_center=comment_data_center
+            )
 
         return super().put(request, *args, **kwargs)
 
@@ -123,7 +135,7 @@ class AddDeviceAPIView(APIView):
         contract_number = request.data['contract_number']
         contract_date = request.data['contract_date']
         provider = request.data['provider']
-        comment_data_center = request.data.get("comment_data_center")
+
         if start <= end:
             if contract_number and contract_date:
                 if ProviderContract.objects.filter(contract_number=contract_number).exists():
@@ -153,16 +165,11 @@ class AddDeviceAPIView(APIView):
             )
             device.save()
 
-            contract = Contract.objects.get(pk=contract)
-            if comment_data_center:
-                contract.comment_data_center = comment_data_center
-            contract.save()
-
             for i in range(start, end + 1):
                 unit = Unit.objects.get(Q(number=i), Q(rack_id=rack))
                 unit.device = device
                 unit.is_busy = True
-                unit.contract = contract
+                unit.contract = Contract.objects.get(pk=contract)
                 unit.save()
 
             data = {
