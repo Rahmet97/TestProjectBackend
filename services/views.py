@@ -83,12 +83,7 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
             provider_contract = None
             request.data['provider_contract'] = provider_contract
 
-        # if comment_data_center:
-        #     contract = Contract.objects.get(contract_number=provider_contract.contract_number)
-        #     contract.comment_data_center = comment_data_center
-        #     contract.save()
-
-        if comment_data_center:
+        if comment_data_center and provider_contract:
             Contract.objects.filter(contract_number=provider_contract.contract_number).update(
                 comment_data_center=comment_data_center
             )
