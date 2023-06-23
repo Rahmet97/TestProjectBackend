@@ -574,7 +574,7 @@ class CreateContractFileAPIView(APIView):
         tarif = Tarif.objects.get(pk=int(request.data['tarif'])).name
 
         try:
-            number = int(Contract.objects.filter(is_free=True).last().contract_number.split("-")[-1]) + 1
+            number = int(Contract.objects.filter(is_free=False).last().contract_number.split("-")[-1]) + 1
         except AttributeError:
             number = 1
         prefix = Service.objects.get(pk=int(request.data['service_id'])).group.prefix
