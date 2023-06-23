@@ -87,7 +87,7 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
     def perform_update(self, serializer):
         comment_data_center = self.request.data.get("comment_data_center")
         is_sold = serializer.validated_data.get("is_sold")
-        contract = serializer.validated_data.get("contract")
+        contract = self.get_object().contract
 
         if contract:
             contract.contract_number = comment_data_center
