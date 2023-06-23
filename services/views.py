@@ -98,7 +98,6 @@ class UpdateRackAPIView(generics.RetrieveUpdateAPIView):
                 contract.comment_data_center = None
 
             contract.save()
-            print(">>>", contract)
 
         serializer.save()
 
@@ -172,12 +171,19 @@ class AddDeviceAPIView(APIView):
             )
             device.save()
 
+            contract = Contract.objects.get(pk=contract)
+            comment_data_center = request.data.get('comment_data_center')
+
             for i in range(start, end + 1):
                 unit = Unit.objects.get(Q(number=i), Q(rack_id=rack))
                 unit.device = device
                 unit.is_busy = True
-                unit.contract = Contract.objects.get(pk=contract)
+                unit.contract = contract
                 unit.save()
+
+            if comment_data_center:
+                contract.comment_data_center = comment_data_center
+                contract.save()
 
             data = {
                 'success': True,
@@ -235,4 +241,9 @@ class DeleteDeviceAPIView(APIView):
             unit.save()
         device.status = DeviceStatus.objects.get(name="qaytarilgan")
         device.save()
+
+        contract = Unit.objects.get(device=device).contract
+        contract.comment_data_center = None
+        contract.save()
+
         return Response(status=204)
