@@ -201,7 +201,7 @@ class ContractSerializerForBackoffice(serializers.ModelSerializer):
         model = Contract
         fields = (
             'id', 'client', 'contract_number', 'contract_date', 'expiration_date', 'contract_cash',
-            'payed_cash', 'arrearage', 'contract_status'
+            'payed_cash', 'arrearage', 'contract_status', "comment_data_center"
         )
 
 

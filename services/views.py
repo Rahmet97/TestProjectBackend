@@ -178,7 +178,7 @@ class AddDeviceAPIView(APIView):
             return Response(data, status=405)
 
 
-class DeviceUnitDetail(generics.RetrieveAPIView):
+class DeviceUnitDetail(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
