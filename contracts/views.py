@@ -1379,15 +1379,18 @@ class AddOldContractsViews(APIView):
             contract_tarif_device_serializer.is_valid(raise_exception=True)
 
             price_total_old_contract = 0
-            if not contract_serializer.validated_data.get("is_free"):
-                price_total_old_contract = total_old_contract_price(
-                    electricity=contract_tarif_device_serializer.validated_data.get("total_electricity"),
-                    tarif_pk=contract_tarif_device_serializer.validated_data.get("tarif"),
-                    tarif_count=contract_tarif_device_serializer.validated_data.get("rack_count"),
-                    connect_method_pk=contract_tarif_device_serializer.validated_data.get("connect_method"),
-                    connect_method_count=contract_tarif_device_serializer.validated_data.get("odf_count"),
-                    if_tarif_is_unit=int(request.data.get("if_tarif_is_unit", 0))
-                )
+            if contract_serializer.validated_data.get("is_discount"):
+                price_total_old_contract = contract_serializer.validated_data.get("price_with_discount")
+            else:
+                if not contract_serializer.validated_data.get("is_free"):
+                    price_total_old_contract = total_old_contract_price(
+                        electricity=contract_tarif_device_serializer.validated_data.get("total_electricity"),
+                        tarif_pk=contract_tarif_device_serializer.validated_data.get("tarif"),
+                        tarif_count=contract_tarif_device_serializer.validated_data.get("rack_count"),
+                        connect_method_pk=contract_tarif_device_serializer.validated_data.get("connect_method"),
+                        connect_method_count=contract_tarif_device_serializer.validated_data.get("odf_count"),
+                        if_tarif_is_unit=int(request.data.get("if_tarif_is_unit", 0))
+                    )
 
             # today = datetime.now().date()
             # prefix = 'CC'

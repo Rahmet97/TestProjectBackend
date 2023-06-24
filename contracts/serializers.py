@@ -384,6 +384,8 @@ class UserOldContractTarifDeviceSerializer(serializers.ModelSerializer):
 
 
 class AddOldContractSerializers(serializers.ModelSerializer):
+    is_discount = serializers.BooleanField(default=False)
+    price_with_discount = serializers.DecimalField(max_digits=20, decimal_places=2, required=False)
 
     class Meta:
         model = Contract
