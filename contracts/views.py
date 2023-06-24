@@ -1359,7 +1359,7 @@ class AddOldContractsViews(APIView):
                     first_name=first_name,
                     last_name=request.data.get("last_name"),
                     # role=role_user
-                    role__name=Role.RoleNames.CLIENT
+                    role=Role.objects.get(name=Role.RoleNames.CLIENT)
                 )
                 user_obj.set_password(first_name[0].upper() + pin + first_name[-1].upper())
                 user_obj.save()
