@@ -750,7 +750,7 @@ class CreateContractFileAPIView(APIView):
 
 class ContractFileDeleteAPIView(generics.DestroyAPIView):
     queryset = Contract.objects.all()
-    permission_classes = [WorkerPermission]
+    permission_classes = [IsAuthenticated]
 
 
 class SavePkcs(APIView):
