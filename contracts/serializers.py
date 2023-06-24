@@ -389,7 +389,10 @@ class AddOldContractSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Contract
-        fields = ["id", "service", "contract_number", "contract_date", "expiration_date", "tarif", "is_free"]
+        fields = [
+            "id", "service", "contract_number", "contract_date", "expiration_date", "tarif", "is_free",
+            "is_discount", "price_with_discount"
+        ]
 
     def validate(self, attrs):
         super().validate(attrs)
