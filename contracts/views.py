@@ -1379,7 +1379,7 @@ class AddOldContractsViews(APIView):
             contract_tarif_device_serializer.is_valid(raise_exception=True)
 
             price_total_old_contract = 0
-            if contract_serializer.validated_data.get("is_discount"):
+            if contract_serializer.validated_data.get("is_discount") is True:
                 price_total_old_contract = contract_serializer.validated_data.get("price_with_discount")
             else:
                 if not contract_serializer.validated_data.get("is_free"):
