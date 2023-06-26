@@ -131,42 +131,6 @@ class NewFileCreateAPIView(views.APIView):
         return response.Response({'path': file_url, 'key': hashed_text})
 
 
-@api_view(['POST'])
-def convert_to_pdf(request):
-    # Get the DOCX file from the request
-    docx_file = request.FILES['docx_file']
-
-    # Define the URL of your ONLYOFFICE Document Server
-    document_server_url = 'http://onlyoffice-documentserver/'
-
-    # Define the conversion URL
-    conversion_url = f'{document_server_url}Convert'
-
-    # Set the conversion parameters
-    conversion_params = {
-        'async': 0,
-        'filetype': 'pdf',
-        'outputtype': 'stream',
-    }
-
-    # Send the conversion request
-    response = requests.post(conversion_url, files={'file': docx_file}, data=conversion_params)
-
-    # Check if the conversion was successful
-    if response.status_code == 200:
-        # Create a PDF file name
-        pdf_file_name = 'converted.pdf'
-
-        # Set the response headers to indicate it's a PDF file
-        response['Content-Disposition'] = f'attachment; filename="{pdf_file_name}"'
-        response['Content-Type'] = 'application/pdf'
-
-        return response
-
-    # Handle the case where conversion failed
-    return HttpResponse('Conversion failed', status=response.status_code)
-
-
 class ConvertDocx2PDFAPIView(views.APIView):
     serializer_class = ConvertDocx2PDFSerializer
     permission_classes = ()
@@ -176,15 +140,13 @@ class ConvertDocx2PDFAPIView(views.APIView):
         serializer.is_valid(raise_exception=True)
         url = 'http://185.74.4.35:81/ConvertService.ashx'
         payload = {
-            "async": False,
-            "filetype": "docx",
-            "key": serializer.validated_data.get("key"),
-            "outputtype": "pdf",
-            "title": f"{serializer.validated_data.get('key')}.pdf",
-            "url": serializer.validated_data.get("url")
+            'async': False,
+            'filetype': 'docx',
+            'key': serializer.validated_data.get('key'),
+            'outputtype': 'pdf',
+            'title': f"{serializer.validated_data.get('key')}.pdf",
+            'url': serializer.validated_data.get('url')
         }
-        print(serializer.validated_data.get("key"))
-        print(serializer.validated_data.get("url"))
         rsp = requests.post(url, headers={"Accept": "application/json"}, data=payload)
         if rsp.status_code == 200:
             print('188 ===> ', rsp)
