@@ -148,7 +148,7 @@ class ConvertDocx2PDFAPIView(views.APIView):
             'title': f"{serializer.validated_data.get('key')}.pdf",
             'url': serializer.validated_data.get('url')
         }
-        rsp = requests.post(url, headers={"Accept": "application/json"}, json=payload)
+        rsp = requests.post(url, headers={"Accept": "application/json"}, data=payload)
         if rsp.status_code == 200:
             print('153 ===> ', rsp)
             rsp = rsp.json()
