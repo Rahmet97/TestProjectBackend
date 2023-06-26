@@ -139,7 +139,7 @@ class ConvertDocx2PDFAPIView(views.APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        url = 'http://localhost:81/ConvertService.ashx'
+        url = 'http://onlyoffice-documentserver/ConvertService.ashx'
         payload = {
             'async': False,
             'filetype': 'docx',
