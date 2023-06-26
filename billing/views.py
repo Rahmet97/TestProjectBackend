@@ -190,45 +190,57 @@ def calculate_vps(configuration: dict, total_cash=0) -> dict:
     storage_type, storage_disk = configuration.get("storage_type"), configuration.get("storage_disk")
 
     calculate_data["cpu"] = configuration.get("cpu") * count_vm * VpsDevicePriceEnum.CPU
+    calculate_data["cpu_size"] = configuration.get("cpu") * count_vm
     calculate_data["cpu_price_text"] = num2word.change_num_to_word(int(calculate_data["cpu"]))
     total_cash += calculate_data["cpu"]
 
     calculate_data["ram"] = configuration.get("ram") * count_vm * VpsDevicePriceEnum.RАМ
+    calculate_data["ram_size"] = configuration.get("ram") * count_vm
     calculate_data["ram_price_text"] = num2word.change_num_to_word(int(calculate_data["ram"]))
     total_cash += calculate_data["ram"]
 
     if storage_type == "ssd":
         calculate_data[f"storage_disk_price"] = storage_disk * count_vm * VpsDevicePriceEnum.SSD
+        calculate_data[f"storage_disk_size"] = storage_disk * count_vm
         calculate_data[f"storage_disk_price_text"] = num2word.change_num_to_word(
-            int(calculate_data["storage_disk_price"]))
+            int(calculate_data["storage_disk_price"])
+        )
         calculate_data["storage_type"] = storage_type
         total_cash += calculate_data["storage_disk_price"]
     elif storage_type == "hdd":
         calculate_data[f"storage_disk_price"] = storage_disk * count_vm * VpsDevicePriceEnum.HDD
-        calculate_data[f"storage_disk_price_text"] = num2word.change_num_to_word(int(calculate_data["storage_disk_price"]))
+        calculate_data[f"storage_disk_size"] = storage_disk * count_vm
+        calculate_data[f"storage_disk_price_text"] = num2word.change_num_to_word(
+            int(calculate_data["storage_disk_price"])
+        )
         calculate_data["storage_type"] = storage_type
         total_cash += calculate_data["storage_disk_price"]
 
-    internet, tasix = configuration.get("internet", 0), configuration.get("tasix", 0)
-    imut = configuration.get("imut", 0)
+    # #######################
+    # for create vps contract
+    calculate_data[storage_type] = {
+        f"{storage_type}": calculate_data[f"storage_disk_price"],
+        f"{storage_type}_size": storage_disk * count_vm
+    }
+    # #######################
 
-    calculate_data["internet"], calculate_data["tasix"], calculate_data["imut"] = 0, 0, 0
-
-    if configuration.get("internet") and internet >= 10:
-        calculate_data["internet"] = (internet - 10) * VpsDevicePriceEnum.INTERNET * count_vm
-        total_cash += calculate_data["internet"]
-
-    if configuration.get("tasix") and tasix >= 100:
-        calculate_data["tasix"] = (tasix - 100) * VpsDevicePriceEnum.TASIX * count_vm
-        total_cash += calculate_data["tasix"]
-
-    if configuration.get("imut"):
-        calculate_data["imut"] = imut * VpsDevicePriceEnum.IMUT * count_vm
-        total_cash += calculate_data["imut"]
-
+    internet = configuration.get("internet") or 0
+    calculate_data["internet_size"] = max((internet - 10) * count_vm, 0)
+    calculate_data["internet"] = calculate_data["internet_size"] * VpsDevicePriceEnum.INTERNET
     calculate_data["internet_price_text"] = num2word.change_num_to_word(int(calculate_data["internet"]))
+    total_cash += calculate_data["internet"]
+
+    tasix = configuration.get("tasix") or 0
+    calculate_data["tasix_size"] = max((tasix - 100) * count_vm, 0)
+    calculate_data["tasix"] = calculate_data["tasix_size"] * VpsDevicePriceEnum.TASIX
     calculate_data["tasix_price_text"] = num2word.change_num_to_word(int(calculate_data["tasix"]))
+    total_cash += calculate_data["tasix"]
+
+    imut = configuration.get("imut") or 0
+    calculate_data["imut_size"] = imut * count_vm
+    calculate_data["imut"] = calculate_data["imut_size"] * VpsDevicePriceEnum.IMUT
     calculate_data["imut_price_text"] = num2word.change_num_to_word(int(calculate_data["imut"]))
+    total_cash += calculate_data["tasix"]
 
     calculate_data["total_cash"] = total_cash
     calculate_data["total_cash_price_text"] = num2word.change_num_to_word(int(total_cash))

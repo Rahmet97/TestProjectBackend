@@ -91,7 +91,7 @@ class VpsServiceContractCreateViaClientSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = VpsServiceContract
-        fields = ["service", "contract_date", "configuration", "contract_cash", "save"]
+        fields = ["service", "contract_date", "configuration", "save"]  # "contract_cash",
 
 
 class FileUploadSerializer(serializers.Serializer):

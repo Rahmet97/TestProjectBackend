@@ -204,16 +204,15 @@ class CreateVpsServiceContractViaClientView(views.APIView):
         context = dict()
         request_objects_serializers = VpsServiceContractCreateViaClientSerializers(data=request.data)
         request_objects_serializers.is_valid(raise_exception=True)
-        print("request_objects_serializers >> ", request_objects_serializers)
 
         number, prefix = self.get_number_and_prefix(request_objects_serializers.validated_data.get("service"))
 
         if request.user.type == 2:
             context['u_type'] = 'yuridik'
-            context["user_obj"] = YurUser.objects.get(userdata=request.user)
+            # context["user_obj"] = YurUser.objects.get(userdata=request.user)
         elif request.user.type == 1:
             context['u_type'] = 'fizik'
-            context["user_obj"] = FizUser.objects.get(userdata=request.user)
+            # context["user_obj"] = FizUser.objects.get(userdata=request.user)
 
         context['contract_number'] = prefix + '-' + str(number)
 
@@ -221,12 +220,14 @@ class CreateVpsServiceContractViaClientView(views.APIView):
         context['datetime'] = datetime.fromisoformat(str(date)).strftime('%d.%m.%Y')
 
         configurations = request_objects_serializers.validated_data.get("configuration")
-        print("configurations type >> ", type(configurations))
 
-        configurations_context, configurations_total_price = get_configurations_context(configurations)
+        configurations_context, configurations_total_price, configurations_cost_prices = get_configurations_context(
+            configurations
+        )
         context['configurations'] = {
             "configurations_total_price": configurations_total_price,
-            "configurations": configurations_context
+            "configurations": configurations_context,
+            "configurations_cost_prices": configurations_cost_prices
         }
 
         context['host'] = 'http://' + request.META['HTTP_HOST']
@@ -236,7 +237,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
 
         service_obj = request_objects_serializers.validated_data.get("service")
 
-        return response.Response(data={"message": "Created Vps Service Contract"}, status=201)
+        return response.Response(data=context, status=201)
 
         # if int(request_objects_serializers.validated_data.get("save")):
         #     context['save'] = True
