@@ -370,3 +370,7 @@ class UniconDatas(models.Model):
     @property
     def get_full_name(self):
         return f"{self.first_name} {self.mid_name} {self.sur_name}"
+
+    @property
+    def get_director_short_full_name(self):
+        return f"{str(self.first_name)[0]}.{str(self.mid_name)[0]} {self.sur_name}"
