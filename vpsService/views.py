@@ -141,18 +141,18 @@ class ConvertDocx2PDFAPIView(views.APIView):
         serializer.is_valid(raise_exception=True)
         url = 'http://185.74.4.35:81/ConvertService.ashx'
         payload = {
-            'async': True,
+            'async': False,
             'filetype': 'docx',
             'key': serializer.validated_data.get('key'),
             'outputtype': 'pdf',
             'title': f"{serializer.validated_data.get('key')}.pdf",
             'url': serializer.validated_data.get('url')
         }
-        rsp = requests.post(url, headers={"Accept": "application/json"}, data=payload)
+        rsp = requests.post(url, headers={"Accept": "application/json"}, json=payload)
         if rsp.status_code == 200:
-            print('188 ===> ', rsp)
+            print('153 ===> ', rsp)
             rsp = rsp.json()
-            print('190 ===> ', rsp)
+            print('155 ===> ', rsp)
             file_url = rsp['fileUrl']
         else:
             return response.Response({'message': 'Does not converted!'})
