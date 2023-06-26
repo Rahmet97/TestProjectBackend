@@ -35,7 +35,7 @@ from .permission import VpsServiceContractDeletePermission
 from .serializers import (
     OperationSystemSerializers, OperationSystemVersionSerializers,
     VpsTariffSerializers, VpsGetUserContractsListSerializer,
-    VpsServiceContractCreateViaClientSerializers
+    VpsServiceContractCreateViaClientSerializers, ConvertDocx2PDFSerializer
 )
 from .serializers import FileUploadSerializer
 
@@ -165,6 +165,31 @@ def convert_to_pdf(request):
 
     # Handle the case where conversion failed
     return HttpResponse('Conversion failed', status=response.status_code)
+
+
+class ConvertDocx2PDFAPIView(views.APIView):
+    serializer_class = ConvertDocx2PDFSerializer
+    permission_classes = ()
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        url = 'http://185.74.4.35:81/ConvertService.ashx'
+        payload = {
+            "async": False,
+            "filetype": "docx",
+            "key": serializer.validated_data.get("key"),
+            "outputtype": "pdf",
+            "title": f"{serializer.validated_data.get('key')}.pdf",
+            "url": serializer.validated_data.get("url")
+        }
+        rsp = requests.post(url, data=payload, headers={"Accept": "application/json"})
+        if rsp.status_code == 200:
+            rsp = rsp.json()
+            file_url = rsp['fileUrl']
+        else:
+            return response.Response({'message': 'Does not converted!'})
+        return response.Response({'file_url': file_url})
 
 
 class CreateVpsServiceContractViaClientView(views.APIView):

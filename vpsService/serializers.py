@@ -96,3 +96,8 @@ class VpsServiceContractCreateViaClientSerializers(serializers.ModelSerializer):
 
 class FileUploadSerializer(serializers.Serializer):
     file = serializers.FileField()
+
+
+class ConvertDocx2PDFSerializer(serializers.Serializer):
+    key = serializers.CharField()
+    url = serializers.URLField()

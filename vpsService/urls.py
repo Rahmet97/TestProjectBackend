@@ -24,6 +24,6 @@ urlpatterns = [
 
     path('file', views.FileUploadAPIView.as_view(), name='file_upload'),
     path('new-file', views.NewFileCreateAPIView.as_view(), name='newfile_upload'),
-    path('convert-to-pdf/', views.convert_to_pdf, name='convert_to_pdf'),
+    path('convert-to-pdf/', views.ConvertDocx2PDFAPIView.as_view(), name='convert_to_pdf'),
 
 ]
