@@ -122,7 +122,7 @@ class GetUser(views.APIView):
             try:
                 user = UserData.objects.get(username=username)
             except UserData.DoesNotExist:
-                client_role = Role.objects.get(name='mijoz') if int(is_client) else None
+                client_role = Role.objects.get(name=Role.RoleNames.CLIENT) if int(is_client) else None
                 user_type = 2 if data['legal_info'] else 1
                 user = UserData.objects.create_user(
                     username=username,
