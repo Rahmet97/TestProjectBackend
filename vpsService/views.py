@@ -185,7 +185,9 @@ class ConvertDocx2PDFAPIView(views.APIView):
         }
         rsp = requests.post(url, data=payload, headers={"Accept": "application/json"})
         if rsp.status_code == 200:
+            print('188 ===> ', rsp)
             rsp = rsp.json()
+            print('190 ===> ', rsp)
             file_url = rsp['fileUrl']
         else:
             return response.Response({'message': 'Does not converted!'})
