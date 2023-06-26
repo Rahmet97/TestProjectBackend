@@ -141,7 +141,7 @@ class ConvertDocx2PDFAPIView(views.APIView):
         serializer.is_valid(raise_exception=True)
         url = 'http://185.74.4.35:81/ConvertService.ashx'
         payload = {
-            'async': False,
+            'async': True,
             'filetype': 'docx',
             'key': serializer.validated_data.get('key'),
             'outputtype': 'pdf',
