@@ -342,18 +342,12 @@
         <div style="display: flex; border: 1px solid lightgray;" >
             <div style="padding: 5px;">
                 <p class='requirement-text'>
-                    <strong>{{org_nameru}}</strong>, именуемое в дальнейшем «Исполнитель», в лице директора 
-                    <strong>{{org_director_ru}}</strong>, действующего на основании Устава, с одной стороны, и 
-                    <strong>{{client_ru}}</strong> именуемый в дальнейшем «Заказчик», в лице <strong>{{doljnost_ru}}</strong> <strong>{{director_ru}}</strong>, 
-                    с другой стороны, вместе именуемые «Стороны», заключили настоящий Договор о нижеследующем:
+                    <strong>{{org_nameru}}</strong>, именуемое в дальнейшем «Исполнитель», в лице директора <strong>{{org_director_ru}}</strong>, действующего на основании Устава, с одной стороны, и гражданин <strong>{{client_ru}}</strong>, номер паспорта <strong>{{pport_no}}</strong> проживающий по адресу <strong>{{per_adr_ru}}</strong> именуемый в дальнейшем «Заказчик», с другой стороны, вместе именуемые «Стороны», заключили настоящий Договор о нижеследующем:
                 </p>
             </div>
             <div style="padding: 5px; border-left: 1px solid lightgray;">
                 <p class='requirement-text'>
-                    <strong>{{org_nameuz}}</strong>, keyingi o’rinlarda “Ijrochi” deb yuritiladi, Nizom asosida ish yurituvchi, direktor 
-                    <strong>{{org_director_uz}}</strong> bir tomondan, <strong>{{client_uz}}</strong> keyingi o’rinlarda “Buyurtmachi” deb yuritiladi, 
-                    <strong>{{doljnost_uz}}</strong> <strong>{{director_uz}}</strong> ikkinchi tomondan, keyingi o’rinlarda birgalikda “Tomonlar” deb 
-                    yuritiladi, ushbu Shartnomani quyidagi mazmunda tuzdilar:
+                    <strong>{{org_nameuz}}</strong>, keyingi o’rinlarda “Ijrochi” deb yuritiladi, Nizom asosida ish yurituvchi, direktor <strong>{{org_director_uz}}</strong> bir tomondan, <strong>{{per_adr_uz}}</strong> yashovchi, <strong>{{pport_no}}</strong> raqamli fuqarolik pasporti egasi fuqaro <strong>{{client_uz}}</strong> keyingi o’rinlarda “Buyurtmachi” deb yuritiladi, ikkinchi tomondan, keyingi o’rinlarda birgalikda “Tomonlar”deb yuritiladi, ushbu Shartnomani quyidagi mazmunda tuzdilar:
                 </p>
             </div>
         </div>
@@ -1090,33 +1084,27 @@
                     <th align="center" class="col-quantity">BUYURTMACHI</th>
                 </tr>
                 <tr>
-                    <th align="center" class="col-quantity">{{client_ru}}</th>
-                    <th align="center" class="col-quantity">{{client_uz}}</th>
+                    <th align="center" class="col-quantity">{{client_ fullname_ru}}</th>
+                    <th align="center" class="col-quantity">{{client_ fullname_uz}}</th>
                 </tr>
 
                 <tr>
                     <td align="left">
-                        Адрес: {{per_adr}} <br>
-                        ИНН: {{tin}} <br>
-                        МФО: {{mfo}} <br>
-                        ОКЭД: {{oked}} <br>
-                        Р/с: {{hr}} <br>
-                        Банк: {{bank}} <br>
+                        Адрес: {{per_adr}}<br>
+                        № паспорта: {{pport_no}}<br>
+                        ПИНФЛ: {{ pin }}<br>
                         Адрес электронной почты: {{mail}}
                     </td>
                     <td align="left">
-                        Manzil: {{per_adr}} <br>
-                        STIR: {{tin}} <br>
-                        MFO: {{mfo}} <br>
-                        OKED: {{oked}} <br>
-                        H/r: {{hr}} <br>
-                        Bank: {{bank}} <br>
+                        Manzil: {{per_adr}}.<br>
+                        Pasport s/r: {{pport_no}}<br>
+                        JShShIR: {{pin}}<br>
                         Elekton pochta manzili: {{mail}}
                     </td>
                 </tr>
                 <tr>
-                    <td align="center">{{director}}</td>
-                    <td align="center">{{director}}</td>
+                    <td align="center">{{client_ru}}</td>
+                    <td align="center">{{client_uz}}</td>
                 </tr>
                 {% if save %}
                 <tr>
