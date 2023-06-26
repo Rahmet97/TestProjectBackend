@@ -1363,14 +1363,20 @@ class AddOldContractsViews(APIView):
                 )
                 user_obj.set_password(first_name[0].upper() + pin + first_name[-1].upper())
                 user_obj.save()
-            if FizUser.objects.filter(userdata=user_obj).exists():
-                user = FizUser.objects.get(userdata=user_obj)
-            else:
-                serializer_class_user = self.serializer_class_fiz_user(data=request.data)
-                serializer_class_user.is_valid(raise_exception=True)
-                user = serializer_class_user.save(
-                    userdata=user_obj, user_type=1
-                )
+
+            # if FizUser.objects.filter(userdata=user_obj).exists():
+            #     user = FizUser.objects.get(userdata=user_obj)
+            # else:
+            #     serializer_class_user = self.serializer_class_fiz_user(data=request.data)
+            #     serializer_class_user.is_valid(raise_exception=True)
+            #     user = serializer_class_user.save(
+            #         userdata=user_obj, user_type=1
+            #     )
+
+            user = get_object_or_404(FizUser, userdata=user_obj)
+            serializer_class_user = self.serializer_class_fiz_user(instance=user, data=request.data, partial=True)
+            serializer_class_user.is_valid(raise_exception=True)
+            user = serializer_class_user.save()
 
             contract_serializer = self.serializer_class_contract(data=request.data)
             contract_serializer.is_valid(raise_exception=True)
@@ -1460,14 +1466,24 @@ class AddOldContractsViews(APIView):
                 )
                 user_obj.set_password(director_firstname[0].upper() + tin + director_firstname[-1].upper())
                 user_obj.save()
-            if YurUser.objects.filter(userdata=user_obj).exists():
-                user = YurUser.objects.get(userdata=user_obj)
-            else:
-                serializer_class_user = self.serializer_class_yur_user(data=request.data)
-                serializer_class_user.is_valid(raise_exception=True)
-                user = serializer_class_user.save(
-                    userdata=user_obj, user_type=2
-                )
+
+            # if YurUser.objects.filter(userdata=user_obj).exists():
+            #
+            #     user = YurUser.objects.get(userdata=user_obj)
+            #     serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
+            #     serializer_class_user.is_valid(raise_exception=True)
+            #     user = serializer_class_user.save()
+            #
+            # else:
+            #     serializer_class_user = self.serializer_class_yur_user(data=request.data)
+            #     serializer_class_user.is_valid(raise_exception=True)
+            #     user = serializer_class_user.save(userdata=user_obj, user_type=2)
+
+            user = get_object_or_404(YurUser, userdata=user_obj)
+
+            serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
+            serializer_class_user.is_valid(raise_exception=True)
+            user = serializer_class_user.save()
 
             contract_tarif_device_serializer = self.serializer_class_contract_tarif_device(data=request.data)
             contract_tarif_device_serializer.is_valid(raise_exception=True)
