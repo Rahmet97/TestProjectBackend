@@ -163,6 +163,20 @@ class CreateVpsServiceContractViaClientView(views.APIView):
     queryset = VpsServiceContract.objects.all()
     permission_classes = [permissions.IsAuthenticated]
 
+    # @staticmethod
+    # def get_number_and_prefix(service_obj):
+    #     """
+    #     return:
+    #         number -> int
+    #         prefix -> str
+    #     """
+    #     try:
+    #         number = int(VpsServiceContract.objects.last().contract_number.split("-")[-1]) + 1
+    #     except AttributeError:
+    #         number = 1
+    #     prefix = service_obj.group.prefix
+    #     return number, prefix
+
     @staticmethod
     def get_number_and_prefix(service_obj):
         """
@@ -171,8 +185,12 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             prefix -> str
         """
         try:
-            number = int(VpsServiceContract.objects.last().contract_number.split("-")[-1]) + 1
-        except AttributeError:
+            last_contract = VpsServiceContract.objects.last()
+            if last_contract and last_contract.contract_number:
+                number = int(last_contract.contract_number.split("-")[-1]) + 1
+            else:
+                number = 1
+        except ValueError:
             number = 1
         prefix = service_obj.group.prefix
         return number, prefix
@@ -203,7 +221,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
     @staticmethod
     def create_vps_configurations(configuration_data: dict, contract: object):
 
-        if configuration_data.get("count_vm") != len(configuration_data.get("operation_system_versions")):
+        if configuration_data.pop("count_vm") != len(configuration_data.get("operation_system_versions")):
             contract.delete()
 
             responseErrorMessage(
@@ -211,15 +229,16 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 status_code=status.HTTP_400_BAD_REQUEST
             )
 
+        tariff = configuration_data.pop("tariff")
+
         operation_system_versions = configuration_data.pop("operation_system_versions")
         for os_version in operation_system_versions:
             operation_system_version = os_version.get("operation_system_version")
             operation_system = operation_system_version.operation_system
             ipv_address = os_version.get("ipv_address")
 
-            if configuration_data.get("tariff"):
-                tariff = configuration_data.pop("tariff")
-                vps_device, _ = VpsDevice.objects.get_or_crreate(
+            if tariff:
+                vps_device, _ = VpsDevice.objects.get_or_create(
                     operation_system=operation_system,
                     operation_system_version=operation_system_version,
 
@@ -234,7 +253,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 )
             else:
                 # Retrieve an object or create it if it doesn't exist
-                vps_device, _ = VpsDevice.objects.get_or_crreate(
+                vps_device, _ = VpsDevice.objects.get_or_create(
                     operation_system=operation_system,
                     operation_system_version=operation_system_version,
 
@@ -266,7 +285,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
         date = request_objects_serializers.validated_data.get("contract_date")
         context['datetime'] = datetime.fromisoformat(str(date)).strftime('%d.%m.%Y')
 
-        configurations = request_objects_serializers.validated_data.get("configuration")
+        configurations = request_objects_serializers.validated_data.pop("configuration")
 
         configurations_context, configurations_total_price, configurations_cost_prices = get_configurations_context(
             configurations
@@ -285,12 +304,17 @@ class CreateVpsServiceContractViaClientView(views.APIView):
 
         service_obj = request_objects_serializers.validated_data.get("service")
 
-        if int(request_objects_serializers.validated_data.get("save")):
+        if int(request_objects_serializers.validated_data.pop("save")):
             context['save'] = True
             context['page_break'] = True
 
+            if request.user.type == 1:
+                hash_text_part = context.get('user_obj').full_name
+            else:
+                hash_text_part = context.get('user_obj').get_director_full_name()
+
             hash_code = self.generate_hash_code(
-                text=f"{context.get('user_obj').get_director_short_full_name}{context.get('contract_number')}{context.get('u_type')}{datetime.now()}"
+                text=f"{hash_text_part}{context.get('contract_number')}{context.get('u_type')}{datetime.now()}"
             )
 
             link = 'http://' + request.META['HTTP_HOST'] + f'/expertise/contract/{hash_code}'
@@ -299,18 +323,17 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             context['qr_code'] = f"http://api2.unicon.uz/media/qr/{hash_code}.png"
 
             # Contract yaratib olamiz bazada id_code olish uchun
-            user_stir = request_objects_serializers.validated_data.pop('stir')
-
-            client = UserData.objects.get(username=user_stir)
+            client = request.user
             vps_service_contract = VpsServiceContract.objects.create(
                 **request_objects_serializers.validated_data,
-                service=service_obj,
+                # service=service_obj,
                 client=client,
                 status=4,
                 contract_status=1,  # new
                 payed_cash=0,
                 # base64file=base64code,
                 hashcode=hash_code,
+                contract_cash=configurations_total_price
                 # like_preview_pdf=like_preview_pdf_path
             )
             vps_service_contract.save()
@@ -328,7 +351,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             if pdf:
                 output_dir = '/usr/src/app/media/Contract/pdf'
                 os.makedirs(output_dir, exist_ok=True)
-                contract_file_for_base64_pdf = f"{output_dir}/{context.get('contract_number')}_{context.get('user_obj').get_director_short_full_name}.pdf"
+                contract_file_for_base64_pdf = f"{output_dir}/{context.get('contract_number')}_{hash_text_part}.pdf"
                 with open(contract_file_for_base64_pdf, 'wb') as f:
                     f.write(pdf.content)
             else:
@@ -354,7 +377,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             if like_preview_pdf:
                 output_dir = '/usr/src/app/media/Contract/pdf'
                 os.makedirs(output_dir, exist_ok=True)
-                like_preview_pdf_path = f"{output_dir}/{context.get('contract_number')}_{context.get('user_obj').get_director_short_full_name}.pdf"
+                like_preview_pdf_path = f"{output_dir}/{context.get('contract_number')}_{hash_text_part}.pdf"
                 with open(like_preview_pdf_path, 'wb') as f:
                     f.write(like_preview_pdf.content)
             if like_preview_pdf_path is None:
