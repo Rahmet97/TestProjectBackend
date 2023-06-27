@@ -35,7 +35,7 @@ from .permission import VpsServiceContractDeletePermission
 from .serializers import (
     OperationSystemSerializers, OperationSystemVersionSerializers,
     VpsTariffSerializers, VpsGetUserContractsListSerializer,
-    VpsServiceContractCreateViaClientSerializers, ConvertDocx2PDFSerializer
+    VpsServiceContractCreateViaClientSerializers, ConvertDocx2PDFSerializer, ForceSaveFileSerializer
 )
 from .serializers import FileUploadSerializer
 from .utils import get_configurations_context
@@ -157,6 +157,27 @@ class ConvertDocx2PDFAPIView(views.APIView):
         else:
             return response.Response({'message': 'Does not converted!'})
         return response.Response({'file_url': file_url})
+
+
+class ForceSaveFileAPIView(views.APIView):
+    serializer_class = ForceSaveFileSerializer
+    permission_classes = ()
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        url = 'http://onlyoffice-documentserver/coauthoring/CommandService.ashx'
+        payload = {
+            'c': 'forcesave',
+            'key': serializer.validated_data.get('key'),
+        }
+        rsp = requests.post(url, json=payload)
+        if rsp.status_code == 200:
+            rsp = rsp.json()
+            print('153 ===> ', rsp)
+        else:
+            return response.Response({'message': 'Does not converted!'})
+        return response.Response(rsp)
 
 
 class CreateVpsServiceContractViaClientView(views.APIView):

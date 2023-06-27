@@ -101,3 +101,7 @@ class FileUploadSerializer(serializers.Serializer):
 class ConvertDocx2PDFSerializer(serializers.Serializer):
     key = serializers.CharField()
     url = serializers.URLField()
+
+
+class ForceSaveFileSerializer(serializers.Serializer):
+    key = serializers.CharField()
