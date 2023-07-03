@@ -9,6 +9,7 @@ from django.shortcuts import render
 from django.conf import settings
 from rest_framework import views, generics, permissions, response, status
 from django.core.files.storage import default_storage
+from rest_framework.generics import get_object_or_404
 
 from accounts.models import UserData, YurUser, FizUser, Role, UniconDatas
 from accounts.serializers import YurUserSerializerForContractDetail, FizUserSerializerForContractDetail
@@ -16,7 +17,7 @@ from contracts.models import AgreementStatus, Service, Participant
 from contracts.utils import error_response_500, render_to_pdf, delete_file, create_qr, generate_uid, hash_text
 from contracts.views import num2word
 
-from main.permission import IsRelatedToBackOffice
+from main.permission import IsRelatedToBackOffice, ConfirmContractPermission
 from main.utils import responseErrorMessage
 
 from .models import (
@@ -28,7 +29,8 @@ from .serializers import (
     OperationSystemSerializers, OperationSystemVersionSerializers, VpsTariffSerializers,
     VpsGetUserContractsListSerializer, VpsServiceContractCreateViaClientSerializers, ConvertDocx2PDFSerializer,
     ForceSaveFileSerializer, VpsPkcsSerializer, VpsServiceContractResponseViaClientSerializers,
-    VpsContractSerializerForDetail, VpsContractParticipantsSerializers, GroupVpsContractSerializerForBackoffice
+    VpsContractSerializerForDetail, VpsContractParticipantsSerializers, GroupVpsContractSerializerForBackoffice,
+    VpsExpertSummarySerializerForSave
 )
 from .serializers import FileUploadSerializer
 from .utils import get_configurations_context
@@ -91,6 +93,72 @@ class VpsTariffListView(generics.ListAPIView):
 class DeleteVpsContractView(generics.DestroyAPIView):
     queryset = VpsServiceContract.objects.all()
     permission_classes = [VpsServiceContractDeletePermission]
+
+
+class VpsConfirmContract(views.APIView):
+    permission_classes = (ConfirmContractPermission,)
+
+    def post(self, request):
+        contract = get_object_or_404(VpsServiceContract, pk=int(request.data['contract']))
+
+        if int(request.data['summary']) == 1:  # 1 -> muofiq, 0 -> muofiq emas
+            agreement_status = AgreementStatus.objects.get(name='Kelishildi')
+        else:
+            agreement_status = AgreementStatus.objects.get(name='Rad etildi')
+            contract.contract_status = 5  # REJECTED
+            # if contract.contract_cash >= 10_000_000:
+            #     director_participants = VpsContracts_Participants.objects.get(
+            #         Q(role__name=Role.RoleNames.DIRECTOR),
+            #         Q(contract=contract),
+            #     )
+            #     director_participants.agreement_status = agreement_status
+            #     director_participants.save()
+
+        contracts_participants = VpsContracts_Participants.objects.get(
+            Q(role=request.user.role),
+            Q(contract=contract),
+            Q(participant_user=request.user)
+        )
+
+        if contracts_participants is None or contracts_participants.participant_user != request.user:
+            responseErrorMessage(
+                message="you are not contract's participant",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+
+        contracts_participants.agreement_status = agreement_status
+        contracts_participants.save()
+
+        # If the amount of the contract is more than 10 million,
+        # it expects the director to give a conclusion
+        # director_role_name = \
+        #     Role.RoleNames.DIRECTOR if contract.contract_cash >= 10_000_000 else Role.RoleNames.DEPUTY_DIRECTOR
+        try:
+            cntrct = VpsContracts_Participants.objects.get(
+                contract=contract,
+                role__name=Role.RoleNames.DIRECTOR,
+                agreement_status__name='Kelishildi'
+            )
+        except VpsContracts_Participants.DoesNotExist:
+            cntrct = None
+
+        if cntrct:
+            contract.is_confirmed_contract = 2  # UNICON_CONFIRMED
+            contract.contract_status = 2  # CUSTOMER_SIGNATURE_IS_EXPECTED
+
+        contract.save()
+
+        request.data._mutable = True
+        request.data['user'] = request.user.id
+        documents = request.FILES.getlist('documents', None)
+
+        summary = VpsExpertSummarySerializerForSave(
+            data=request.data, context={'documents': documents}
+        )
+        summary.is_valid(raise_exception=True)
+        summary.save()
+
+        return response.Response(status=200)
 
 
 class FileUploadAPIView(views.APIView):

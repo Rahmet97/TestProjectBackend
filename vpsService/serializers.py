@@ -106,6 +106,24 @@ class VpsExpertSummarySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class VpsExpertSummarySerializerForSave(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        documents = self.context['documents']
+        expertsummary = VpsExpertSummary.objects.create(**validated_data)
+
+        for document in documents:
+            VpsExpertSummaryDocument.objects.create(
+                expertsummary=expertsummary,
+                document=document
+            )
+        return expertsummary
+
+    class Meta:
+        model = VpsExpertSummary
+        fields = "__all__"
+
+
 class VpsContractParticipantsSerializers(serializers.ModelSerializer):
     userdata = serializers.SerializerMethodField()
     expert_summary = serializers.SerializerMethodField()

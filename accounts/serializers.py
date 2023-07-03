@@ -1,6 +1,8 @@
 import logging
 
 from rest_framework import serializers
+
+from contracts.models import Service
 from .models import Group, RolePermission, Role, Permission, FizUser, YurUser, UserData, BankMFOName, UniconDatas
 
 logger = logging.getLogger(__name__)
@@ -8,12 +10,16 @@ logger = logging.getLogger(__name__)
 
 class GroupSerializer(serializers.ModelSerializer):
 
-    def create(self, validated_data):
-        return Group.objects.create(**validated_data)
-
     class Meta:
         model = Group
         fields = "__all__"
+
+
+class ServiceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Service
+        fields = ["id", "name", "slug"]
 
 
 class RolePermissionSerializer(serializers.ModelSerializer):
@@ -47,11 +53,29 @@ class PermissionSerializer(serializers.ModelSerializer):
 
 class UserDataSerializer(serializers.ModelSerializer):
     role = RoleSerializer()
-    group = GroupSerializer(many=True)
+    # group = GroupSerializer(many=True)
 
     class Meta:
         model = UserData
-        fields = ('id', 'username', 'role', 'group', 'type')
+        fields = ('id', 'username', 'role',  'type')  # 'group', 'type')
+
+    def to_representation(self, instance):
+        context = super().to_representation(instance)
+
+        # services = []
+        # for group in instance.group.all():
+        #     services.extend(ServiceSerializer(group.service_group.all(), many=True).data)
+        #
+        # services = [
+        #     service for group in instance.group.all()
+        #     for service in ServiceSerializer(group.service_group.all(), many=True).data
+        # ]
+
+        context["service"] = [
+            service for group in instance.group.all()
+            for service in ServiceSerializer(group.service_group.all(), many=True).data
+        ]
+        return context
 
 
 class FizUserSerializer(serializers.ModelSerializer):

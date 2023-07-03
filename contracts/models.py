@@ -92,7 +92,7 @@ class Service(models.Model):
     prefix = models.CharField(max_length=5, blank=True)
     description = models.TextField()
     image = models.ImageField(upload_to=slugify_upload)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="service_group")
     user_type = models.IntegerField(choices=users_type)
     pinned_user = models.ForeignKey(UserData, on_delete=models.CASCADE, blank=True, null=True)
     period = models.IntegerField()

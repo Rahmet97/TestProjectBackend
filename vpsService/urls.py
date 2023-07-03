@@ -22,6 +22,13 @@ urlpatterns = [
         name='CreateVpsServiceContractViaClientView'
     ),
 
+    # Endpoint to confirm an expertise service contract
+    path(
+        'confirm-contract',
+        views.VpsConfirmContract.as_view(),
+        name='VpsConfirmContract'
+    ),
+
     # Endpoint to get all expertise service contracts that the authenticated user is a participant in
     path('user-contracts', views.VpsGetUserContractsViews.as_view(), name='VpsGetUserContractsViews'),
 
