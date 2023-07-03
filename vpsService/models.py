@@ -67,7 +67,7 @@ class VpsServiceContract(models.Model):
         if VpsServiceContract.objects.all().exists():
             count = VpsServiceContract.objects.last().id  # to'girlab ketish kk
             count += 1
-        return f"VPS{count}"
+        return f"VM{count}"
 
     # @property
     # def total_payed_percentage(self):

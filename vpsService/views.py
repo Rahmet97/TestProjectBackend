@@ -37,7 +37,8 @@ from .permission import VpsServiceContractDeletePermission
 from .serializers import (
     OperationSystemSerializers, OperationSystemVersionSerializers,
     VpsTariffSerializers, VpsGetUserContractsListSerializer,
-    VpsServiceContractCreateViaClientSerializers, ConvertDocx2PDFSerializer, ForceSaveFileSerializer, VpsPkcsSerializer
+    VpsServiceContractCreateViaClientSerializers, ConvertDocx2PDFSerializer, ForceSaveFileSerializer, VpsPkcsSerializer,
+    VpsServiceContractResponseViaClientSerializers
 )
 from .serializers import FileUploadSerializer
 from .utils import get_configurations_context
@@ -336,6 +337,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             vps_service_contract = VpsServiceContract.objects.create(
                 **request_objects_serializers.validated_data,
                 # service=service_obj,
+                contract_number=context['contract_number'],
                 client=client,
                 status=4,
                 contract_status=1,  # new
@@ -396,8 +398,6 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             vps_service_contract.like_preview_pdf = like_preview_pdf_path
             vps_service_contract.save()
 
-            print("configurations >> ", configurations)
-
             for configuration_data in configurations:
                 self.create_vps_configurations(configuration_data, vps_service_contract)
 
@@ -422,7 +422,10 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                     agreement_status=agreement_status
                 ).save()
 
-            return response.Response(data={"message": "Created Vps Service Contract"}, status=201)
+            return response.Response(
+                data=VpsServiceContractResponseViaClientSerializers(vps_service_contract).data,
+                status=201
+            )
 
         template_name = "fizUzRuVPS.html"  # fizik
         if request.user.type == 2:  # yuridik

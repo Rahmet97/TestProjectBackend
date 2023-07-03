@@ -94,6 +94,13 @@ class VpsServiceContractCreateViaClientSerializers(serializers.ModelSerializer):
         fields = ["service", "contract_date", "configuration", "save"]  # "contract_cash",
 
 
+class VpsServiceContractResponseViaClientSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = VpsServiceContract
+        fields = ["id", "base64file"]
+        read_only_fields = ["id", "base64file"]
+
+
 class VpsPkcsSerializer(serializers.ModelSerializer):
     class Meta:
         model = VpsPkcs
