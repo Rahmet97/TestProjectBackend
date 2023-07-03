@@ -141,7 +141,7 @@ class UserDetailAPIView(APIView):
                     service_participants = ServiceParticipants.objects.filter(id__in=participant_ids)
 
                     data["with_ads"] = {
-                        str(sp.participant.service.group.slug): sp.with_eds
+                        str(sp.participant.service.slug): sp.with_eds
                         for sp in service_participants
                     }
 
@@ -412,7 +412,7 @@ class SelectedTarifDevicesAPIView(APIView):
 #             number = Contract.objects.last().id + 1
 #         except AttributeError:
 #             number = 1
-#         prefix = Service.objects.get(pk=int(request.data['service_id'])).group.prefix
+#         prefix = Service.objects.get(pk=int(request.data['service_id'])).prefix
 
 #         if request.user.type == 2:
 #             context['u_type'] = 'yuridik'
@@ -577,7 +577,7 @@ class CreateContractFileAPIView(APIView):
             number = int(Contract.objects.filter(is_free=False).last().contract_number.split("-")[-1]) + 1
         except AttributeError:
             number = 1
-        prefix = Service.objects.get(pk=int(request.data['service_id'])).group.prefix
+        prefix = Service.objects.get(pk=int(request.data['service_id'])).prefix
 
         if request.user.type == 2:
             context['u_type'] = 'yuridik'

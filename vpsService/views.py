@@ -88,9 +88,9 @@ class VpsTariffListView(generics.ListAPIView):
     # permission_classes = [permissions.IsAuthenticated]
 
 
-# class VpsServiceContractDeleteAPIView(generics.DestroyAPIView):
-#     queryset = VpsServiceContract.objects.all()
-#     permission_classes = [VpsServiceContractDeletePermission]
+class DeleteVpsContractView(generics.DestroyAPIView):
+    queryset = VpsServiceContract.objects.all()
+    permission_classes = [VpsServiceContractDeletePermission]
 
 
 class FileUploadAPIView(views.APIView):
@@ -193,7 +193,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 number = 1
         except ValueError:
             number = 1
-        prefix = "VM"  # service_obj.group.prefix
+        prefix = service_obj.prefix  # "VM"
         return number, prefix
 
     @staticmethod

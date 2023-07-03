@@ -12,11 +12,13 @@ urlpatterns = [
     # URL pattern for the list of operation system versions with a dynamic operation_system_id parameter
     path(
         'operations-systems-version-list/<str:operation_system_id>',
-        views.OperationSystemVersionListView.as_view(), name="operations-systems-version-list"
+        views.OperationSystemVersionListView.as_view(),
+        name="operations-systems-version-list"
     ),
 
     path(
-        'contract-create', views.CreateVpsServiceContractViaClientView.as_view(),
+        'contract-create',
+        views.CreateVpsServiceContractViaClientView.as_view(),
         name='CreateVpsServiceContractViaClientView'
     ),
 
@@ -29,7 +31,7 @@ urlpatterns = [
     # Endpoint to get all expertise service contracts for a particular group
     path('group-contracts', views.VpsGetGroupContract.as_view(), name='VpsGetGroupContract'),
 
-    # path('reject/<int:pk>', views.VpsServiceContractDeleteAPIView.as_view(), name='VpsServiceContractDeleteAPIView'),
+    path('reject/<int:pk>', views.DeleteVpsContractView.as_view(),name='DeleteVpsContractView'),
 
     path('file', views.FileUploadAPIView.as_view(), name='file_upload'),
     path('new-file', views.NewFileCreateAPIView.as_view(), name='newfile_upload'),
