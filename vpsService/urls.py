@@ -27,4 +27,5 @@ urlpatterns = [
     path('convert-to-pdf/', views.ConvertDocx2PDFAPIView.as_view(), name='convert_to_pdf'),
     path('save-file/', views.ForceSaveFileAPIView.as_view(), name='save_file'),
 
+    path('save-pkcs', views.VpsSavePkcs.as_view(), name='VpsSavePkcs'),
 ]

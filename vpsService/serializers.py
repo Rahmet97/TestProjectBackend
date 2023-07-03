@@ -12,7 +12,7 @@ from .models import (
     VpsContractDevice,
     VpsContracts_Participants,
     VpsExpertSummary,
-    VpsExpertSummaryDocument,
+    VpsExpertSummaryDocument, VpsPkcs,
 )
 
 
@@ -92,6 +92,12 @@ class VpsServiceContractCreateViaClientSerializers(serializers.ModelSerializer):
     class Meta:
         model = VpsServiceContract
         fields = ["service", "contract_date", "configuration", "save"]  # "contract_cash",
+
+
+class VpsPkcsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VpsPkcs
+        fields = '__all__'
 
 
 class FileUploadSerializer(serializers.Serializer):
