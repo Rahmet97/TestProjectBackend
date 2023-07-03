@@ -201,7 +201,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 number = 1
         except ValueError:
             number = 1
-        prefix = service_obj.group.prefix
+        prefix = "VM"  # service_obj.group.prefix
         return number, prefix
 
     @staticmethod
