@@ -106,6 +106,11 @@ class Service(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
 
 class Offer(models.Model):
     service = models.OneToOneField(Service, on_delete=models.CASCADE)
