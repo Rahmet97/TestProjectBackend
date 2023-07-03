@@ -88,14 +88,6 @@ class YurUserSerializerForContractDetail(serializers.ModelSerializer):
 
 
 class YurUserSerializer(serializers.ModelSerializer):
-    # bank_mfo = serializers.SerializerMethodField()
-
-    # def create(self, validated_data):
-    #     return YurUser.objects.create(**validated_data)
-
-    # @staticmethod
-    # def get_bank_mfo(obj):
-    #     return obj.bank_mfo.mfo
 
     class Meta:
         model = YurUser

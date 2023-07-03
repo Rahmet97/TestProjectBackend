@@ -11,6 +11,7 @@ from rest_framework import views, generics, permissions, response, status
 from django.core.files.storage import default_storage
 
 from accounts.models import UserData, YurUser, FizUser, Role, UniconDatas
+from accounts.serializers import YurUserSerializerForContractDetail, FizUserSerializerForContractDetail
 from contracts.models import AgreementStatus, Service, Participant
 from contracts.utils import error_response_500, render_to_pdf, delete_file, create_qr, generate_uid, hash_text
 from contracts.views import num2word
@@ -535,10 +536,14 @@ class VpsContractDetail(views.APIView):
         else:
             responseErrorMessage(message="You are not permitted to view this contact detail", status_code=200)
 
-        user = YurUser.objects.get(userdata=client)
-        client_serializer = VpsContractSerializerForDetail(user)
-        participants = VpsContracts_Participants.objects.filter(contract=contract).order_by('role_id')
+        if client.type == 1:  # fiz
+            user = FizUser.objects.get(userdata=client)
+            client_serializer = FizUserSerializerForContractDetail(user)
+        else:
+            user = YurUser.objects.get(userdata=client)
+            client_serializer = YurUserSerializerForContractDetail(user)
 
+        participants = VpsContracts_Participants.objects.filter(contract=contract).order_by('role_id')
         participant_serializer = VpsContractParticipantsSerializers(participants, many=True)
 
         try:
