@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from billing.views import calculate_vps
 from vpsService.enum_utils import VpsDevicePriceEnum
 

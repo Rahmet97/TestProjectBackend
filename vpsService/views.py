@@ -1,44 +1,33 @@
-import base64
-import hashlib
-import json
-import logging
-import os
-import requests
-from datetime import datetime
+import base64, hashlib, json, logging, os, requests
+from datetime import datetime, timedelta
 
 import xmltodict
 from docx import Document
 
 from django.db.models import Q
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render
 from django.conf import settings
 from rest_framework import views, generics, permissions, response, status
 from django.core.files.storage import default_storage
-from rest_framework.decorators import api_view
 
 from accounts.models import UserData, YurUser, FizUser, Role, UniconDatas
-from billing.views import calculate_vps
 from contracts.models import AgreementStatus, Service, Participant
 from contracts.utils import error_response_500, render_to_pdf, delete_file, create_qr, generate_uid, hash_text
 from contracts.views import num2word
+
+from main.permission import IsRelatedToBackOffice
 from main.utils import responseErrorMessage
+
 from .models import (
-    VpsServiceContract,
-    OperationSystem,
-    OperationSystemVersion,
-    VpsDevice,
-    VpsTariff,
-    VpsContractDevice,
-    VpsContracts_Participants,
-    VpsExpertSummary,
-    VpsExpertSummaryDocument, VpsPkcs,
+    VpsServiceContract, OperationSystem, OperationSystemVersion, VpsDevice, VpsTariff, VpsContractDevice,
+    VpsContracts_Participants, VpsExpertSummary, VpsExpertSummaryDocument, VpsPkcs,
 )
 from .permission import VpsServiceContractDeletePermission
 from .serializers import (
-    OperationSystemSerializers, OperationSystemVersionSerializers,
-    VpsTariffSerializers, VpsGetUserContractsListSerializer,
-    VpsServiceContractCreateViaClientSerializers, ConvertDocx2PDFSerializer, ForceSaveFileSerializer, VpsPkcsSerializer,
-    VpsServiceContractResponseViaClientSerializers
+    OperationSystemSerializers, OperationSystemVersionSerializers, VpsTariffSerializers,
+    VpsGetUserContractsListSerializer, VpsServiceContractCreateViaClientSerializers, ConvertDocx2PDFSerializer,
+    ForceSaveFileSerializer, VpsPkcsSerializer, VpsServiceContractResponseViaClientSerializers,
+    VpsContractSerializerForDetail, VpsContractParticipantsSerializers, GroupVpsContractSerializerForBackoffice
 )
 from .serializers import FileUploadSerializer
 from .utils import get_configurations_context
@@ -101,6 +90,7 @@ class VpsTariffListView(generics.ListAPIView):
 # class VpsServiceContractDeleteAPIView(generics.DestroyAPIView):
 #     queryset = VpsServiceContract.objects.all()
 #     permission_classes = [VpsServiceContractDeletePermission]
+
 
 class FileUploadAPIView(views.APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -498,3 +488,219 @@ class VpsSavePkcs(views.APIView):
         except VpsServiceContract.DoesNotExist:
             return response.Response({'message': 'Bunday shartnoma mavjud emas'})
         return response.Response({'message': 'Success'})
+
+
+class VpsGetUserContractsViews(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        contracts = VpsServiceContract.objects.filter(client=request.user).order_by('-id')
+        serializer = VpsGetUserContractsListSerializer(contracts, many=True)
+        return response.Response(serializer.data)
+
+
+class VpsContractDetail(views.APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    permitted_roles = [
+        Role.RoleNames.ADMIN,
+        Role.RoleNames.ACCOUNTANT,
+        Role.RoleNames.DIRECTOR,
+        Role.RoleNames.DEPUTY_DIRECTOR,
+        Role.RoleNames.DEPARTMENT_BOSS,
+        Role.RoleNames.SECTION_HEAD,
+        Role.RoleNames.SECTION_SPECIALIST,
+    ]
+
+    def get(self, request, pk):
+        client = None
+        contract = VpsServiceContract.objects.select_related('client').get(pk=pk)
+        contract_serializer = VpsContractSerializerForDetail(contract)
+
+        # agar request user mijoz bo'lsa
+        if request.user.role.name == Role.RoleNames.CLIENT and contract.client == request.user:
+            client = request.user
+
+        # agar reuqest user role permitted_roles tarkibida bo'lsa
+        elif request.user.role.name in self.permitted_roles:
+            client = contract.client
+            participant = VpsContracts_Participants.objects.filter(
+                contract=contract,
+                role=request.user.role,
+                participant_user=request.user,
+                agreement_status__name="Yuborilgan"
+            ).last()
+            if participant:
+                participant.agreement_status = AgreementStatus.objects.get(name="Ko'rib chiqilmoqda")
+                participant.save()
+        else:
+            responseErrorMessage(message="You are not permitted to view this contact detail", status_code=200)
+
+        user = YurUser.objects.get(userdata=client)
+        client_serializer = VpsContractSerializerForDetail(user)
+        participants = VpsContracts_Participants.objects.filter(contract=contract).order_by('role_id')
+
+        participant_serializer = VpsContractParticipantsSerializers(participants, many=True)
+
+        try:
+            expert_summary = VpsExpertSummary.objects.filter(
+                Q(contract=contract),
+                Q(user=request.user),
+                (Q(user__group__in=request.user.group.all()) | Q(user__group=None))
+            ).distinct()
+            expert_summary_value = expert_summary[0].summary if expert_summary.exists() else 0
+
+        except (VpsExpertSummary.DoesNotExist, IndexError):
+            expert_summary_value = 0
+
+        # projects_obj = ExpertiseServiceContractTarif.objects.filter(expertisetarifcontract__contract=contract)
+        # projects_obj_serializer = ExpertiseServiceContractProjects(projects_obj, many=True)
+        return response.Response(data={
+            'contract': contract_serializer.data,
+            'client': client_serializer.data,
+            'participants': participant_serializer.data,
+            # 'projects': projects_obj_serializer.data,
+            'is_confirmed': True if int(expert_summary_value) == 1 else False
+        }, status=200)
+
+
+class VpsGetGroupContract(views.APIView):
+    permission_classes = [IsRelatedToBackOffice]
+
+    def get(self, request):
+
+        # barcha contractlar
+        barcha_data = VpsServiceContract.objects.order_by('-contract_date')
+        self.check_object_permissions(request=request, obj=barcha_data)
+        barcha = GroupVpsContractSerializerForBackoffice(barcha_data, many=True)
+
+        # yangi contractlar
+        if request.user.role.name == Role.RoleNames.DIRECTOR:
+            contract_participants = VpsContracts_Participants.objects.filter(
+                Q(role__name=Role.RoleNames.DEPUTY_DIRECTOR),
+                Q(agreement_status__name='Kelishildi')
+            ).values('contract')
+
+            director_accepted_contracts = VpsContracts_Participants.objects.filter(
+                Q(role__name=Role.RoleNames.DIRECTOR), Q(agreement_status__name='Kelishildi')
+            ).values('contract')
+
+            yangi_data = barcha_data.filter(
+                Q(id__in=contract_participants) | Q(is_confirmed_contract=1),
+                Q(contract_status=1)
+            ).exclude(
+                Q(id__in=director_accepted_contracts),
+                Q(contract_status=5),  # REJECTED
+                Q(contract_status=6),  # CANCELLED
+                Q(contract_date__lt=datetime.now() - timedelta(days=1))
+            ).select_related().order_by('-contract_date')
+        else:
+            contract_participants = VpsContracts_Participants.objects.filter(
+                Q(role=request.user.role),
+                (Q(agreement_status__name='Yuborilgan') |
+                 Q(agreement_status__name="Ko'rib chiqilmoqda"))
+            ).values('contract')
+            yangi_data = barcha_data.filter(
+                id__in=contract_participants,
+                contract_status=1
+            ).exclude(
+                Q(contract_status=5) | Q(contract_status=6),  # REJECTED, CANCELLED
+                Q(contract_date__lt=datetime.now() - timedelta(days=1))
+            ).select_related().order_by('-contract_date')
+        self.check_object_permissions(request=request, obj=yangi_data)
+        yangi = GroupVpsContractSerializerForBackoffice(yangi_data, many=True)
+
+        # kelishilgan contractlar
+        contract_participants = VpsContracts_Participants.objects.filter(
+            role=request.user.role,
+            agreement_status__name='Kelishildi'
+        ).values_list('contract', flat=True)
+
+        # Retrieve contracts with the matching IDs, order by contract_date and prefetch related data
+        kelishilgan_data = barcha_data.filter(
+            id__in=contract_participants
+        ).exclude(
+            contract_status__in=[1, 5, 6, 7]  # List of contract_status values to exclude
+        ).select_related().order_by('-contract_date')
+        self.check_object_permissions(request=request, obj=kelishilgan_data)
+        kelishilgan = GroupVpsContractSerializerForBackoffice(kelishilgan_data, many=True)
+
+        # rad etilgan contractlar
+        rejected_cancelled_data = barcha_data.filter(
+            contract_status__in=[5, 6]  # REJECTED, CANCELLED
+        ).order_by('-contract_date')
+        self.check_object_permissions(request=request, obj=rejected_cancelled_data)
+        rad_etildi = GroupVpsContractSerializerForBackoffice(rejected_cancelled_data, many=True)
+
+        # expired contracts
+        # Retrieve contract IDs where the user's role matches and agreement_status is 'Kelishildi'
+        contract_participants = VpsContracts_Participants.objects.filter(
+            role=request.user.role,
+            agreement_status__name__in=['Yuborilgan', "Ko'rib chiqilmoqda"]
+        ).values_list('contract', flat=True)
+
+        expired_data = barcha_data.filter(
+            id__in=contract_participants,
+            contract_date__lt=datetime.now() - timedelta(days=1),
+            contract_status=1
+        ).select_related().exclude(
+            contract_status__in=[5, 6]  # REJECTED, CANCELLED
+        ).order_by('-contract_date')
+
+        self.check_object_permissions(request=request, obj=expired_data)
+        expired = GroupVpsContractSerializerForBackoffice(expired_data, many=True)
+
+        # last day contracts
+        today = datetime.now()
+        contract_participants = VpsContracts_Participants.objects.filter(
+            role=request.user.role,
+            agreement_status__name__in=['Yuborilgan', "Ko'rib chiqilmoqda"]
+        ).values_list('contract', flat=True)
+
+        lastday_data = barcha_data.filter(
+            id__in=contract_participants,
+            contract_date__date=today.date()
+        ).exclude(
+            contract_status__in=[5, 6]
+        ).select_related().order_by('-contract_date')
+        self.check_object_permissions(request=request, obj=lastday_data)
+        lastday = GroupVpsContractSerializerForBackoffice(lastday_data, many=True)
+
+        # expired accepted contracts
+        contract_participants = VpsContracts_Participants.objects.filter(
+            role=request.user.role,
+            agreement_status__name='Kelishildi'
+        ).values_list('contract', flat=True)
+
+        expired_accepted_data = barcha_data.filter(
+            id__in=contract_participants,
+            contract_date__lt=datetime.now() - timedelta(days=1)
+        ).select_related().order_by('-contract_date')
+        self.check_object_permissions(request=request, obj=expired_accepted_data)
+        expired_accepted = GroupVpsContractSerializerForBackoffice(expired_accepted_data, many=True)
+
+        # in_time contracts
+        # Retrieve contracts based on the specified conditions and ordering
+        contracts_selected = VpsExpertSummary.objects.select_related('contract').filter(
+            user=request.user
+        ).order_by('-contract', '-contract__contract_date')
+        # Filter the contracts that are in time based on the date comparison
+        in_time_data = [
+            element.contract for element in contracts_selected
+            if element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(days=1)
+        ]
+        self.check_object_permissions(request=request, obj=in_time_data)
+        in_time = GroupVpsContractSerializerForBackoffice(in_time_data, many=True)
+
+        return response.Response(
+            data={
+                'barcha': barcha.data,
+                'yangi': yangi.data,
+                'kelishildi': kelishilgan.data,
+                'rad_etildi': rad_etildi.data,
+                'expired': expired.data,
+                'lastday': lastday.data,
+                'expired_accepted': expired_accepted.data,
+                'in_time': in_time.data
+            },
+            status=200
+        )

@@ -52,3 +52,14 @@ class MonitoringPermission(permissions.BasePermission):
                         (Service.objects.filter(pinned_user=request.user).exists())
                 )
         )
+
+
+class IsRelatedToBackOffice(permissions.BasePermission):
+    message = "You do not have permission to view this datas"
+
+    def has_permission(self, request, view):
+        return (
+            request.user and
+            request.user.is_authenticated and
+            request.user.role.name != Role.RoleNames.CLIENT
+        )

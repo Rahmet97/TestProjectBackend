@@ -31,10 +31,10 @@ from accounts.models import YurUser, UserData, Role
 from accounts.serializers import YurUserSerializerForContractDetail
 
 from main.models import Application
-from main.permission import MonitoringPermission
+from main.permission import MonitoringPermission, IsRelatedToBackOffice
 from main.utils import responseErrorMessage
 
-from expertiseService.permission import IsRelatedToExpertiseBackOffice, ExpertiseConfirmContractPermission
+from expertiseService.permission import ExpertiseConfirmContractPermission
 from expertiseService.models import (
     AgreementStatus, ExpertiseContracts_Participants,
     ExpertiseServiceContract, ExpertiseTarifContract,
@@ -229,7 +229,7 @@ class CreateExpertiseServiceContractView(APIView):
 
 
 class ExpertiseGetGroupContract(APIView):
-    permission_classes = [IsRelatedToExpertiseBackOffice]
+    permission_classes = [IsRelatedToBackOffice]
 
     def get(self, request):
 

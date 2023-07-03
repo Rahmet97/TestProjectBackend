@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from accounts.models import YurUser, FizUser
+from accounts.serializers import YurUserSerializerForContractDetail, FizUserSerializerForContractDetail
 from billing.serializers import VpsTariffSummSerializer
 from contracts.models import Service
 from contracts.serializers import ServiceSerializerForContract
@@ -69,6 +71,70 @@ class VpsGetUserContractsListSerializer(serializers.ModelSerializer):
         return representation
 
 
+class VpsContractSerializerForDetail(serializers.ModelSerializer):
+
+    class Meta:
+        model = VpsServiceContract
+        fields = (
+            'id', 'contract_number', 'contract_date', 'expiration_date',
+            'contract_cash', 'payed_cash', 'base64file', 'hashcode',
+        )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["is_confirmed_contract"] = instance.is_confirmed_contract
+        representation["arrearage"] = instance.contract_cash - instance.payed_cash
+        representation["status"] = instance.get_status_display()
+        representation["contract_status"] = instance.get_contract_status_display()
+        return representation
+
+
+class VpsExpertSummarySerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+
+    def get_user(self, obj):
+        if obj.user.type == 2:
+            u = YurUser.objects.get(userdata=obj.user)
+            user = YurUserSerializerForContractDetail(u)
+        else:
+            u = FizUser.objects.get(userdata=obj.user)
+            user = FizUserSerializerForContractDetail(u)
+        return user.data
+
+    class Meta:
+        model = VpsExpertSummary
+        fields = "__all__"
+
+
+class VpsContractParticipantsSerializers(serializers.ModelSerializer):
+    userdata = serializers.SerializerMethodField()
+    expert_summary = serializers.SerializerMethodField()
+    agreement_status = serializers.CharField(source='agreement_status.name')
+
+    def get_userdata(self, obj):
+        userdata = obj.participant_user
+        if userdata.type == 2:
+            user = YurUser.objects.select_related('userdata').get(userdata=userdata)
+            return YurUserSerializerForContractDetail(user).data
+        else:
+            user = FizUser.objects.select_related('userdata').get(userdata=userdata)
+            return FizUserSerializerForContractDetail(user).data
+
+    def get_expert_summary(self, obj):
+        try:
+            userdata = obj.participant_user
+            summary = VpsExpertSummary.objects.get(contract=obj.contract, user=userdata)
+            serializer = VpsExpertSummarySerializer(summary)
+            return serializer.data
+        except VpsExpertSummary.DoesNotExist:
+            return {}
+
+    class Meta:
+        model = VpsContracts_Participants
+        fields = '__all__'
+
+
+
 # Serializer for VpsService Contract Via Client Create
 # class VpsServiceContractConfigurationCreateSerializers(serializers.ModelSerializer):
 #     tariff_id = serializers.IntegerField(required=False)
@@ -99,6 +165,34 @@ class VpsServiceContractResponseViaClientSerializers(serializers.ModelSerializer
         model = VpsServiceContract
         fields = ["id", "base64file"]
         read_only_fields = ["id", "base64file"]
+
+
+# Serializers for GetGroupContract API
+class GroupVpsContractSerializerForBackoffice(serializers.ModelSerializer):
+
+    class Meta:
+        model = VpsServiceContract
+        fields = ["id", "contract_number", "contract_date", "expiration_date", "contract_cash", "payed_cash"]
+        read_only_fields = ["id"]
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep["contract_status"] = instance.get_contract_status_display()
+        rep["arrearage"] = instance.contract_cash - instance.payed_cash
+
+        rep["client"] = {}
+        client = instance.client
+        if client.type == 2:
+            client = YurUser.objects.get(userdata=client)
+            rep["client"]["name"] = client.name
+            rep["client"]["full_name"] = client.full_name
+            rep["client"]["tin"] = client.tin
+        else:
+            client = FizUser.objects.get(userdata=client)
+            rep["client"]["full_name"] = client.full_name
+            rep["client"]["pin"] = client.pin
+
+        return rep
 
 
 class VpsPkcsSerializer(serializers.ModelSerializer):

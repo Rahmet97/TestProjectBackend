@@ -20,6 +20,23 @@ urlpatterns = [
         name='CreateVpsServiceContractViaClientView'
     ),
 
+    # Endpoint to get all expertise service contracts that the authenticated user is a participant in
+    path(
+        'user-contracts',
+        views.VpsGetUserContractsViews.as_view(),
+        name='VpsGetUserContractsViews'
+    ),
+
+    # Endpoint to get details of an expertise service contract by its primary key
+    path(
+        'contract-detail/<int:pk>',
+        views.VpsContractDetail.as_view(),
+        name='VpsContractDetail'
+    ),
+
+    # Endpoint to get all expertise service contracts for a particular group
+    path('group-contracts', views.VpsGetGroupContract.as_view(), name='VpsGetGroupContract'),
+
     # path('reject/<int:pk>', views.VpsServiceContractDeleteAPIView.as_view(), name='VpsServiceContractDeleteAPIView'),
 
     path('file', views.FileUploadAPIView.as_view(), name='file_upload'),
