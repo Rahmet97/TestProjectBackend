@@ -88,6 +88,8 @@ class Service(models.Model):
         (All, 'Yuridik va jismoniy')
     )
     name = models.CharField(max_length=50)
+    slug = models.CharField(max_length=100, blank=True)
+    prefix = models.CharField(max_length=5, blank=True)
     description = models.TextField()
     image = models.ImageField(upload_to=slugify_upload)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
