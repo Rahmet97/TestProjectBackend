@@ -1373,8 +1373,8 @@ class AddOldContractsViews(APIView):
             #         userdata=user_obj, user_type=1
             #     )
 
-            logger.error(f"user_obj is >> {user_obj}")
             user = get_object_or_404(FizUser, userdata=user_obj)
+            logger.error(f"user is >> {user}")
             serializer_class_user = self.serializer_class_fiz_user(instance=user, data=request.data, partial=True)
             serializer_class_user.is_valid(raise_exception=True)
             user = serializer_class_user.save()
@@ -1479,8 +1479,8 @@ class AddOldContractsViews(APIView):
             #     serializer_class_user = self.serializer_class_yur_user(data=request.data)
             #     serializer_class_user.is_valid(raise_exception=True)
             #     user = serializer_class_user.save(userdata=user_obj, user_type=2)
-            logger.error(f"user_obj is >> {user_obj}")
             user = get_object_or_404(YurUser, userdata=user_obj)
+            logger.error(f"user is >> {user}")
 
             serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
             serializer_class_user.is_valid(raise_exception=True)
