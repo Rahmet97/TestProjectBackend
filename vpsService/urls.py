@@ -29,6 +29,9 @@ urlpatterns = [
         name='VpsConfirmContract'
     ),
 
+    # Endpoint to get the contract file by its hash code
+    path('contract/<str:hash_code>', views.VpsGetContractFile.as_view(), name='VpsGetContractFile'),
+
     # Endpoint to get all expertise service contracts that the authenticated user is a participant in
     path('user-contracts', views.VpsGetUserContractsViews.as_view(), name='VpsGetUserContractsViews'),
 
