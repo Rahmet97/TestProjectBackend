@@ -1460,14 +1460,6 @@ class AddOldContractsViews(APIView):
             if UserData.objects.filter(username=tin).exists():
                 user_obj = UserData.objects.get(username=tin)
             else:
-                # user_obj = UserData(
-                #     username=str(request.data.get("tin")),
-                #     type=2,
-                #     # role=role_user,
-                #     role=Role.objects.get(name=Role.RoleNames.CLIENT),
-                # )
-                # user_obj.set_password(director_firstname[0].upper() + tin + director_firstname[-1].upper())
-                # user_obj.save()
 
                 username = str(tin)
                 password = director_firstname[0].upper() + username + director_firstname[-1].upper()
@@ -1478,6 +1470,7 @@ class AddOldContractsViews(APIView):
                     role=Role.objects.get(name=Role.RoleNames.CLIENT),
                     password=make_password(password)
                 )
+                logger.error(f"user_obj1 is >> {user_obj}")
 
             user = YurUser.objects.get(userdata=user_obj)
             logger.error(f"user is >> {user}")
