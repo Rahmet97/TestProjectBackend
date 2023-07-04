@@ -797,7 +797,8 @@ class VpsGetContractFile(views.APIView):
                 contract.save()
 
             file_pdf_path, pdf_file_name = file_downloader(
-                base64file=bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'),
+                # base64file=bytes(contract.base64file[2:len(contract.base64file) - 1], 'utf-8'),
+                base64file=bytes(contract.base64file[2:len(contract.base64file) - 1], 'ascii'),
                 pk=contract.id,
             )
             if os.path.exists(file_pdf_path):
