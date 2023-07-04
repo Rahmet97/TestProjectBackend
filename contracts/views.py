@@ -1355,31 +1355,18 @@ class AddOldContractsViews(APIView):
             if UserData.objects.filter(username=pin).exists():
                 user_obj = UserData.objects.get(username=pin)
             else:
-                # user_obj = UserData(
-                #     username=str(pin),
-                #     type=1,
-                #     first_name=first_name,
-                #     last_name=request.data.get("last_name"),
-                #     # role=role_user
-                #     role=Role.objects.get(name=Role.RoleNames.CLIENT)
-                # )
-                # user_obj.set_password(first_name[0].upper() + pin + first_name[-1].upper())
-                # user_obj.save()
-
-                username = str(pin)
-                password = first_name[0].upper() + pin + first_name[-1].upper()
-
-                user_obj = UserData.objects.create(
-                    username=username,
+                user_obj = UserData(
+                    username=str(pin),
                     type=1,
                     first_name=first_name,
                     last_name=request.data.get("last_name"),
-                    role=Role.objects.get(name=Role.RoleNames.CLIENT),
-                    password=make_password(password)
+                    # role=role_user
+                    role=Role.objects.get(name=Role.RoleNames.CLIENT)
                 )
+                user_obj.set_password(first_name[0].upper() + pin + first_name[-1].upper())
+                user_obj.save()
 
-            user = get_object_or_404(FizUser, userdata=user_obj)
-            logger.error(f"user is >> {user}")
+            user = FizUser.objects.get_or_create(userdata=user_obj)
             serializer_class_user = self.serializer_class_fiz_user(instance=user, data=request.data, partial=True)
             serializer_class_user.is_valid(raise_exception=True)
             user = serializer_class_user.save()
