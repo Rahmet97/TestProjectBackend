@@ -177,13 +177,24 @@ def render_to_pdf(template_src: str, context_dict=None):
     template = get_template(template_name=template_src)
     html = template.render(context_dict)
 
-    result = BytesIO()
-    pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result, encoding="utf-8")
-
-    if not pdf.err:
-        pdf_content_with_page_breaks = insert_page_breaks(result.getvalue())
-        return HttpResponse(pdf_content_with_page_breaks, content_type='application/pdf')
+    pdf_bytes = generate_pdf(html)
+    if pdf_bytes is not None:
+        return HttpResponse(pdf_bytes, content_type='application/pdf')
     return None
+
+
+def generate_pdf(html):
+    try:
+        result = BytesIO()
+        pdf = pisa.CreatePDF(BytesIO(html.encode("UTF-8")), dest=result, encoding='UTF-8')
+        if not pdf.err:
+            pdf_content_with_page_breaks = insert_page_breaks(result.getvalue())
+            return pdf_content_with_page_breaks
+        return None
+    except Exception as e:
+        # Handle any exceptions that may occur during PDF generation
+        logger.info(f"PDF generation error: {e}")
+        return None
 
 
 def insert_page_breaks(pdf_content):
