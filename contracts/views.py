@@ -1332,10 +1332,11 @@ class AddOldContractsViews(APIView):
         "yur": False
     }
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, usertype):
         # Get the value of the "type" argument from the URL
         # Look up the corresponding constant value in the model based on the string argument
-        type_u = self.userTtype.get(kwargs.get("usertype", "").lower(), None)
+        type_u = self.userTtype.get(usertype.lower(), None)
+        logger.error(f"type_u >> {type_u}")
         # If the argument is not recognized, return a 404 error response
         if type_u is None:
             error_response_404()
@@ -1402,10 +1403,6 @@ class AddOldContractsViews(APIView):
                         connect_method_count=contract_tarif_device_serializer.validated_data.get("odf_count"),
                         if_tarif_is_unit=int(request.data.get("if_tarif_is_unit", 0))
                     )
-
-            # today = datetime.now().date()
-            # prefix = 'CC'
-            # id_code = generate_contract_number(today, prefix)
 
             contract = contract_serializer.save(
                 client=user_obj,
