@@ -8,6 +8,7 @@ import xmltodict
 from decimal import Decimal
 
 import requests
+from django.contrib.auth.hashers import make_password
 from django.http import HttpResponse
 from django.core.exceptions import ValidationError
 
@@ -1353,25 +1354,28 @@ class AddOldContractsViews(APIView):
             if UserData.objects.filter(username=pin).exists():
                 user_obj = UserData.objects.get(username=pin)
             else:
-                user_obj = UserData(
-                    username=str(pin),
+                # user_obj = UserData(
+                #     username=str(pin),
+                #     type=1,
+                #     first_name=first_name,
+                #     last_name=request.data.get("last_name"),
+                #     # role=role_user
+                #     role=Role.objects.get(name=Role.RoleNames.CLIENT)
+                # )
+                # user_obj.set_password(first_name[0].upper() + pin + first_name[-1].upper())
+                # user_obj.save()
+
+                username = str(pin)
+                password = first_name[0].upper() + pin + first_name[-1].upper()
+
+                user_obj = UserData.objects.create(
+                    username=username,
                     type=1,
                     first_name=first_name,
                     last_name=request.data.get("last_name"),
-                    # role=role_user
-                    role=Role.objects.get(name=Role.RoleNames.CLIENT)
+                    role=Role.objects.get(name=Role.RoleNames.CLIENT),
+                    password=make_password(password)
                 )
-                user_obj.set_password(first_name[0].upper() + pin + first_name[-1].upper())
-                user_obj.save()
-
-            # if FizUser.objects.filter(userdata=user_obj).exists():
-            #     user = FizUser.objects.get(userdata=user_obj)
-            # else:
-            #     serializer_class_user = self.serializer_class_fiz_user(data=request.data)
-            #     serializer_class_user.is_valid(raise_exception=True)
-            #     user = serializer_class_user.save(
-            #         userdata=user_obj, user_type=1
-            #     )
 
             user = get_object_or_404(FizUser, userdata=user_obj)
             logger.error(f"user is >> {user}")
@@ -1459,26 +1463,25 @@ class AddOldContractsViews(APIView):
             if UserData.objects.filter(username=tin).exists():
                 user_obj = UserData.objects.get(username=tin)
             else:
-                user_obj = UserData(
-                    username=str(request.data.get("tin")),
-                    type=2,
-                    # role=role_user,
-                    role=Role.objects.get(name=Role.RoleNames.CLIENT),
-                )
-                user_obj.set_password(director_firstname[0].upper() + tin + director_firstname[-1].upper())
-                user_obj.save()
+                # user_obj = UserData(
+                #     username=str(request.data.get("tin")),
+                #     type=2,
+                #     # role=role_user,
+                #     role=Role.objects.get(name=Role.RoleNames.CLIENT),
+                # )
+                # user_obj.set_password(director_firstname[0].upper() + tin + director_firstname[-1].upper())
+                # user_obj.save()
 
-            # if YurUser.objects.filter(userdata=user_obj).exists():
-            #
-            #     user = YurUser.objects.get(userdata=user_obj)
-            #     serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
-            #     serializer_class_user.is_valid(raise_exception=True)
-            #     user = serializer_class_user.save()
-            #
-            # else:
-            #     serializer_class_user = self.serializer_class_yur_user(data=request.data)
-            #     serializer_class_user.is_valid(raise_exception=True)
-            #     user = serializer_class_user.save(userdata=user_obj, user_type=2)
+                username = str(request.data.get("tin"))
+                password = director_firstname[0].upper() + tin + director_firstname[-1].upper()
+
+                user_obj = UserData.objects.create(
+                    username=username,
+                    type=2,
+                    role=Role.objects.get(name=Role.RoleNames.CLIENT),
+                    password=make_password(password)
+                )
+
             user = get_object_or_404(YurUser, userdata=user_obj)
             logger.error(f"user is >> {user}")
 
@@ -1498,10 +1501,6 @@ class AddOldContractsViews(APIView):
                 if_tarif_is_unit=int(request.data.get("if_tarif_is_unit", 0))
 
             )
-
-            # today = datetime.now().date()
-            # prefix = 'CC'
-            # id_code = generate_contract_number(today, prefix)
 
             contract_serializer = self.serializer_class_contract(data=request.data)
             contract_serializer.is_valid(raise_exception=True)
