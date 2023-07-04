@@ -1478,7 +1478,7 @@ class AddOldContractsViews(APIView):
                 user_obj.save()
                 logger.error(f"user_obj.username is >> {user_obj.username}")
 
-            user = YurUser.objects.get(userdata=user_obj)
+            user = YurUser.objects.get_or_create(userdata=user_obj)
             logger.error(f"user is >> {user}")
 
             serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
