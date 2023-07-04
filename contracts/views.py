@@ -1469,15 +1469,14 @@ class AddOldContractsViews(APIView):
                 #     type=2,
                 #     role=Role.objects.get(name=Role.RoleNames.CLIENT),
                 # )
-                user_obj=UserData.objects.create_user(
+                user_obj = UserData(
                     username=username,
-                    password=password,
                     type=2,
                     role=Role.objects.get(name=Role.RoleNames.CLIENT),
                 )
-                # user_obj.set_password(password)
-                # user_obj.save()
-                logger.error(f"user_obj2 is >> {user_obj}")
+                user_obj.set_password(password)
+                user_obj.save()
+                logger.error(f"user_obj.username is >> {user_obj.username}")
 
             user = YurUser.objects.get(userdata=user_obj)
             logger.error(f"user is >> {user}")
