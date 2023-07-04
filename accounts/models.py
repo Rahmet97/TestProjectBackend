@@ -299,7 +299,7 @@ class YurUser(models.Model):
     full_name = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return self.name or "Unnamed YurUser"
 
     @property
     def get_director_short_full_name(self):
