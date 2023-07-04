@@ -1459,16 +1459,10 @@ class AddOldContractsViews(APIView):
 
             if UserData.objects.filter(username=tin).exists():
                 user_obj = UserData.objects.get(username=tin)
-                logger.error(f"user_obj1 is >> {user_obj}")
             else:
                 username = str(tin)
                 password = director_firstname[0].upper() + username + director_firstname[-1].upper()
 
-                # user_obj = UserData.objects.create(
-                #     username=username,
-                #     type=2,
-                #     role=Role.objects.get(name=Role.RoleNames.CLIENT),
-                # )
                 user_obj = UserData(
                     username=username,
                     type=2,
@@ -1476,10 +1470,14 @@ class AddOldContractsViews(APIView):
                 )
                 user_obj.set_password(password)
                 user_obj.save()
-                logger.error(f"user_obj.username is >> {user_obj.username}")
 
             user = YurUser.objects.get_or_create(userdata=user_obj)
-            logger.error(f"user is >> {user}")
+
+            serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
+            serializer_class_user.is_valid(raise_exception=True)
+            user = serializer_class_user.save()
+
+            user, _ = YurUser.objects.get_or_create(userdata=user_obj)
 
             serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
             serializer_class_user.is_valid(raise_exception=True)
