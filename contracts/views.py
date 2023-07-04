@@ -1471,12 +1471,6 @@ class AddOldContractsViews(APIView):
                 user_obj.set_password(password)
                 user_obj.save()
 
-            user = YurUser.objects.get_or_create(userdata=user_obj)
-
-            serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
-            serializer_class_user.is_valid(raise_exception=True)
-            user = serializer_class_user.save()
-
             user, _ = YurUser.objects.get_or_create(userdata=user_obj)
 
             serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
