@@ -432,15 +432,8 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             if contract_file_for_base64_pdf is None:
                 error_response_500()
 
-            # contract_file = open(contract_file_for_base64_pdf, 'rb').read()
-            # base64code = base64.b64encode(contract_file)
-
-            # Read the contract file as text using UTF-8 encoding
-            with open(contract_file_for_base64_pdf, 'r', encoding='utf-8') as file:
-                contract_text = file.read()
-
-            # Encode the text to Base64
-            base64code = base64.b64encode(contract_text.encode('utf-8'))
+            contract_file = open(contract_file_for_base64_pdf, 'rb').read()
+            base64code = base64.b64encode(contract_file)
 
             # delete pdf file
             delete_file(contract_file_for_base64_pdf)

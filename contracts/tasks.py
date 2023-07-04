@@ -46,14 +46,29 @@ def file_creator(context, number):
 
 
 # @shared_task
+# def file_downloader(base64file, pk):
+#     """Return: pdf_file_path and pdf_file_name"""
+#     file_name = f'DM-{pk}.pdf'
+#     file_path = f"{settings.MEDIA_ROOT}/Contract/{file_name}"
+#     decoded_file = base64.b64decode(base64file)
+#     file_docx = open(file_path, 'wb')
+#     file_docx.write(decoded_file)
+#     file_docx.close()
+#     return file_path, file_name
+
+
 def file_downloader(base64file, pk):
     """Return: pdf_file_path and pdf_file_name"""
+    import base64
+
     file_name = f'DM-{pk}.pdf'
     file_path = f"{settings.MEDIA_ROOT}/Contract/{file_name}"
-    decoded_file = base64.b64decode(base64file)
-    file_docx = open(file_path, 'wb')
-    file_docx.write(decoded_file)
-    file_docx.close()
+    decoded_file = base64.b64decode(base64file, 'utf-8')
+
+    file_pdf = open(file_path, 'wb')
+    file_pdf.write(decoded_file)
+    file_pdf.close()
+
     return file_path, file_name
 
 
