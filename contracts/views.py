@@ -1469,8 +1469,8 @@ class AddOldContractsViews(APIView):
                 # user_obj.set_password(director_firstname[0].upper() + tin + director_firstname[-1].upper())
                 # user_obj.save()
 
-                username = str(request.data.get("tin"))
-                password = director_firstname[0].upper() + tin + director_firstname[-1].upper()
+                username = str(tin)
+                password = director_firstname[0].upper() + username + director_firstname[-1].upper()
 
                 user_obj = UserData.objects.create(
                     username=username,
@@ -1479,7 +1479,7 @@ class AddOldContractsViews(APIView):
                     password=make_password(password)
                 )
 
-            user = get_object_or_404(YurUser, userdata=user_obj)
+            user = YurUser.objects.get(userdata=user_obj)
             logger.error(f"user is >> {user}")
 
             serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
