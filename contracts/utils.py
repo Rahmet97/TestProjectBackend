@@ -173,6 +173,36 @@ def convert_docx_to_pdf(docx_file_path: str):
 #     return pdf_content_with_page_breaks
 
 
+# def render_to_pdf(template_src: str, context_dict=None):
+#     template = get_template(template_name=template_src)
+#     html = template.render(context_dict)
+#
+#     pdf_bytes = generate_pdf(html)
+#     if pdf_bytes is not None:
+#         return HttpResponse(pdf_bytes, content_type='application/pdf')
+#     return None
+#
+#
+# def generate_pdf(html):
+#     try:
+#         result = BytesIO()
+#         pdf = pisa.CreatePDF(BytesIO(html.encode("UTF-8")), dest=result, encoding='UTF-8')
+#         if not pdf.err:
+#             pdf_content_with_page_breaks = insert_page_breaks(result.getvalue())
+#             return pdf_content_with_page_breaks
+#         return None
+#     except Exception as e:
+#         # Handle any exceptions that may occur during PDF generation
+#         logger.info(f"PDF generation error: {e}")
+#         return None
+#
+#
+# def insert_page_breaks(pdf_content):
+#     page_break_tag = '<div style="page-break-after: always;"></div>'
+#     pdf_content_with_page_breaks = pdf_content.replace(b'<body>', page_break_tag.encode('utf-8') + b'<body>')
+#     return pdf_content_with_page_breaks
+
+
 def render_to_pdf(template_src: str, context_dict=None):
     template = get_template(template_name=template_src)
     html = template.render(context_dict)
@@ -186,7 +216,8 @@ def render_to_pdf(template_src: str, context_dict=None):
 def generate_pdf(html):
     try:
         result = BytesIO()
-        pdf = pisa.CreatePDF(BytesIO(html.encode("UTF-8")), dest=result, encoding='UTF-8')
+        html_encoded = html.encode("utf-8")
+        pdf = pisa.CreatePDF(BytesIO(html_encoded), dest=result, encoding='utf-8')
         if not pdf.err:
             pdf_content_with_page_breaks = insert_page_breaks(result.getvalue())
             return pdf_content_with_page_breaks
