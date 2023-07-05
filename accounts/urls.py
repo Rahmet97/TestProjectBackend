@@ -6,7 +6,7 @@ from .views import (
     PermissionCreateAPIView, GroupListAPIView, PermissionListAPIView, RoleUpdateDeleteAPIView,
     PermissionUpdateDeleteAPIView, GroupDetailAPIView, UpdateYurUserAPIView, UpdateFizUserAPIView,
     GetBankNameAPIView, GetCurrentTimeAPIView, UniconDataAPIView, RoleListAPIView, GetUsersForBackOffice,
-    GetUsersDetailForBackOffice, RoleDetailAPIView
+    GetUsersDetailForBackOffice, RoleDetailAPIView, GetUserInfo
 )
 
 
@@ -32,6 +32,7 @@ urlpatterns = [
 
     path('get-users', GetUsersForBackOffice.as_view(), name='GetUsersForBackOffice'),
     path('get-users/<int:pk>', GetUsersDetailForBackOffice.as_view(), name='GetUsersDetailForBackOffice'),
+    path('get-user', GetUserInfo.as_view(), name='GetUserInfo'),
 
     path('unicon-data', UniconDataAPIView.as_view(), name="unicon-data")
 ]

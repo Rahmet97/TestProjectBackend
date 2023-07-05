@@ -5,14 +5,18 @@ from django.db import transaction
 from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status, response, views, permissions
+from rest_framework.generics import get_object_or_404
 
 from main.utils import responseErrorMessage
 
-from .models import Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName, RolePermission, UniconDatas
+from .models import (
+    Group, Role, Permission, UserData, YurUser, FizUser, BankMFOName, RolePermission, UniconDatas
+)
 from .permissions import SuperAdminPermission, WorkerPermission
 from .serializers import (
     GroupSerializer, RoleSerializer, PermissionSerializer, PinUserToGroupRoleSerializer,
-    YurUserSerializer, FizUserSerializer, BankMFONameSerializer, UniconDataSerializer
+    YurUserSerializer, FizUserSerializer, BankMFONameSerializer, UniconDataSerializer,
+    FizUserSerializerForContractDetail, YurUserSerializerForContractDetail
 )
 
 logger = logging.getLogger(__name__)
@@ -131,7 +135,6 @@ class PermissionListAPIView(generics.ListAPIView):
     # cache_backend = RedisCache
 
     def get_queryset(self):
-
         group_filter = self.request.user.group.all() if self.request.user.group.all() else None
 
         role_permissions = RolePermission.objects.filter(
@@ -295,3 +298,29 @@ class UniconDataAPIView(views.APIView):
             history_record.save()
 
         return response.Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class GetUserInfo(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        fiz = request.GET.get('fiz')
+        yur = request.GET.get('yur')
+
+        if fiz and yur:
+            return response.Response(
+                {'detail': 'Both fiz and yur parameters provided.'}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if fiz:
+            user = get_object_or_404(FizUser, pin=fiz)
+            serializer = FizUserSerializerForContractDetail(user)
+        elif yur:
+            user = get_object_or_404(YurUser, tin=yur)
+            serializer = YurUserSerializerForContractDetail(user)
+        else:
+            return response.Response(
+                {'detail': 'No fiz or yur parameter provided.'}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
