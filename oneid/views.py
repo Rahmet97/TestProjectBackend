@@ -141,7 +141,7 @@ class GetUser(views.APIView):
             data['pport_issue_date'] = json.loads(res.content)['_pport_issue_date']
             data['pport_expr_date'] = json.loads(res.content)['_pport_expr_date']
             data['ctzn'] = self.kiril2latin(data['ctzn'])
-            data['per_adr'] = self.kiril2latin(data['per_adr'])
+            data['per_adr'] = self.kiril2latin(data.get('per_adr'))
             data['pport_issue_place'] = self.kiril2latin(data['pport_issue_place'])
             data['natn'] = self.kiril2latin(data['natn'])
             if data['legal_info']:
