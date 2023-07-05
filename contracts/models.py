@@ -196,7 +196,7 @@ class UserContractTarifDevice(models.Model):
     rack_count = models.IntegerField(blank=True, null=True)
     connect_method = models.ForeignKey(ConnetMethod, on_delete=models.CASCADE, blank=True, null=True)
     odf_count = models.IntegerField(blank=True, null=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=20, decimal_places=2)
     total_electricity = models.IntegerField(blank=True, null=True)
     devices = models.ManyToManyField(Device, through='UserDeviceCount')
 
