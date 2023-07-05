@@ -63,7 +63,7 @@ def file_downloader(base64file, pk):
 
     file_name = f'DM-{pk}.pdf'
     file_path = f"{settings.MEDIA_ROOT}/Contract/{file_name}"
-    decoded_file = base64.b64decode(base64file, 'ascii')
+    decoded_file = base64.b64decode(base64file)
 
     file_pdf = open(file_path, 'wb')
     file_pdf.write(decoded_file)
