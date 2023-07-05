@@ -1,14 +1,11 @@
-import logging
-import os
-import qrcode
-import subprocess
-import hashlib
-import secrets
-import string
+import logging, os,  qrcode, subprocess, hashlib, secrets, string
 
 from io import BytesIO
+
+from django.contrib.staticfiles import finders
 from django.http import HttpResponse
 from django.template.loader import get_template, render_to_string
+from reportlab.pdfbase import pdfmetrics
 
 from xhtml2pdf import pisa
 
@@ -18,6 +15,7 @@ from docx.shared import Pt
 
 from django.conf import settings
 from rest_framework import validators, status
+from xhtml2pdf.default import DEFAULT_FONT
 
 # from xhtml2pdf.default import DEFAULT_CSS
 
@@ -220,6 +218,12 @@ def generate_pdf(html):
         pdf = pisa.CreatePDF(BytesIO(html_encoded), dest=result, encoding='utf-8')
         if not pdf.err:
             pdf_content_with_page_breaks = insert_page_breaks(result.getvalue())
+            # ########
+            # Get the absolute file path of Code2000.ttf using Django's staticfiles finder
+            font_path = finders.find('Code2000.ttf')
+            # Register the Code2000 font
+            pdfmetrics.registerFont(DEFAULT_FONT + font_path, 'Code2000')
+            # ########
             return pdf_content_with_page_breaks
         return None
     except Exception as e:
