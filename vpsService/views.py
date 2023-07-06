@@ -412,7 +412,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             if request.user.type == 1:
                 hash_text_part = context.get('user_obj').full_name
             else:
-                hash_text_part = context.get('user_obj').get_director_full_name()
+                hash_text_part = context.get('user_obj').get_director_full_name
 
             hash_code = self.generate_hash_code(
                 text=f"{hash_text_part}{context.get('contract_number')}{context.get('u_type')}{datetime.now()}"
