@@ -244,6 +244,22 @@ class ForceSaveFileAPIView(views.APIView):
         return response.Response(rsp)
 
 
+class CallbackUrlAPIView(views.APIView):
+    permission_classes = ()
+
+    def post(self, request):
+        body = request.body.decode('utf-8')
+        json_data = json.loads(body)
+
+        if json_data['status'] == 2:
+            download_uri = json_data['url']
+            rsp = requests.get(download_uri)
+
+            with open(download_uri, 'wb') as f:
+                f.write(rsp.content)
+        return response.Response({'error': 0})
+
+
 class CreateVpsServiceContractViaClientView(views.APIView):
     queryset = VpsServiceContract.objects.all()
     permission_classes = [permissions.IsAuthenticated]
