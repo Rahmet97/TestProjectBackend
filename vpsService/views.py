@@ -32,7 +32,7 @@ from .serializers import (
     VpsGetUserContractsListSerializer, VpsServiceContractCreateViaClientSerializers, ConvertDocx2PDFSerializer,
     ForceSaveFileSerializer, VpsPkcsSerializer, VpsServiceContractResponseViaClientSerializers,
     VpsContractSerializerForDetail, VpsContractParticipantsSerializers, GroupVpsContractSerializerForBackoffice,
-    VpsExpertSummarySerializerForSave
+    VpsExpertSummarySerializerForSave, VpsUserForContractCreateSerializers
 )
 from .serializers import FileUploadSerializer
 from .utils import get_configurations_context
@@ -344,12 +344,23 @@ class CreateVpsServiceContractViaClientView(views.APIView):
 
         number, prefix = self.get_number_and_prefix(request_objects_serializers.validated_data.get("service"))
 
-        if request.user.type == 2:
-            context['u_type'] = 'yuridik'
-            context["user_obj"] = YurUser.objects.get(userdata=request.user)
-        elif request.user.type == 1:
-            context['u_type'] = 'fizik'
-            context["user_obj"] = FizUser.objects.get(userdata=request.user)
+        if request_objects_serializers.validated_data.get("is_back_office"):
+
+            user_serializers = VpsUserForContractCreateSerializers(data=request.data)
+            user_serializers.is_valid(raise_exception=True)
+            if user_serializers.validated_data.get("user_type") == 2:
+                context['u_type'] = 'yuridik'
+                context["user_obj"] = YurUser.objects.get(tin=user_serializers.validated_data.get("pin_or_tin"))
+            elif user_serializers.validated_data.get("user_type") == 1:
+                context['u_type'] = 'fizik'
+                context["user_obj"] = FizUser.objects.get(pip=user_serializers.validated_data.get("pin_or_tin"))
+        else:
+            if request.user.type == 2:
+                context['u_type'] = 'yuridik'
+                context["user_obj"] = YurUser.objects.get(userdata=request.user)
+            elif request.user.type == 1:
+                context['u_type'] = 'fizik'
+                context["user_obj"] = FizUser.objects.get(userdata=request.user)
 
         context['contract_number'] = prefix + '-' + str(number)
 

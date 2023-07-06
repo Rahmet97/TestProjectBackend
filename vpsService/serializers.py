@@ -72,7 +72,6 @@ class VpsGetUserContractsListSerializer(serializers.ModelSerializer):
 
 
 class VpsContractSerializerForDetail(serializers.ModelSerializer):
-
     class Meta:
         model = VpsServiceContract
         fields = (
@@ -152,7 +151,6 @@ class VpsContractParticipantsSerializers(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
 # Serializer for VpsService Contract Via Client Create
 # class VpsServiceContractConfigurationCreateSerializers(serializers.ModelSerializer):
 #     tariff_id = serializers.IntegerField(required=False)
@@ -168,14 +166,26 @@ class VpsContractParticipantsSerializers(serializers.ModelSerializer):
 #         ]
 
 
+class VpsUserForContractCreateSerializers(serializers.Serializer):
+    USER_TYPES = (
+        (1, 'fiz'),
+        (2, 'yur'),
+        # Add more options if needed
+    )
+
+    user_type = serializers.ChoiceField(choices=USER_TYPES)
+    pin_or_tin = serializers.CharField(max_length=255)
+
+
 class VpsServiceContractCreateViaClientSerializers(serializers.ModelSerializer):
     service = serializers.PrimaryKeyRelatedField(queryset=Service.objects.all())
     configuration = VpsTariffSummSerializer(many=True)
     save = serializers.BooleanField(default=False)
+    is_back_office = serializers.BooleanField(default=False)
 
     class Meta:
         model = VpsServiceContract
-        fields = ["service", "contract_date", "configuration", "save"]  # "contract_cash",
+        fields = ["service", "contract_date", "configuration", "save", "is_back_office"]  # "contract_cash",
 
 
 class VpsServiceContractResponseViaClientSerializers(serializers.ModelSerializer):
@@ -187,7 +197,6 @@ class VpsServiceContractResponseViaClientSerializers(serializers.ModelSerializer
 
 # Serializers for GetGroupContract API
 class GroupVpsContractSerializerForBackoffice(serializers.ModelSerializer):
-
     class Meta:
         model = VpsServiceContract
         fields = ["id", "contract_number", "contract_date", "expiration_date", "contract_cash", "payed_cash"]
