@@ -359,10 +359,11 @@ class CreateVpsServiceContractViaClientView(views.APIView):
         context = dict()
         request_objects_serializers = VpsServiceContractCreateViaClientSerializers(data=request.data)
         request_objects_serializers.is_valid(raise_exception=True)
+        is_back_office = request_objects_serializers.validated_data.pop("is_back_office")
 
         number, prefix = self.get_number_and_prefix(request_objects_serializers.validated_data.get("service"))
 
-        if request_objects_serializers.validated_data.get("is_back_office"):
+        if is_back_office:
 
             user_serializers = VpsUserForContractCreateSerializers(data=request.data)
             user_serializers.is_valid(raise_exception=True)
