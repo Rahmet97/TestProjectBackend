@@ -250,6 +250,7 @@ class CallbackUrlAPIView(views.APIView):
     def post(self, request):
         body = request.body.decode('utf-8')
         json_data = json.loads(body)
+        print('json_data >>>>> ', json_data)
 
         if json_data['status'] == 2:
             download_uri = json_data['url']
