@@ -364,15 +364,15 @@ class CreateVpsServiceContractViaClientView(views.APIView):
         number, prefix = self.get_number_and_prefix(request_objects_serializers.validated_data.get("service"))
 
         if is_back_office:
-
             user_serializers = VpsUserForContractCreateSerializers(data=request.data)
             user_serializers.is_valid(raise_exception=True)
+            pin_or_tin=user_serializers.validated_data.get("pin_or_tin")
             if user_serializers.validated_data.get("user_type") == 2:
                 context['u_type'] = 'yuridik'
-                context["user_obj"] = YurUser.objects.get(tin=user_serializers.validated_data.get("pin_or_tin"))
+                context["user_obj"] = YurUser.objects.get(tin=pin_or_tin)
             elif user_serializers.validated_data.get("user_type") == 1:
                 context['u_type'] = 'fizik'
-                context["user_obj"] = FizUser.objects.get(pin=user_serializers.validated_data.get("pin_or_tin"))
+                context["user_obj"] = FizUser.objects.get(pin=pin_or_tin)
         else:
             if request.user.type == 2:
                 context['u_type'] = 'yuridik'
@@ -424,7 +424,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             context['qr_code'] = f"http://api2.unicon.uz/media/qr/{hash_code}.png"
 
             # Contract yaratib olamiz bazada id_code olish uchun
-            client = request.user
+            client = context["user_obj"].userdata
             vps_service_contract = VpsServiceContract.objects.create(
                 **request_objects_serializers.validated_data,
                 # service=service_obj,
