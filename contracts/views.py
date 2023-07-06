@@ -1344,6 +1344,7 @@ class AddOldContractsViews(APIView):
         if type_u:
             pin = request.data.get("pin", None)
             first_name = request.data.get("first_name", None)
+            last_name = request.data.get("last_name", None)
             file = request.FILES.get('file', None)
 
             if not pin or not first_name or not file:
@@ -1354,18 +1355,18 @@ class AddOldContractsViews(APIView):
             if UserData.objects.filter(username=pin).exists():
                 user_obj = UserData.objects.get(username=pin)
             else:
+                username = str(pin)
+                password = first_name[0].upper() + username + last_name[-1].upper()
+
                 user_obj = UserData(
-                    username=str(pin),
+                    username=username,
                     type=1,
-                    first_name=first_name,
-                    last_name=request.data.get("last_name"),
-                    # role=role_user
-                    role=Role.objects.get(name=Role.RoleNames.CLIENT)
+                    role=Role.objects.get(name=Role.RoleNames.CLIENT),
                 )
-                user_obj.set_password(first_name[0].upper() + pin + first_name[-1].upper())
+                user_obj.set_password(password)
                 user_obj.save()
 
-            user = FizUser.objects.get_or_create(userdata=user_obj)
+            user, _ = FizUser.objects.get_or_create(userdata=user_obj)
             serializer_class_user = self.serializer_class_fiz_user(instance=user, data=request.data, partial=True)
             serializer_class_user.is_valid(raise_exception=True)
             user = serializer_class_user.save()
