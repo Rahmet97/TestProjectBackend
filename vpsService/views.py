@@ -220,7 +220,7 @@ class ConvertDocx2PDFAPIView(views.APIView):
             file_url = rsp['fileUrl']
         else:
             return response.Response({'message': 'Does not converted!'})
-        return response.Response({'file_url': file_url})
+        return response.Response({'file_url': file_url.replace('onlyoffice-documentserver', '185.74.4.35:81')})
 
 
 class ForceSaveFileAPIView(views.APIView):
