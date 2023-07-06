@@ -252,7 +252,7 @@ class CallbackUrlAPIView(views.APIView):
         json_data = json.loads(body)
         print('json_data >>>>> ', json_data)
 
-        if json_data['status'] == 2:
+        if json_data['status'] == 2 or json_data['status'] == 6:
             download_uri = json_data['url']
             rsp = requests.get(download_uri)
 
