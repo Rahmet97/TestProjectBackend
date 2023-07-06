@@ -255,8 +255,8 @@ class CallbackUrlAPIView(views.APIView):
         if json_data['status'] == 2 or json_data['status'] == 6:
             download_uri = json_data['url']
             rsp = requests.get(download_uri)
-            print(request.GET.get('filename'))
-            path_for_save = f"{settings.MEDIA_ROOT}/Contract/{request.GET.get('filename')}"
+            print(request.query_params.get('filename'))
+            path_for_save = f"{settings.MEDIA_ROOT}/Contract/{request.query_params.get('filename')}"
             with open(path_for_save, 'wb') as f:
                 f.write(rsp.content)
         return response.Response({'error': 0})
