@@ -1381,12 +1381,8 @@ class AddOldContractsViews(APIView):
             is_discount = contract_serializer.validated_data.pop('is_discount', False)
             if is_discount:
                 price_total_old_contract = contract_serializer.validated_data.get("price_with_discount")
-                logger.info(
-                    f"is_discount={is_discount}, {price_total_old_contract}"
-                )
             else:
                 if not contract_serializer.validated_data.get("is_free"):
-                    logger.info(f"else is work")
                     price_total_old_contract = total_old_contract_price(
                         electricity=contract_tarif_device_serializer.validated_data.get("total_electricity"),
                         tarif_pk=contract_tarif_device_serializer.validated_data.get("tarif"),
@@ -1472,18 +1468,24 @@ class AddOldContractsViews(APIView):
             contract_tarif_device_serializer = self.serializer_class_contract_tarif_device(data=request.data)
             contract_tarif_device_serializer.is_valid(raise_exception=True)
 
-            price_total_old_contract = total_old_contract_price(
-                electricity=contract_tarif_device_serializer.validated_data.get("total_electricity"),
-                tarif_pk=contract_tarif_device_serializer.validated_data.get("tarif"),
-                tarif_count=contract_tarif_device_serializer.validated_data.get("rack_count"),
-                connect_method_pk=contract_tarif_device_serializer.validated_data.get("connect_method"),
-                connect_method_count=contract_tarif_device_serializer.validated_data.get("odf_count"),
-                if_tarif_is_unit=int(request.data.get("if_tarif_is_unit", 0))
-
-            )
-
             contract_serializer = self.serializer_class_contract(data=request.data)
             contract_serializer.is_valid(raise_exception=True)
+
+            price_total_old_contract = 0
+            is_discount = contract_serializer.validated_data.pop('is_discount', False)
+            if is_discount:
+                price_total_old_contract = contract_serializer.validated_data.get("price_with_discount")
+            else:
+                if not contract_serializer.validated_data.get("is_free"):
+                    price_total_old_contract = total_old_contract_price(
+                        electricity=contract_tarif_device_serializer.validated_data.get("total_electricity"),
+                        tarif_pk=contract_tarif_device_serializer.validated_data.get("tarif"),
+                        tarif_count=contract_tarif_device_serializer.validated_data.get("rack_count"),
+                        connect_method_pk=contract_tarif_device_serializer.validated_data.get("connect_method"),
+                        connect_method_count=contract_tarif_device_serializer.validated_data.get("odf_count"),
+                        if_tarif_is_unit=int(request.data.get("if_tarif_is_unit", 0))
+                    )
+
             contract = contract_serializer.save(
                 client=user_obj,
                 # id_code=id_code,
