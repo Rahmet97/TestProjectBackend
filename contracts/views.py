@@ -1336,7 +1336,6 @@ class AddOldContractsViews(APIView):
         # Get the value of the "type" argument from the URL
         # Look up the corresponding constant value in the model based on the string argument
         type_u = self.userTtype.get(usertype.lower(), None)
-        logger.error(f"type_u >> {type_u}")
         # If the argument is not recognized, return a 404 error response
         if type_u is None:
             error_response_404()
@@ -1382,7 +1381,7 @@ class AddOldContractsViews(APIView):
             if is_discount:
                 price_total_old_contract = contract_serializer.validated_data.get("price_with_discount")
             else:
-                if not contract_serializer.validated_data.get("is_free"):
+                if contract_serializer.validated_data.get("is_free") is False:
                     price_total_old_contract = total_old_contract_price(
                         electricity=contract_tarif_device_serializer.validated_data.get("total_electricity"),
                         tarif_pk=contract_tarif_device_serializer.validated_data.get("tarif"),
@@ -1476,7 +1475,7 @@ class AddOldContractsViews(APIView):
             if is_discount:
                 price_total_old_contract = contract_serializer.validated_data.get("price_with_discount")
             else:
-                if not contract_serializer.validated_data.get("is_free"):
+                if contract_serializer.validated_data.get("is_free") is False:
                     price_total_old_contract = total_old_contract_price(
                         electricity=contract_tarif_device_serializer.validated_data.get("total_electricity"),
                         tarif_pk=contract_tarif_device_serializer.validated_data.get("tarif"),
