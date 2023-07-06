@@ -372,7 +372,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 context["user_obj"] = YurUser.objects.get(tin=user_serializers.validated_data.get("pin_or_tin"))
             elif user_serializers.validated_data.get("user_type") == 1:
                 context['u_type'] = 'fizik'
-                context["user_obj"] = FizUser.objects.get(pip=user_serializers.validated_data.get("pin_or_tin"))
+                context["user_obj"] = FizUser.objects.get(pin=user_serializers.validated_data.get("pin_or_tin"))
         else:
             if request.user.type == 2:
                 context['u_type'] = 'yuridik'
