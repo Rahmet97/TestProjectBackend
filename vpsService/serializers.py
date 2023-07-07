@@ -188,6 +188,17 @@ class VpsServiceContractCreateViaClientSerializers(serializers.ModelSerializer):
         fields = ["service", "contract_date", "configuration", "save", "is_back_office"]  # "contract_cash",
 
 
+class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
+    client_user = VpsUserForContractCreateSerializers()
+
+    service = serializers.PrimaryKeyRelatedField(queryset=Service.objects.all())
+    configuration = VpsTariffSummSerializer(many=True)
+
+    class Meta:
+        model = VpsServiceContract
+        fields = ["service", "contract_date", "configuration", "client_user"]  # "contract_cash",
+
+
 class VpsServiceContractResponseViaClientSerializers(serializers.ModelSerializer):
     class Meta:
         model = VpsServiceContract

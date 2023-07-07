@@ -21,6 +21,11 @@ urlpatterns = [
         views.CreateVpsServiceContractViaClientView.as_view(),
         name='CreateVpsServiceContractViaClientView'
     ),
+    path(
+        'premade-contract-create',
+        views.CreateVpsContractWithFile.as_view(),
+        name='CreateVpsContractWithFile'
+    ),
 
     # Endpoint to confirm an expertise service contract
     path(

@@ -1356,7 +1356,7 @@ class AddOldContractsViews(APIView):
                 user_obj = UserData.objects.get(username=pin)
             else:
                 username = str(pin)
-                password = first_name[0].upper() + username + last_name[-1].upper()
+                password = first_name[0].upper() + username + first_name[-1].upper()
 
                 user_obj = UserData(
                     username=username,

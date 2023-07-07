@@ -90,6 +90,18 @@ class VpsServiceContract(models.Model):
         super().save(*args, **kwargs)
 
 
+class PremadeContractFile(models.Model):
+    """ Premade contract file -> online word and pdf file"""
+    contract = models.ForeignKey(
+        to=VpsServiceContract, related_name="premade_contract_file",
+        on_delete=models.CASCADE, null=True, blank=True
+    )
+    file = models.FileField(upload_to=slugify_upload)
+
+    def __str__(self):
+        return f"{self.contract} - premade contract file"
+
+
 class VpsServiceContractFile(models.Model):
     contract = models.OneToOneField(VpsServiceContract, on_delete=models.CASCADE)
     file = models.FileField(upload_to=slugify_upload)
