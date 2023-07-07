@@ -105,6 +105,7 @@ class Role(models.Model):
         # ECONOMIST = "iqtisodchi", "iqtisodchi"
         ACCOUNTANT = "buxgalteriya", "buxgalteriya"
         DISPATCHER = "dispetcher", "dispetcher"
+        LEAD_ENGINEER = "yetakchi muhandis", "yetakchi muhandis"
         CLIENT = "mijoz", "mijoz"
 
     name = models.CharField(max_length=50, choices=RoleNames.choices)
