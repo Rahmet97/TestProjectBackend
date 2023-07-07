@@ -90,7 +90,7 @@ class VpsServiceContract(models.Model):
         super().save(*args, **kwargs)
 
 
-class PremadeContractFile(models.Model):
+class VpsPremadeContractFile(models.Model):
     """ Premade contract file -> online word and pdf file"""
     contract = models.ForeignKey(
         to=VpsServiceContract, related_name="premade_contract_file",

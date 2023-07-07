@@ -10,13 +10,18 @@ from .models import (
     VpsContracts_Participants,
     VpsExpertSummary,
     VpsExpertSummaryDocument,
-    VpsPkcs
+    VpsPkcs, VpsPremadeContractFile
 )
 
 
 @admin.register(VpsServiceContract)
 class VpsServiceContractAdmin(admin.ModelAdmin):
     list_display = ["contract_status", "contract_number", "contract_cash", "payed_cash"]
+
+
+@admin.register(VpsPremadeContractFile)
+class VpsPremadeContractFileAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(OperationSystem)

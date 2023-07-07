@@ -27,7 +27,7 @@ from main.utils import responseErrorMessage
 
 from .models import (
     VpsServiceContract, OperationSystem, OperationSystemVersion, VpsDevice, VpsTariff, VpsContractDevice,
-    VpsContracts_Participants, VpsExpertSummary, VpsExpertSummaryDocument, VpsPkcs,
+    VpsContracts_Participants, VpsExpertSummary, VpsExpertSummaryDocument, VpsPkcs, VpsPremadeContractFile
 )
 from .permission import VpsServiceContractDeletePermission
 from .serializers import (
@@ -1022,7 +1022,7 @@ class CreateVpsContractWithFile(views.APIView):
 
         # contract file for base64 pdf -> before it file uploaded and created to db
         if file:
-            premade_contract_file = PremadeContractFile.objects.create(contract=vps_service_contract, file=file)
+            premade_contract_file = VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file)
             file_path = premade_contract_file.file.path
             if os.path.exists(file_path):
                 try:
