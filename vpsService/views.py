@@ -43,6 +43,96 @@ from .utils import get_configurations_context
 logger = logging.getLogger(__name__)
 
 
+# ##############
+def create_contract_participants(service_obj, exclude_role=None):
+    participants = Participant.objects.get(service_id=service_obj.id).participants.all().exclude(name=exclude_role)
+    users = []
+    service_group = service_obj.group
+    for role in participants:
+
+        query = Q(role=role) & (Q(group__in=[service_group]) | Q(group=None))
+        matching_user = UserData.objects.filter(query).last()
+
+        if matching_user is not None:
+            users.append(matching_user)
+        else:
+            logger.error("226 -> No matching user found")
+
+    return users
+
+
+def create_vps_configurations(configuration_data: dict, contract: object):
+    if configuration_data.pop("count_vm") != len(configuration_data.get("operation_system_versions")):
+        contract.delete()
+
+        responseErrorMessage(
+            "count_vm is equal to count of operation system versions !!",
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+    tariff = configuration_data.pop("tariff")
+
+    operation_system_versions = configuration_data.pop("operation_system_versions")
+    for os_version in operation_system_versions:
+        operation_system_version = os_version.get("operation_system_version")
+        operation_system = operation_system_version.operation_system
+        ipv_address = os_version.get("ipv_address")
+
+        if tariff:
+            vps_device, _ = VpsDevice.objects.get_or_create(
+                operation_system=operation_system,
+                operation_system_version=operation_system_version,
+
+                storage_type=tariff.vps_device.storage_type,
+                storage_disk=tariff.vps_device.storage_disk,
+                cpu=tariff.vps_device.cpu,
+                ram=tariff.vps_device.ram,
+                internet=tariff.vps_device.internet,
+                tasix=tariff.vps_device.tasix,
+                imut=tariff.vps_device.imut,
+                ipv_address=ipv_address
+            )
+        else:
+            # Retrieve an object or create it if it doesn't exist
+            vps_device, _ = VpsDevice.objects.get_or_create(
+                operation_system=operation_system,
+                operation_system_version=operation_system_version,
+
+                ipv_address=ipv_address,
+                **configuration_data
+            )
+
+        VpsContractDevice.objects.create(
+            contract=contract,
+            device=vps_device
+        )
+
+
+def get_number_and_prefix(service_obj):
+    """
+    return:
+        number -> int
+        prefix -> str
+    """
+    try:
+        last_contract = VpsServiceContract.objects.last()
+        if last_contract and last_contract.contract_number:
+            number = int(last_contract.contract_number.split("-")[-1]) + 1
+        else:
+            number = 1
+    except ValueError:
+        number = 1
+    prefix = service_obj.prefix  # "VM"
+    return number, prefix
+
+
+def generate_hash_code(text: str):
+    hashcode = hashlib.md5(text.encode())
+    hash_code = hashcode.hexdigest()
+    return hash_code
+# #############
+
+
 # View for listing OperationSystem objects
 class OperationSystemListView(generics.ListAPIView):
     # Retrieve all OperationSystem objects
@@ -269,102 +359,13 @@ class CreateVpsServiceContractViaClientView(views.APIView):
     queryset = VpsServiceContract.objects.all()
     permission_classes = [permissions.IsAuthenticated]
 
-    @staticmethod
-    def get_number_and_prefix(service_obj):
-        """
-        return:
-            number -> int
-            prefix -> str
-        """
-        try:
-            last_contract = VpsServiceContract.objects.last()
-            if last_contract and last_contract.contract_number:
-                number = int(last_contract.contract_number.split("-")[-1]) + 1
-            else:
-                number = 1
-        except ValueError:
-            number = 1
-        prefix = service_obj.prefix  # "VM"
-        return number, prefix
-
-    @staticmethod
-    def generate_hash_code(text: str):
-        hashcode = hashlib.md5(text.encode())
-        hash_code = hashcode.hexdigest()
-        return hash_code
-
-    @staticmethod
-    def create_contract_participants(service_obj, exclude_role=None):
-        participants = Participant.objects.get(service_id=service_obj.id).participants.all().exclude(name=exclude_role)
-        users = []
-        service_group = service_obj.group
-        for role in participants:
-
-            query = Q(role=role) & (Q(group__in=[service_group]) | Q(group=None))
-            matching_user = UserData.objects.filter(query).last()
-
-            if matching_user is not None:
-                users.append(matching_user)
-            else:
-                logger.error("226 -> No matching user found")
-
-        return users
-
-    @staticmethod
-    def create_vps_configurations(configuration_data: dict, contract: object):
-
-        if configuration_data.pop("count_vm") != len(configuration_data.get("operation_system_versions")):
-            contract.delete()
-
-            responseErrorMessage(
-                "count_vm is equal to count of operation system versions !!",
-                status_code=status.HTTP_400_BAD_REQUEST
-            )
-
-        tariff = configuration_data.pop("tariff")
-
-        operation_system_versions = configuration_data.pop("operation_system_versions")
-        for os_version in operation_system_versions:
-            operation_system_version = os_version.get("operation_system_version")
-            operation_system = operation_system_version.operation_system
-            ipv_address = os_version.get("ipv_address")
-
-            if tariff:
-                vps_device, _ = VpsDevice.objects.get_or_create(
-                    operation_system=operation_system,
-                    operation_system_version=operation_system_version,
-
-                    storage_type=tariff.vps_device.storage_type,
-                    storage_disk=tariff.vps_device.storage_disk,
-                    cpu=tariff.vps_device.cpu,
-                    ram=tariff.vps_device.ram,
-                    internet=tariff.vps_device.internet,
-                    tasix=tariff.vps_device.tasix,
-                    imut=tariff.vps_device.imut,
-                    ipv_address=ipv_address
-                )
-            else:
-                # Retrieve an object or create it if it doesn't exist
-                vps_device, _ = VpsDevice.objects.get_or_create(
-                    operation_system=operation_system,
-                    operation_system_version=operation_system_version,
-
-                    ipv_address=ipv_address,
-                    **configuration_data
-                )
-
-            VpsContractDevice.objects.create(
-                contract=contract,
-                device=vps_device
-            )
-
     def post(self, request):
         context = dict()
         request_objects_serializers = VpsServiceContractCreateViaClientSerializers(data=request.data)
         request_objects_serializers.is_valid(raise_exception=True)
         is_back_office = request_objects_serializers.validated_data.pop("is_back_office")
 
-        number, prefix = self.get_number_and_prefix(request_objects_serializers.validated_data.get("service"))
+        number, prefix = get_number_and_prefix(request_objects_serializers.validated_data.get("service"))
 
         if is_back_office:
             user_serializers = VpsUserForContractCreateSerializers(data=request.data)
@@ -417,7 +418,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             else:
                 hash_text_part = context.get('user_obj').get_director_full_name
 
-            hash_code = self.generate_hash_code(
+            hash_code = generate_hash_code(
                 text=f"{hash_text_part}{context.get('contract_number')}{context.get('u_type')}{datetime.now()}"
             )
 
@@ -493,7 +494,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             vps_service_contract.save()
 
             for configuration_data in configurations:
-                self.create_vps_configurations(configuration_data, vps_service_contract)
+                create_vps_configurations(configuration_data, vps_service_contract)
 
             # VpsContracts_Participants
             # if the amount of the contract is less than 10 million,
@@ -502,7 +503,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             # if vps_service_contract.contract_cash < 10_000_000:
             #     exclude_role = Role.RoleNames.DIRECTOR
 
-            participants = self.create_contract_participants(
+            participants = create_contract_participants(
                 service_obj=service_obj,
                 exclude_role=exclude_role
             )
@@ -857,95 +858,6 @@ class CreateVpsContractWithFile(views.APIView):
     serializer_class_fiz_user = FizUserForOldContractSerializers
     permission_classes = [permissions.IsAuthenticated]  # -> for employee
 
-    @staticmethod
-    def get_number_and_prefix(service_obj):
-        """
-        return:
-            number -> int
-            prefix -> str
-        """
-        try:
-            last_contract = VpsServiceContract.objects.last()
-            if last_contract and last_contract.contract_number:
-                number = int(last_contract.contract_number.split("-")[-1]) + 1
-            else:
-                number = 1
-        except ValueError:
-            number = 1
-        prefix = service_obj.prefix  # "VM"
-        return number, prefix
-
-    @staticmethod
-    def generate_hash_code(text: str):
-        hashcode = hashlib.md5(text.encode())
-        hash_code = hashcode.hexdigest()
-        return hash_code
-
-    @staticmethod
-    def create_contract_participants(service_obj, exclude_role=None):
-        participants = Participant.objects.get(service_id=service_obj.id).participants.all().exclude(name=exclude_role)
-        users = []
-        service_group = service_obj.group
-        for role in participants:
-
-            query = Q(role=role) & (Q(group__in=[service_group]) | Q(group=None))
-            matching_user = UserData.objects.filter(query).last()
-
-            if matching_user is not None:
-                users.append(matching_user)
-            else:
-                logger.error("226 -> No matching user found")
-
-        return users
-
-    @staticmethod
-    def create_vps_configurations(configuration_data: dict, contract: object):
-
-        if configuration_data.pop("count_vm") != len(configuration_data.get("operation_system_versions")):
-            contract.delete()
-
-            responseErrorMessage(
-                "count_vm is equal to count of operation system versions !!",
-                status_code=status.HTTP_400_BAD_REQUEST
-            )
-
-        tariff = configuration_data.pop("tariff")
-
-        operation_system_versions = configuration_data.pop("operation_system_versions")
-        for os_version in operation_system_versions:
-            operation_system_version = os_version.get("operation_system_version")
-            operation_system = operation_system_version.operation_system
-            ipv_address = os_version.get("ipv_address")
-
-            if tariff:
-                vps_device, _ = VpsDevice.objects.get_or_create(
-                    operation_system=operation_system,
-                    operation_system_version=operation_system_version,
-
-                    storage_type=tariff.vps_device.storage_type,
-                    storage_disk=tariff.vps_device.storage_disk,
-                    cpu=tariff.vps_device.cpu,
-                    ram=tariff.vps_device.ram,
-                    internet=tariff.vps_device.internet,
-                    tasix=tariff.vps_device.tasix,
-                    imut=tariff.vps_device.imut,
-                    ipv_address=ipv_address
-                )
-            else:
-                # Retrieve an object or create it if it doesn't exist
-                vps_device, _ = VpsDevice.objects.get_or_create(
-                    operation_system=operation_system,
-                    operation_system_version=operation_system_version,
-
-                    ipv_address=ipv_address,
-                    **configuration_data
-                )
-
-            VpsContractDevice.objects.create(
-                contract=contract,
-                device=vps_device
-            )
-
     def post(self, request):
         serializer_class_user = None
         contract_serializer = self.serializer_class_contract(data=request.data)
@@ -996,13 +908,13 @@ class CreateVpsContractWithFile(views.APIView):
         request_objects_serializers.is_valid(raise_exception=True)
 
         service_obj = request_objects_serializers.validated_data.get("service")
-        number, prefix = self.get_number_and_prefix(service_obj)
+        number, prefix = get_number_and_prefix(service_obj)
         contract_number = prefix + '-' + str(number)
 
         configurations = request_objects_serializers.validated_data.pop("configuration")
         _, configurations_total_price, _ = get_configurations_context(configurations)
 
-        hash_code = self.generate_hash_code(
+        hash_code = generate_hash_code(
             text=f"{hash_text_part}{contract_number}{u_type}{datetime.now()}"
         )
 
@@ -1036,7 +948,7 @@ class CreateVpsContractWithFile(views.APIView):
         vps_service_contract.save()
 
         for configuration_data in configurations:
-            self.create_vps_configurations(configuration_data, vps_service_contract)
+            create_vps_configurations(configuration_data, vps_service_contract)
 
         # VpsContracts_Participants
         # if the amount of the contract is less than 10 million,
@@ -1045,7 +957,7 @@ class CreateVpsContractWithFile(views.APIView):
         # if vps_service_contract.contract_cash < 10_000_000:
         #     exclude_role = Role.RoleNames.DIRECTOR
 
-        participants = self.create_contract_participants(
+        participants = create_contract_participants(
             service_obj=service_obj,
             exclude_role=exclude_role
         )
