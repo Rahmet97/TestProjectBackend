@@ -200,7 +200,29 @@ class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
         model = VpsServiceContract
         fields = ["service", "contract_date", "configuration", "client_user"]  # "contract_cash",
 
-    def to_internal_value(self, data):
+    # def to_internal_value(self, data):
+    #     # Update the "configuration" field if present in the data
+    #     configuration_data = data.get("configuration")
+    #     client_user_data = data.get("client_user")
+    #
+    #     if configuration_data:
+    #         try:
+    #             modified_configuration_data = json.loads(configuration_data)
+    #             data["configuration"] = modified_configuration_data
+    #         except json.JSONDecodeError:
+    #             raise serializers.ValidationError("Invalid configuration data. Unable to decode JSON.")
+    #
+    #     if client_user_data:
+    #         try:
+    #             modified_client_user_data = json.loads(client_user_data)
+    #             print("pin_or_tin >> ", modified_client_user_data.get("pin_or_tin"))
+    #             data["client_user"] = modified_client_user_data
+    #         except json.JSONDecodeError:
+    #             raise serializers.ValidationError("Invalid client user data. Unable to decode JSON.")
+    #
+    #     return super().to_internal_value(data)
+
+    def validate(self, data):
         # Update the "configuration" field if present in the data
         configuration_data = data.get("configuration")
         client_user_data = data.get("client_user")
@@ -215,12 +237,11 @@ class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
         if client_user_data:
             try:
                 modified_client_user_data = json.loads(client_user_data)
-                print("pin_or_tin >> ", modified_client_user_data.get("pin_or_tin"))
                 data["client_user"] = modified_client_user_data
             except json.JSONDecodeError:
                 raise serializers.ValidationError("Invalid client user data. Unable to decode JSON.")
 
-        return super().to_internal_value(data)
+        return super().validate(data)
 
 
 class VpsServiceContractResponseViaClientSerializers(serializers.ModelSerializer):
