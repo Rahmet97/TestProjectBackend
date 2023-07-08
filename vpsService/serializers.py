@@ -204,15 +204,6 @@ class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
         # Update the "configuration" field if present in the data
         configuration_data = data.get("configuration")
         if configuration_data:
-            # Modify the configuration data as needed
-            # modified_configuration_data = [...]  # Apply your logic to update the configuration data
-
-            # Update the "configuration" field in the data dictionary
-            # data["configuration"] = modified_configuration_data
-            print("configuration_data >> ", configuration_data)
-            print("configuration_type >> ", type(configuration_data))
-
-        if configuration_data:
             # Deserialize the configuration data from string to JSON
             print(">>>>>>>>>>>>>>>>> >> ")
             print("configuration_data >> ", configuration_data)
