@@ -210,7 +210,7 @@ class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
             # Deserialize the configuration data from string to JSON
             try:
                 # modified_configuration_data = json.dumps(json.loads(configuration_data))
-                modified_configuration_data = json.dumps(configuration_data)
+                modified_configuration_data = json.loads(configuration_data)
                 # modified_configuration_data = VpsTariffSummSerializer(configuration_data, many=True).data
             except json.JSONDecodeError:
                 # Handle any JSON decoding errors
