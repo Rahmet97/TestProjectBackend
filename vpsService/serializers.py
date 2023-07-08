@@ -211,7 +211,7 @@ class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
             try:
                 # modified_configuration_data = json.dumps(json.loads(configuration_data))
                 # modified_configuration_data = json.dumps(configuration_data)
-                modified_configuration_data = VpsTariffSummSerializer(configuration_data, many=True)
+                modified_configuration_data = VpsTariffSummSerializer(configuration_data, many=True).data
             except json.JSONDecodeError:
                 # Handle any JSON decoding errors
                 raise serializers.ValidationError("Invalid configuration data. Unable to decode JSON.")
