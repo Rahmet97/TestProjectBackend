@@ -215,6 +215,7 @@ class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
         if client_user_data:
             try:
                 modified_client_user_data = json.loads(client_user_data)
+                print("pin_or_tin >> ", modified_client_user_data.get("pin_or_tin"))
                 data["client_user"] = modified_client_user_data
             except json.JSONDecodeError:
                 raise serializers.ValidationError("Invalid client user data. Unable to decode JSON.")
