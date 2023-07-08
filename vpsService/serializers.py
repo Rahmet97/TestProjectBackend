@@ -205,21 +205,19 @@ class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
         configuration_data = data.get("configuration")
         if configuration_data:
             # Deserialize the configuration data from string to JSON
-            print(">>>>>>>>>>>>>>>>> >> ")
-            print("configuration_data >> ", configuration_data)
-            print("configuration_type >> ", type(configuration_data))
             try:
                 # modified_configuration_data = json.dumps(json.loads(configuration_data))
-                # modified_configuration_data = json.dumps(configuration_data)
-                modified_configuration_data = VpsTariffSummSerializer(configuration_data, many=True).data
+                modified_configuration_data = json.dumps(configuration_data)
+                # modified_configuration_data = VpsTariffSummSerializer(configuration_data, many=True).data
             except json.JSONDecodeError:
                 # Handle any JSON decoding errors
                 raise serializers.ValidationError("Invalid configuration data. Unable to decode JSON.")
 
             # Update the "configuration" field in the data dictionary
-            print(">>>>>>>>>>>>>>>>> >> ")
             print("configuration_data >> ", modified_configuration_data)
             print("configuration_type >> ", type(modified_configuration_data))
+            # Update the "configuration" field in the data dictionary with the deserialized data
+            data["configuration"] = modified_configuration_data
 
         return super().to_internal_value(data)
 
