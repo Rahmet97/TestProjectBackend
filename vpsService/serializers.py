@@ -1,3 +1,5 @@
+import json
+
 from rest_framework import serializers
 
 from accounts.models import YurUser, FizUser
@@ -209,6 +211,23 @@ class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
             # data["configuration"] = modified_configuration_data
             print("configuration_data >> ", configuration_data)
             print("configuration_type >> ", type(configuration_data))
+
+        if configuration_data:
+            # Deserialize the configuration data from string to JSON
+            print(">>>>>>>>>>>>>>>>> >> ")
+            print("configuration_data >> ", configuration_data)
+            print("configuration_type >> ", type(configuration_data))
+            try:
+                modified_configuration_data = json.loads(configuration_data)
+            except json.JSONDecodeError:
+                # Handle any JSON decoding errors
+                raise serializers.ValidationError("Invalid configuration data. Unable to decode JSON.")
+
+            # Update the "configuration" field in the data dictionary
+            print(">>>>>>>>>>>>>>>>> >> ")
+            print("configuration_data >> ", modified_configuration_data)
+            print("configuration_type >> ", type(modified_configuration_data))
+            data["configuration"] = modified_configuration_data
 
         return super().to_internal_value(data)
 
