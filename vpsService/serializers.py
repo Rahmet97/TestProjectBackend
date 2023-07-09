@@ -200,27 +200,30 @@ class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
         model = VpsServiceContract
         fields = ["service", "contract_date", "configuration", "client_user"]  # "contract_cash",
 
-    # def to_internal_value(self, data):
-    #     # Update the "configuration" field if present in the data
-    #     configuration_data = data.get("configuration")
-    #     client_user_data = data.get("client_user")
-    #
-    #     if configuration_data:
-    #         try:
-    #             modified_configuration_data = json.loads(configuration_data)
-    #             data["configuration"] = modified_configuration_data
-    #         except json.JSONDecodeError:
-    #             raise serializers.ValidationError("Invalid configuration data. Unable to decode JSON.")
-    #
-    #     if client_user_data:
-    #         try:
-    #             modified_client_user_data = json.loads(client_user_data)
-    #             print("pin_or_tin >> ", modified_client_user_data.get("pin_or_tin"))
-    #             data["client_user"] = modified_client_user_data
-    #         except json.JSONDecodeError:
-    #             raise serializers.ValidationError("Invalid client user data. Unable to decode JSON.")
-    #
-    #     return super().to_internal_value(data)
+    def to_internal_value(self, data):
+        # Update the "configuration" field if present in the data
+        configuration_data = data.get("configuration")
+        client_user_data = data.get("client_user")
+
+        if configuration_data:
+            try:
+                modified_configuration_data = json.loads(configuration_data)
+                data["configuration"] = modified_configuration_data
+            except json.JSONDecodeError:
+                raise serializers.ValidationError("Invalid configuration data. Unable to decode JSON.")
+
+        if client_user_data:
+            try:
+                print("client_user_data >> ", client_user_data)
+                print("client_user_data type >> ", type(client_user_data))
+                modified_client_user_data = json.loads(client_user_data)
+                print("modified_client_user_data >> ", modified_client_user_data)
+                print("modified_client_user_data type >> ", type(modified_client_user_data))
+                data["client_user"] = modified_client_user_data
+            except json.JSONDecodeError:
+                raise serializers.ValidationError("Invalid client user data. Unable to decode JSON.")
+
+        return super().to_internal_value(data)
 
     # def to_internal_value(self, data):
     #     # Convert "configuration" field from JSON string to a dictionary
@@ -243,40 +246,40 @@ class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
     #
     #     return super().to_internal_value(data)
 
-    def to_internal_value(self, data):
-        # Convert "configuration" field from JSON string to a list of object instances
-        configuration_data = data.get("configuration")
-        if configuration_data:
-            try:
-
-                modified_configuration_data = json.loads(configuration_data)
-                deserialized_configurations = []
-                for config_data in modified_configuration_data:
-                    deserialized_config = self.fields["configuration"].to_internal_value(config_data)
-                    deserialized_configurations.append(deserialized_config)
-                data["configuration"] = deserialized_configurations
-
-            except json.JSONDecodeError:
-                raise serializers.ValidationError("Invalid configuration data. Unable to decode JSON.")
-
-            except serializers.ValidationError as validation_error:
-                raise serializers.ValidationError("Invalid configuration data. " + str(validation_error))
-
-        # Convert "client_user" field from JSON string to an object instance
-        client_user_data = data.get("client_user")
-        if client_user_data:
-            try:
-
-                deserialized_user = self.fields["client_user"].to_internal_value(json.loads(client_user_data))
-                data["client_user"] = deserialized_user
-
-            except json.JSONDecodeError:
-                raise serializers.ValidationError("Invalid client user data. Unable to decode JSON.")
-
-            except serializers.ValidationError as validation_error:
-                raise serializers.ValidationError("Invalid client user data. " + str(validation_error))
-
-        return super().to_internal_value(data)
+    # def to_internal_value(self, data):
+    #     # Convert "configuration" field from JSON string to a list of object instances
+    #     configuration_data = data.get("configuration")
+    #     if configuration_data:
+    #         try:
+    #
+    #             modified_configuration_data = json.loads(configuration_data)
+    #             deserialized_configurations = []
+    #             for config_data in modified_configuration_data:
+    #                 deserialized_config = self.fields["configuration"].to_internal_value(config_data)
+    #                 deserialized_configurations.append(deserialized_config)
+    #             data["configuration"] = deserialized_configurations
+    #
+    #         except json.JSONDecodeError:
+    #             raise serializers.ValidationError("Invalid configuration data. Unable to decode JSON.")
+    #
+    #         except serializers.ValidationError as validation_error:
+    #             raise serializers.ValidationError("Invalid configuration data. " + str(validation_error))
+    #
+    #     # Convert "client_user" field from JSON string to an object instance
+    #     client_user_data = data.get("client_user")
+    #     if client_user_data:
+    #         try:
+    #
+    #             deserialized_user = self.fields["client_user"].to_internal_value(json.loads(client_user_data))
+    #             data["client_user"] = deserialized_user
+    #
+    #         except json.JSONDecodeError:
+    #             raise serializers.ValidationError("Invalid client user data. Unable to decode JSON.")
+    #
+    #         except serializers.ValidationError as validation_error:
+    #             raise serializers.ValidationError("Invalid client user data. " + str(validation_error))
+    #
+    #     return super().to_internal_value(data)
 
 
 class VpsServiceContractResponseViaClientSerializers(serializers.ModelSerializer):
