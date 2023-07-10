@@ -89,12 +89,16 @@ class InvoiceElementsSerializer(serializers.ModelSerializer):
 
 # VPS Serializer for billing automations
 class OperationSystemVersions(serializers.Serializer):
-    operation_system_version = serializers.PrimaryKeyRelatedField(queryset=OperationSystemVersion.objects.all())
+    operation_system_version = serializers.PrimaryKeyRelatedField(
+        queryset=OperationSystemVersion.objects.all(), pk_only=True
+    )
     ipv_address = serializers.BooleanField(default=True)
 
 
 class VpsTariffSummSerializer(serializers.ModelSerializer):
-    tariff = serializers.PrimaryKeyRelatedField(required=False, allow_null=True, queryset=VpsTariff.objects.all())
+    tariff = serializers.PrimaryKeyRelatedField(
+        required=False, allow_null=True, queryset=VpsTariff.objects.all(), pk_only=True
+    )
     operation_system_versions = OperationSystemVersions(many=True)
 
     count_vm = serializers.IntegerField()
