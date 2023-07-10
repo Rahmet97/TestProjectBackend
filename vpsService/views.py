@@ -63,6 +63,7 @@ def create_contract_participants(service_obj, exclude_role=None):
 
 
 def create_vps_configurations(configuration_data: dict, contract: object):
+    print("configuration_data >> ", configuration_data)
     if configuration_data.pop("count_vm") != len(configuration_data.get("operation_system_versions")):
         contract.delete()
 
