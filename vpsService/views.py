@@ -8,7 +8,7 @@ from docx import Document
 from django.db.models import Q
 from django.shortcuts import render
 from django.conf import settings
-from rest_framework import views, generics, permissions, response, status
+from rest_framework import views, generics, permissions, response, status, parsers
 from django.core.files.storage import default_storage
 from rest_framework.generics import get_object_or_404
 
@@ -862,7 +862,7 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
     serializer_class_fiz_user = FizUserForOldContractSerializers
     permission_classes = [permissions.IsAuthenticated]  # -> for employee
 
-    parser_classes = (MultiPartParser,)
+    parser_classes = [parsers.MultiPartParser]
 
     # def post(self, request):
     #     serializer_class_user = None
