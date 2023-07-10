@@ -84,7 +84,7 @@ def create_vps_configurations(configuration_data: dict, contract: object):
     for os_version in operation_system_versions:
 
         operation_system_version_id = os_version.get("operation_system_version")
-        if isinstance(operation_system_version_id, int):
+        if isinstance(operation_system_version_id, str):
             try:
                 operation_system_version = OperationSystemVersion.objects.get(id=operation_system_version_id)
             except OperationSystemVersion.DoesNotExist:
