@@ -1134,8 +1134,6 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         # configurations = serializer.validated_data.pop("configuration")
         configurations = self.serializer_class_configuration(data=self.request.data.get("configuration"), many=True)
         configurations.is_valid(raise_exception=True)
-        print("configurations >> ", configurations)
-        print("configurations type >> ", type(configurations))
 
         configurations_total_price = self.get_configurations_total_price(configurations.data)
 

@@ -17,6 +17,7 @@ from billing.serializers import RequestSerializer, InvoiceElementsSerializer, Vp
 from contracts.models import Tarif, Element, TarifLog, Service
 from contracts.serializers import TarifSerializer, ElementSerializer, GetElementSerializer
 from vpsService.enum_utils import VpsDevicePriceEnum
+from vpsService.models import OperationSystemVersion
 
 num2word = NumbersToWord()
 
@@ -183,7 +184,8 @@ def calculate_vps(configuration: dict, total_cash=0) -> dict:
 
     # if operation_system_version has price
     total_cash += sum(
-        os_version.get("operation_system_version").price if os_version.get("operation_system_version") else 0
+        OperationSystemVersion.objects.get(id=os_version.get("operation_system_version")).price
+        if os_version.get("operation_system_version") else 0
         for os_version in operation_system_versions
     )
 
