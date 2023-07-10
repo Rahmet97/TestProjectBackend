@@ -188,11 +188,11 @@ def calculate_vps(configuration: dict, total_cash=0) -> dict:
     #     if os_version.get("operation_system_version") else 0
     #     for os_version in operation_system_versions
     # )
-    total_cash += sum(
-        os_version.get("operation_system_version").price
-        if os_version.get("operation_system_version") else 0
-        for os_version in operation_system_versions
-    )
+    # total_cash += sum(
+    #     os_version.get("operation_system_version").price
+    #     if os_version.get("operation_system_version") else 0
+    #     for os_version in operation_system_versions
+    # )
 
     storage_type, storage_disk = configuration.get("storage_type"), configuration.get("storage_disk")
 
