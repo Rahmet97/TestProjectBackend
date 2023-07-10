@@ -1098,8 +1098,8 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        client_user = serializer.validated_data.pop("client_user")
-        configurations = serializer.validated_data.pop("configuration")
+        client_user = request.data.get("client_user")
+        configurations = request.data.get("configuration")
         print("client_user >> ", client_user)
         print("client_user type >> ", type(client_user))
         print("configurations >> ", configurations)
