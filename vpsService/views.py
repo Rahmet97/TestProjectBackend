@@ -72,9 +72,9 @@ def create_vps_configurations(configuration_data: dict, contract: object):
             status_code=status.HTTP_400_BAD_REQUEST
         )
 
+    print("tariff >>> ", configuration_data.get("tariff"))
+    print("tariff id >>> ", configuration_data.get("tariff").id)
     tariff = VpsTariff.objects.get(id=configuration_data.pop("tariff"))
-    print("tariff >>> ", tariff.id)
-    print("tariff >>> ", tariff)
 
     operation_system_versions = configuration_data.pop("operation_system_versions")
     for os_version in operation_system_versions:
