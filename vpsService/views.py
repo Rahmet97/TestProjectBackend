@@ -130,6 +130,8 @@ def generate_hash_code(text: str):
     hashcode = hashlib.md5(text.encode())
     hash_code = hashcode.hexdigest()
     return hash_code
+
+
 # #############
 
 
@@ -852,75 +854,345 @@ class VpsGetContractFile(views.APIView):
         return response.Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
 
 
-class CreateVpsContractWithFile(views.APIView):
-    serializer_class_contract = VpsCreateContractWithFileSerializers
+class CreateVpsContractWithFile(generics.CreateAPIView):
+    queryset = VpsServiceContract.objects.all()
+    serializer_class = VpsCreateContractWithFileSerializers
+    # serializer_class_contract = VpsCreateContractWithFileSerializersSerializers
     serializer_class_yur_user = YurUserForOldContractSerializers
     serializer_class_fiz_user = FizUserForOldContractSerializers
     permission_classes = [permissions.IsAuthenticated]  # -> for employee
 
-    def post(self, request):
-        serializer_class_user = None
-        contract_serializer = self.serializer_class_contract(data=request.data)
-        contract_serializer.is_valid(raise_exception=True)
+    # def post(self, request):
+    #     serializer_class_user = None
+    #     contract_serializer = self.serializer_class_contract(data=request.data)
+    #     contract_serializer.is_valid(raise_exception=True)
+    #
+    #     client_user = contract_serializer.validated_data.pop("client_user")
+    #     user_type = client_user.validated_data.get("user_type")
+    #     pin_or_tin = client_user.validated_data.get("pin_or_tin")
+    #     file = request.FILES.get('file', None)
+    #
+    #     if not pin_or_tin or not file:
+    #         responseErrorMessage(message="pin or tin and file not be empty", status_code=status.HTTP_400_BAD_REQUEST)
+    #
+    #     if UserData.objects.filter(username=pin_or_tin).exists():
+    #         user_obj = UserData.objects.get(username=pin_or_tin)
+    #     else:
+    #         username = str(pin_or_tin)
+    #         if user_type == 2:  # yur usertype
+    #             director_firstname = request.data.get("director_firstname", None)
+    #             password = director_firstname[0].upper() + username + director_firstname[-1].upper()
+    #         else:
+    #             first_name = request.data.get("first_name", None)
+    #             password = first_name[0].upper() + username + first_name[-1].upper()
+    #
+    #         user_obj = UserData(
+    #             username=username,
+    #             type=1,
+    #             role=Role.objects.get(name=Role.RoleNames.CLIENT),
+    #         )
+    #         user_obj.set_password(password)
+    #         user_obj.save()
+    #
+    #     # if user is fiz human
+    #     if user_type == 2:  # yur user
+    #         user, _ = YurUser.objects.get_or_create(userdata=user_obj)
+    #         serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
+    #         serializer_class_user.is_valid(raise_exception=True)
+    #         serializer_class_user.save()
+    #         u_type, hash_text_part = 'yuridik', user.get_director_full_name
+    #     else:  # fiz user
+    #         user, _ = FizUser.objects.get_or_create(userdata=user_obj)
+    #         serializer_class_user = self.serializer_class_fiz_user(instance=user, data=request.data, partial=True)
+    #         serializer_class_user.is_valid(raise_exception=True)
+    #         serializer_class_user.save()
+    #         u_type, hash_text_part = 'fizik', user.full_name
+    #
+    #     # request_objects_serializers = self.serializer_class_contract(data=request.data)
+    #     # request_objects_serializers.is_valid(raise_exception=True)
+    #
+    #     service_obj = contract_serializer.validated_data.get("service")
+    #     number, prefix = get_number_and_prefix(service_obj)
+    #     contract_number = prefix + '-' + str(number)
+    #
+    #     configurations = contract_serializer.validated_data.pop("configuration")
+    #     _, configurations_total_price, _ = get_configurations_context(configurations)
+    #
+    #     hash_code = generate_hash_code(
+    #         text=f"{hash_text_part}{contract_number}{u_type}{datetime.now()}"
+    #     )
+    #
+    #     # Contract yaratib olamiz bazada id_code olish uchun
+    #     vps_service_contract = VpsServiceContract.objects.create(
+    #         **contract_serializer.validated_data,
+    #         contract_number=contract_number,
+    #         client=user_obj,
+    #         status=2,
+    #         contract_status=3,  # active
+    #         is_confirmed_contract=4,  # DONE
+    #         payed_cash=0,
+    #         hashcode=hash_code,
+    #         contract_cash=configurations_total_price
+    #     )
+    #     vps_service_contract.save()
+    #
+    #     # contract file for base64 pdf -> before it file uploaded and created to db
+    #     if file:
+    #         premade_contract_file = VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file)
+    #         file_path = premade_contract_file.file.path
+    #         if os.path.exists(file_path):
+    #             try:
+    #                 contract_file = open(file_path, 'rb').read()
+    #                 base64code = base64.b64encode(contract_file)
+    #                 vps_service_contract.base64file = base64code
+    #             except Exception as e:
+    #                 logger.error(e)
+    #         else:
+    #             logger.info("The file does not exist.")
+    #     vps_service_contract.save()
+    #
+    #     for configuration_data in configurations:
+    #         create_vps_configurations(configuration_data, vps_service_contract)
+    #
+    #     # VpsContracts_Participants
+    #     # if the amount of the contract is less than 10 million,
+    #     # the director will not participate as a participant
+    #     exclude_role = None
+    #     # if vps_service_contract.contract_cash < 10_000_000:
+    #     #     exclude_role = Role.RoleNames.DIRECTOR
+    #
+    #     participants = create_contract_participants(
+    #         service_obj=service_obj,
+    #         exclude_role=exclude_role
+    #     )
+    #     agreement_status = AgreementStatus.objects.filter(name='Kelishildi').first()
+    #
+    #     for participant in participants:
+    #         VpsContracts_Participants.objects.create(
+    #             contract=vps_service_contract,
+    #             role=participant.role,
+    #             participant_user=participant,
+    #             agreement_status=agreement_status
+    #         ).save()
+    #
+    #     return response.Response(status=status.HTTP_201_CREATED)
 
-        client_user = contract_serializer.validated_data.pop("client_user")
+        # return response.Response({
+        #     'user-data': serializer_class_user.data,
+        #     'contract-data': self.serializer_class_yur_user(vps_service_contract).data,
+        # }, status=status.HTTP_201_CREATED)
+
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #
+    #     self.perform_create(serializer)
+    #
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    #
+    # def perform_create(self, serializer):
+    #     client_user = serializer.validated_data.pop("client_user")
+    #     user_type = client_user.validated_data.get("user_type")
+    #     pin_or_tin = client_user.validated_data.get("pin_or_tin")
+    #     file = request.FILES.get('file', None)
+    #
+    #     if not pin_or_tin or not file:
+    #         responseErrorMessage(message="pin or tin and file not be empty", status_code=status.HTTP_400_BAD_REQUEST)
+    #
+    #     if UserData.objects.filter(username=pin_or_tin).exists():
+    #         user_obj = UserData.objects.get(username=pin_or_tin)
+    #     else:
+    #         username = str(pin_or_tin)
+    #         if user_type == 2:  # yur usertype
+    #             director_firstname = request.data.get("director_firstname", None)
+    #             password = director_firstname[0].upper() + username + director_firstname[-1].upper()
+    #         else:
+    #             first_name = request.data.get("first_name", None)
+    #             password = first_name[0].upper() + username + first_name[-1].upper()
+    #
+    #         user_obj = UserData(
+    #             username=username,
+    #             type=1,
+    #             role=Role.objects.get(name=Role.RoleNames.CLIENT),
+    #         )
+    #         user_obj.set_password(password)
+    #         user_obj.save()
+    #
+    #     # if user is fiz human
+    #     if user_type == 2:  # yur user
+    #         user, _ = YurUser.objects.get_or_create(userdata=user_obj)
+    #         serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
+    #         serializer_class_user.is_valid(raise_exception=True)
+    #         serializer_class_user.save()
+    #         u_type, hash_text_part = 'yuridik', user.get_director_full_name
+    #     else:  # fiz user
+    #         user, _ = FizUser.objects.get_or_create(userdata=user_obj)
+    #         serializer_class_user = self.serializer_class_fiz_user(instance=user, data=request.data, partial=True)
+    #         serializer_class_user.is_valid(raise_exception=True)
+    #         serializer_class_user.save()
+    #         u_type, hash_text_part = 'fizik', user.full_name
+    #
+    #     service_obj = serializer.validated_data.get("service")
+    #     number, prefix = get_number_and_prefix(service_obj)
+    #     contract_number = prefix + '-' + str(number)
+    #
+    #     configurations = serializer.validated_data.pop("configuration")
+    #     _, configurations_total_price, _ = get_configurations_context(configurations)
+    #
+    #     hash_code = generate_hash_code(
+    #         text=f"{hash_text_part}{contract_number}{u_type}{datetime.now()}"
+    #     )
+    #
+    #     vps_service_contract = serializer.save(
+    #         contract_number=contract_number,
+    #         client=user_obj,
+    #         status=2,
+    #         contract_status=3,  # active
+    #         is_confirmed_contract=4,  # DONE
+    #         payed_cash=0,
+    #         hashcode=hash_code,
+    #         contract_cash=configurations_total_price
+    #     )
+    #
+    #     # contract file for base64 pdf -> before it file uploaded and created to db
+    #     if file:
+    #         premade_contract_file = VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file)
+    #         file_path = premade_contract_file.file.path
+    #         if os.path.exists(file_path):
+    #             try:
+    #                 contract_file = open(file_path, 'rb').read()
+    #                 base64code = base64.b64encode(contract_file)
+    #                 vps_service_contract.base64file = base64code
+    #             except Exception as e:
+    #                 logger.error(e)
+    #         else:
+    #             logger.info("The file does not exist.")
+    #     vps_service_contract.save()
+    #
+    #     for configuration_data in configurations:
+    #         create_vps_configurations(configuration_data, vps_service_contract)
+    #
+    #     # VpsContracts_Participants
+    #     # if the amount of the contract is less than 10 million,
+    #     # the director will not participate as a participant
+    #     exclude_role = None
+    #     # if vps_service_contract.contract_cash < 10_000_000:
+    #     #     exclude_role = Role.RoleNames.DIRECTOR
+    #
+    #     participants = create_contract_participants(
+    #         service_obj=service_obj,
+    #         exclude_role=exclude_role
+    #     )
+    #     agreement_status = AgreementStatus.objects.filter(name='Kelishildi').first()
+    #
+    #     for participant in participants:
+    #         VpsContracts_Participants.objects.create(
+    #             contract=vps_service_contract,
+    #             role=participant.role,
+    #             participant_user=participant,
+    #             agreement_status=agreement_status
+    #         ).save()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        client_user = serializer.validated_data.pop("client_user")
         user_type = client_user.validated_data.get("user_type")
         pin_or_tin = client_user.validated_data.get("pin_or_tin")
-        file = request.FILES.get('file', None)
+        file = self.request.FILES.get('file', None)
 
         if not pin_or_tin or not file:
-            responseErrorMessage(message="pin or tin and file not be empty", status_code=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "pin or tin and file cannot be empty"}, status=status.HTTP_400_BAD_REQUEST)
 
-        if UserData.objects.filter(username=pin_or_tin).exists():
-            user_obj = UserData.objects.get(username=pin_or_tin)
+        user_obj = self.get_or_create_user(pin_or_tin, user_type)
+
+        user, u_type, hash_text_part = self.get_user_and_info(user_type, user_obj)
+
+        service_obj = serializer.validated_data.get("service")
+        contract_number = self.generate_contract_number(service_obj)
+
+        configurations = serializer.validated_data.pop("configuration")
+        configurations_total_price = self.get_configurations_total_price(configurations)
+
+        hash_code = self.generate_hash_code(hash_text_part, contract_number, u_type)
+
+        vps_service_contract = self.save_vps_service_contract(
+            serializer, contract_number, user_obj,
+            configurations_total_price, hash_code
+        )
+
+        self.handle_contract_file(vps_service_contract, file)
+
+        self.create_vps_configurations(configurations, vps_service_contract)
+
+        participants = self.create_contract_participants(service_obj)
+        agreement_status = AgreementStatus.objects.filter(name='Kelishildi').first()
+
+        self.create_contract_participant_objects(vps_service_contract, participants, agreement_status)
+
+        return vps_service_contract
+
+    def get_or_create_user(self, pin_or_tin, user_type):
+        try:
+            return UserData.objects.get(username=pin_or_tin)
+        except UserData.DoesNotExist:
+            return self.create_user(pin_or_tin, user_type)
+
+    def create_user(self, pin_or_tin, user_type):
+        username = str(pin_or_tin)
+        role = Role.objects.get(name=Role.RoleNames.CLIENT)
+
+        if user_type == 2:  # yur usertype
+            director_firstname = self.request.data.get("director_firstname", None)
+            password = director_firstname[0].upper() + username + director_firstname[-1].upper()
         else:
-            username = str(pin_or_tin)
-            if user_type == 2:  # yur usertype
-                director_firstname = request.data.get("director_firstname", None)
-                password = director_firstname[0].upper() + username + director_firstname[-1].upper()
-            else:
-                first_name = request.data.get("first_name", None)
-                password = first_name[0].upper() + username + first_name[-1].upper()
+            first_name = self.request.data.get("first_name", None)
+            password = first_name[0].upper() + username + first_name[-1].upper()
 
-            user_obj = UserData(
-                username=username,
-                type=1,
-                role=Role.objects.get(name=Role.RoleNames.CLIENT),
-            )
-            user_obj.set_password(password)
-            user_obj.save()
+        user_obj = UserData(
+            username=username,
+            type=1,
+            role=role,
+        )
+        user_obj.set_password(password)
+        user_obj.save()
 
-        # if user is fiz human
+        return user_obj
+
+    def get_user_and_info(self, user_type, user_obj):
         if user_type == 2:  # yur user
             user, _ = YurUser.objects.get_or_create(userdata=user_obj)
-            serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
-            serializer_class_user.is_valid(raise_exception=True)
-            serializer_class_user.save()
+            serializer_class_user = self.serializer_class_yur_user(instance=user, data=self.request.data, partial=True)
             u_type, hash_text_part = 'yuridik', user.get_director_full_name
         else:  # fiz user
             user, _ = FizUser.objects.get_or_create(userdata=user_obj)
-            serializer_class_user = self.serializer_class_fiz_user(instance=user, data=request.data, partial=True)
-            serializer_class_user.is_valid(raise_exception=True)
-            serializer_class_user.save()
+            serializer_class_user = self.serializer_class_fiz_user(instance=user, data=self.request.data, partial=True)
             u_type, hash_text_part = 'fizik', user.full_name
 
-        request_objects_serializers = self.serializer_class_contract(data=request.data)
-        request_objects_serializers.is_valid(raise_exception=True)
+        serializer_class_user.is_valid(raise_exception=True)
+        serializer_class_user.save()
 
-        service_obj = request_objects_serializers.validated_data.get("service")
+        return user, u_type, hash_text_part
+
+    def generate_contract_number(self, service_obj):
         number, prefix = get_number_and_prefix(service_obj)
-        contract_number = prefix + '-' + str(number)
+        return prefix + '-' + str(number)
 
-        configurations = request_objects_serializers.validated_data.pop("configuration")
+    def get_configurations_total_price(self, configurations):
         _, configurations_total_price, _ = get_configurations_context(configurations)
+        return configurations_total_price
 
-        hash_code = generate_hash_code(
-            text=f"{hash_text_part}{contract_number}{u_type}{datetime.now()}"
-        )
+    def generate_hash_code(self, hash_text_part, contract_number, u_type):
+        return generate_hash_code(text=f"{hash_text_part}{contract_number}{u_type}{datetime.now()}")
 
-        # Contract yaratib olamiz bazada id_code olish uchun
-        vps_service_contract = VpsServiceContract.objects.create(
-            **request_objects_serializers.validated_data,
+    def save_vps_service_contract(self, serializer, contract_number, user_obj, configurations_total_price, hash_code):
+        vps_service_contract = serializer.save(
             contract_number=contract_number,
             client=user_obj,
             status=2,
@@ -930,29 +1202,30 @@ class CreateVpsContractWithFile(views.APIView):
             hashcode=hash_code,
             contract_cash=configurations_total_price
         )
-        vps_service_contract.save()
+        return vps_service_contract
 
-        # contract file for base64 pdf -> before it file uploaded and created to db
+    def handle_contract_file(self, vps_service_contract, file):
         if file:
             premade_contract_file = VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file)
             file_path = premade_contract_file.file.path
             if os.path.exists(file_path):
                 try:
-                    contract_file = open(file_path, 'rb').read()
-                    base64code = base64.b64encode(contract_file)
+                    with open(file_path, 'rb') as contract_file:
+                        contract_file_data = contract_file.read()
+                    base64code = base64.b64encode(contract_file_data)
                     vps_service_contract.base64file = base64code
                 except Exception as e:
                     logger.error(e)
+                    return HttpResponseServerError()
             else:
                 logger.info("The file does not exist.")
         vps_service_contract.save()
 
+    def create_vps_configurations(self, configurations, vps_service_contract):
         for configuration_data in configurations:
             create_vps_configurations(configuration_data, vps_service_contract)
 
-        # VpsContracts_Participants
-        # if the amount of the contract is less than 10 million,
-        # the director will not participate as a participant
+    def create_contract_participants(self, service_obj):
         exclude_role = None
         # if vps_service_contract.contract_cash < 10_000_000:
         #     exclude_role = Role.RoleNames.DIRECTOR
@@ -961,8 +1234,9 @@ class CreateVpsContractWithFile(views.APIView):
             service_obj=service_obj,
             exclude_role=exclude_role
         )
-        agreement_status = AgreementStatus.objects.filter(name='Kelishildi').first()
+        return participants
 
+    def create_contract_participant_objects(self, vps_service_contract, participants, agreement_status):
         for participant in participants:
             VpsContracts_Participants.objects.create(
                 contract=vps_service_contract,
@@ -970,10 +1244,3 @@ class CreateVpsContractWithFile(views.APIView):
                 participant_user=participant,
                 agreement_status=agreement_status
             ).save()
-
-        return response.Response(status=status.HTTP_201_CREATED)
-
-        # return response.Response({
-        #     'user-data': serializer_class_user.data,
-        #     'contract-data': self.serializer_class_yur_user(vps_service_contract).data,
-        # }, status=status.HTTP_201_CREATED)
