@@ -1121,8 +1121,9 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
         # You can modify the arguments or add additional logic as needed
         serializer_class = self.get_serializer_class()
-        kwargs['client_user'] = client_user_data
-        kwargs['configuration'] = configurations_data
+        kwargs['context'] = self.get_serializer_context()
+        kwargs['data']['client_user'] = client_user_data
+        kwargs['data']['configuration'] = configurations_data
         return serializer_class(*args, **kwargs)
 
     def perform_create(self, serializer):
