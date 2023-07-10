@@ -1103,12 +1103,6 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def get_parsers(self):
-        if getattr(self, 'swagger_fake_view', False):
-            return []
-
-        return super().get_parsers()
-
     def perform_create(self, serializer):
         client_user = serializer.validated_data.pop("client_user")
         user_type = client_user.validated_data.get("user_type")
