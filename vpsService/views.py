@@ -1205,12 +1205,12 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         return user_obj
 
     def get_user_and_info(self, user_type, user_obj):
-        update_data = self.parse_client_data(self.request.data.get("client_user"))
+        update_data = self.request.data.get("client_user")
         print("update_data >>> ", update_data)
         if user_type == 2:  # yur user
             user, created = YurUser.objects.get_or_create(userdata=user_obj)
             if created:
-                serializer_class_user = self.serializer_class_yur_user(data=update_data)
+                serializer_class_user = self.serializer_class_yur_user(instance=user, data=update_data)
                 serializer_class_user.is_valid(raise_exception=True)
                 serializer_class_user.save()
 
@@ -1218,7 +1218,7 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         else:  # fiz user
             user, created = FizUser.objects.get_or_create(userdata=user_obj)
             if created:
-                serializer_class_user = self.serializer_class_fiz_user(data=update_data)
+                serializer_class_user = self.serializer_class_fiz_user(instance=user, data=update_data)
                 serializer_class_user.is_valid(raise_exception=True)
                 serializer_class_user.save()
 
