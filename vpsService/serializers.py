@@ -191,14 +191,14 @@ class VpsServiceContractCreateViaClientSerializers(serializers.ModelSerializer):
 
 
 class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
-    USER_TYPES = (
-        (1, 'fiz'),
-        (2, 'yur'),
-        # Add more options if needed
-    )
-
-    user_type = serializers.ChoiceField(choices=USER_TYPES)
-    pin_or_tin = serializers.CharField(max_length=255)
+    # USER_TYPES = (
+    #     (1, 'fiz'),
+    #     (2, 'yur'),
+    #     # Add more options if needed
+    # )
+    #
+    # user_type = serializers.ChoiceField(choices=USER_TYPES)
+    # pin_or_tin = serializers.CharField(max_length=255)
     # client_user = VpsUserForContractCreateSerializers()
 
     service = serializers.PrimaryKeyRelatedField(queryset=Service.objects.all())
@@ -209,7 +209,7 @@ class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
     class Meta:
         model = VpsServiceContract
         fields = [
-            "service", "contract_date", "user_type", "pin_or_tin"
+            "service", "contract_date",  # "user_type", "pin_or_tin"
         ]  # "configuration", "client_user", "file", "contract_cash",
 
     # def to_internal_value(self, data):

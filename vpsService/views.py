@@ -1100,7 +1100,6 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        print("data >> ", request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -1109,11 +1108,11 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
     def get_serializer(self, *args, **kwargs):
         # Customize the serializer instantiation here
         # Parse client_user and configurations as JSON objects
-        # client_user_data = self.parse_client_data(self.request.data.get("client_user"))
+        client_user_data = self.parse_client_data(self.request.data.get("client_user"))
         configurations_data = self.parse_client_data(self.request.data.get("configuration"))
 
         # Update request.data with parsed data
-        # self.request.data["client_user"] = client_user_data
+        self.request.data["client_user"] = client_user_data
         self.request.data["configuration"] = configurations_data
 
         # You can modify the arguments or add additional logic as needed
@@ -1122,13 +1121,12 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         return serializer_class(*args, **kwargs)
 
     def perform_create(self, serializer):
-        # client_user = serializer.validated_data.pop("client_user")
-        user_type = serializer.validated_data.pop("user_type")
-        pin_or_tin = serializer.validated_data.pop("pin_or_tin")
-        # user_type = client_user.validated_data.get("user_type")
-        # pin_or_tin = client_user.validated_data.get("pin_or_tin")
+        client_user = VpsUserForContractCreateSerializers(self.request.data.get("client_user"))
+        client_user.is_valid(raise_exception=True)
+        user_type = client_user.validated_data.get("user_type")
+        pin_or_tin = client_user.validated_data.get("pin_or_tin")
+
         file = self.request.FILES.get('file', None)
-        # file = serializer.validated_data.pop('file', None)
 
         if not pin_or_tin or not file:
             return Response({"error": "pin or tin and file cannot be empty"}, status=status.HTTP_400_BAD_REQUEST)
@@ -1196,13 +1194,14 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         return user_obj
 
     def get_user_and_info(self, user_type, user_obj):
+        update_data = self.request.data.get("client_user")
         if user_type == 2:  # yur user
             user, _ = YurUser.objects.get_or_create(userdata=user_obj)
-            serializer_class_user = self.serializer_class_yur_user(instance=user, data=self.request.data, partial=True)
+            serializer_class_user = self.serializer_class_yur_user(instance=user, data=update_data, partial=True)
             u_type, hash_text_part = 'yuridik', user.get_director_full_name
         else:  # fiz user
             user, _ = FizUser.objects.get_or_create(userdata=user_obj)
-            serializer_class_user = self.serializer_class_fiz_user(instance=user, data=self.request.data, partial=True)
+            serializer_class_user = self.serializer_class_fiz_user(instance=user, data=update_data, partial=True)
             u_type, hash_text_part = 'fizik', user.full_name
 
         serializer_class_user.is_valid(raise_exception=True)
