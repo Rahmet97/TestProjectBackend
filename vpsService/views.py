@@ -1132,7 +1132,7 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         contract_number = self.generate_contract_number(service_obj)
 
         # configurations = serializer.validated_data.pop("configuration")
-        configurations = self.serializer_class_configuration(self.request.data.get("configuration"), many=True)
+        configurations = self.serializer_class_configuration(data=self.request.data.get("configuration"), many=True)
         configurations.is_valid(raise_exception=True)
         print("configurations >> ", configurations)
         print("configurations type >> ", type(configurations))
