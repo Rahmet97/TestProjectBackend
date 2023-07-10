@@ -1146,7 +1146,7 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
         self.handle_contract_file(vps_service_contract, file)
 
-        self.create_vps_configurations(configurations, vps_service_contract)
+        self.create_vps_configurations(configurations.data, vps_service_contract)
 
         participants = self.create_contract_participants(service_obj)
         agreement_status = AgreementStatus.objects.filter(name='Kelishildi').first()
