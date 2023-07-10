@@ -73,6 +73,7 @@ def create_vps_configurations(configuration_data: dict, contract: object):
         )
 
     tariff = VpsTariff.objects.get(id=configuration_data.pop("tariff"))
+    print("tariff >>> ", tariff.id)
     print("tariff >>> ", tariff)
 
     operation_system_versions = configuration_data.pop("operation_system_versions")
