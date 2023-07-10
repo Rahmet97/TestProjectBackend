@@ -1205,6 +1205,8 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         return user_obj
 
     def get_user_and_info(self, user_type, user_obj):
+        print("user_obj >> ", user_obj)
+        print("user_obj id >> ", user_obj.id)
         update_data = self.request.data.get("client_user")
         if user_type == 2:  # yur user
             user, created = YurUser.objects.get_or_create(userdata=user_obj)
