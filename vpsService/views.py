@@ -392,17 +392,21 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             pin_or_tin = user_serializers.validated_data.get("pin_or_tin")
             if user_serializers.validated_data.get("user_type") == 2:
                 context['u_type'] = 'yuridik'
-                context["user_obj"] = YurUser.objects.get(tin=pin_or_tin)
+                # context["user_obj"] = YurUser.objects.get(tin=pin_or_tin)
+                context["user_obj"] = get_object_or_404(YurUser, tin=pin_or_tin)
             elif user_serializers.validated_data.get("user_type") == 1:
                 context['u_type'] = 'fizik'
-                context["user_obj"] = FizUser.objects.get(pin=pin_or_tin)
+                # context["user_obj"] = FizUser.objects.get(pin=pin_or_tin)
+                context["user_obj"] = get_object_or_404(FizUser, pin=pin_or_tin)
         else:
             if request.user.type == 2:
                 context['u_type'] = 'yuridik'
-                context["user_obj"] = YurUser.objects.get(userdata=request.user)
+                # context["user_obj"] = YurUser.objects.get(userdata=request.user)
+                context["user_obj"] = get_object_or_404(YurUser, userdata=request.user)
             elif request.user.type == 1:
                 context['u_type'] = 'fizik'
-                context["user_obj"] = FizUser.objects.get(userdata=request.user)
+                # context["user_obj"] = FizUser.objects.get(userdata=request.user)
+                context["user_obj"] = get_object_or_404(FizUser, userdata=request.user)
 
         context['contract_number'] = prefix + '-' + str(number)
 
