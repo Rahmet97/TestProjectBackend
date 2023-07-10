@@ -63,7 +63,6 @@ def create_contract_participants(service_obj, exclude_role=None):
 
 
 def create_vps_configurations(configuration_data: dict, contract: object):
-    print("configuration_data >> ", configuration_data)
     if configuration_data.pop("count_vm") != len(configuration_data.get("operation_system_versions")):
         contract.delete()
 
@@ -72,13 +71,27 @@ def create_vps_configurations(configuration_data: dict, contract: object):
             status_code=status.HTTP_400_BAD_REQUEST
         )
 
-    print("tariff >>> ", configuration_data.get("tariff"))
-    print("tariff id >>> ", configuration_data.get("tariff").id)
-    tariff = VpsTariff.objects.get(id=configuration_data.pop("tariff"))
+    tariff_id = configuration_data.pop("tariff")
+    if isinstance(tariff_id, int):
+        try:
+            tariff = VpsTariff.objects.get(id=tariff_id)
+        except VpsTariff.DoesNotExist:
+            raise serializers.ValidationError("Invalid tariff ID.")
+    else:
+        tariff = tariff_id
 
     operation_system_versions = configuration_data.pop("operation_system_versions")
     for os_version in operation_system_versions:
-        operation_system_version = OperationSystemVersion.objects.get(id=os_version.get("operation_system_version"))
+
+        operation_system_version_id = os_version.get("operation_system_version")
+        if isinstance(operation_system_version_id, int):
+            try:
+                operation_system_version = OperationSystemVersion.objects.get(id=operation_system_version_id)
+            except OperationSystemVersion.DoesNotExist:
+                raise serializers.ValidationError("Invalid operation system version ID.")
+        else:
+            operation_system_version = operation_system_version_id
+
         operation_system = operation_system_version.operation_system
         ipv_address = os_version.get("ipv_address")
 
