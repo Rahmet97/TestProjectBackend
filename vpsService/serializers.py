@@ -204,24 +204,29 @@ class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
         # Update the "configuration" field if present in the data
         configuration_data = data.get("configuration")
         client_user_data = data.get("client_user")
+        print("configuration_data >> ", configuration_data)
+        print("configuration_data type>> ", type(configuration_data))
+        print(">>>>>>>>>>>>>>>>>>>>>>")
+        print("client_user_data >> ", client_user_data)
+        print("client_user_data type>> ", type(client_user_data))
 
-        if configuration_data:
-            try:
-                modified_configuration_data = json.loads(configuration_data)
-                data["configuration"] = modified_configuration_data
-            except json.JSONDecodeError:
-                raise serializers.ValidationError("Invalid configuration data. Unable to decode JSON.")
-
-        if client_user_data:
-            try:
-                print("client_user_data >> ", client_user_data)
-                print("client_user_data type >> ", type(client_user_data))
-                modified_client_user_data = json.loads(client_user_data)
-                print("modified_client_user_data >> ", modified_client_user_data)
-                print("modified_client_user_data type >> ", type(modified_client_user_data))
-                data["client_user"] = modified_client_user_data
-            except json.JSONDecodeError:
-                raise serializers.ValidationError("Invalid client user data. Unable to decode JSON.")
+        # if configuration_data:
+        #     try:
+        #         modified_configuration_data = json.loads(configuration_data)
+        #         data["configuration"] = modified_configuration_data
+        #     except json.JSONDecodeError:
+        #         raise serializers.ValidationError("Invalid configuration data. Unable to decode JSON.")
+        #
+        # if client_user_data:
+        #     try:
+        #         print("client_user_data >> ", client_user_data)
+        #         print("client_user_data type >> ", type(client_user_data))
+        #         modified_client_user_data = json.loads(client_user_data)
+        #         print("modified_client_user_data >> ", modified_client_user_data)
+        #         print("modified_client_user_data type >> ", type(modified_client_user_data))
+        #         data["client_user"] = modified_client_user_data
+        #     except json.JSONDecodeError:
+        #         raise serializers.ValidationError("Invalid client user data. Unable to decode JSON.")
 
         return super().to_internal_value(data)
 
