@@ -1098,13 +1098,6 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
     #             agreement_status=agreement_status
     #         ).save()
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
     def get_serializer(self, *args, **kwargs):
         # Customize the serializer instantiation here
         # Parse client_user and configurations as JSON objects
@@ -1121,7 +1114,7 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         return serializer_class(*args, **kwargs)
 
     def perform_create(self, serializer):
-        client_user = VpsUserForContractCreateSerializers(self.request.data.get("client_user"))
+        client_user = VpsUserForContractCreateSerializers(data=self.request.data.get("client_user"))
         client_user.is_valid(raise_exception=True)
         user_type = client_user.validated_data.get("user_type")
         pin_or_tin = client_user.validated_data.get("pin_or_tin")
