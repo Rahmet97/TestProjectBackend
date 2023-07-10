@@ -94,9 +94,7 @@ class OperationSystemVersions(serializers.Serializer):
 
 
 class VpsTariffSummSerializer(serializers.ModelSerializer):
-    tariff = serializers.PrimaryKeyRelatedField(
-        required=False, allow_null=True, queryset=VpsTariff.objects.all(), write_only=True
-    )
+    tariff = serializers.PrimaryKeyRelatedField(required=False, allow_null=True, queryset=VpsTariff.objects.all())
     operation_system_versions = OperationSystemVersions(many=True)
 
     count_vm = serializers.IntegerField()
