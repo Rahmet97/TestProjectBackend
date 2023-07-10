@@ -1188,10 +1188,10 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         role = Role.objects.get(name=Role.RoleNames.CLIENT)
 
         if user_type == 2:  # yur usertype
-            director_firstname = self.request.data.get("director_firstname", None)
+            director_firstname = self.request.data.get("client_user").get("director_firstname", None)
             password = director_firstname[0].upper() + username + director_firstname[-1].upper()
         else:
-            first_name = self.request.data.get("first_name", None)
+            first_name = self.request.data.get("client_user").get("first_name", None)
             password = first_name[0].upper() + username + first_name[-1].upper()
 
         user_obj = UserData(
