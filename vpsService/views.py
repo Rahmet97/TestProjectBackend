@@ -1194,7 +1194,8 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
             if created:
                 serializer_class_user.is_valid(raise_exception=True)
                 serializer_class_user.save()
-
+            else:
+                serializer_class_user.is_valid(raise_exception=True)
             u_type, hash_text_part = 'yuridik', user.get_director_full_name
         else:  # fiz user
             user, created = FizUser.objects.get_or_create(userdata=user_obj)
@@ -1202,7 +1203,8 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
             if created:
                 serializer_class_user.is_valid(raise_exception=True)
                 serializer_class_user.save()
-
+            else:
+                serializer_class_user.is_valid(raise_exception=True)
             u_type, hash_text_part = 'fizik', user.full_name
 
         serializer_class_user.save()
