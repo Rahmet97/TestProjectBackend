@@ -35,7 +35,8 @@ from .serializers import (
     VpsGetUserContractsListSerializer, VpsServiceContractCreateViaClientSerializers, ConvertDocx2PDFSerializer,
     ForceSaveFileSerializer, VpsPkcsSerializer, VpsServiceContractResponseViaClientSerializers,
     VpsContractSerializerForDetail, VpsContractParticipantsSerializers, GroupVpsContractSerializerForBackoffice,
-    VpsExpertSummarySerializerForSave, VpsUserForContractCreateSerializers, VpsCreateContractWithFileSerializers
+    VpsExpertSummarySerializerForSave, VpsUserForContractCreateSerializers, VpsCreateContractWithFileSerializers,
+    VpsTariffSummSerializer
 )
 from .serializers import FileUploadSerializer
 from .utils import get_configurations_context
@@ -857,7 +858,7 @@ class VpsGetContractFile(views.APIView):
 class CreateVpsContractWithFile(generics.CreateAPIView):
     queryset = VpsServiceContract.objects.all()
     serializer_class = VpsCreateContractWithFileSerializers
-    serializer_class_configuration = VpsTariffSummSerializer()
+    serializer_class_configuration = VpsTariffSummSerializer
     # serializer_class_contract = VpsCreateContractWithFileSerializersSerializers
     serializer_class_yur_user = YurUserForOldContractSerializers
     serializer_class_fiz_user = FizUserForOldContractSerializers
@@ -980,10 +981,10 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
     #
     #     return response.Response(status=status.HTTP_201_CREATED)
 
-        # return response.Response({
-        #     'user-data': serializer_class_user.data,
-        #     'contract-data': self.serializer_class_yur_user(vps_service_contract).data,
-        # }, status=status.HTTP_201_CREATED)
+    # return response.Response({
+    #     'user-data': serializer_class_user.data,
+    #     'contract-data': self.serializer_class_yur_user(vps_service_contract).data,
+    # }, status=status.HTTP_201_CREATED)
 
     # def create(self, request, *args, **kwargs):
     #     serializer = self.get_serializer(data=request.data)
