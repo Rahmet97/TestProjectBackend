@@ -862,6 +862,8 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
     serializer_class_fiz_user = FizUserForOldContractSerializers
     permission_classes = [permissions.IsAuthenticated]  # -> for employee
 
+    parser_classes = (MultiPartParser,)
+
     # def post(self, request):
     #     serializer_class_user = None
     #     contract_serializer = self.serializer_class_contract(data=request.data)
@@ -1105,7 +1107,8 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         client_user = serializer.validated_data.pop("client_user")
         user_type = client_user.validated_data.get("user_type")
         pin_or_tin = client_user.validated_data.get("pin_or_tin")
-        file = self.request.FILES.get('file', None)
+        # file = self.request.FILES.get('file', None)
+        file = serializer.validated_data.pop('file', None)
 
         if not pin_or_tin or not file:
             return Response({"error": "pin or tin and file cannot be empty"}, status=status.HTTP_400_BAD_REQUEST)
