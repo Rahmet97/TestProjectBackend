@@ -183,8 +183,13 @@ def calculate_vps(configuration: dict, total_cash=0) -> dict:
     total_cash += calculate_data["ipv_address_price"]
 
     # if operation_system_version has price
+    # total_cash += sum(
+    #     OperationSystemVersion.objects.get(id=os_version.get("operation_system_version")).price
+    #     if os_version.get("operation_system_version") else 0
+    #     for os_version in operation_system_versions
+    # )
     total_cash += sum(
-        OperationSystemVersion.objects.get(id=os_version.get("operation_system_version")).price
+        os_version.get("operation_system_version").price
         if os_version.get("operation_system_version") else 0
         for os_version in operation_system_versions
     )
