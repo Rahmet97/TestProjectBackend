@@ -200,7 +200,7 @@ class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = VpsServiceContract
-        fields = ["service", "contract_date", "configuration", "client_user"]  # "contract_cash",
+        fields = ["service", "contract_date", "configuration", "client_user", "file"]  # "contract_cash",
 
     def to_internal_value(self, data):
         # Update the "configuration" field if present in the data
