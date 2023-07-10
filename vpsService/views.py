@@ -1190,24 +1190,21 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         update_data = self.request.data.get("client_user")
         if user_type == 2:  # yur user
             user, created = YurUser.objects.get_or_create(userdata=user_obj)
-            serializer_class_user = self.serializer_class_yur_user(instance=user, data=update_data, partial=True)
             if created:
+                serializer_class_user = self.serializer_class_yur_user(data=update_data)
                 serializer_class_user.is_valid(raise_exception=True)
                 serializer_class_user.save()
-            else:
-                serializer_class_user.is_valid(raise_exception=True)
+
             u_type, hash_text_part = 'yuridik', user.get_director_full_name
         else:  # fiz user
             user, created = FizUser.objects.get_or_create(userdata=user_obj)
-            serializer_class_user = self.serializer_class_fiz_user(instance=user, data=update_data, partial=True)
             if created:
+                serializer_class_user = self.serializer_class_fiz_user(data=update_data)
                 serializer_class_user.is_valid(raise_exception=True)
                 serializer_class_user.save()
-            else:
-                serializer_class_user.is_valid(raise_exception=True)
+
             u_type, hash_text_part = 'fizik', user.full_name
 
-        serializer_class_user.save()
         return user, u_type, hash_text_part
 
     def generate_contract_number(self, service_obj):
