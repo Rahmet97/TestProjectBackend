@@ -77,7 +77,7 @@ def create_vps_configurations(configuration_data: dict, contract: object):
 
     operation_system_versions = configuration_data.pop("operation_system_versions")
     for os_version in operation_system_versions:
-        operation_system_version = os_version.get("operation_system_version")
+        operation_system_version = OperationSystemVersion.objects.get(id=os_version.get("operation_system_version"))
         operation_system = operation_system_version.operation_system
         ipv_address = os_version.get("ipv_address")
 
