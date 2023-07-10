@@ -1181,9 +1181,9 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         try:
             return UserData.objects.get(username=pin_or_tin)
         except UserData.DoesNotExist:
-            return self.create_user(pin_or_tin, user_type)
+            return self.create_user_obj(pin_or_tin, user_type)
 
-    def create_user(self, pin_or_tin, user_type):
+    def create_user_obj(self, pin_or_tin, user_type):
         username = str(pin_or_tin)
         role = Role.objects.get(name=Role.RoleNames.CLIENT)
 
