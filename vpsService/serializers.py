@@ -196,21 +196,16 @@ class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
     service = serializers.PrimaryKeyRelatedField(queryset=Service.objects.all())
     configuration = VpsTariffSummSerializer(many=True)
 
-    file = serializers.FileField()
+    # file = serializers.FileField()
 
     class Meta:
         model = VpsServiceContract
-        fields = ["service", "contract_date", "configuration", "client_user", "file"]  # "contract_cash",
+        fields = ["service", "contract_date", "configuration", "client_user"]  # "file"  # "contract_cash",
 
     def to_internal_value(self, data):
         # Update the "configuration" field if present in the data
-        configuration_data = data.get("configuration")
-        client_user_data = data.get("client_user")
-        print("configuration_data >> ", configuration_data)
-        print("configuration_data type>> ", type(configuration_data))
-        print(">>>>>>>>>>>>>>>>>>>>>>")
-        print("client_user_data >> ", client_user_data)
-        print("client_user_data type>> ", type(client_user_data))
+        # configuration_data = data.get("configuration")
+        # client_user_data = data.get("client_user")
 
         # if configuration_data:
         #     try:
