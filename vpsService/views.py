@@ -1098,6 +1098,12 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        client_user = serializer.validated_data.pop("client_user")
+        configurations = serializer.validated_data.pop("configuration")
+        print("client_user >> ", client_user)
+        print("client_user type >> ", type(client_user))
+        print("configurations >> ", configurations)
+        print("configurations type >> ", type(configurations))
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -1109,6 +1115,11 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         pin_or_tin = client_user.validated_data.get("pin_or_tin")
         file = self.request.FILES.get('file', None)
         # file = serializer.validated_data.pop('file', None)
+
+        print("client_user2 >> ", client_user)
+        print("client_user2 type >> ", type(client_user))
+        print("configurations2 >> ", serializer.validated_data.get("configuration"))
+        print("configurations2 type >> ", type(serializer.validated_data.get("configuration")))
 
         if not pin_or_tin or not file:
             return Response({"error": "pin or tin and file cannot be empty"}, status=status.HTTP_400_BAD_REQUEST)
