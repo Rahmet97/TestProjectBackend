@@ -925,13 +925,13 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         file_pdf = self.request.data.get('file_pdf', None)
         with_word = self.request.data.get('with_word', False)
 
-        if not pin_or_tin or (file and file_pdf) or (not file and not file_pdf):
-            # Handle the case when either pin_or_tin is falsy or both file and file_pdf are present,
-            # or when both file and file_pdf are absent
-            # At least one item is required from file and file_pdf
-            return response.Response(
-                {"error": "pin or tin and file_pdf or file cannot be empty"}, status=status.HTTP_400_BAD_REQUEST
-            )
+        # if not pin_or_tin or (file and file_pdf) or (not file and not file_pdf):
+        #     # Handle the case when either pin_or_tin is falsy or both file and file_pdf are present,
+        #     # or when both file and file_pdf are absent
+        #     # At least one item is required from file and file_pdf
+        #     return response.Response(
+        #         {"error": "pin or tin and file_pdf or file cannot be empty"}, status=status.HTTP_400_BAD_REQUEST
+        #     )
 
         user_obj = self.get_or_create_user(pin_or_tin, user_type)
 
