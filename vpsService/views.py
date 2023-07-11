@@ -945,6 +945,10 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
             configurations_total_price, hash_code
         )
 
+        print("file", file)
+        print("file_pdf", file_pdf)
+        print("with_word", with_word)
+
         self.handle_contract_file(vps_service_contract, file, file_pdf, with_word)
 
         self.create_vps_configurations(configurations.data, vps_service_contract)
@@ -1035,6 +1039,7 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         return vps_service_contract
 
     def handle_contract_file(self, vps_service_contract, file, file_pdf, with_word):
+
         if with_word:
             file_path = self.download_pdf_from_onlyoffice(vps_service_contract, file_pdf)
         elif file:
@@ -1042,7 +1047,8 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
             file_path = premade_contract_file.file.path
         else:
             logger.info("The file does not exist.")
-            return
+            vps_service_contract.delete()
+            return response.Response({"error": f"file does not exist."}, status=status.HTTP_400_BAD_REQUEST)
 
         if os.path.exists(file_path):
             try:
@@ -1056,14 +1062,13 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
                 return HttpResponseServerError()
         else:
             logger.info("The file does not exist.")
+            vps_service_contract.delete()
+            return response.Response({"error": f"file does not exist."}, status=status.HTTP_400_BAD_REQUEST)
 
     def download_pdf_from_onlyoffice(self, vps_service_contract, file_url):
         # url = f"http://185.74.4.35:81/cache/files/data/{file_url}"
         url = file_url
         res = requests.get(url)
-
-        print("url >>> ", url)
-        print("res.status_code >> ", res.status_code)
 
         if res.status_code == 200:
             file_name = f'{slugify(vps_service_contract.contract_number)}.pdf'
