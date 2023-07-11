@@ -887,40 +887,49 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
     # parser_classes = [parsers.MultiPartParser]
 
-    # def get_serializer(self, *args, **kwargs):
-    #     # Customize the serializer instantiation here
-    #     # Parse client_user and configurations as JSON objects
-    #     client_user_data = self.parse_client_data(self.request.data.get("client_user"))
-    #     configurations_data = self.parse_client_data(self.request.data.get("configuration"))
-    #
-    #     # Update request.data with parsed data
-    #     self.request.data["client_user"] = client_user_data
-    #     self.request.data["configuration"] = configurations_data
-    #
-    #     # You can modify the arguments or add additional logic as needed
-    #     serializer_class = self.get_serializer_class()
-    #     kwargs['context'] = self.get_serializer_context()
-    #     return serializer_class(*args, **kwargs)
-
     def get_serializer(self, *args, **kwargs):
         # Customize the serializer instantiation here
         # Parse client_user and configurations as JSON objects
         client_user_data = self.parse_client_data(self.request.data.get("client_user"))
         configurations_data = self.parse_client_data(self.request.data.get("configuration"))
 
-        # Create a mutable copy of the QueryDict
-        mutable_data = self.request.data.copy()
-
-        # Update the mutable copy with parsed data
-        mutable_data["client_user"] = client_user_data
-        mutable_data["configuration"] = configurations_data
+        # Update request.data with parsed data
+        # self.request.data["client_user"] = client_user_data
+        # self.request.data["configuration"] = configurations_data
+        self.request.data.update({
+            "client_user": client_user_data,
+            "configuration": configurations_data
+        })
 
         # You can modify the arguments or add additional logic as needed
         serializer_class = self.get_serializer_class()
         kwargs['context'] = self.get_serializer_context()
-        kwargs['data'] = mutable_data  # Use the modified data
-
         return serializer_class(*args, **kwargs)
+
+    # def get_serializer(self, *args, **kwargs):
+    #     # Customize the serializer instantiation here
+    #     # Parse client_user and configurations as JSON objects
+    #     client_user_data = self.parse_client_data(self.request.data.get("client_user"))
+    #     configurations_data = self.parse_client_data(self.request.data.get("configuration"))
+    #
+    #     # Create a mutable copy of the QueryDict
+    #     mutable_data = self.request.data.copy()
+    #
+    #     # Update the modified data with parsed values
+    #     modified_data.update({
+    #         "client_user": client_user_data,
+    #         "configuration": configurations_data
+    #     })
+    #
+    #     # mutable_data["client_user"] = client_user_data
+    #     # mutable_data["configuration"] = configurations_data
+    #
+    #     # You can modify the arguments or add additional logic as needed
+    #     serializer_class = self.get_serializer_class()
+    #     kwargs['context'] = self.get_serializer_context()
+    #     kwargs['data'] = mutable_data  # Use the modified data
+    #
+    #     return serializer_class(*args, **kwargs)
 
     def perform_create(self, serializer):
         client_user = VpsUserForContractCreateSerializers(data=self.request.data.get("client_user"))
