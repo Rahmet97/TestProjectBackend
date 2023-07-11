@@ -1141,8 +1141,21 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         res = requests.get(url)
 
         if res.status_code == 200:
-            premade_contract_file = VpsPremadeContractFile(contract=vps_service_contract)
-            premade_contract_file.file.save('output.pdf', ContentFile(res.content))
+            # premade_contract_file = VpsPremadeContractFile(contract=vps_service_contract)
+
+            file_name = f'{slugify(vps_service_contract.contract_number)}.pdf'
+            file_content = ContentFile(res.content)
+
+            premade_contract_file = VpsPremadeContractFile.objects.create(
+                contract=vps_service_contract,
+                file=file_content,
+                file_name=file_name
+            )
+
+            # premade_contract_file.file.save(
+            #     f'{vps_service_contract.contract_number}.pdf', ContentFile(res.content)
+            # )
+
             file_path = premade_contract_file.file.path
             logger.info(f'PDF file saved successfully! File path: {file_path}')
             return file_path
