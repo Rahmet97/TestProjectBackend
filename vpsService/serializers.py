@@ -180,7 +180,7 @@ class VpsUserForContractCreateSerializers(serializers.Serializer):
 
 
 class VpsServiceContractCreateViaClientSerializers(serializers.ModelSerializer):
-    service = serializers.PrimaryKeyRelatedField(queryset=Service.objects.all())
+    service = serializers.PrimaryKeyRelatedField(queryset=Service.objects.all(), pk_field=serializers.IntegerField())
     configuration = VpsTariffSummSerializer(many=True)
     save = serializers.BooleanField(default=False)
     is_back_office = serializers.BooleanField(default=False)
