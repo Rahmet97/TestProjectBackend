@@ -923,7 +923,8 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
         file = self.request.FILES.get('file', None)
         file_pdf = self.request.data.get('file_pdf', None)
-        with_word = self.request.data.get('with_word', False)
+        with_word = self.request.data.get('with_word')
+        logger.info(f"with_word >> {with_word}")
 
         # if not pin_or_tin or (file and file_pdf) or (not file and not file_pdf):
         #     # Handle the case when either pin_or_tin is falsy or both file and file_pdf are present,
@@ -1050,6 +1051,7 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
     def handle_contract_file(self, vps_service_contract, file, file_pdf, with_word):
         if with_word:
+            logger.info(f"if case working >> file_pdf")
             file_path = self.download_pdf_from_onlyoffice(vps_service_contract, file_pdf)
         elif file:
             logger.info(f"elif case working >> {file}")
