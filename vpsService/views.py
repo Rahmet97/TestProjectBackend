@@ -924,6 +924,9 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         file = self.request.FILES.get('file', None)
         file_pdf = self.request.data.get('file_pdf', None)
         with_word = self.request.data.get('with_word', False)
+        print("file1 ", file)
+        print("file_pdf1 ", file_pdf)
+        print("with_word1 ", with_word)
 
         if not pin_or_tin or (file and file_pdf) or (not file and not file_pdf):
             # Handle the case when either pin_or_tin is falsy or both file and file_pdf are present,
