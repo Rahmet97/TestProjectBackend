@@ -910,11 +910,15 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         # Parse client_user and configurations as JSON objects
         client_user_data = self.parse_client_data(self.request.data.get("client_user"))
         configurations_data = self.parse_client_data(self.request.data.get("configuration"))
+        service = self.request.data.get("service")
+        contract_date = self.request.data.get("contract_date")
 
         # Create a modified data dictionary
         modified_data = dict(self.request.data, **{
             "client_user": client_user_data,
-            "configuration": configurations_data
+            "configuration": configurations_data,
+            "service": service,
+            "contract_date": contract_date
         })
 
         # Modify the arguments and add additional logic as needed
