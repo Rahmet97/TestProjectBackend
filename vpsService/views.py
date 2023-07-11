@@ -1043,32 +1043,58 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         print("contract saved !!!")
         return vps_service_contract
 
-    def handle_contract_file(self, vps_service_contract, file, file_pdf, with_word):
+    # def handle_contract_file(self, vps_service_contract, file, file_pdf, with_word):
+    #
+    #     if with_word is True:
+    #         file_path = self.download_pdf_from_onlyoffice(vps_service_contract, file_pdf)
+    #     elif file is not None:
+    #         premade_contract_file = VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file)
+    #         file_path = premade_contract_file.file.path
+    #     else:
+    #         logger.info("The file does not exist.")
+    #         vps_service_contract.delete()
+    #         return response.Response({"error": f"file does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+    #
+    #     if os.path.exists(file_path):
+    #         try:
+    #             with open(file_path, 'rb') as contract_file:
+    #                 contract_file_data = contract_file.read()
+    #             base64code = base64.b64encode(contract_file_data)
+    #             vps_service_contract.base64file = base64code
+    #             vps_service_contract.save()
+    #         except Exception as e:
+    #             logger.error(e)
+    #             return HttpResponseServerError()
+    #     else:
+    #         logger.info("The file does not exist.")
+    #         vps_service_contract.delete()
+    #         return response.Response({"error": f"file does not exist."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if with_word is True:
+    def handle_contract_file(self, vps_service_contract, file, file_pdf, with_word):
+        if with_word:
             file_path = self.download_pdf_from_onlyoffice(vps_service_contract, file_pdf)
-        elif file is not None:
+        elif file:
             premade_contract_file = VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file)
             file_path = premade_contract_file.file.path
         else:
             logger.info("The file does not exist.")
             vps_service_contract.delete()
-            return response.Response({"error": f"file does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+            return response.Response({"error": "File does not exist."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if os.path.exists(file_path):
-            try:
-                with open(file_path, 'rb') as contract_file:
-                    contract_file_data = contract_file.read()
-                base64code = base64.b64encode(contract_file_data)
-                vps_service_contract.base64file = base64code
-                vps_service_contract.save()
-            except Exception as e:
-                logger.error(e)
-                return HttpResponseServerError()
-        else:
+        if not os.path.exists(file_path):
             logger.info("The file does not exist.")
             vps_service_contract.delete()
-            return response.Response({"error": f"file does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+            return response.Response({"error": "File does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            with open(file_path, 'rb') as contract_file:
+                contract_file_data = contract_file.read()
+            base64code = base64.b64encode(contract_file_data)
+            vps_service_contract.base64file = base64code
+            vps_service_contract.save()
+        except Exception as e:
+            logger.error(e)
+            return HttpResponseServerError()
 
     def download_pdf_from_onlyoffice(self, vps_service_contract, file_url):
         # url = f"http://185.74.4.35:81/cache/files/data/{file_url}"
