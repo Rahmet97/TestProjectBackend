@@ -1140,6 +1140,9 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         url = f"http://185.74.4.35:81/cache/files/data/{file_url}"
         res = requests.get(url)
 
+        print("url >>> ", url)
+        print("res.status_code >> ", res.status_code)
+
         if res.status_code == 200:
             file_name = f'{slugify(vps_service_contract.contract_number)}.pdf'
             file_content = ContentFile(res.content)
@@ -1148,12 +1151,16 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
             premade_contract_file.file.save(file_name, file_content)
             premade_contract_file.save()
 
+            # Retrieve the file path after saving the file
             file_path = premade_contract_file.file.path
-            logger.info(f'PDF file saved successfully! File path: {file_path}')
-            return file_path
 
-        logger.error('Failed to save PDF file.')
-        vps_service_contract.delete()
+            if file_path and os.path.exists(file_path):
+                logger.info(f'PDF file saved successfully! File path: {file_path}')
+                return file_path
+
+            logger.error('Failed to save PDF file.')
+            premade_contract_file.delete()
+            vps_service_contract.delete()
         return None
 
     def create_vps_configurations(self, configurations, vps_service_contract):
