@@ -887,47 +887,53 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
     # parser_classes = [parsers.MultiPartParser]
 
-    # def get_serializer(self, *args, **kwargs):
-    #     # Customize the serializer instantiation here
-    #     # Parse client_user and configurations as JSON objects
-    #     client_user_data = self.parse_client_data(self.request.data.get("client_user"))
-    #     configurations_data = self.parse_client_data(self.request.data.get("configuration"))
-    #
-    #     # Update request.data with parsed data
-    #     # self.request.data["client_user"] = client_user_data
-    #     # self.request.data["configuration"] = configurations_data
-    #     self.request.data.update({
-    #         "client_user": client_user_data,
-    #         "configuration": configurations_data
-    #     })
-    #
-    #     # You can modify the arguments or add additional logic as needed
-    #     serializer_class = self.get_serializer_class()
-    #     kwargs['context'] = self.get_serializer_context()
-    #     return serializer_class(*args, **kwargs)
-
     def get_serializer(self, *args, **kwargs):
+        # Customize the serializer instantiation here
         # Parse client_user and configurations as JSON objects
         client_user_data = self.parse_client_data(self.request.data.get("client_user"))
         configurations_data = self.parse_client_data(self.request.data.get("configuration"))
-        # service = self.parse_client_data(self.request.data.get("service"))
-        # contract_date = self.parse_client_data(self.request.data.get("contract_date"))
 
-        # Create a modified data dictionary
-        modified_data = dict(self.request.data, **{
-            "client_user": client_user_data,
-            "configuration": configurations_data,
-            # "service": service,
-            # "contract_date": contract_date
-        })
+        # Update request.data with parsed data
+        if isInstance(request.data, QueryDict):
+            request.data._mutable = True
 
-        # Modify the arguments and add additional logic as needed
-        kwargs['context'] = self.get_serializer_context()
-        kwargs['data'] = modified_data
+        self.request.data["client_user"] = client_user_data
+        self.request.data["configuration"] = configurations_data
+        # self.request.data.update({
+        #     "client_user": client_user_data,
+        #     "configuration": configurations_data
+        # })
 
-        # Return the serializer instance
+        # You can modify the arguments or add additional logic as needed
         serializer_class = self.get_serializer_class()
+        kwargs['context'] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)
+
+    # def get_serializer(self, *args, **kwargs):
+    #     # Parse client_user and configurations as JSON objects
+    #     client_user_data = self.parse_client_data(self.request.data.get("client_user"))
+    #     configurations_data = self.parse_client_data(self.request.data.get("configuration"))
+    #     # service = self.parse_client_data(self.request.data.get("service"))
+    #     # contract_date = self.parse_client_data(self.request.data.get("contract_date"))
+    #
+    #     if isInstance(request.data, QueryDict):
+    #         request.data._mutable = True
+    #
+    #     # Create a modified data dictionary
+    #     modified_data = dict(self.request.data, **{
+    #         "client_user": client_user_data,
+    #         "configuration": configurations_data,
+    #         # "service": service,
+    #         # "contract_date": contract_date
+    #     })
+    #
+    #     # Modify the arguments and add additional logic as needed
+    #     kwargs['context'] = self.get_serializer_context()
+    #     kwargs['data'] = modified_data
+    #
+    #     # Return the serializer instance
+    #     serializer_class = self.get_serializer_class()
+    #     return serializer_class(*args, **kwargs)
 
     # def get_serializer(self, *args, **kwargs):
     #     # Customize the serializer instantiation here
