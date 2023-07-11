@@ -1050,8 +1050,10 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         return vps_service_contract
 
     def handle_contract_file(self, vps_service_contract, file, file_pdf, with_word):
+        logger.info(f"with_word, type = {type(with_word)}")
+
         if with_word:
-            logger.info(f"if case working >> file_pdf")
+            logger.info(f"if case working >> file_pdf, type = {type(with_word)}")
             file_path = self.download_pdf_from_onlyoffice(vps_service_contract, file_pdf)
         elif file:
             logger.info(f"elif case working >> {file}")
