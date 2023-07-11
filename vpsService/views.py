@@ -938,26 +938,30 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         user, u_type, hash_text_part = self.get_user_and_info(user_type, user_obj)
 
         service_obj = serializer.validated_data.get("service")
+        logger.info(f"service_obj >> {service_obj}")
         contract_number = self.generate_contract_number(service_obj)
+        logger.info(f"contract_number >> {contract_number}")
 
         # configurations = serializer.validated_data.pop("configuration")
         configurations = self.serializer_class_configuration(data=self.request.data.get("configuration"), many=True)
         configurations.is_valid(raise_exception=True)
 
         configurations_total_price = self.get_configurations_total_price(configurations.data)
-
+        logger.info(f"configurations_total_price >> {configurations_total_price}")
         hash_code = self.generate_hash_code(hash_text_part, contract_number, u_type)
 
         vps_service_contract = self.save_vps_service_contract(
             serializer, contract_number, user_obj,
             configurations_total_price, hash_code
         )
+        logger.info(f"vps_service_contract >> {vps_service_contract}")
 
         self.handle_contract_file(vps_service_contract, file, file_pdf, with_word)
 
         self.create_vps_configurations(configurations.data, vps_service_contract)
 
         participants = self.create_contract_participants(service_obj)
+        logger.info(f"participants >> {participants}")
         agreement_status = AgreementStatus.objects.filter(name='Kelishildi').first()
 
         self.create_contract_participant_objects(vps_service_contract, participants, agreement_status)
@@ -1030,6 +1034,7 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         return generate_hash_code(text=f"{hash_text_part}{contract_number}{u_type}{datetime.now()}")
 
     def save_vps_service_contract(self, serializer, contract_number, user_obj, configurations_total_price, hash_code):
+        logger.info(f"save_vps_service_contract is working !!!")
         vps_service_contract = serializer.save(
             contract_number=contract_number,
             client=user_obj,
@@ -1043,37 +1048,11 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         print("contract saved !!!")
         return vps_service_contract
 
-    # def handle_contract_file(self, vps_service_contract, file, file_pdf, with_word):
-    #
-    #     if with_word is True:
-    #         file_path = self.download_pdf_from_onlyoffice(vps_service_contract, file_pdf)
-    #     elif file is not None:
-    #         premade_contract_file = VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file)
-    #         file_path = premade_contract_file.file.path
-    #     else:
-    #         logger.info("The file does not exist.")
-    #         vps_service_contract.delete()
-    #         return response.Response({"error": f"file does not exist."}, status=status.HTTP_400_BAD_REQUEST)
-    #
-    #     if os.path.exists(file_path):
-    #         try:
-    #             with open(file_path, 'rb') as contract_file:
-    #                 contract_file_data = contract_file.read()
-    #             base64code = base64.b64encode(contract_file_data)
-    #             vps_service_contract.base64file = base64code
-    #             vps_service_contract.save()
-    #         except Exception as e:
-    #             logger.error(e)
-    #             return HttpResponseServerError()
-    #     else:
-    #         logger.info("The file does not exist.")
-    #         vps_service_contract.delete()
-    #         return response.Response({"error": f"file does not exist."}, status=status.HTTP_400_BAD_REQUEST)
-
     def handle_contract_file(self, vps_service_contract, file, file_pdf, with_word):
         if with_word:
             file_path = self.download_pdf_from_onlyoffice(vps_service_contract, file_pdf)
         elif file:
+            logger.info(f"elif case working >> {file}")
             premade_contract_file = VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file)
             file_path = premade_contract_file.file.path
         else:
