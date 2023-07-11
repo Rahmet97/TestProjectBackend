@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.http import QueryDict
 from django.shortcuts import render
 from django.conf import settings
+from django.utils.text import slugify
 from rest_framework import views, generics, permissions, response, status, parsers
 from django.core.files.storage import default_storage
 from rest_framework.generics import get_object_or_404
