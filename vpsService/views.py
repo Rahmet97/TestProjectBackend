@@ -1050,7 +1050,7 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
         if with_word:
             file_path = self.download_pdf_from_onlyoffice(vps_service_contract, file_pdf)
-        elif file:
+        elif file is not None:
             premade_contract_file = VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file)
             file_path = premade_contract_file.file.path
         else:
