@@ -894,15 +894,11 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         configurations_data = self.parse_client_data(self.request.data.get("configuration"))
 
         # Update request.data with parsed data
-        if isInstance(request.data, QueryDict):
-            request.data._mutable = True
+        if isinstance(self.request.data, QueryDict):
+            self.request.data._mutable = True
 
         self.request.data["client_user"] = client_user_data
         self.request.data["configuration"] = configurations_data
-        # self.request.data.update({
-        #     "client_user": client_user_data,
-        #     "configuration": configurations_data
-        # })
 
         # You can modify the arguments or add additional logic as needed
         serializer_class = self.get_serializer_class()
