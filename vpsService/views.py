@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import xmltodict
 from django.http import HttpResponse
+from django.core.files.base import ContentFile
 from docx import Document
 
 from django.db.models import Q
@@ -886,238 +887,6 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
     # parser_classes = [parsers.MultiPartParser]
 
-    # def post(self, request):
-    #     serializer_class_user = None
-    #     contract_serializer = self.serializer_class_contract(data=request.data)
-    #     contract_serializer.is_valid(raise_exception=True)
-    #
-    #     client_user = contract_serializer.validated_data.pop("client_user")
-    #     user_type = client_user.validated_data.get("user_type")
-    #     pin_or_tin = client_user.validated_data.get("pin_or_tin")
-    #     file = request.FILES.get('file', None)
-    #
-    #     if not pin_or_tin or not file:
-    #         responseErrorMessage(message="pin or tin and file not be empty", status_code=status.HTTP_400_BAD_REQUEST)
-    #
-    #     if UserData.objects.filter(username=pin_or_tin).exists():
-    #         user_obj = UserData.objects.get(username=pin_or_tin)
-    #     else:
-    #         username = str(pin_or_tin)
-    #         if user_type == 2:  # yur usertype
-    #             director_firstname = request.data.get("director_firstname", None)
-    #             password = director_firstname[0].upper() + username + director_firstname[-1].upper()
-    #         else:
-    #             first_name = request.data.get("first_name", None)
-    #             password = first_name[0].upper() + username + first_name[-1].upper()
-    #
-    #         user_obj = UserData(
-    #             username=username,
-    #             type=1,
-    #             role=Role.objects.get(name=Role.RoleNames.CLIENT),
-    #         )
-    #         user_obj.set_password(password)
-    #         user_obj.save()
-    #
-    #     # if user is fiz human
-    #     if user_type == 2:  # yur user
-    #         user, _ = YurUser.objects.get_or_create(userdata=user_obj)
-    #         serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
-    #         serializer_class_user.is_valid(raise_exception=True)
-    #         serializer_class_user.save()
-    #         u_type, hash_text_part = 'yuridik', user.get_director_full_name
-    #     else:  # fiz user
-    #         user, _ = FizUser.objects.get_or_create(userdata=user_obj)
-    #         serializer_class_user = self.serializer_class_fiz_user(instance=user, data=request.data, partial=True)
-    #         serializer_class_user.is_valid(raise_exception=True)
-    #         serializer_class_user.save()
-    #         u_type, hash_text_part = 'fizik', user.full_name
-    #
-    #     # request_objects_serializers = self.serializer_class_contract(data=request.data)
-    #     # request_objects_serializers.is_valid(raise_exception=True)
-    #
-    #     service_obj = contract_serializer.validated_data.get("service")
-    #     number, prefix = get_number_and_prefix(service_obj)
-    #     contract_number = prefix + '-' + str(number)
-    #
-    #     configurations = contract_serializer.validated_data.pop("configuration")
-    #     _, configurations_total_price, _ = get_configurations_context(configurations)
-    #
-    #     hash_code = generate_hash_code(
-    #         text=f"{hash_text_part}{contract_number}{u_type}{datetime.now()}"
-    #     )
-    #
-    #     # Contract yaratib olamiz bazada id_code olish uchun
-    #     vps_service_contract = VpsServiceContract.objects.create(
-    #         **contract_serializer.validated_data,
-    #         contract_number=contract_number,
-    #         client=user_obj,
-    #         status=2,
-    #         contract_status=3,  # active
-    #         is_confirmed_contract=4,  # DONE
-    #         payed_cash=0,
-    #         hashcode=hash_code,
-    #         contract_cash=configurations_total_price
-    #     )
-    #     vps_service_contract.save()
-    #
-    #     # contract file for base64 pdf -> before it file uploaded and created to db
-    #     if file:
-    #         premade_contract_file = VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file)
-    #         file_path = premade_contract_file.file.path
-    #         if os.path.exists(file_path):
-    #             try:
-    #                 contract_file = open(file_path, 'rb').read()
-    #                 base64code = base64.b64encode(contract_file)
-    #                 vps_service_contract.base64file = base64code
-    #             except Exception as e:
-    #                 logger.error(e)
-    #         else:
-    #             logger.info("The file does not exist.")
-    #     vps_service_contract.save()
-    #
-    #     for configuration_data in configurations:
-    #         create_vps_configurations(configuration_data, vps_service_contract)
-    #
-    #     # VpsContracts_Participants
-    #     # if the amount of the contract is less than 10 million,
-    #     # the director will not participate as a participant
-    #     exclude_role = None
-    #     # if vps_service_contract.contract_cash < 10_000_000:
-    #     #     exclude_role = Role.RoleNames.DIRECTOR
-    #
-    #     participants = create_contract_participants(
-    #         service_obj=service_obj,
-    #         exclude_role=exclude_role
-    #     )
-    #     agreement_status = AgreementStatus.objects.filter(name='Kelishildi').first()
-    #
-    #     for participant in participants:
-    #         VpsContracts_Participants.objects.create(
-    #             contract=vps_service_contract,
-    #             role=participant.role,
-    #             participant_user=participant,
-    #             agreement_status=agreement_status
-    #         ).save()
-    #
-    #     return response.Response(status=status.HTTP_201_CREATED)
-
-    # return response.Response({
-    #     'user-data': serializer_class_user.data,
-    #     'contract-data': self.serializer_class_yur_user(vps_service_contract).data,
-    # }, status=status.HTTP_201_CREATED)
-
-    # def create(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #
-    #     self.perform_create(serializer)
-    #
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-    #
-    # def perform_create(self, serializer):
-    #     client_user = serializer.validated_data.pop("client_user")
-    #     user_type = client_user.validated_data.get("user_type")
-    #     pin_or_tin = client_user.validated_data.get("pin_or_tin")
-    #     file = request.FILES.get('file', None)
-    #
-    #     if not pin_or_tin or not file:
-    #         responseErrorMessage(message="pin or tin and file not be empty", status_code=status.HTTP_400_BAD_REQUEST)
-    #
-    #     if UserData.objects.filter(username=pin_or_tin).exists():
-    #         user_obj = UserData.objects.get(username=pin_or_tin)
-    #     else:
-    #         username = str(pin_or_tin)
-    #         if user_type == 2:  # yur usertype
-    #             director_firstname = request.data.get("director_firstname", None)
-    #             password = director_firstname[0].upper() + username + director_firstname[-1].upper()
-    #         else:
-    #             first_name = request.data.get("first_name", None)
-    #             password = first_name[0].upper() + username + first_name[-1].upper()
-    #
-    #         user_obj = UserData(
-    #             username=username,
-    #             type=1,
-    #             role=Role.objects.get(name=Role.RoleNames.CLIENT),
-    #         )
-    #         user_obj.set_password(password)
-    #         user_obj.save()
-    #
-    #     # if user is fiz human
-    #     if user_type == 2:  # yur user
-    #         user, _ = YurUser.objects.get_or_create(userdata=user_obj)
-    #         serializer_class_user = self.serializer_class_yur_user(instance=user, data=request.data, partial=True)
-    #         serializer_class_user.is_valid(raise_exception=True)
-    #         serializer_class_user.save()
-    #         u_type, hash_text_part = 'yuridik', user.get_director_full_name
-    #     else:  # fiz user
-    #         user, _ = FizUser.objects.get_or_create(userdata=user_obj)
-    #         serializer_class_user = self.serializer_class_fiz_user(instance=user, data=request.data, partial=True)
-    #         serializer_class_user.is_valid(raise_exception=True)
-    #         serializer_class_user.save()
-    #         u_type, hash_text_part = 'fizik', user.full_name
-    #
-    #     service_obj = serializer.validated_data.get("service")
-    #     number, prefix = get_number_and_prefix(service_obj)
-    #     contract_number = prefix + '-' + str(number)
-    #
-    #     configurations = serializer.validated_data.pop("configuration")
-    #     _, configurations_total_price, _ = get_configurations_context(configurations)
-    #
-    #     hash_code = generate_hash_code(
-    #         text=f"{hash_text_part}{contract_number}{u_type}{datetime.now()}"
-    #     )
-    #
-    #     vps_service_contract = serializer.save(
-    #         contract_number=contract_number,
-    #         client=user_obj,
-    #         status=2,
-    #         contract_status=3,  # active
-    #         is_confirmed_contract=4,  # DONE
-    #         payed_cash=0,
-    #         hashcode=hash_code,
-    #         contract_cash=configurations_total_price
-    #     )
-    #
-    #     # contract file for base64 pdf -> before it file uploaded and created to db
-    #     if file:
-    #         premade_contract_file = VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file)
-    #         file_path = premade_contract_file.file.path
-    #         if os.path.exists(file_path):
-    #             try:
-    #                 contract_file = open(file_path, 'rb').read()
-    #                 base64code = base64.b64encode(contract_file)
-    #                 vps_service_contract.base64file = base64code
-    #             except Exception as e:
-    #                 logger.error(e)
-    #         else:
-    #             logger.info("The file does not exist.")
-    #     vps_service_contract.save()
-    #
-    #     for configuration_data in configurations:
-    #         create_vps_configurations(configuration_data, vps_service_contract)
-    #
-    #     # VpsContracts_Participants
-    #     # if the amount of the contract is less than 10 million,
-    #     # the director will not participate as a participant
-    #     exclude_role = None
-    #     # if vps_service_contract.contract_cash < 10_000_000:
-    #     #     exclude_role = Role.RoleNames.DIRECTOR
-    #
-    #     participants = create_contract_participants(
-    #         service_obj=service_obj,
-    #         exclude_role=exclude_role
-    #     )
-    #     agreement_status = AgreementStatus.objects.filter(name='Kelishildi').first()
-    #
-    #     for participant in participants:
-    #         VpsContracts_Participants.objects.create(
-    #             contract=vps_service_contract,
-    #             role=participant.role,
-    #             participant_user=participant,
-    #             agreement_status=agreement_status
-    #         ).save()
-
     def get_serializer(self, *args, **kwargs):
         # Customize the serializer instantiation here
         # Parse client_user and configurations as JSON objects
@@ -1140,9 +909,16 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         pin_or_tin = client_user.validated_data.get("pin_or_tin")
 
         file = self.request.FILES.get('file', None)
+        file_pdf = self.request.data.get('file_pdf', None)
+        with_word = self.request.data.get('with_word', False)
 
-        if not pin_or_tin or not file:
-            return Response({"error": "pin or tin and file cannot be empty"}, status=status.HTTP_400_BAD_REQUEST)
+        if not pin_or_tin or (file and file_pdf) or (not file and not file_pdf):
+            # Handle the case when either pin_or_tin is falsy or both file and file_pdf are present,
+            # or when both file and file_pdf are absent
+            # At least one item is required from file and file_pdf
+            return response.Response(
+                {"error": "pin or tin and file_pdf or file cannot be empty"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         user_obj = self.get_or_create_user(pin_or_tin, user_type)
 
@@ -1164,7 +940,7 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
             configurations_total_price, hash_code
         )
 
-        self.handle_contract_file(vps_service_contract, file)
+        self.handle_contract_file(vps_service_contract, file, file_pdf, with_word)
 
         self.create_vps_configurations(configurations.data, vps_service_contract)
 
@@ -1253,22 +1029,72 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         )
         return vps_service_contract
 
-    def handle_contract_file(self, vps_service_contract, file):
-        if file:
+    # def handle_contract_file(self, vps_service_contract, file, file_pdf, with_word): if with_word: file_path =
+    # self.download_pdf_from_onlyoffice(vps_service_contract, file_pdf) if os.path.exists(file_path): try: with open(
+    # file_path, 'rb') as contract_file: contract_file_data = contract_file.read() base64code = base64.b64encode(
+    # contract_file_data) vps_service_contract.base64file = base64code except Exception as e: logger.error(e) return
+    # HttpResponseServerError() else: logger.info("The file does not exist.") else: if file: premade_contract_file =
+    # VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file) file_path =
+    # premade_contract_file.file.path if os.path.exists(file_path): try: with open(file_path, 'rb') as contract_file:
+    # contract_file_data = contract_file.read() base64code = base64.b64encode(contract_file_data)
+    # vps_service_contract.base64file = base64code except Exception as e: logger.error(e) return
+    # HttpResponseServerError() else: logger.info("The file does not exist.") vps_service_contract.save()
+    #
+    # def download_pdf_from_onlyoffice(self, vps_service_contract, file_url):
+    #     url = f"http://185.74.4.35:81/cache/files/data/{file_url}"
+    #     res = requests.request("GET", url, headers={}, data={})
+    #
+    #     if res.status_code == 200:
+    #         premade_contract_file = VpsPremadeContractFile(contract=vps_service_contract,)
+    #         premade_contract_file.file.save('output.pdf', ContentFile(res.content))
+    #         file_path = premade_contract_file.file.path
+    #
+    #         logger.info(f'PDF file saved successfully! File path: {file_path}')
+    #         return file_path
+    #
+    #     logger.error('Failed to save PDF file.')
+    #     vps_service_contract.delete()
+    #     return response.Response(
+    #         {"error": "pin or tin and file_pdf or file cannot be empty"}, status = status.HTTP_400_BAD_REQUEST
+    #     )
+
+    def handle_contract_file(self, vps_service_contract, file, file_pdf, with_word):
+        if with_word:
+            file_path = self.download_pdf_from_onlyoffice(vps_service_contract, file_pdf)
+        elif file:
             premade_contract_file = VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file)
             file_path = premade_contract_file.file.path
-            if os.path.exists(file_path):
-                try:
-                    with open(file_path, 'rb') as contract_file:
-                        contract_file_data = contract_file.read()
-                    base64code = base64.b64encode(contract_file_data)
-                    vps_service_contract.base64file = base64code
-                except Exception as e:
-                    logger.error(e)
-                    return HttpResponseServerError()
-            else:
-                logger.info("The file does not exist.")
-        vps_service_contract.save()
+        else:
+            logger.info("The file does not exist.")
+            return
+
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'rb') as contract_file:
+                    contract_file_data = contract_file.read()
+                base64code = base64.b64encode(contract_file_data)
+                vps_service_contract.base64file = base64code
+                vps_service_contract.save()
+            except Exception as e:
+                logger.error(e)
+                return HttpResponseServerError()
+        else:
+            logger.info("The file does not exist.")
+
+    def download_pdf_from_onlyoffice(self, vps_service_contract, file_url):
+        url = f"http://185.74.4.35:81/cache/files/data/{file_url}"
+        res = requests.get(url)
+
+        if res.status_code == 200:
+            premade_contract_file = VpsPremadeContractFile(contract=vps_service_contract)
+            premade_contract_file.file.save('output.pdf', ContentFile(res.content))
+            file_path = premade_contract_file.file.path
+            logger.info(f'PDF file saved successfully! File path: {file_path}')
+            return file_path
+
+        logger.error('Failed to save PDF file.')
+        vps_service_contract.delete()
+        return None
 
     def create_vps_configurations(self, configurations, vps_service_contract):
         for configuration_data in configurations:
