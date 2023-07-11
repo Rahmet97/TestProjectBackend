@@ -923,22 +923,22 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
         file = self.request.FILES.get('file', None)
         file_pdf = self.request.data.get('file_pdf', None)
-        with_word = self.request.data.get('with_word')
-        logger.info(f"with_word >> {with_word}")
 
-        # if not pin_or_tin or (file and file_pdf) or (not file and not file_pdf):
-        #     # Handle the case when either pin_or_tin is falsy or both file and file_pdf are present,
-        #     # or when both file and file_pdf are absent
-        #     # At least one item is required from file and file_pdf
-        #     return response.Response(
-        #         {"error": "pin or tin and file_pdf or file cannot be empty"}, status=status.HTTP_400_BAD_REQUEST
-        #     )
+        if not pin_or_tin or (file and file_pdf) or (not file and not file_pdf):
+            # Handle the case when either pin_or_tin is falsy or both file and file_pdf are present,
+            # or when both file and file_pdf are absent
+            # At least one item is required from file and file_pdf
+            return response.Response(
+                {"error": "pin or tin and file_pdf or file cannot be empty"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         user_obj = self.get_or_create_user(pin_or_tin, user_type)
 
         user, u_type, hash_text_part = self.get_user_and_info(user_type, user_obj)
 
         service_obj = serializer.validated_data.get("service")
+        with_word = serializer.validated_data.pop("with_word")
+        logger.info(f"with_word >> {with_word}")
         logger.info(f"service_obj >> {service_obj}")
         contract_number = self.generate_contract_number(service_obj)
         logger.info(f"contract_number >> {contract_number}")
