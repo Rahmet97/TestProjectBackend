@@ -906,57 +906,6 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         kwargs['context'] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)
 
-    # def get_serializer(self, *args, **kwargs):
-    #     # Parse client_user and configurations as JSON objects
-    #     client_user_data = self.parse_client_data(self.request.data.get("client_user"))
-    #     configurations_data = self.parse_client_data(self.request.data.get("configuration"))
-    #     # service = self.parse_client_data(self.request.data.get("service"))
-    #     # contract_date = self.parse_client_data(self.request.data.get("contract_date"))
-    #
-    #     if isInstance(request.data, QueryDict):
-    #         request.data._mutable = True
-    #
-    #     # Create a modified data dictionary
-    #     modified_data = dict(self.request.data, **{
-    #         "client_user": client_user_data,
-    #         "configuration": configurations_data,
-    #         # "service": service,
-    #         # "contract_date": contract_date
-    #     })
-    #
-    #     # Modify the arguments and add additional logic as needed
-    #     kwargs['context'] = self.get_serializer_context()
-    #     kwargs['data'] = modified_data
-    #
-    #     # Return the serializer instance
-    #     serializer_class = self.get_serializer_class()
-    #     return serializer_class(*args, **kwargs)
-
-    # def get_serializer(self, *args, **kwargs):
-    #     # Customize the serializer instantiation here
-    #     # Parse client_user and configurations as JSON objects
-    #     client_user_data = self.parse_client_data(self.request.data.get("client_user"))
-    #     configurations_data = self.parse_client_data(self.request.data.get("configuration"))
-    #
-    #     # Create a mutable copy of the QueryDict
-    #     mutable_data = self.request.data.copy()
-    #
-    #     # Update the modified data with parsed values
-    #     modified_data.update({
-    #         "client_user": client_user_data,
-    #         "configuration": configurations_data
-    #     })
-    #
-    #     # mutable_data["client_user"] = client_user_data
-    #     # mutable_data["configuration"] = configurations_data
-    #
-    #     # You can modify the arguments or add additional logic as needed
-    #     serializer_class = self.get_serializer_class()
-    #     kwargs['context'] = self.get_serializer_context()
-    #     kwargs['data'] = mutable_data  # Use the modified data
-    #
-    #     return serializer_class(*args, **kwargs)
-
     def perform_create(self, serializer):
         client_user = VpsUserForContractCreateSerializers(data=self.request.data.get("client_user"))
         client_user.is_valid(raise_exception=True)
@@ -1084,35 +1033,6 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         )
         return vps_service_contract
 
-    # def handle_contract_file(self, vps_service_contract, file, file_pdf, with_word): if with_word: file_path =
-    # self.download_pdf_from_onlyoffice(vps_service_contract, file_pdf) if os.path.exists(file_path): try: with open(
-    # file_path, 'rb') as contract_file: contract_file_data = contract_file.read() base64code = base64.b64encode(
-    # contract_file_data) vps_service_contract.base64file = base64code except Exception as e: logger.error(e) return
-    # HttpResponseServerError() else: logger.info("The file does not exist.") else: if file: premade_contract_file =
-    # VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file) file_path =
-    # premade_contract_file.file.path if os.path.exists(file_path): try: with open(file_path, 'rb') as contract_file:
-    # contract_file_data = contract_file.read() base64code = base64.b64encode(contract_file_data)
-    # vps_service_contract.base64file = base64code except Exception as e: logger.error(e) return
-    # HttpResponseServerError() else: logger.info("The file does not exist.") vps_service_contract.save()
-    #
-    # def download_pdf_from_onlyoffice(self, vps_service_contract, file_url):
-    #     url = f"http://185.74.4.35:81/cache/files/data/{file_url}"
-    #     res = requests.request("GET", url, headers={}, data={})
-    #
-    #     if res.status_code == 200:
-    #         premade_contract_file = VpsPremadeContractFile(contract=vps_service_contract,)
-    #         premade_contract_file.file.save('output.pdf', ContentFile(res.content))
-    #         file_path = premade_contract_file.file.path
-    #
-    #         logger.info(f'PDF file saved successfully! File path: {file_path}')
-    #         return file_path
-    #
-    #     logger.error('Failed to save PDF file.')
-    #     vps_service_contract.delete()
-    #     return response.Response(
-    #         {"error": "pin or tin and file_pdf or file cannot be empty"}, status = status.HTTP_400_BAD_REQUEST
-    #     )
-
     def handle_contract_file(self, vps_service_contract, file, file_pdf, with_word):
         if with_word:
             file_path = self.download_pdf_from_onlyoffice(vps_service_contract, file_pdf)
@@ -1137,7 +1057,8 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
             logger.info("The file does not exist.")
 
     def download_pdf_from_onlyoffice(self, vps_service_contract, file_url):
-        url = f"http://185.74.4.35:81/cache/files/data/{file_url}"
+        # url = f"http://185.74.4.35:81/cache/files/data/{file_url}"
+        url = file_url
         res = requests.get(url)
 
         print("url >>> ", url)
@@ -1161,7 +1082,10 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
             logger.error('Failed to save PDF file.')
             premade_contract_file.delete()
             vps_service_contract.delete()
-        return None
+        logger.error(f"pdf status_code {res.status_code}")
+        return response.Response(
+            {"error": f"pdf status_code {res.status_code}"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     def create_vps_configurations(self, configurations, vps_service_contract):
         for configuration_data in configurations:
