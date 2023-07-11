@@ -880,6 +880,7 @@ class VpsGetContractFile(views.APIView):
 
 class CreateVpsContractWithFile(generics.CreateAPIView):
     queryset = VpsServiceContract.objects.all()
+
     serializer_class = VpsCreateContractWithFileSerializers
     serializer_class_configuration = VpsTariffSummSerializer
     # serializer_class_contract = VpsCreateContractWithFileSerializersSerializers
@@ -888,6 +889,13 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]  # -> for employee
 
     # parser_classes = [parsers.MultiPartParser]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_serializer(self, *args, **kwargs):
         # Customize the serializer instantiation here
