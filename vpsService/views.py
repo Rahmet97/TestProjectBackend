@@ -924,9 +924,6 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         file = self.request.FILES.get('file', None)
         file_pdf = self.request.data.get('file_pdf', None)
         with_word = self.request.data.get('with_word', False)
-        print("file1 ", file)
-        print("file_pdf1 ", file_pdf)
-        print("with_word1 ", with_word)
 
         if not pin_or_tin or (file and file_pdf) or (not file and not file_pdf):
             # Handle the case when either pin_or_tin is falsy or both file and file_pdf are present,
@@ -955,10 +952,6 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
             serializer, contract_number, user_obj,
             configurations_total_price, hash_code
         )
-
-        print("file", file)
-        print("file_pdf", file_pdf)
-        print("with_word", with_word)
 
         self.handle_contract_file(vps_service_contract, file, file_pdf, with_word)
 
@@ -1047,11 +1040,12 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
             hashcode=hash_code,
             contract_cash=configurations_total_price
         )
+        print("contract saved !!!")
         return vps_service_contract
 
     def handle_contract_file(self, vps_service_contract, file, file_pdf, with_word):
 
-        if with_word:
+        if with_word is True:
             file_path = self.download_pdf_from_onlyoffice(vps_service_contract, file_pdf)
         elif file is not None:
             premade_contract_file = VpsPremadeContractFile.objects.create(contract=vps_service_contract, file=file)
