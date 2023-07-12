@@ -92,7 +92,7 @@ class CreateInvoiceAPIView(views.APIView):
         elif str(contract_id_code).upper().startswith("E", 0, 2):  # expertise
             products = [{
                 "nomenclatureID": Nomenclature.objects.get(service=contract.service).nomenclature,
-                "quantity": contract.vps_contract_device.count(),
+                "quantity": contract.expertisetarifcontract_set.count(),
                 "Price": round(float(contract.contract_cash), 3),
                 "amount": round(float(contract.contract_cash) / 1.12, 3),
                 "amountVAT": round(float(contract.contract_cash) / 1.12 * 0.12, 3)
@@ -101,7 +101,7 @@ class CreateInvoiceAPIView(views.APIView):
         elif str(contract_id_code).upper().startswith("VM", 0, 2):  # vps
             products = [{
                 "nomenclatureID": Nomenclature.objects.get(service=contract.service).nomenclature,
-                "quantity": contract.expertisetarifcontract_set.count(),
+                "quantity": contract.vps_contract_device.count(),
                 "Price": round(float(contract.contract_cash), 3),
                 "amount": round(float(contract.contract_cash) / 1.12, 3),
                 "amountVAT": round(float(contract.contract_cash) / 1.12 * 0.12, 3)
