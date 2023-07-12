@@ -259,22 +259,22 @@ class VpsConfirmContract(views.APIView):
         except VpsContracts_Participants.DoesNotExist:
             contract_conf_by_director = None
 
-        if VpsContracts_Participants.objects.filter(contract=contract, role__name=Role.RoleNames.JURIST).exists():
+        try:
             contract_conf_by_jurist = VpsContracts_Participants.objects.get(
                 contract=contract,
                 role__name=Role.RoleNames.JURIST,
                 agreement_status__name='Kelishildi'
             )
-        else:
+        except VpsContracts_Participants.DoesNotExist:
             contract_conf_by_jurist = None
 
-        if VpsContracts_Participants.objects.filter(contract=contract, role__name=Role.RoleNames.ACCOUNTANT).exists():
+        try:
             contract_conf_by_accountant = VpsContracts_Participants.objects.get(
                 contract=contract,
                 role__name=Role.RoleNames.ACCOUNTANT,
                 agreement_status__name='Kelishildi'
             )
-        else:
+        except VpsContracts_Participants.DoesNotExist:
             contract_conf_by_accountant = None
 
         specific_role_names = [Role.RoleNames.ACCOUNTANT, Role.RoleNames.JURIST]
@@ -666,6 +666,7 @@ class VpsContractDetail(views.APIView):
     permitted_roles = [
         Role.RoleNames.ADMIN,
         Role.RoleNames.ACCOUNTANT,
+        Role.RoleNames.JURIST,
         Role.RoleNames.DIRECTOR,
         Role.RoleNames.DEPUTY_DIRECTOR,
         Role.RoleNames.DEPARTMENT_BOSS,
