@@ -1134,7 +1134,7 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
             ).save()
 
 
-class VpsMonitoringContractViews(APIView):
+class VpsMonitoringContractViews(views.APIView):
     permission_classes = [MonitoringPermission]
 
     @staticmethod
