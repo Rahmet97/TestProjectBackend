@@ -494,7 +494,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 # base64file=base64code,
                 hashcode=hash_code,
                 contract_cash=configurations_total_price,
-                is_confirmed_contract=3 if is_back_office else 1,  # CLIENT_CONFIRMED or WAITING
+                is_confirmed_contract=1 if is_back_office else 3,  # WAITING or CLIENT_CONFIRMED
                 # like_preview_pdf=like_preview_pdf_path
             )
             vps_service_contract.save()
