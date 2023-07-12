@@ -1161,7 +1161,8 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         if with_word:
             additional_roles = [Role.RoleNames.ACCOUNTANT, Role.RoleNames.JURIST]
             additional_participants = UserData.objects.filter(role__name__in=additional_roles, group=None)
-            participants.append(additional_participants)
+            for additional_participant in additional_participants:
+                participants.append(additional_participant)
 
         for participant in participants:
             VpsContracts_Participants.objects.create(
