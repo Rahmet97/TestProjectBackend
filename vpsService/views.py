@@ -284,8 +284,12 @@ class VpsConfirmContract(views.APIView):
                 contract.contract_status = 1  # NEW
         else:
             if contract_conf_by_director:
-                contract.is_confirmed_contract = 2  # UNICON_CONFIRMED
-                contract.contract_status = 1  # NEW
+                is_confirmed_contract = contract.is_confirmed_contract
+                print("contract_conf_by_director >> ", contract_conf_by_director)
+                # DONE or UNICON_CONFIRMED
+                contract.is_confirmed_contract = 4 if is_confirmed_contract == 3 else 2
+                # PAYMENT_IS_PENDING or NEW
+                contract.contract_status = 2 if is_confirmed_contract == 3 else 1
 
         contract.save()
 
@@ -490,7 +494,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 # base64file=base64code,
                 hashcode=hash_code,
                 contract_cash=configurations_total_price,
-                is_confirmed_contract=1,  # WAITING
+                is_confirmed_contract=3 if is_back_office else 1,  # CLIENT_CONFIRMED or WAITING
                 # like_preview_pdf=like_preview_pdf_path
             )
             vps_service_contract.save()
@@ -638,7 +642,7 @@ class VpsSavePkcs(views.APIView):
                     pkcs_exist_object.pkcs7 = new_pkcs7
                     pkcs_exist_object.save()
 
-            if request.user == contract.client and contract.is_confirmed_contract == 2:
+            if request.user == contract.client and contract.is_confirmed_contract == 2:  # UNICON_CONFIRMED
                 contract.contract_status = 2  # PAYMENT_IS_PENDING
                 contract.is_confirmed_contract = 4  # DONE
                 contract.save()
@@ -1221,7 +1225,7 @@ class VpsMonitoringContractViews(views.APIView):
             contract_cash=request.GET.get("contract_cash"),
         )
         serializer = VpsMonitoringContractSerializer(contracts, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class VpsMonitoringContractDetailViews(generics.RetrieveAPIView):
