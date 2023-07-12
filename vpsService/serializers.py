@@ -1,12 +1,14 @@
 import json
+import logging
 
 from rest_framework import serializers
 
-from accounts.models import YurUser, FizUser
+from accounts.models import YurUser, FizUser, UserData
 from accounts.serializers import YurUserSerializerForContractDetail, FizUserSerializerForContractDetail
 from billing.serializers import VpsTariffSummSerializer
 from contracts.models import Service
-from contracts.serializers import ServiceSerializerForContract
+from contracts.serializers import ServiceSerializerForContract, InvoiceInformationSerializer
+from one_c.models import Invoice
 from .models import (
     VpsServiceContract,
     OperationSystem,
@@ -18,6 +20,8 @@ from .models import (
     VpsExpertSummary,
     VpsExpertSummaryDocument, VpsPkcs,
 )
+
+logger = logging.getLogger(__name__)
 
 
 # Serializer for OperationSystemVersion model
@@ -306,3 +310,39 @@ class ConvertDocx2PDFSerializer(serializers.Serializer):
 
 class ForceSaveFileSerializer(serializers.Serializer):
     key = serializers.CharField()
+
+
+class VpsMonitoringContractSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VpsServiceContract
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Customize the representation of your data here
+        representation['payed_information'] = None
+        payed_information_objects = Invoice.objects.filter(contract_code=instance.id_code)
+        if payed_information_objects:
+            representation['payed_information'] = InvoiceInformationSerializer(
+                payed_information_objects, many=True, context={'contract_cash': instance.contract_cash}
+            ).data[0],
+
+        client = UserData.objects.get(id=instance.client.id)
+        try:
+            if client.type == 1:  # FIZ = 1 YUR = 2
+                representation["user_type"] = "fiz"
+                client = FizUser.objects.get(userdata=client)
+                representation["client"]["full_name"] = client.full_name
+                representation["client"]["pin"] = client.pin
+            else:
+                representation["user_type"] = "yur"
+                client = YurUser.objects.get(userdata=client)
+                representation["client"]["name"] = client.name
+                representation["client"]["full_name"] = client.full_name
+                representation["client"]["tin"] = client.tin
+        except:
+            logger.error(f"344: vps contract_number is: {instance.contract_number}, the bug is here ;]")
+
+        # representation["total_payed_percentage"] = (float(instance.payed_cash) * float(100))/float(
+        # instance.contract_cash)
+        return representation

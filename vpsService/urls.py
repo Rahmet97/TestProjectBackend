@@ -34,6 +34,13 @@ urlpatterns = [
         name='VpsConfirmContract'
     ),
 
+    path('contract-monitoring', views.VpsMonitoringContractViews.as_view(), name='VpsMonitoringContractViews'),
+    path(
+        'contract-monitoring/<int:pk>',
+        views.VpsMonitoringContractDetailViews.as_view(),
+        name='VpsMonitoringContractDetailViews'
+    ),
+
     # Endpoint to get the contract file by its hash code
     path('contract/<str:hash_code>', views.VpsGetContractFile.as_view(), name='VpsGetContractFile'),
 

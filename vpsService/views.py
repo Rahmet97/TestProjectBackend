@@ -25,7 +25,7 @@ from contracts.tasks import file_downloader
 from contracts.utils import error_response_500, render_to_pdf, delete_file, create_qr, generate_uid, hash_text
 from contracts.views import num2word
 
-from main.permission import IsRelatedToBackOffice, ConfirmContractPermission
+from main.permission import IsRelatedToBackOffice, ConfirmContractPermission, MonitoringPermission
 from main.utils import responseErrorMessage
 
 from .models import (
@@ -39,7 +39,7 @@ from .serializers import (
     ForceSaveFileSerializer, VpsPkcsSerializer, VpsServiceContractResponseViaClientSerializers,
     VpsContractSerializerForDetail, VpsContractParticipantsSerializers, GroupVpsContractSerializerForBackoffice,
     VpsExpertSummarySerializerForSave, VpsUserForContractCreateSerializers, VpsCreateContractWithFileSerializers,
-    VpsTariffSummSerializer
+    VpsTariffSummSerializer, VpsMonitoringContractSerializer
 )
 from .serializers import FileUploadSerializer
 from .utils import get_configurations_context
@@ -466,7 +466,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 # base64file=base64code,
                 hashcode=hash_code,
                 contract_cash=configurations_total_price,
-                is_confirmed_contract=1,  # WAITING
+                is_confirmed_contract=1 if is_back_office else 3,  # WAITING or CLIENT_CONFIRMED
                 # like_preview_pdf=like_preview_pdf_path
             )
             vps_service_contract.save()
@@ -614,7 +614,7 @@ class VpsSavePkcs(views.APIView):
                     pkcs_exist_object.pkcs7 = new_pkcs7
                     pkcs_exist_object.save()
             if request.user == contract.client:
-                contract.contract_status = 3  # PAYMENT_IS_PENDING
+                contract.contract_status = 2  # PAYMENT_IS_PENDING
                 contract.is_confirmed_contract = 3  # CLIENT_CONFIRMED
                 contract.save()
         except VpsServiceContract.DoesNotExist:
@@ -1042,8 +1042,8 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
             contract_number=contract_number,
             client=user_obj,
             status=2,
-            contract_status=3 if with_word else 1,  # NEW or ACTIVE
-            is_confirmed_contract=4 if with_word else 1,  # WAITING or DONE
+            contract_status=1 if with_word else 3,  # NEW or ACTIVE
+            is_confirmed_contract=1 if with_word else 4,  # WAITING or DONE
             payed_cash=0,
             hashcode=hash_code,
             contract_cash=configurations_total_price
@@ -1132,3 +1132,65 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
                 participant_user=participant,
                 agreement_status=agreement_status
             ).save()
+
+
+class VpsMonitoringContractViews(APIView):
+    permission_classes = [MonitoringPermission]
+
+    @staticmethod
+    def get_objects(
+            query_year=None, contract_number=None,
+            id_code=None, contract_date=None,
+            client_type=None, pin=None, tin=None,
+            contract_cash=None
+    ):
+        # create an empty query object
+        query = Q()
+        # add more filter criteria to the query object using the | (OR) operator
+        if contract_number:
+            query |= Q(contract_number=contract_number)
+
+        if id_code:
+            query |= Q(id_code=id_code)
+
+        if contract_date:
+            query |= Q(contract_date=contract_date)
+
+        if client_type:  # FIZ = 1 YUR = 2
+            query |= Q(client__type=client_type)
+
+        if pin:
+            query |= Q(client__username=pin)
+
+        if tin:
+            query |= Q(client__username=tin)
+
+        if contract_cash:
+            query |= Q(contract_cash=contract_cash)
+
+        if query_year:
+            query |= Q(contract_date__year=query_year)
+
+        # execute the query and retrieve the matching books
+        contracts = VpsServiceContract.objects.filter(query).order_by("-id")
+        return contracts
+
+    def get(self, request):
+        contracts = self.get_objects(
+            query_year=request.GET.get("year"),
+            contract_number=request.GET.get("contract_number"),
+            id_code=request.GET.get("id_code"),
+            contract_date=request.GET.get("contract_date"),
+            client_type=request.GET.get("client_type"),
+            pin=request.GET.get("pin"),
+            tin=request.GET.get("tin"),
+            contract_cash=request.GET.get("contract_cash"),
+        )
+        serializer = VpsMonitoringContractSerializer(contracts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class VpsMonitoringContractDetailViews(generics.RetrieveAPIView):
+    queryset = VpsServiceContract.objects.all()
+    serializer_class = VpsMonitoringContractSerializer
+    permission_classes = [MonitoringPermission]
