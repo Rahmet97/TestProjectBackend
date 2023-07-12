@@ -104,6 +104,7 @@ class Role(models.Model):
         DIRECTOR = "direktor", "direktor"
         # ECONOMIST = "iqtisodchi", "iqtisodchi"
         ACCOUNTANT = "buxgalteriya", "buxgalteriya"
+        JURIST = "yurist", "yurist"
         DISPATCHER = "dispetcher", "dispetcher"
         LEAD_ENGINEER = "yetakchi muhandis", "yetakchi muhandis"
         CLIENT = "mijoz", "mijoz"

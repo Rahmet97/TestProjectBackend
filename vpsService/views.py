@@ -251,17 +251,41 @@ class VpsConfirmContract(views.APIView):
         # director_role_name = \
         #     Role.RoleNames.DIRECTOR if contract.contract_cash >= 10_000_000 else Role.RoleNames.DEPUTY_DIRECTOR
         try:
-            cntrct = VpsContracts_Participants.objects.get(
+            contract_conf_by_director = VpsContracts_Participants.objects.get(
                 contract=contract,
                 role__name=Role.RoleNames.DIRECTOR,
                 agreement_status__name='Kelishildi'
             )
         except VpsContracts_Participants.DoesNotExist:
-            cntrct = None
+            contract_conf_by_director = None
 
-        if cntrct:
-            contract.is_confirmed_contract = 2  # UNICON_CONFIRMED
-            contract.contract_status = 1  # NEW
+        if VpsContracts_Participants.objects.filter(contract=contract, role__name=Role.RoleNames.JURIST).exists():
+            contract_conf_by_jurist = VpsContracts_Participants.objects.get(
+                contract=contract,
+                role__name=Role.RoleNames.JURIST,
+                agreement_status__name='Kelishildi'
+            )
+        else:
+            contract_conf_by_jurist = None
+
+        if VpsContracts_Participants.objects.filter(contract=contract, role__name=Role.RoleNames.ACCOUNTANT).exists():
+            contract_conf_by_accountant = VpsContracts_Participants.objects.get(
+                contract=contract,
+                role__name=Role.RoleNames.ACCOUNTANT,
+                agreement_status__name='Kelishildi'
+            )
+        else:
+            contract_conf_by_accountant = None
+
+        specific_role_names = [Role.RoleNames.ACCOUNTANT, Role.RoleNames.JURIST]
+        if VpsContracts_Participants.objects.filter(contract=contract, role__name__in=specific_role_names).exists():
+            if contract_conf_by_director and contract_conf_by_jurist and contract_conf_by_accountant:
+                contract.is_confirmed_contract = 2  # UNICON_CONFIRMED
+                contract.contract_status = 1  # NEW
+        else:
+            if contract_conf_by_director:
+                contract.is_confirmed_contract = 2  # UNICON_CONFIRMED
+                contract.contract_status = 1  # NEW
 
         contract.save()
 
@@ -615,7 +639,7 @@ class VpsSavePkcs(views.APIView):
                     pkcs_exist_object.save()
             if request.user == contract.client:
                 contract.contract_status = 2  # PAYMENT_IS_PENDING
-                contract.is_confirmed_contract = 3  # CLIENT_CONFIRMED
+                contract.is_confirmed_contract = 4  # DONE
                 contract.save()
         except VpsServiceContract.DoesNotExist:
             return response.Response({'message': 'Bunday shartnoma mavjud emas'})
@@ -964,9 +988,11 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
         participants = self.create_contract_participants(service_obj)
         logger.info(f"participants >> {participants}")
-        agreement_status = AgreementStatus.objects.filter(name='Kelishildi').first()
 
-        self.create_contract_participant_objects(vps_service_contract, participants, agreement_status)
+        agreement_status_name = 'Yuborilgan' if with_word else 'Kelishildi'
+        agreement_status = AgreementStatus.objects.filter(name=agreement_status_name).first()
+
+        self.create_contract_participant_objects(vps_service_contract, participants, agreement_status, with_word)
 
         return vps_service_contract
 
@@ -1124,7 +1150,13 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         )
         return participants
 
-    def create_contract_participant_objects(self, vps_service_contract, participants, agreement_status):
+    def create_contract_participant_objects(self, vps_service_contract, participants, agreement_status, with_word):
+
+        if with_word:
+            additional_roles = [Role.RoleNames.ACCOUNTANT, Role.RoleNames.JURIST]
+            additional_participants = UserData.objects.filter(role__in=additional_roles, group=None)
+            participants.append(additional_participants)
+
         for participant in participants:
             VpsContracts_Participants.objects.create(
                 contract=vps_service_contract,
