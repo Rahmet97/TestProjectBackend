@@ -222,7 +222,7 @@ class VpsConfirmContract(views.APIView):
             agreement_status = AgreementStatus.objects.get(name='Kelishildi')
         else:
             agreement_status = AgreementStatus.objects.get(name='Rad etildi')
-            contract.contract_status = 5  # REJECTED
+            contract.contract_status = 4  # REJECTED
             # if contract.contract_cash >= 10_000_000:
             #     director_participants = VpsContracts_Participants.objects.get(
             #         Q(role__name=Role.RoleNames.DIRECTOR),
@@ -261,7 +261,7 @@ class VpsConfirmContract(views.APIView):
 
         if cntrct:
             contract.is_confirmed_contract = 2  # UNICON_CONFIRMED
-            contract.contract_status = 2  # CUSTOMER_SIGNATURE_IS_EXPECTED
+            contract.contract_status = 1  # NEW
 
         contract.save()
 
@@ -461,11 +461,12 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 contract_number=context['contract_number'],
                 client=client,
                 status=4,
-                contract_status=1,  # new
+                contract_status=1,  # NEW
                 payed_cash=0,
                 # base64file=base64code,
                 hashcode=hash_code,
-                contract_cash=configurations_total_price
+                contract_cash=configurations_total_price,
+                is_confirmed_contract=1,  # WAITING
                 # like_preview_pdf=like_preview_pdf_path
             )
             vps_service_contract.save()
@@ -849,7 +850,7 @@ class VpsGetContractFile(views.APIView):
             return response.Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
 
         contract = get_object_or_404(VpsServiceContract, hashcode=hash_code)
-        if contract.contract_status == 4 or contract.contract_status == 3:  # PAYMENT_IS_PENDING ACTIVE
+        if contract.contract_status == 2 or contract.contract_status == 3:  # PAYMENT_IS_PENDING ACTIVE
             # delete like pdf file test mode
             if contract.like_preview_pdf:
                 delete_file(contract.like_preview_pdf.path)
@@ -863,17 +864,17 @@ class VpsGetContractFile(views.APIView):
             )
             if os.path.exists(file_pdf_path):
                 with open(file_pdf_path, 'rb') as fh:
-                    response = HttpResponse(fh.read(), content_type="application/pdf")
-                    response['Content-Disposition'] = f'attachment; filename={contract.contract_number}.pdf'
+                    res = HttpResponse(fh.read(), content_type="application/pdf")
+                    res['Content-Disposition'] = f'attachment; filename={contract.contract_number}.pdf'
                     delete_file(file_pdf_path)
-                    return response
+                    return res
         else:
             if contract.like_preview_pdf:
                 # Open the file and create a response with the PDF data
                 with open(contract.like_preview_pdf.path, 'rb') as f:
-                    response = HttpResponse(f.read(), content_type='application/pdf')
-                    response['Content-Disposition'] = f'attachment; filename={contract.contract_number}.pdf'
-                    return response
+                    res = HttpResponse(f.read(), content_type='application/pdf')
+                    res['Content-Disposition'] = f'attachment; filename={contract.contract_number}.pdf'
+                    return res
 
         return response.Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -953,7 +954,7 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
         vps_service_contract = self.save_vps_service_contract(
             serializer, contract_number, user_obj,
-            configurations_total_price, hash_code
+            configurations_total_price, hash_code, with_word
         )
         logger.info(f"vps_service_contract >> {vps_service_contract}")
 
@@ -1034,19 +1035,20 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
     def generate_hash_code(self, hash_text_part, contract_number, u_type):
         return generate_hash_code(text=f"{hash_text_part}{contract_number}{u_type}{datetime.now()}")
 
-    def save_vps_service_contract(self, serializer, contract_number, user_obj, configurations_total_price, hash_code):
+    def save_vps_service_contract(
+            self, serializer, contract_number, user_obj, configurations_total_price, hash_code, with_word):
         logger.info(f"save_vps_service_contract is working !!!")
         vps_service_contract = serializer.save(
             contract_number=contract_number,
             client=user_obj,
             status=2,
-            contract_status=3,  # active
-            is_confirmed_contract=4,  # DONE
+            contract_status=3 if with_word else 1,  # NEW or ACTIVE
+            is_confirmed_contract=4 if with_word else 1,  # WAITING or DONE
             payed_cash=0,
             hashcode=hash_code,
             contract_cash=configurations_total_price
         )
-        print("contract saved !!!")
+        logger.info("contract saved !!!")
         return vps_service_contract
 
     def handle_contract_file(self, vps_service_contract, file, file_pdf, with_word):
