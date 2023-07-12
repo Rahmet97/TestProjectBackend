@@ -490,7 +490,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 # base64file=base64code,
                 hashcode=hash_code,
                 contract_cash=configurations_total_price,
-                is_confirmed_contract=1 if is_back_office else 3,  # WAITING or CLIENT_CONFIRMED
+                is_confirmed_contract=1,  # WAITING
                 # like_preview_pdf=like_preview_pdf_path
             )
             vps_service_contract.save()
@@ -637,10 +637,12 @@ class VpsSavePkcs(views.APIView):
                     new_pkcs7 = self.join2pkcs(pkcs7, client_pkcs)
                     pkcs_exist_object.pkcs7 = new_pkcs7
                     pkcs_exist_object.save()
-            if request.user == contract.client:
+
+            if request.user == contract.client and contract.is_confirmed_contract == 2:
                 contract.contract_status = 2  # PAYMENT_IS_PENDING
                 contract.is_confirmed_contract = 4  # DONE
                 contract.save()
+
         except VpsServiceContract.DoesNotExist:
             return response.Response({'message': 'Bunday shartnoma mavjud emas'})
         return response.Response({'message': 'Success'})
