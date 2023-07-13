@@ -72,6 +72,9 @@ class ConfirmContractPermission(permissions.BasePermission):
         Role.RoleNames.DEPUTY_DIRECTOR,
         Role.RoleNames.DEPARTMENT_BOSS,
         Role.RoleNames.SECTION_HEAD,
+
+        Role.RoleNames.JURIST,
+        Role.RoleNames.ACCOUNTANT,
     ]
 
     def has_permission(self, request, view):

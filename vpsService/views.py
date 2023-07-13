@@ -285,7 +285,6 @@ class VpsConfirmContract(views.APIView):
         else:
             if contract_conf_by_director:
                 is_confirmed_contract = contract.is_confirmed_contract
-                print("contract_conf_by_director >> ", contract_conf_by_director)
                 # DONE or UNICON_CONFIRMED
                 contract.is_confirmed_contract = 4 if is_confirmed_contract == 3 else 2
                 # PAYMENT_IS_PENDING or NEW

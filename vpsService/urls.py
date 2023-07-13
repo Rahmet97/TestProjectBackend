@@ -28,11 +28,7 @@ urlpatterns = [
     ),
 
     # Endpoint to confirm an expertise service contract
-    path(
-        'confirm-contract',
-        views.VpsConfirmContract.as_view(),
-        name='VpsConfirmContract'
-    ),
+    path('confirm-contract',views.VpsConfirmContract.as_view(),name='VpsConfirmContract'),
 
     path('contract-monitoring', views.VpsMonitoringContractViews.as_view(), name='VpsMonitoringContractViews'),
     path(
