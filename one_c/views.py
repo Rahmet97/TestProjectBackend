@@ -166,6 +166,8 @@ class CreateInvoiceAPIView(views.APIView):
         }
         logger.info(data)
         res = requests.get(url, headers=headers, data=json.dumps(data))
+        logger.info(f"res.content >> {res.content}")
+        logger.info(f"res.status_code >> {res.status_code}")
         return response.Response(res.content)
 
 

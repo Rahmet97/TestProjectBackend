@@ -17,8 +17,16 @@
             font-family: Times, 'Code2000';
             src: url('{% static "fonts/Code2000/code2000.ttf" %}');
         }
-        
+
+        @font-face {
+            font-family: Times, 'Code2000';
+            src: url('{% static "fonts/Code2000/code2000.ttf" %}') format('truetype'),
+                 url('{% static "fonts/Code2000/code2000.woff" %}') format('woff'),
+                 url('{% static "fonts/Code2000/code2000.woff2" %}') format('woff2');
+        }
+
         body {
+            font-family: 'Code2000', sans-serif;
             width: 100%;
             overflow-x: hidden;
             font-size: 11.5pt;
