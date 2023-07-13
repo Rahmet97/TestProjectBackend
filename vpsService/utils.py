@@ -1,8 +1,7 @@
 import logging
 
-from weasyprint import HTML
 from io import BytesIO
-
+from weasyprint import HTML
 from django.http import HttpResponse
 from django.template.loader import get_template
 
@@ -25,7 +24,7 @@ def render_to_pdf(template_src: str, context_dict=None):
 def generate_pdf(html):
     try:
         result = BytesIO()
-        HTML(string=html).write_pdf(result)
+        HTML(string=html).write_pdf(result, timeout=120)  # Increase the timeout value as needed
         return result.getvalue()
     except Exception as e:
         # Handle any exceptions that may occur during PDF generation
