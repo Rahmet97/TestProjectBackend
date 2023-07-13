@@ -5,6 +5,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" href="{% static 'fonts/Code2000/stylesheet.css' %}">
     <title>Contract</title>
     <style>
         @page {
@@ -12,15 +13,7 @@
             margin: 2cm 1cm 2cm 3cm;
         }
 
-        @font-face {
-            font-family: Times, 'Code2000';
-            src: url('{% static "fonts/Code2000/code2000.ttf" %}') format('truetype'),
-                 url('{% static "fonts/Code2000/code2000.woff" %}') format('woff'),
-                 url('{% static "fonts/Code2000/code2000.woff2" %}') format('woff2');
-        }
-
         body {
-            font-family: 'Code2000', sans-serif;
             width: 100%;
             overflow-x: hidden;
             font-size: 11.5pt;
