@@ -22,11 +22,13 @@ from accounts.serializers import (
 )
 from contracts.models import AgreementStatus, Service, Participant
 from contracts.tasks import file_downloader
-from contracts.utils import error_response_500, render_to_pdf, delete_file, create_qr, generate_uid, hash_text
+from contracts.utils import error_response_500, delete_file, create_qr, generate_uid, hash_text
 from contracts.views import num2word
 
 from main.permission import IsRelatedToBackOffice, ConfirmContractPermission, MonitoringPermission
 from main.utils import responseErrorMessage
+
+from .utils import render_to_pdf
 
 from .models import (
     VpsServiceContract, OperationSystem, OperationSystemVersion, VpsDevice, VpsTariff, VpsContractDevice,

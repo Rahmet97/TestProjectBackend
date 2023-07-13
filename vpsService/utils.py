@@ -1,5 +1,36 @@
+import logging
+
+from weasyprint import HTML
+from io import BytesIO
+
+from django.http import HttpResponse
+from django.template.loader import get_template
+
 from billing.views import calculate_vps
 from vpsService.enum_utils import VpsDevicePriceEnum
+
+logger = logging.getLogger(__name__)
+
+
+def render_to_pdf(template_src: str, context_dict=None):
+    template = get_template(template_name=template_src)
+    html = template.render(context_dict)
+
+    pdf_bytes = generate_pdf(html)
+    if pdf_bytes is not None:
+        return HttpResponse(pdf_bytes, content_type='application/pdf')
+    return None
+
+
+def generate_pdf(html):
+    try:
+        result = BytesIO()
+        HTML(string=html).write_pdf(result)
+        return result.getvalue()
+    except Exception as e:
+        # Handle any exceptions that may occur during PDF generation
+        logger.info(f"PDF generation error: {e}")
+        return None
 
 
 def get_configurations_context(configurations: list) -> tuple[dict, int, dict]:
