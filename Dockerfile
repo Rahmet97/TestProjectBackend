@@ -22,7 +22,11 @@ RUN apk update \
 
 # Install WeasyPrint dependencies
 RUN apk add --no-cache --virtual .build-deps \
-    g++ make cairo-dev cairo pango-dev pango gdk-pixbuf-dev fontconfig
+    g++ make cairo-dev cairo pango-dev pango gdk-pixbuf-dev fontconfig \
+
+RUN apk add ttf-freefont font-noto terminus-font \
+   && fc-cache -f \
+   && fc-list | sort
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
