@@ -31,7 +31,7 @@ from contracts.views import num2word
 from main.permission import IsRelatedToBackOffice, ConfirmContractPermission, MonitoringPermission
 from main.utils import responseErrorMessage
 
-from .utils import render_to_pdf, ConfigurationsCalculator  # get_configurations_context
+from .utils import render_to_pdf, ConfigurationsCalculator, get_configurations_context
 
 from .models import (
     VpsServiceContract, OperationSystem, OperationSystemVersion, VpsDevice, VpsTariff, VpsContractDevice,
@@ -620,10 +620,11 @@ class CreateVpsServiceContractViaClientView(views.APIView):
 
             configurations = request_objects_serializers.validated_data.pop("configuration")
 
-            # configurations_context, configurations_total_price, configurations_cost_prices =
-            # get_configurations_context( configurations )
-            calculator = ConfigurationsCalculator(configurations)
-            configurations_context, configurations_total_price, configurations_cost_prices = calculator.calculate()
+            configurations_context, configurations_total_price, configurations_cost_prices = get_configurations_context(
+                configurations
+            )
+            # calculator = ConfigurationsCalculator(configurations)
+            # configurations_context, configurations_total_price, configurations_cost_prices = calculator.calculate()
 
             context['configurations'] = {
                 "configurations_total_price": configurations_total_price,
@@ -1211,9 +1212,9 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         return prefix + '-' + str(number)
 
     def get_configurations_total_price(self, configurations):
-        # _, configurations_total_price, _ = get_configurations_context(configurations)
-        calculator = ConfigurationsCalculator(configurations)
-        _, configurations_total_price, _ = calculator.calculate()
+        _, configurations_total_price, _ = get_configurations_context(configurations)
+        # calculator = ConfigurationsCalculator(configurations)
+        # _, configurations_total_price, _ = calculator.calculate()
         return configurations_total_price
 
     def generate_hash_code(self, hash_text_part, contract_number, u_type):
