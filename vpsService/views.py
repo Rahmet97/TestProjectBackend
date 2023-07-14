@@ -1,14 +1,17 @@
 import base64, hashlib, json, logging, os, requests
 from datetime import datetime, timedelta
 
+from django.db import transaction
+from django.utils import timezone
+
 import xmltodict
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseServerError
 from django.core.files.base import ContentFile
 from docx import Document
 
 from django.db.models import Q
 from django.http import QueryDict
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.conf import settings
 from django.utils.text import slugify
 from rest_framework import views, generics, permissions, response, status, parsers
@@ -22,13 +25,13 @@ from accounts.serializers import (
 )
 from contracts.models import AgreementStatus, Service, Participant
 from contracts.tasks import file_downloader
-from contracts.utils import error_response_500, delete_file, create_qr, generate_uid, hash_text  #, render_to_pdf
+from contracts.utils import error_response_500, delete_file, create_qr, generate_uid, hash_text
 from contracts.views import num2word
 
 from main.permission import IsRelatedToBackOffice, ConfirmContractPermission, MonitoringPermission
 from main.utils import responseErrorMessage
 
-from .utils import render_to_pdf
+from .utils import render_to_pdf, ConfigurationsCalculator  # get_configurations_context
 
 from .models import (
     VpsServiceContract, OperationSystem, OperationSystemVersion, VpsDevice, VpsTariff, VpsContractDevice,
@@ -44,7 +47,6 @@ from .serializers import (
     VpsTariffSummSerializer, VpsMonitoringContractSerializer
 )
 from .serializers import FileUploadSerializer
-from .utils import get_configurations_context
 
 logger = logging.getLogger(__name__)
 
@@ -144,7 +146,7 @@ def get_number_and_prefix(service_obj):
             number = 1
     except ValueError:
         number = 1
-    prefix = service_obj.prefix  # "VM"
+    prefix = service_obj.prefix if service_obj.prefix else "VM"
     return number, prefix
 
 
@@ -406,183 +408,328 @@ class CallbackUrlAPIView(views.APIView):
         return response.Response({'error': 0})
 
 
+# class CreateVpsServiceContractViaClientView(views.APIView):
+#     queryset = VpsServiceContract.objects.all()
+#     permission_classes = [permissions.IsAuthenticated]
+#
+#     def post(self, request):
+#         context = dict()
+#         request_objects_serializers = VpsServiceContractCreateViaClientSerializers(data=request.data)
+#         request_objects_serializers.is_valid(raise_exception=True)
+#         is_back_office = request_objects_serializers.validated_data.pop("is_back_office")
+#
+#         number, prefix = get_number_and_prefix(request_objects_serializers.validated_data.get("service"))
+#
+#         if is_back_office:
+#             user_serializers = VpsUserForContractCreateSerializers(data=request.data)
+#             user_serializers.is_valid(raise_exception=True)
+#             pin_or_tin = user_serializers.validated_data.get("pin_or_tin")
+#             if user_serializers.validated_data.get("user_type") == 2:
+#                 context['u_type'] = 'yuridik'
+#                 # context["user_obj"] = YurUser.objects.get(tin=pin_or_tin)
+#                 context["user_obj"] = get_object_or_404(YurUser, tin=pin_or_tin)
+#             elif user_serializers.validated_data.get("user_type") == 1:
+#                 context['u_type'] = 'fizik'
+#                 # context["user_obj"] = FizUser.objects.get(pin=pin_or_tin)
+#                 context["user_obj"] = get_object_or_404(FizUser, pin=pin_or_tin)
+#         else:
+#             if request.user.type == 2:
+#                 context['u_type'] = 'yuridik'
+#                 # context["user_obj"] = YurUser.objects.get(userdata=request.user)
+#                 context["user_obj"] = get_object_or_404(YurUser, userdata=request.user)
+#             elif request.user.type == 1:
+#                 context['u_type'] = 'fizik'
+#                 # context["user_obj"] = FizUser.objects.get(userdata=request.user)
+#                 context["user_obj"] = get_object_or_404(FizUser, userdata=request.user)
+#
+#         context['contract_number'] = prefix + '-' + str(number)
+#
+#         date = request_objects_serializers.validated_data.get("contract_date")
+#         context['datetime'] = datetime.fromisoformat(str(date)).strftime('%d.%m.%Y')
+#
+#         configurations = request_objects_serializers.validated_data.pop("configuration")
+#
+#         configurations_context, configurations_total_price, configurations_cost_prices = get_configurations_context(
+#             configurations
+#         )
+#         context['configurations'] = {
+#             "configurations_total_price": configurations_total_price,
+#             "configurations": configurations_context,
+#             "configurations_cost_prices": configurations_cost_prices
+#         }
+#         context["unicon_datas"] = UniconDatas.objects.last()
+#
+#         context['host'] = 'http://' + request.META['HTTP_HOST']
+#         context['qr_code'] = ''
+#         context['save'] = False
+#         context['page_break'] = False
+#
+#         service_obj = request_objects_serializers.validated_data.get("service")
+#
+#         if int(request_objects_serializers.validated_data.pop("save")):
+#             context['save'] = True
+#             context['page_break'] = True
+#
+#             if request.user.type == 1:
+#                 hash_text_part = context.get('user_obj').full_name
+#             else:
+#                 hash_text_part = context.get('user_obj').get_director_full_name
+#
+#             hash_code = generate_hash_code(
+#                 text=f"{hash_text_part}{context.get('contract_number')}{context.get('u_type')}{datetime.now()}"
+#             )
+#
+#             link = 'http://' + request.META['HTTP_HOST'] + f'/expertise/contract/{hash_code}'
+#             qr_code_path = create_qr(link)
+#             context['hash_code'] = hash_code
+#             context['qr_code'] = f"http://api2.unicon.uz/media/qr/{hash_code}.png"
+#
+#             # Contract yaratib olamiz bazada id_code olish uchun
+#             client = context["user_obj"].userdata
+#             vps_service_contract = VpsServiceContract.objects.create(
+#                 **request_objects_serializers.validated_data,
+#                 # service=service_obj,
+#                 contract_number=context['contract_number'],
+#                 client=client,
+#                 status=4,
+#                 contract_status=1,  # NEW
+#                 payed_cash=0,
+#                 # base64file=base64code,
+#                 hashcode=hash_code,
+#                 contract_cash=configurations_total_price,
+#                 is_confirmed_contract=1 if is_back_office else 3,  # WAITING or CLIENT_CONFIRMED
+#                 # like_preview_pdf=like_preview_pdf_path
+#             )
+#             vps_service_contract.save()
+#
+#             context['id_code'] = vps_service_contract.id_code
+#
+#             # rendered html file
+#             contract_file_for_base64_pdf = None
+#
+#             template_name = "fizUzRuVPS.html"  # fizik
+#             if request.user.type == 2:  # yuridik
+#                 template_name = "yurUzRuVPS.html"
+#
+#             pdf = render_to_pdf(template_src=template_name, context_dict=context)
+#             if pdf:
+#                 output_dir = '/usr/src/app/media/Contract/pdf'
+#                 os.makedirs(output_dir, exist_ok=True)
+#                 contract_file_for_base64_pdf = f"{output_dir}/{context.get('contract_number')}_{hash_text_part}.pdf"
+#                 with open(contract_file_for_base64_pdf, 'wb') as f:
+#                     f.write(pdf.content)
+#             else:
+#                 error_response_500()
+#
+#             if contract_file_for_base64_pdf is None:
+#                 error_response_500()
+#
+#             contract_file = open(contract_file_for_base64_pdf, 'rb').read()
+#             base64code = base64.b64encode(contract_file)
+#
+#             # delete pdf file
+#             delete_file(contract_file_for_base64_pdf)
+#             # delete qr_code file
+#             delete_file(qr_code_path)
+#
+#             # save the preview to the base because the contract is used depending on its status
+#             context['save'] = False
+#             # context['save'] = True
+#             like_preview_pdf = render_to_pdf(template_src=template_name, context_dict=context)
+#
+#             like_preview_pdf_path = None
+#             if like_preview_pdf:
+#                 output_dir = '/usr/src/app/media/Contract/pdf'
+#                 os.makedirs(output_dir, exist_ok=True)
+#                 like_preview_pdf_path = f"{output_dir}/{context.get('contract_number')}_{hash_text_part}.pdf"
+#                 with open(like_preview_pdf_path, 'wb') as f:
+#                     f.write(like_preview_pdf.content)
+#             if like_preview_pdf_path is None:
+#                 error_response_500()
+#
+#             vps_service_contract.base64file = base64code
+#             vps_service_contract.like_preview_pdf = like_preview_pdf_path
+#             vps_service_contract.save()
+#
+#             for configuration_data in configurations:
+#                 create_vps_configurations(configuration_data, vps_service_contract)
+#
+#             # VpsContracts_Participants
+#             # if the amount of the contract is less than 10 million,
+#             # the director will not participate as a participant
+#             exclude_role = None
+#             # if vps_service_contract.contract_cash < 10_000_000:
+#             #     exclude_role = Role.RoleNames.DIRECTOR
+#
+#             participants = create_contract_participants(
+#                 service_obj=service_obj,
+#                 exclude_role=exclude_role
+#             )
+#             agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
+#
+#             for participant in participants:
+#                 VpsContracts_Participants.objects.create(
+#                     contract=vps_service_contract,
+#                     role=participant.role,
+#                     participant_user=participant,
+#                     agreement_status=agreement_status
+#                 ).save()
+#
+#             return response.Response(
+#                 data=VpsServiceContractResponseViaClientSerializers(vps_service_contract).data,
+#                 status=201
+#             )
+#
+#         template_name = "fizUzRuVPS.html"  # fizik
+#         if request.user.type == 2:  # yuridik
+#             template_name = "yurUzRuVPS.html"
+#
+#         return render(request=request, template_name=template_name, context=context)
+
 class CreateVpsServiceContractViaClientView(views.APIView):
     queryset = VpsServiceContract.objects.all()
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        context = dict()
         request_objects_serializers = VpsServiceContractCreateViaClientSerializers(data=request.data)
         request_objects_serializers.is_valid(raise_exception=True)
         is_back_office = request_objects_serializers.validated_data.pop("is_back_office")
 
         number, prefix = get_number_and_prefix(request_objects_serializers.validated_data.get("service"))
 
-        if is_back_office:
-            user_serializers = VpsUserForContractCreateSerializers(data=request.data)
-            user_serializers.is_valid(raise_exception=True)
-            pin_or_tin = user_serializers.validated_data.get("pin_or_tin")
-            if user_serializers.validated_data.get("user_type") == 2:
+        with transaction.atomic():
+            context = {}
+            if is_back_office:
+                user_serializers = VpsUserForContractCreateSerializers(data=request.data)
+                user_serializers.is_valid(raise_exception=True)
+                pin_or_tin = user_serializers.validated_data.get("pin_or_tin")
+                user_type = user_serializers.validated_data.get("user_type")
+            else:
+                pin_or_tin = request.user.userdata.pin_or_tin
+                user_type = request.user.type
+
+            if user_type == 2:  # yuridik
                 context['u_type'] = 'yuridik'
-                # context["user_obj"] = YurUser.objects.get(tin=pin_or_tin)
                 context["user_obj"] = get_object_or_404(YurUser, tin=pin_or_tin)
-            elif user_serializers.validated_data.get("user_type") == 1:
+            elif user_type == 1:  # fizik
                 context['u_type'] = 'fizik'
-                # context["user_obj"] = FizUser.objects.get(pin=pin_or_tin)
                 context["user_obj"] = get_object_or_404(FizUser, pin=pin_or_tin)
-        else:
-            if request.user.type == 2:
-                context['u_type'] = 'yuridik'
-                # context["user_obj"] = YurUser.objects.get(userdata=request.user)
-                context["user_obj"] = get_object_or_404(YurUser, userdata=request.user)
-            elif request.user.type == 1:
-                context['u_type'] = 'fizik'
-                # context["user_obj"] = FizUser.objects.get(userdata=request.user)
-                context["user_obj"] = get_object_or_404(FizUser, userdata=request.user)
 
-        context['contract_number'] = prefix + '-' + str(number)
+            context['contract_number'] = f"{prefix}-{number}"
+            context['datetime'] = timezone.now().strftime('%d.%m.%Y')
 
-        date = request_objects_serializers.validated_data.get("contract_date")
-        context['datetime'] = datetime.fromisoformat(str(date)).strftime('%d.%m.%Y')
+            configurations = request_objects_serializers.validated_data.pop("configuration")
 
-        configurations = request_objects_serializers.validated_data.pop("configuration")
+            # configurations_context, configurations_total_price, configurations_cost_prices =
+            # get_configurations_context( configurations )
+            calculator = ConfigurationsCalculator(configurations)
+            configurations_context, configurations_total_price, configurations_cost_prices = calculator.calculate()
 
-        configurations_context, configurations_total_price, configurations_cost_prices = get_configurations_context(
-            configurations
-        )
-        context['configurations'] = {
-            "configurations_total_price": configurations_total_price,
-            "configurations": configurations_context,
-            "configurations_cost_prices": configurations_cost_prices
-        }
-        context["unicon_datas"] = UniconDatas.objects.last()
+            context['configurations'] = {
+                "configurations_total_price": configurations_total_price,
+                "configurations": configurations_context,
+                "configurations_cost_prices": configurations_cost_prices
+            }
+            context["unicon_datas"] = UniconDatas.objects.last()
 
-        context['host'] = 'http://' + request.META['HTTP_HOST']
-        context['qr_code'] = ''
-        context['save'] = False
-        context['page_break'] = False
-
-        service_obj = request_objects_serializers.validated_data.get("service")
-
-        if int(request_objects_serializers.validated_data.pop("save")):
-            context['save'] = True
-            context['page_break'] = True
-
-            if request.user.type == 1:
-                hash_text_part = context.get('user_obj').full_name
-            else:
-                hash_text_part = context.get('user_obj').get_director_full_name
-
-            hash_code = generate_hash_code(
-                text=f"{hash_text_part}{context.get('contract_number')}{context.get('u_type')}{datetime.now()}"
-            )
-
-            link = 'http://' + request.META['HTTP_HOST'] + f'/expertise/contract/{hash_code}'
-            qr_code_path = create_qr(link)
-            context['hash_code'] = hash_code
-            context['qr_code'] = f"http://api2.unicon.uz/media/qr/{hash_code}.png"
-
-            # Contract yaratib olamiz bazada id_code olish uchun
-            client = context["user_obj"].userdata
-            vps_service_contract = VpsServiceContract.objects.create(
-                **request_objects_serializers.validated_data,
-                # service=service_obj,
-                contract_number=context['contract_number'],
-                client=client,
-                status=4,
-                contract_status=1,  # NEW
-                payed_cash=0,
-                # base64file=base64code,
-                hashcode=hash_code,
-                contract_cash=configurations_total_price,
-                is_confirmed_contract=1 if is_back_office else 3,  # WAITING or CLIENT_CONFIRMED
-                # like_preview_pdf=like_preview_pdf_path
-            )
-            vps_service_contract.save()
-
-            context['id_code'] = vps_service_contract.id_code
-
-            # rendered html file
-            contract_file_for_base64_pdf = None
-
-            template_name = "fizUzRuVPS.html"  # fizik
-            if request.user.type == 2:  # yuridik
-                template_name = "yurUzRuVPS.html"
-
-            pdf = render_to_pdf(template_src=template_name, context_dict=context)
-            if pdf:
-                output_dir = '/usr/src/app/media/Contract/pdf'
-                os.makedirs(output_dir, exist_ok=True)
-                contract_file_for_base64_pdf = f"{output_dir}/{context.get('contract_number')}_{hash_text_part}.pdf"
-                with open(contract_file_for_base64_pdf, 'wb') as f:
-                    f.write(pdf.content)
-            else:
-                error_response_500()
-
-            if contract_file_for_base64_pdf is None:
-                error_response_500()
-
-            contract_file = open(contract_file_for_base64_pdf, 'rb').read()
-            base64code = base64.b64encode(contract_file)
-
-            # delete pdf file
-            delete_file(contract_file_for_base64_pdf)
-            # delete qr_code file
-            delete_file(qr_code_path)
-
-            # save the preview to the base because the contract is used depending on its status
+            context['host'] = 'http://' + request.META['HTTP_HOST']
+            context['qr_code'] = ''
             context['save'] = False
-            # context['save'] = True
-            like_preview_pdf = render_to_pdf(template_src=template_name, context_dict=context)
+            context['page_break'] = False
 
-            like_preview_pdf_path = None
-            if like_preview_pdf:
-                output_dir = '/usr/src/app/media/Contract/pdf'
-                os.makedirs(output_dir, exist_ok=True)
-                like_preview_pdf_path = f"{output_dir}/{context.get('contract_number')}_{hash_text_part}.pdf"
-                with open(like_preview_pdf_path, 'wb') as f:
-                    f.write(like_preview_pdf.content)
-            if like_preview_pdf_path is None:
-                error_response_500()
+            service_obj = request_objects_serializers.validated_data.get("service")
 
-            vps_service_contract.base64file = base64code
-            vps_service_contract.like_preview_pdf = like_preview_pdf_path
-            vps_service_contract.save()
+            if int(request_objects_serializers.validated_data.pop("save")):
+                context['save'] = True
+                context['page_break'] = True
 
-            for configuration_data in configurations:
-                create_vps_configurations(configuration_data, vps_service_contract)
+                if user_type == 1:  # fizik
+                    hash_text_part = context['user_obj'].full_name
+                else:
+                    hash_text_part = context['user_obj'].get_director_full_name
 
-            # VpsContracts_Participants
-            # if the amount of the contract is less than 10 million,
-            # the director will not participate as a participant
-            exclude_role = None
-            # if vps_service_contract.contract_cash < 10_000_000:
-            #     exclude_role = Role.RoleNames.DIRECTOR
+                hash_code = generate_hash_code(
+                    text=f"{hash_text_part}{context['contract_number']}{context['u_type']}{timezone.now()}"
+                )
 
-            participants = create_contract_participants(
-                service_obj=service_obj,
-                exclude_role=exclude_role
-            )
-            agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
+                link = f'http://{request.META["HTTP_HOST"]}/expertise/contract/{hash_code}'
+                qr_code_path = create_qr(link)
+                context['hash_code'] = hash_code
+                context['qr_code'] = f"http://api2.unicon.uz/media/qr/{hash_code}.png"
 
-            for participant in participants:
-                VpsContracts_Participants.objects.create(
-                    contract=vps_service_contract,
-                    role=participant.role,
-                    participant_user=participant,
-                    agreement_status=agreement_status
-                ).save()
+                client = context["user_obj"].userdata
+                vps_service_contract = VpsServiceContract(
+                    **request_objects_serializers.validated_data,
+                    contract_number=context['contract_number'],
+                    client=client,
+                    status=4,
+                    contract_status=1,  # NEW
+                    payed_cash=0,
+                    hashcode=hash_code,
+                    contract_cash=configurations_total_price,
+                    is_confirmed_contract=1 if is_back_office else 3,  # WAITING or CLIENT_CONFIRMED
+                )
+                vps_service_contract.save()
 
-            return response.Response(
-                data=VpsServiceContractResponseViaClientSerializers(vps_service_contract).data,
-                status=201
-            )
+                context['id_code'] = vps_service_contract.id_code
 
-        template_name = "fizUzRuVPS.html"  # fizik
-        if request.user.type == 2:  # yuridik
-            template_name = "yurUzRuVPS.html"
+                template_name = "fizUzRuVPS.html" if user_type == 1 else "yurUzRuVPS.html"
 
-        return render(request=request, template_name=template_name, context=context)
+                pdf = render_to_pdf(template_src=template_name, context_dict=context)
+                if pdf:
+                    contract_file_for_base64_pdf = f"Contract/pdf/{context['contract_number']}_{hash_text_part}.pdf"
+                    file_obj = default_storage.save(contract_file_for_base64_pdf, ContentFile(pdf.content))
+
+                    contract_file = open(default_storage.path(file_obj), 'rb').read()
+                    base64code = base64.b64encode(contract_file)
+
+                    # delete pdf file
+                    delete_file(default_storage.path(file_obj))
+
+                else:
+                    return HttpResponseServerError()
+
+                # delete qr_code file
+                delete_file(qr_code_path)
+
+                like_preview_pdf = render_to_pdf(template_src=template_name, context_dict=context)
+                if like_preview_pdf:
+                    like_preview_pdf_path = f"Contract/pdf/{context['contract_number']}_{hash_text_part}.pdf"
+                    file_path = default_storage.save(like_preview_pdf_path, ContentFile(like_preview_pdf.content))
+                else:
+                    return HttpResponseServerError()
+
+                vps_service_contract.base64file = base64code
+                # vps_service_contract.like_preview_pdf = like_preview_pdf_path
+                vps_service_contract.like_preview_pdf.name = file_path
+                vps_service_contract.save()
+
+                for configuration_data in configurations:
+                    create_vps_configurations(configuration_data, vps_service_contract)
+
+                agreement_status = AgreementStatus.objects.filter(name='Yuborilgan').first()
+
+                participants = create_contract_participants(
+                    service_obj=service_obj,
+                    exclude_role=None  # Modify as needed
+                )
+
+                for participant in participants:
+                    VpsContracts_Participants.objects.create(
+                        contract=vps_service_contract,
+                        role=participant.role,
+                        participant_user=participant,
+                        agreement_status=agreement_status
+                    )
+
+                return response.Response(
+                    data=VpsServiceContractResponseViaClientSerializers(vps_service_contract).data,
+                    status=201
+                )
+
+            template_name = "fizUzRuVPS.html" if user_type == 1 else "yurUzRuVPS.html"
+
+            return render(request=request, template_name=template_name, context=context)
 
 
 class VpsSavePkcs(views.APIView):
@@ -1063,7 +1210,9 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         return prefix + '-' + str(number)
 
     def get_configurations_total_price(self, configurations):
-        _, configurations_total_price, _ = get_configurations_context(configurations)
+        # _, configurations_total_price, _ = get_configurations_context(configurations)
+        calculator = ConfigurationsCalculator(configurations)
+        _, configurations_total_price, _ = calculator.calculate()
         return configurations_total_price
 
     def generate_hash_code(self, hash_text_part, contract_number, u_type):
