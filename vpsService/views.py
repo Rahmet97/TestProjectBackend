@@ -619,7 +619,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             context['datetime'] = timezone.now().strftime('%d.%m.%Y')
 
             configurations = request_objects_serializers.validated_data.pop("configuration")
-            logger.error("request_objects_serializers.validated_data.pop('configuration') >> ", configurations)
+            logger.info("request_objects_serializers.validated_data.pop('configuration') >> ", configurations)
 
             configurations_context, configurations_total_price, configurations_cost_prices = get_configurations_context(
                 configurations
@@ -630,7 +630,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 "configurations": configurations_context,
                 "configurations_cost_prices": configurations_cost_prices
             }
-            logger.error("configurations >> ", configurations)
+            logger.info("configurations_context >> ", configurations_context)
             context["unicon_datas"] = UniconDatas.objects.last()
 
             context['host'] = 'http://' + request.META['HTTP_HOST']
