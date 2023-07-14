@@ -629,7 +629,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 "configurations": configurations_context,
                 "configurations_cost_prices": configurations_cost_prices
             }
-            logger.info("context['configurations'] >> ", context['configurations'])
+            logger.info("context['configurations'] >> %s", context['configurations'])
             print("context['configurations'] >> ", context['configurations'])
             context["unicon_datas"] = UniconDatas.objects.last()
 
