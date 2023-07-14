@@ -81,7 +81,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ALLOW_ALL = True
-# TIMEOUT = 120  # Increase the value to 2 minutes
+TIMEOUT = 120  # Increase the value to 2 minutes
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
