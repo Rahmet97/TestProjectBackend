@@ -60,4 +60,5 @@ def get_configurations_context(configurations: list) -> tuple[dict, int, dict]:
                 else:
                     configurations_context[k] = configurations_context.get(k, 0) + v
 
+    print("utils.py 63 configurations_context >> ", configurations_context)
     return configurations_context, configurations_total_price, configurations_cost_prices
