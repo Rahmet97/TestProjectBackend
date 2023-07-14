@@ -630,6 +630,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 "configurations_cost_prices": configurations_cost_prices
             }
             logger.info("context['configurations'] >> ", context['configurations'])
+            print("context['configurations'] >> ", context['configurations'])
             context["unicon_datas"] = UniconDatas.objects.last()
 
             context['host'] = 'http://' + request.META['HTTP_HOST']
