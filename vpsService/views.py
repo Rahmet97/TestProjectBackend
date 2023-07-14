@@ -25,13 +25,13 @@ from accounts.serializers import (
 )
 from contracts.models import AgreementStatus, Service, Participant
 from contracts.tasks import file_downloader
-from contracts.utils import error_response_500, delete_file, create_qr, generate_uid, hash_text
+from contracts.utils import error_response_500, delete_file, create_qr, generate_uid, hash_text, render_to_pdf
 from contracts.views import num2word
 
 from main.permission import IsRelatedToBackOffice, ConfirmContractPermission, MonitoringPermission
 from main.utils import responseErrorMessage
 
-from .utils import render_to_pdf, ConfigurationsCalculator, get_configurations_context
+from .utils import get_configurations_context  # ,render_to_pdf,
 
 from .models import (
     VpsServiceContract, OperationSystem, OperationSystemVersion, VpsDevice, VpsTariff, VpsContractDevice,
@@ -619,19 +619,18 @@ class CreateVpsServiceContractViaClientView(views.APIView):
             context['datetime'] = timezone.now().strftime('%d.%m.%Y')
 
             configurations = request_objects_serializers.validated_data.pop("configuration")
+            logger.error("request_objects_serializers.validated_data.pop('configuration') >> ", configurations)
 
             configurations_context, configurations_total_price, configurations_cost_prices = get_configurations_context(
                 configurations
             )
-            # calculator = ConfigurationsCalculator(configurations)
-            # configurations_context, configurations_total_price, configurations_cost_prices = calculator.calculate()
 
             context['configurations'] = {
                 "configurations_total_price": configurations_total_price,
                 "configurations": configurations_context,
                 "configurations_cost_prices": configurations_cost_prices
             }
-            logger.error("configurations >> ", configurations_context)
+            logger.error("configurations >> ", configurations)
             context["unicon_datas"] = UniconDatas.objects.last()
 
             context['host'] = 'http://' + request.META['HTTP_HOST']
@@ -1213,8 +1212,6 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
     def get_configurations_total_price(self, configurations):
         _, configurations_total_price, _ = get_configurations_context(configurations)
-        # calculator = ConfigurationsCalculator(configurations)
-        # _, configurations_total_price, _ = calculator.calculate()
         return configurations_total_price
 
     def generate_hash_code(self, hash_text_part, contract_number, u_type):
