@@ -197,7 +197,7 @@ class VpsServiceContractCreateViaClientSerializers(serializers.ModelSerializer):
 class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
     service = serializers.PrimaryKeyRelatedField(queryset=Service.objects.all())
     with_word = serializers.BooleanField(default=False)
-    hash_code = serializers.CharField(max_length=255, required=False)
+    hash_code = serializers.CharField(max_length=255, required=False, allow_null=True)
 
     class Meta:
         model = VpsServiceContract
