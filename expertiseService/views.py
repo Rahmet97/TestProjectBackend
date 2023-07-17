@@ -76,7 +76,7 @@ def get_number_and_prefix(service_obj):
 
 # Back office APIs
 class GetExpertiseValidContractNumber(views.APIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, service_id):
         service_obj = Service.objects.get(id=service_id)
@@ -561,17 +561,17 @@ class ExpertiseGetContractFile(APIView):
             )
             if os.path.exists(file_pdf_path):
                 with open(file_pdf_path, 'rb') as fh:
-                    response = HttpResponse(fh.read(), content_type="application/pdf")
-                    response['Content-Disposition'] = f'attachment; filename={contract.contract_number}.pdf'
+                    res = HttpResponse(fh.read(), content_type="application/pdf")
+                    res['Content-Disposition'] = f'attachment; filename={contract.contract_number}.pdf'
                     delete_file(file_pdf_path)
-                    return response
+                    return res
         else:
             if contract.like_preview_pdf:
                 # Open the file and create a response with the PDF data
                 with open(contract.like_preview_pdf.path, 'rb') as f:
-                    response = HttpResponse(f.read(), content_type='application/pdf')
-                    response['Content-Disposition'] = f'attachment; filename={contract.contract_number}.pdf'
-                    return response
+                    res = HttpResponse(f.read(), content_type='application/pdf')
+                    res['Content-Disposition'] = f'attachment; filename={contract.contract_number}.pdf'
+                    return res
 
         return response.Response(data={"message": "404 not found error"}, status=status.HTTP_404_NOT_FOUND)
 

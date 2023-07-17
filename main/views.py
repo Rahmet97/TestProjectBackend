@@ -3,12 +3,26 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, response, generics
 
 from accounts.permissions import AdminPermission
+
 from contracts.serializers import DocumentSerializer
+from contracts.models import Service, Document
+
 from main.utils import responseErrorMessage
 from main.permission import ApplicationPermission
-from .models import Application, TestFileUploader
-from contracts.models import Service, Document
-from .serializers import ApplicationSerializer, TestFileUploaderSerializer
+from main.models import Application, TestFileUploader
+from main.serializers import (
+    ApplicationSerializer, TestFileUploaderSerializer, GetFilterNotificationCountSerializer
+)
+
+
+class GetFilterNotificationCount(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = GetFilterNotificationCountSerializer
+
+    def get(self, request):
+        serializer = self.serializer_class(data=request.data, context={'request': self.request})
+        serializer.is_valid(raise_exception=True)
+        return response.Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 class TestFileUploaderView(generics.ListCreateAPIView):
@@ -31,9 +45,9 @@ class DocumentCreateListAPIView(generics.ListCreateAPIView):
 class ApplicationCreateView(CreateAPIView):
     serializer_class = ApplicationSerializer
     queryset = Application.objects.all()
-    
+
     permission_classes = [IsAuthenticated]
-    
+
     def perform_create(self, serializer):
         serializer.save(user=self.request.user, service_id=self.request.data["service"])
 
@@ -42,7 +56,7 @@ class ApplicationListView(ListAPIView):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
     permission_classes = [ApplicationPermission]
-    
+
     def get_queryset(self):
         if self.request.user.role.name in ApplicationPermission.permitted_roles:
             queryset = self.queryset.all()
@@ -58,16 +72,16 @@ class ApplicationListView(ListAPIView):
                     message="Siz Xizmat turiga biriktirilmagan siz",
                     status_code=status.HTTP_404_NOT_FOUND
                 )
-            
+
             queryset = self.queryset.filter(service__pk=service_pk)
         return queryset
-    
+
 
 class ApplicationRetrieveView(RetrieveAPIView):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
     permission_classes = [ApplicationPermission]
-    
+
     def get_object(self):
         obj = super(ApplicationRetrieveView, self).get_object()
 
@@ -84,7 +98,7 @@ class ApplicationRetrieveView(RetrieveAPIView):
                     message="Siz Xizmat turiga biriktirilmagan siz",
                     status_code=status.HTTP_404_NOT_FOUND
                 )
-            
+
             obj = self.queryset.filter(service__pk=service_pk, pk=self.kwargs.get("pk")).first()
         if not obj:
             responseErrorMessage(

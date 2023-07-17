@@ -3,6 +3,7 @@ from main import views
 
 urlpatterns = [
     path("send-message", views.ApplicationCreateView.as_view(), name="send-message"),
+    path("get-filter-notification-count", views.GetFilterNotificationCount.as_view(), name="GetFilterNotificationCount"),
 
     # List all applications for the pinned user's service
     path("application/list/", views.ApplicationListView.as_view(), name="application-list"),
