@@ -1118,8 +1118,8 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         with_word = serializer.validated_data.pop("with_word")
 
         logger.info(f"with_word >> {with_word}")
-        contract_number = self.generate_contract_number(service_obj)
-        logger.info(f"contract_number >> {contract_number}")
+        # contract_number = self.generate_contract_number(service_obj)
+        # logger.info(f"contract_number >> {contract_number}")
 
         # configurations = serializer.validated_data.pop("configuration")
         configurations = self.serializer_class_configuration(data=self.request.data.get("configuration"), many=True)
@@ -1130,7 +1130,7 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         hash_code = self.generate_hash_code(hash_text_part, contract_number, u_type)
 
         vps_service_contract = self.save_vps_service_contract(
-            serializer, contract_number, user_obj,
+            serializer, user_obj,  # contract_number,
             configurations_total_price, hash_code, with_word
         )
         logger.info(f"vps_service_contract >> {vps_service_contract}")
@@ -1203,9 +1203,9 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
         return user, u_type, hash_text_part
 
-    def generate_contract_number(self, service_obj):
-        number, prefix = get_number_and_prefix(service_obj)
-        return prefix + '-' + str(number)
+    # def generate_contract_number(self, service_obj):
+    #     number, prefix = get_number_and_prefix(service_obj)
+    #     return prefix + '-' + str(number)
 
     def get_configurations_total_price(self, configurations):
         _, configurations_total_price, _ = get_configurations_context(configurations)
@@ -1214,11 +1214,10 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
     def generate_hash_code(self, hash_text_part, contract_number, u_type):
         return generate_hash_code(text=f"{hash_text_part}{contract_number}{u_type}{datetime.now()}")
 
-    def save_vps_service_contract(
-            self, serializer, contract_number, user_obj, configurations_total_price, hash_code, with_word):
+    def save_vps_service_contract(self, serializer, user_obj, configurations_total_price, hash_code, with_word):
         logger.info(f"save_vps_service_contract is working !!!")
         vps_service_contract = serializer.save(
-            contract_number=contract_number,
+            # contract_number=contract_number,
             client=user_obj,
             status=2,
             contract_status=1 if with_word else 3,  # NEW or ACTIVE
