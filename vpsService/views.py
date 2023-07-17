@@ -1255,8 +1255,10 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         try:
             with open(file_path, 'rb') as contract_file:
                 contract_file_data = contract_file.read()
+            # base64code = base64.b64encode(contract_file_data).decode('utf-8')
             base64code = base64.b64encode(contract_file_data)
             vps_service_contract.base64file = base64code
+            vps_service_contract.like_preview_pdf = file_path
             vps_service_contract.save()
         except Exception as e:
             logger.error(e)
