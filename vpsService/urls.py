@@ -17,6 +17,12 @@ urlpatterns = [
     ),
 
     path(
+        "get-valid-contract-num/<int:pk>",
+        views.GetVpsValidContractNumber.as_view(),
+        name="GetVpsValidContractNumber"
+    ),
+
+    path(
         'contract-create',
         views.CreateVpsServiceContractViaClientView.as_view(),
         name='CreateVpsServiceContractViaClientView'

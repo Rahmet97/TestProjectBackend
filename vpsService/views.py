@@ -586,6 +586,16 @@ class CallbackUrlAPIView(views.APIView):
 #
 #         return render(request=request, template_name=template_name, context=context)
 
+
+class GetVpsValidContractNumber(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, service_id):
+        service_obj = Service.objects.get(id=service_id)
+        number, prefix = get_number_and_prefix(service_obj)
+        return response.Response(data={"contract_number": f"{prefix}-{number}"}, status=status.HTTP_200_OK)
+
+
 class CreateVpsServiceContractViaClientView(views.APIView):
     queryset = VpsServiceContract.objects.all()
     permission_classes = [permissions.IsAuthenticated]
