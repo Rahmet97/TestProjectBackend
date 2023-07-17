@@ -1146,6 +1146,8 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
                 hash_text_part, serializer.validated_data.get("contract_number"), u_type
             )
 
+        logger.info(f"hash_code >> {hash_code}")
+
         vps_service_contract = self.save_vps_service_contract(
             serializer, user_obj,  # contract_number,
             configurations_total_price, hash_code, with_word
