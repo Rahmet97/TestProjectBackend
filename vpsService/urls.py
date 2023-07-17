@@ -17,7 +17,7 @@ urlpatterns = [
     ),
 
     path(
-        "get-valid-contract-num/<int:pk>",
+        "get-valid-contract-num/<int:service_id>",
         views.GetVpsValidContractNumber.as_view(),
         name="GetVpsValidContractNumber"
     ),
