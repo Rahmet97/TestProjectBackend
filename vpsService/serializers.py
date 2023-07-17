@@ -197,10 +197,11 @@ class VpsServiceContractCreateViaClientSerializers(serializers.ModelSerializer):
 class VpsCreateContractWithFileSerializers(serializers.ModelSerializer):
     service = serializers.PrimaryKeyRelatedField(queryset=Service.objects.all())
     with_word = serializers.BooleanField(default=False)
+    hash_code = serializers.CharField(max_length=255, required=False)
 
     class Meta:
         model = VpsServiceContract
-        fields = ["service", "contract_date", "with_word", "contract_number"]
+        fields = ["service", "contract_date", "with_word", "contract_number", "hash_code"]
 
     # def to_internal_value(self, data):
     #     # Convert "configuration" field from JSON string to a dictionary

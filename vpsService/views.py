@@ -1120,7 +1120,6 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         service_obj = serializer.validated_data.get("service")
         with_word = serializer.validated_data.pop("with_word")
 
-        logger.info(f"with_word >> {with_word}")
         # contract_number = self.generate_contract_number(service_obj)
         # logger.info(f"contract_number >> {contract_number}")
 
@@ -1129,8 +1128,10 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
         configurations.is_valid(raise_exception=True)
 
         configurations_total_price = self.get_configurations_total_price(configurations.data)
-        logger.info(f"configurations_total_price >> {configurations_total_price}")
-        hash_code = self.generate_hash_code(hash_text_part, serializer.validated_data.get("contract_number"), u_type)
+
+        hash_code = serializer.validated_data.get("hash_code") or self.generate_hash_code(
+            hash_text_part, serializer.validated_data.get("contract_number"), u_type
+        )
 
         vps_service_contract = self.save_vps_service_contract(
             serializer, user_obj,  # contract_number,
