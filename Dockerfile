@@ -16,11 +16,11 @@ RUN apk update && apk add --no-cache \
     ttf-dejavu  # or replace with the alternative font package
 
 # Install WeasyPrint dependencies
-RUN apk add --no-cache --virtual .build-deps \
-    g++ make cairo-dev cairo pango-dev pango gdk-pixbuf-dev fontconfig \
-    font-noto terminus-font \
-    && fc-cache -f \
-    && fc-list | sort
+#RUN apk add --no-cache --virtual .build-deps \
+#    g++ make cairo-dev cairo pango-dev pango gdk-pixbuf-dev fontconfig \
+#    font-noto terminus-font \
+#    && fc-cache -f \
+#    && fc-list | sort
 
 # Set the default locale to support Cyrillic and Latin
 ENV LANG=en_US.UTF-8

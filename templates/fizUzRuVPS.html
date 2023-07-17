@@ -193,7 +193,7 @@
 
         table {
             width: 100%;
-            border: 1px solid #000 !important;
+            /* border: 1px solid #000 !important; */
         }
 
         .span {
@@ -290,11 +290,11 @@
             width: 130px;
         }
 
-        .table_ijro {
+        /* .table_ijro {
             border-color: lightgrey !important;
             border-collapse: collapse;
             font-size: 11.5pt;
-        }
+        } */
 
         .d-flex table {
             border: none !important;
@@ -353,6 +353,13 @@
         <h4 class='requirement-title'>1. To'lov miqdori</h4>
         <p style="text-align: right; margin-right: 50px;"><strong>so'm</strong></p>
         <table border="1" cellpadding="5" cellspacing="0">
+            <colgroup>
+                <col width="2%" />
+                <col width="38%" />
+                <col width="20%" />
+                <col width="20%" />
+                <col width="20%" span="1" />
+            </colgroup>
             <tr>
                 <th>T./r.</th>
                 <th>Nomlanishi</th>
@@ -881,7 +888,7 @@
         <div style="page-break-after: always;"></div>
         {% endif %}
         <h4 class="requirement-title">11. Yuridik manzillar, bank rekvizitlari va tomonlarning imzolari</h4>
-        <table class="table_ijro" cellpadding="5" cellspacing="0">
+        <table cellpadding="5" cellspacing="0">
             <thead>
                 <colgroup>
                     <col width="30%" />
