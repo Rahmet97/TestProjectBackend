@@ -1140,14 +1140,9 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
         configurations_total_price = self.get_configurations_total_price(configurations.data)
 
-        hash_code = serializer.validated_data.pop("hash_code")
-        logger.info(f"hash_code type >> {type(hash_code)}")
-        if hash_code is None:
-            hash_code = self.generate_hash_code(
-                hash_text_part, serializer.validated_data.get("contract_number"), u_type
-            )
-
-        logger.info(f"hash_code >> {hash_code}")
+        hash_code = serializer.validated_data.pop("hash_code") if with_word else self.generate_hash_code(
+            hash_text_part, serializer.validated_data.get("contract_number"), u_type
+        )
 
         vps_service_contract = self.save_vps_service_contract(
             serializer, user_obj,  # contract_number,
