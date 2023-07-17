@@ -593,7 +593,8 @@ class GetVpsValidContractNumber(views.APIView):
     def get(self, request, service_id):
         service_obj = Service.objects.get(id=service_id)
         number, prefix = get_number_and_prefix(service_obj)
-        return response.Response(data={"contract_number": f"{prefix}-{number}"}, status=status.HTTP_200_OK)
+        data = {"contract_number": f"{prefix}-{number}"}
+        return response.Response(data, status=status.HTTP_200_OK)
 
 
 class CreateVpsServiceContractViaClientView(views.APIView):
