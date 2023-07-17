@@ -154,6 +154,8 @@ def generate_hash_code(text: str):
     hashcode = hashlib.md5(text.encode())
     hash_code = hashcode.hexdigest()
     return hash_code
+
+
 # ============ # ============ #
 
 
@@ -690,6 +692,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 # delete qr_code file
                 delete_file(qr_code_path)
 
+                context['save'] = False
                 like_preview_pdf = render_to_pdf(template_src=template_name, context_dict=context)
                 if like_preview_pdf:
                     like_preview_pdf_path = f"Contract/pdf/{context['contract_number']}_{hash_text_part}.pdf"
@@ -1127,7 +1130,7 @@ class CreateVpsContractWithFile(generics.CreateAPIView):
 
         configurations_total_price = self.get_configurations_total_price(configurations.data)
         logger.info(f"configurations_total_price >> {configurations_total_price}")
-        hash_code = self.generate_hash_code(hash_text_part, pin_or_tin, u_type)
+        hash_code = self.generate_hash_code(hash_text_part, serializer.validated_data.get("contract_number"), u_type)
 
         vps_service_contract = self.save_vps_service_contract(
             serializer, user_obj,  # contract_number,
