@@ -14,7 +14,7 @@ from django.shortcuts import render, get_object_or_404
 
 from drf_yasg.utils import swagger_auto_schema
 
-from rest_framework import response, status, generics, permissions
+from rest_framework import response, status, generics, permissions, views
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -56,7 +56,35 @@ logger = logging.getLogger(__name__)
 num2word = NumbersToWord()
 
 
+def get_number_and_prefix(service_obj):
+    """
+    return:
+        number -> int
+        prefix -> str
+    """
+    try:
+        last_contract = ExpertiseServiceContract.objects.last()
+        if last_contract and last_contract.contract_number:
+            number = int(last_contract.contract_number.split("-")[-1]) + 1
+        else:
+            number = 1
+    except ValueError:
+        number = 1
+    prefix = service_obj.prefix if service_obj.prefix else "E"
+    return number, prefix
+
+
 # Back office APIs
+class GetExpertiseValidContractNumber(views.APIView):
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, service_id):
+        service_obj = Service.objects.get(id=service_id)
+        number, prefix = get_number_and_prefix(service_obj)
+        data = {"contract_number": f"{prefix}-{number}"}
+        return response.Response(data, status=status.HTTP_200_OK)
+
+
 class CreateExpertiseServiceContractView(APIView):
     queryset = ExpertiseServiceContract.objects.all()
     permission_classes = [IsAuthenticated]

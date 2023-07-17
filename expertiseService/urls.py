@@ -1,13 +1,18 @@
 from django.urls import path
 from expertiseService import views
 
-
 urlpatterns = [
     # Endpoint to create a new expertise service contract
     path(
         "create/expertise/contract",
         views.CreateExpertiseServiceContractView.as_view(),
         name="create-expertise-contract"
+    ),
+
+    path(
+        "get-valid-contract-num/<int:service_id>",
+        views.GetExpertiseValidContractNumber.as_view(),
+        name="GetExpertiseValidContractNumber"
     ),
 
     path(
