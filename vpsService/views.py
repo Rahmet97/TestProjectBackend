@@ -14,7 +14,7 @@ from django.http import QueryDict
 from django.shortcuts import render, get_object_or_404
 from django.conf import settings
 from django.utils.text import slugify
-from rest_framework import views, generics, permissions, response, status, parsers
+from rest_framework import views, generics, permissions, response, status
 from django.core.files.storage import default_storage
 from rest_framework.generics import get_object_or_404
 
@@ -51,7 +51,7 @@ from .serializers import FileUploadSerializer
 logger = logging.getLogger(__name__)
 
 
-# ##############
+# ============ # ============ #
 def create_contract_participants(service_obj, exclude_role=None):
     participants = Participant.objects.get(service_id=service_obj.id).participants.all().exclude(name=exclude_role)
     users = []
@@ -64,7 +64,7 @@ def create_contract_participants(service_obj, exclude_role=None):
         if matching_user is not None:
             users.append(matching_user)
         else:
-            logger.error("226 -> No matching user found")
+            logger.error("67 -> No matching user found")
 
     return users
 
@@ -154,9 +154,7 @@ def generate_hash_code(text: str):
     hashcode = hashlib.md5(text.encode())
     hash_code = hashcode.hexdigest()
     return hash_code
-
-
-# #############
+# ============ # ============ #
 
 
 # View for listing OperationSystem objects
@@ -360,9 +358,9 @@ class ConvertDocx2PDFAPIView(views.APIView):
         }
         rsp = requests.post(url, headers={"Accept": "application/json"}, json=payload)
         if rsp.status_code == 200:
-            print('153 ===> ', rsp)
+            logger.info(f"361 >> {rsp}")
             rsp = rsp.json()
-            print('155 ===> ', rsp)
+            logger.info(f"363 >> {rsp}")
             file_url = rsp['fileUrl']
         else:
             return response.Response({'message': 'Does not converted!'})
@@ -384,7 +382,7 @@ class ForceSaveFileAPIView(views.APIView):
         rsp = requests.post(url, json=payload)
         if rsp.status_code == 200:
             rsp = rsp.json()
-            print('153 ===> ', rsp)
+            logger.info(f"385 >> {rsp}")
         else:
             return response.Response({'message': 'Does not converted!'})
         return response.Response(rsp)
@@ -396,12 +394,12 @@ class CallbackUrlAPIView(views.APIView):
     def post(self, request):
         body = request.body.decode('utf-8')
         json_data = json.loads(body)
-        print('json_data >>>>> ', json_data)
+        logger.info(f"json_data >> {json_data}")
 
         if json_data['status'] == 2 or json_data['status'] == 6:
             download_uri = json_data['url']
             rsp = requests.get(download_uri)
-            print(request.query_params.get('filename'))
+            logger.info(f"request.query_params.get('filename') >> {request.query_params.get('filename')}")
             path_for_save = f"{settings.MEDIA_ROOT}/Contract/{request.query_params.get('filename')}"
             with open(path_for_save, 'wb') as f:
                 f.write(rsp.content)
@@ -605,7 +603,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 pin_or_tin = user_serializers.validated_data.get("pin_or_tin")
                 user_type = user_serializers.validated_data.get("user_type")
             else:
-                pin_or_tin = request.user.userdata.pin_or_tin
+                pin_or_tin = request.user.username
                 user_type = request.user.type
 
             if user_type == 2:  # yuridik
@@ -630,7 +628,6 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                 "configurations_cost_prices": configurations_cost_prices
             }
             logger.info("context['configurations'] >> %s", context['configurations'])
-            print("context['configurations'] >> ", context['configurations'])
             context["unicon_datas"] = UniconDatas.objects.last()
 
             context['host'] = 'http://' + request.META['HTTP_HOST']
