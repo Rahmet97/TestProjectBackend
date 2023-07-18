@@ -663,7 +663,7 @@ class CreateVpsServiceContractViaClientView(views.APIView):
                     text=f"{hash_text_part}{context['contract_number']}{context['u_type']}{timezone.now()}"
                 )
 
-                link = f'http://{request.META["HTTP_HOST"]}/expertise/contract/{hash_code}'
+                link = f'http://{request.META["HTTP_HOST"]}/vps/contract/{hash_code}'
                 qr_code_path = create_qr(link)
                 context['hash_code'] = hash_code
                 context['qr_code'] = f"http://api2.unicon.uz/media/qr/{hash_code}.png"
