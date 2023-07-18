@@ -27,6 +27,7 @@ urlpatterns = [
         views.CreateVpsServiceContractViaClientView.as_view(),
         name='CreateVpsServiceContractViaClientView'
     ),
+
     path(
         'premade-contract-create',
         views.CreateVpsContractWithFile.as_view(),
@@ -37,6 +38,7 @@ urlpatterns = [
     path('confirm-contract',views.VpsConfirmContract.as_view(),name='VpsConfirmContract'),
 
     path('contract-monitoring', views.VpsMonitoringContractViews.as_view(), name='VpsMonitoringContractViews'),
+
     path(
         'contract-monitoring/<int:pk>',
         views.VpsMonitoringContractDetailViews.as_view(),

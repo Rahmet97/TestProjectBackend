@@ -879,13 +879,16 @@ class VpsContractDetail(views.APIView):
         except (VpsExpertSummary.DoesNotExist, IndexError):
             expert_summary_value = 0
 
-        # projects_obj = ExpertiseServiceContractTarif.objects.filter(expertisetarifcontract__contract=contract)
-        # projects_obj_serializer = ExpertiseServiceContractProjects(projects_obj, many=True)
+        # configurations
+        configurations_contracts = contract.vps_contract_device.all()
+        configurations = [config.device for config in configurations_contracts]
+        configurations_context, _, _ = get_configurations_context(configurations)
+
         return response.Response(data={
             'contract': contract_serializer.data,
             'client': client_serializer.data,
             'participants': participant_serializer.data,
-            # 'projects': projects_obj_serializer.data,
+            'configurations': configurations_context,
             'is_confirmed': True if int(expert_summary_value) == 1 else False
         }, status=200)
 
