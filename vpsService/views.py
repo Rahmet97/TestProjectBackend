@@ -884,7 +884,7 @@ class VpsContractDetail(views.APIView):
 
         configurations = []
         for config in configurations_contracts:
-            device_serializer = VpsDeviceSerializer(config.device)
+            device_serializer = VpsDeviceSerializer(data=config.device)
             device_serializer.is_valid(raise_exception=True)
             configurations.append(device_serializer.data)
 
