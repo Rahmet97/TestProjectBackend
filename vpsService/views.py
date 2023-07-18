@@ -881,14 +881,12 @@ class VpsContractDetail(views.APIView):
 
         # configurations
         configurations_contracts = contract.vps_contract_device.all()
-        # configurations = [config.device for config in configurations_contracts]
 
-        configurations=[]
+        configurations = []
         for config in configurations_contracts:
-            configurations.append(VpsDeviceSerializer(data=config.device).is_valid(raise_exception=True).data)
-
-        # configurations.is_valid(raise_exception=True)
-        # configurations_context, _, _ = get_configurations_context(configurations)
+            device_serializer = VpsDeviceSerializer(config.device)
+            device_serializer.is_valid(raise_exception=True)
+            configurations.append(device_serializer.data)
 
         return response.Response(data={
             'contract': contract_serializer.data,
