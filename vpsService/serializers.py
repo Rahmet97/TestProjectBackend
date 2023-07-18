@@ -183,6 +183,12 @@ class VpsUserForContractCreateSerializers(serializers.Serializer):
     pin_or_tin = serializers.CharField(max_length=255)
 
 
+class VpsDeviceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VpsDevice
+        fields = ["id", "storage_type", "storage_disk", "cpu", "ram", "internet", "tasix", "imut"]
+
+
 class VpsServiceContractCreateViaClientSerializers(serializers.ModelSerializer):
     service = serializers.PrimaryKeyRelatedField(queryset=Service.objects.all(), pk_field=serializers.IntegerField())
     configuration = VpsTariffSummSerializer(many=True)
