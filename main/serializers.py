@@ -93,7 +93,7 @@ class GetFilterNotificationCountSerializer(serializers.Serializer):
             expired_data_exclude_query_filter
         )
 
-        return new_data.count(), expired_data.count()
+        return new_data.count(), expired_data.count(), Contract.objects.last().service.id
 
     def get_expertise(self):
         user = self.context['request'].user
@@ -119,7 +119,7 @@ class GetFilterNotificationCountSerializer(serializers.Serializer):
                 Q(contract_status=5),  # REJECTED
                 Q(contract_status=6),  # CANCELLED
                 Q(contract_date__lt=datetime.now() - timedelta(days=1))
-            ).select_related().order_by('-contract_date')
+            ).select_related()
         else:
             contract_participants = ExpertiseContracts_Participants.objects.filter(
                 Q(role=user.role),
@@ -132,7 +132,7 @@ class GetFilterNotificationCountSerializer(serializers.Serializer):
             ).exclude(
                 Q(contract_status=5) | Q(contract_status=6),  # REJECTED, CANCELLED
                 Q(contract_date__lt=datetime.now() - timedelta(days=1))
-            ).select_related().order_by('-contract_date')
+            ).select_related()
 
         # expired contracts
         # Retrieve contract IDs where the user's role matches and agreement_status is 'Kelishildi'
@@ -149,7 +149,7 @@ class GetFilterNotificationCountSerializer(serializers.Serializer):
             contract_status__in=[5, 6]  # REJECTED, CANCELLED
         )
 
-        return new_data.count(), expired_data.count()
+        return new_data.count(), expired_data.count(), all_data.last().service.id
 
     def get_vps(self):
         user = self.context['request'].user
@@ -203,16 +203,28 @@ class GetFilterNotificationCountSerializer(serializers.Serializer):
             contract_status=1
         ).select_related().exclude(
             contract_status__in=[5, 6]  # REJECTED, CANCELLED
-        ).order_by('-contract_date')
+        )
 
-        return new_data.count(), expired_data.count()
+        return new_data.count(), expired_data.count(), all_data.last().service.id
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
 
-        colocation = {"new": (self.get_colocation())[0], "expired": (self.get_colocation())[1]}
-        expertise = {"new": (self.get_expertise())[0], "expired": (self.get_expertise())[1]}
-        vps = {"new": (self.get_vps())[0], "expired": (self.get_vps())[1]}
+        colocation = {
+            "new": (self.get_colocation())[0],
+            "expired": (self.get_colocation())[1],
+            "service_id": (self.get_colocation())[2]
+        }
+        expertise = {
+            "new": (self.get_expertise())[0],
+            "expired": (self.get_expertise())[1],
+            "service_id": (self.get_expertise())[2]
+        }
+        vps = {
+            "new": (self.get_vps())[0],
+            "expired": (self.get_vps())[1],
+            "service_id": (self.get_vps())[2]
+        }
 
         rep["notify"] = [colocation, expertise, vps]
         return rep
