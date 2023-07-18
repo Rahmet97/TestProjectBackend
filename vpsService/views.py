@@ -880,15 +880,12 @@ class VpsContractDetail(views.APIView):
             expert_summary_value = 0
 
         # configurations
-        # configurations_contracts = contract.vps_contract_device.all()
-        #
-        # configurations = []
-        # for config in configurations_contracts:
-        #     device_serializer = VpsDeviceSerializer(config.device)
-        #     configurations.append(device_serializer.data)
+        configurations_contracts = contract.vps_contract_device.all()
 
-        configurations_contracts = contract.vps_contract_device.values('device')
-        configurations = list(configurations_contracts)
+        configurations = []
+        for config in configurations_contracts:
+            device_serializer = VpsDeviceSerializer(config.device)
+            configurations.append(device_serializer.data)
 
         return response.Response(data={
             'contract': contract_serializer.data,
