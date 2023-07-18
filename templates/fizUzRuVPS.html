@@ -377,27 +377,41 @@
             <tr align="center">
                 <th>3.</th>
                 <td align="left">Qattiq diskning ma'lumotlarni saqlash tizimi (HDD) har 1 GB uchun</td>
+                {% if configurations.configurations.hdd_size %}
                 <td>{{ configurations.configurations.hdd_size }}</td>
                 <td>{{ configurations.configurations_cost_prices.hdd_price }}</td>
                 <td>{{ configurations.configurations.hdd }}</td>
+                {% else %}
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                {% endif %}
             </tr>
             <tr align="center">
                 <th>4.</th>
                 <td align="left">Qattiq diskning ma'lumotlarni saqlash tizimi (SSD) har 1 GB uchun</td>
+                {% if configurations.configurations.ssd_size %}
                 <td>{{ configurations.configurations.ssd_size }}</td>
                 <td>{{ configurations.configurations_cost_prices.ssd_price }}</td>
                 <td>{{ configurations.configurations.ssd }}</td>
+                {% else %}
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                {% endif %}
             </tr>
             <tr align="center">
                 <th>5.</th>
-                <td align="left">Internet tarmog'iga belgilangan limitdan yuqori tezlikda ulanish, trafigi cheklanmagan holda, har 1 Mb/s tezlik uchun</td>
+                <td align="left">Internet tarmog'iga belgilangan limitdan yuqori tezlikda ulanish, trafigi cheklanmagan
+                    holda, har 1 Mb/s tezlik uchun</td>
                 <td>{{ configurations.configurations.internet_size }}</td>
                 <td>{{ configurations.configurations_cost_prices.internet_price }}</td>
                 <td>{{ configurations.configurations.internet }}</td>
             </tr>
             <tr align="center">
                 <th>6.</th>
-                <td align="left">TAS-IX va UZ-IX tarmoqlariga belgilangan limitdan yuqori tezlikda ulanish, trafigi cheklanmagan holda, har 1 Mb/s tezlik uchun</td>
+                <td align="left">TAS-IX va UZ-IX tarmoqlariga belgilangan limitdan yuqori tezlikda ulanish, trafigi
+                    cheklanmagan holda, har 1 Mb/s tezlik uchun</td>
                 <td>{{ configurations.configurations.tasix_size }}</td>
                 <td>{{ configurations.configurations_cost_prices.tasix_price }}</td>
                 <td>{{ configurations.configurations.tasix }}</td>
@@ -417,7 +431,7 @@
                 <td>{{ configurations.configurations.ipv_address_price }}</td>
             </tr>
             <tr>
-                <th align="right" colspan="4">JAMI TO’LOV MIQDORI</th>
+                <th align="right" colspan="4">JAMI TO'LOV MIQDORI</th>
                 <th>{{ configurations.configurations_total_price }}</th>
             </tr>
         </table>
@@ -503,8 +517,8 @@
             yozma ravishda asoslagan holda, xizmat narxini bir tomonlama oshirishga haqli.
         </p>
         <p class='requirement-text'>
-            4.1.5. Buyurtmachining Veb-tizimi tarkibini Oʻzbekiston Respublikasi qonunchiligida taqiqlangan maʼlumotlar
-            mavjudligini tekshirish va Buyurtmachiga bunday maʼlumotlarni oʻchirishni tavsiya etish. Buyurtmachi
+            4.1.5. Buyurtmachining Veb-tizimi tarkibini O'zbekiston Respublikasi qonunchiligida taqiqlangan ma'lumotlar
+            mavjudligini tekshirish va Buyurtmachiga bunday ma'lumotlarni o'chirishni tavsiya etish. Buyurtmachi
             Ijrochining ushbu hollarga kiruvchi ma'lumotlarni olib tashlash bo'yicha tavsiyalariga javob bermasa,
             Buyurtmachining veb-tizimlariga kirishni bloklash. Shuningdek, vakolatli davlat organlarining talabiga
             binoan O'zbekiston Respublikasi qonunchiligi bandlari buzilishi aniqlanganda Buyurtmachining Web-tizimlariga
