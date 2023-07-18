@@ -883,7 +883,7 @@ class VpsContractDetail(views.APIView):
         configurations_contracts = contract.vps_contract_device.all()
         # configurations = [config.device for config in configurations_contracts]
         configurations = VpsTariffSummSerializer(
-            data=[config.device for config in configurations_contracts], many=True
+            data=[config.device for config in configurations_contracts], many=True, context={"tariff": None}
         )
         configurations.is_valid(raise_exception=True)
         configurations_context, _, _ = get_configurations_context(configurations)
