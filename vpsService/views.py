@@ -896,7 +896,7 @@ class VpsGetGroupContract(views.APIView):
     def get(self, request):
 
         # barcha contractlar
-        barcha_data = VpsServiceContract.objects.order_by('-contract_date')
+        barcha_data = VpsServiceContract.objects.order_by('-id')
         self.check_object_permissions(request=request, obj=barcha_data)
         barcha = GroupVpsContractSerializerForBackoffice(barcha_data, many=True)
 
@@ -919,7 +919,7 @@ class VpsGetGroupContract(views.APIView):
                 Q(contract_status=5),  # REJECTED
                 Q(contract_status=6),  # CANCELLED
                 Q(contract_date__lt=datetime.now() - timedelta(days=1))
-            ).select_related().order_by('-contract_date')
+            ).select_related().order_by('-id')
         else:
             contract_participants = VpsContracts_Participants.objects.filter(
                 Q(role=request.user.role),
@@ -932,7 +932,7 @@ class VpsGetGroupContract(views.APIView):
             ).exclude(
                 Q(contract_status=5) | Q(contract_status=6),  # REJECTED, CANCELLED
                 Q(contract_date__lt=datetime.now() - timedelta(days=1))
-            ).select_related().order_by('-contract_date')
+            ).select_related().order_by('-id')
         self.check_object_permissions(request=request, obj=yangi_data)
         yangi = GroupVpsContractSerializerForBackoffice(yangi_data, many=True)
 
@@ -947,14 +947,14 @@ class VpsGetGroupContract(views.APIView):
             id__in=contract_participants
         ).exclude(
             contract_status__in=[1, 5, 6, 7]  # List of contract_status values to exclude
-        ).select_related().order_by('-contract_date')
+        ).select_related().order_by('-id')
         self.check_object_permissions(request=request, obj=kelishilgan_data)
         kelishilgan = GroupVpsContractSerializerForBackoffice(kelishilgan_data, many=True)
 
         # rad etilgan contractlar
         rejected_cancelled_data = barcha_data.filter(
             contract_status__in=[5, 6]  # REJECTED, CANCELLED
-        ).order_by('-contract_date')
+        ).order_by('-id')
         self.check_object_permissions(request=request, obj=rejected_cancelled_data)
         rad_etildi = GroupVpsContractSerializerForBackoffice(rejected_cancelled_data, many=True)
 
@@ -971,7 +971,7 @@ class VpsGetGroupContract(views.APIView):
             contract_status=1
         ).select_related().exclude(
             contract_status__in=[5, 6]  # REJECTED, CANCELLED
-        ).order_by('-contract_date')
+        ).order_by('-id')
 
         self.check_object_permissions(request=request, obj=expired_data)
         expired = GroupVpsContractSerializerForBackoffice(expired_data, many=True)
@@ -988,7 +988,7 @@ class VpsGetGroupContract(views.APIView):
             contract_date__date=today.date()
         ).exclude(
             contract_status__in=[5, 6]
-        ).select_related().order_by('-contract_date')
+        ).select_related().order_by('-id')
         self.check_object_permissions(request=request, obj=lastday_data)
         lastday = GroupVpsContractSerializerForBackoffice(lastday_data, many=True)
 
@@ -1001,7 +1001,7 @@ class VpsGetGroupContract(views.APIView):
         expired_accepted_data = barcha_data.filter(
             id__in=contract_participants,
             contract_date__lt=datetime.now() - timedelta(days=1)
-        ).select_related().order_by('-contract_date')
+        ).select_related().order_by('-id')
         self.check_object_permissions(request=request, obj=expired_accepted_data)
         expired_accepted = GroupVpsContractSerializerForBackoffice(expired_accepted_data, many=True)
 
@@ -1009,12 +1009,14 @@ class VpsGetGroupContract(views.APIView):
         # Retrieve contracts based on the specified conditions and ordering
         contracts_selected = VpsExpertSummary.objects.select_related('contract').filter(
             user=request.user
-        ).order_by('-contract', '-contract__contract_date')
+        ).order_by('-id')
         # Filter the contracts that are in time based on the date comparison
-        in_time_data = [
-            element.contract for element in contracts_selected
-            if element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(days=1)
-        ]
+        in_time_data = sorted(
+            [
+                element.contract for element in contracts_selected
+                if element.contract.contract_date < element.date <= element.contract.contract_date + timedelta(days=1)
+            ], key=lambda contract: -contract.id
+        )
         self.check_object_permissions(request=request, obj=in_time_data)
         in_time = GroupVpsContractSerializerForBackoffice(in_time_data, many=True)
 
