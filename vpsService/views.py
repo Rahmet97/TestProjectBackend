@@ -882,17 +882,19 @@ class VpsContractDetail(views.APIView):
         # configurations
         configurations_contracts = contract.vps_contract_device.all()
         # configurations = [config.device for config in configurations_contracts]
-        configurations = VpsDeviceSerializer(
-            data=[config.device for config in configurations_contracts], many=True,
-        )
-        configurations.is_valid(raise_exception=True)
+
+        configurations=[]
+        for config in configurations_contracts:
+            configurations.append(VpsDeviceSerializer(data=config.device).is_valid(raise_exception=True).data)
+
+        # configurations.is_valid(raise_exception=True)
         # configurations_context, _, _ = get_configurations_context(configurations)
 
         return response.Response(data={
             'contract': contract_serializer.data,
             'client': client_serializer.data,
             'participants': participant_serializer.data,
-            'configurations': configurations.data,
+            'configurations': configurations,
             'is_confirmed': True if int(expert_summary_value) == 1 else False
         }, status=200)
 
