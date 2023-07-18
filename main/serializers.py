@@ -209,14 +209,12 @@ class GetFilterNotificationCountSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
-        rep["colocation"] = {}
-        rep["colocation"]["new"], rep["colocation"]["expired"] = self.get_colocation()
 
-        rep["expertise"]={}
-        rep["expertise"]["new"], rep["expertise"]["expired"] = self.get_expertise()
+        colocation = {"new": (self.get_colocation())[0], "expired": (self.get_colocation())[1]}
+        expertise = {"new": (self.get_expertise())[0], "expired": (self.get_expertise())[1]}
+        vps = {"new": (self.get_vps())[0], "expired": (self.get_vps())[1]}
 
-        rep["vps"]={}
-        rep["vps"]["new"], rep["vps"]["expired"] = self.get_vps()
+        rep["notify"] = [colocation, expertise, vps]
         return rep
 
 
