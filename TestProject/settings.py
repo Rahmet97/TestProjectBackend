@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-rw(nbefjyjm*lyw1s2ejqiq66tzny4!kky5vr$jh=0rx26t52+'
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -258,9 +258,6 @@ AUTH_USER_MODEL = "accounts.UserData"
 CELERY_RESULT_BACKEND = os.getenv("CELERY_BROKER_REDIS_URL", "redis://localhost:6379/0")
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_REDIS_URL", "redis://localhost:6379/0")
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
-# CELERY_ACCEPT_CONTENT = ['application/json']
-# CELERY_TASK_SERIALIZER = 'json'
-# CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
 CSRF_COOKIE_HTTPONLY = True
@@ -270,16 +267,6 @@ CSRF_COOKIE_HTTPONLY = True
 
 STATIC_URL = 'static/'
 
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = 'media/'
-
-# DEFAULT_FILE_STORAGE = 'storages.backends.ftp.FTPStorage'
-# FTP_STORAGE_LOCATION = 'ftp://user:R8E8^2CkGYe@185.74.5.202:21/var/www/media/'
-# FTP_STORAGE_USERNAME = 'user'
-# FTP_STORAGE_PASSWORD = 'R8E8^2CkGYe'
-# FTP_STORAGE_HOST = '185.74.5.202'
-# FTP_STORAGE_PORT = 21
-# FTP_STORAGE_PASSIVE_MODE = True
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 MEDIA_URL = 'media/'
